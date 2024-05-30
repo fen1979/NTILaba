@@ -1,0 +1,153 @@
+[type=button]:not(:disabled),
+[type=reset]:not(:disabled),
+[type=submit]:not(:disabled),
+button:not(:disabled) {
+    font-optical-sizing: none;
+    margin: 0 2px 0 2px;
+}
+
+h5 {
+    padding: 10px 0 0 10px;
+}
+
+b {
+    color: red;
+}
+
+img {
+    cursor: pointer;
+}
+
+.btn-group {
+    display: flex;
+}
+
+.btn-outline-primary:hover i {
+    color: red; /* Or use a specific color code */
+}
+
+textarea.form-control {
+    min-height: 10rem;
+}
+
+.share-project {
+    display: inline;
+}
+
+/* PDF link button  */
+.pdf-link {
+    text-decoration: none;
+    border-radius: 20px;
+    border: solid 1px blue;
+    font-size: 20px;
+    text-align: center;
+    margin: 0 10px 0 10px;
+}
+
+.ajeco-bg-aqua {
+    background: #baecf6;
+}
+
+.step-number {
+    width: 3.5rem;
+    border-radius: 5px;
+}
+
+.photo-gallery {
+    display: flex;
+    justify-content: center;
+}
+
+.validation.form-check-input:checked {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+/* СТИЛИ ДЛЯ ВЫВОДА ПРОЕКТОВ В ТАБЛИЦЕ */
+.item-list:hover {
+    background: #0d6efd;
+    color: white;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: wrap;
+    cursor: pointer;
+}
+
+table thead tr th {
+    /* Important */
+    position: sticky;
+    z-index: 100;
+    top: 6.5%;
+}
+
+th:last-child, td:last-child {
+    text-align: right;
+    padding-right: 1rem;
+}
+
+th, td {
+    text-align: left;
+    padding: 5px;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #717171;
+    color: #ffffff;
+}
+/*
+MEDIA QUERIES
+Как использовать эту таблицу:
+Mobile-first подход:
+Основные стили, которые не обернуты в медиа запросы, применяются к самым маленьким экранам.
+Это позволяет начать стилизацию с мобильной версии.
+
+Breakpoints:
+Медиа запросы используются для уточнения стилей при увеличении размера экрана.
+Каждый новый брейкпоинт добавляет или переопределяет стили для устройств с большим экраном.
+
+Примечания:
+Подбор брейкпоинтов:
+Выбор брейкпоинтов должен соответствовать содержимому вашего сайта.
+Не все сайты требуют всех перечисленных брейкпоинтов. Выбирайте те, которые необходимы для вашего конкретного проекта.
+
+Тестирование:
+Всегда тестируйте ваши стили на реальных устройствах или с помощью инструментов разработчика в браузере,
+чтобы убедиться, что медиа запросы срабатывают корректно на всех целевых разрешениях экрана.
+Используйте эту таблицу медиа запросов как основу для создания отзывчивых веб-страниц,
+которые корректно отображаются на устройствах с различными размерами экранов.
+*/
+/* Основные стили */
+
+/* Extra small devices (телефоны, менее 576px) */
+/* Нет необходимости в медиа запросе для xs, так как это mobile-first подход */
+
+/* Small devices (телефоны, 576px и больше) */
+@media (min-width: 576px) {
+    /* Ваши CSS стили здесь */
+}
+
+/* Medium devices (планшеты, 768px и больше) */
+@media (min-width: 768px) {
+    /* Ваши CSS стили здесь */
+}
+
+/* Large devices (настольные компьютеры, 992px и больше) */
+@media (min-width: 992px) {
+    /* Ваши CSS стили здесь */
+}
+
+/* Extra large devices (большие настольные компьютеры, 1200px и больше) */
+@media (min-width: 1200px) {
+    /* Ваши CSS стили здесь */
+}
+
+/* Дополнительно, можно добавить очень большие экраны (1400px и больше) */
+@media (min-width: 1400px) {
+    /* Ваши CSS стили здесь */
+}
+
+/* END MEDIA */

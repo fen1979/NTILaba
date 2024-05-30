@@ -1,0 +1,779 @@
+/*i ==== HTML ELEMENTS MAIN STYLES ====== */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+}
+
+input, select, textarea {
+    box-shadow: blue 0 0 2px;
+}
+
+form input[required], form select[required], form textarea[required] {
+    box-shadow: red 0 0 2px;
+}
+
+
+/*i
+ * вывод информации о каком либо действии
+ * или ошибке в левый верхний угол экрана
+ * стили для функции <?php displayMessage($args); ?>
+ */
+.global-notification {
+    position: fixed;
+    top: 15%;
+    right: 1%;
+    font-size: 18px;
+    padding: 0.55rem;
+    width: max-content;
+    border-radius: 7px;
+    z-index: 999999;
+}
+
+/* i==== ЦВЕТА КНОПОК ДЛЯ ВСЕХ СТРАНИЦ ==== */
+.btn-outline-success {
+    color: #fff;
+    background-color: #31e491;
+    border-color: #31e491;
+}
+
+.btn-outline-success:hover {
+    color: #31e491;
+    background-color: #fff;
+    border-color: #31e491;
+}
+
+.btn-outline-warning {
+    color: #000;
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
+.btn-outline-warning:hover {
+    color: #ffc107;
+    background-color: #fff;
+    border-color: #ffc107;
+}
+
+.btn-outline-danger {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #ffffff;
+}
+
+.btn-outline-danger:hover {
+    color: #dc3545;
+    background-color: #fff;
+    border-color: #dc3545;
+}
+
+.btn-outline-info {
+    color: #000;
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+}
+
+.btn-outline-info:hover {
+    color: #0dcaf0;
+    background-color: #fff;
+    border-color: #0dcaf0;
+}
+
+.btn-outline-primary {
+    color: #fff;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-outline-primary:hover {
+    color: #0d6efd;
+    background-color: #fff;
+    border-color: #0d6efd;
+}
+
+.btn-outline-secondary {
+    color: #fff;
+    /*border-color: #6c757d;*/
+    border-color: #ffffff;
+    background-color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+    color: #6c757d;
+    background-color: #fff;
+    border-color: #6c757d;
+}
+
+.btn-outline-diliny {
+    color: #fff;
+    border-color: #ffffff;
+    background-color: #567c9d;
+}
+
+.btn-outline-diliny:hover {
+    color: #435d97;
+    background-color: #fff;
+    border-color: #567c9d;
+}
+
+.btn-outline-dark {
+    color: #fff;
+    border-color: #ffffff;
+    /*border-color: #30373f;*/
+    background-color: #30373f;
+}
+
+.btn-outline-dark:hover {
+    color: #30373f;
+    background-color: #fff;
+    border-color: #30373f;
+}
+
+.btn-outline-gold {
+    color: red;
+    border-color: #ceae55;
+    background-color: #ceae55;
+}
+
+.btn-outline-gold:hover {
+    color: #ceae55;
+    background-color: #fff;
+    border-color: #ceae55;
+}
+
+.btn-outline-sunset {
+    color: #0100c5;
+    border-color: #A3AAB196;
+    background-color: #A3AAB196;
+}
+
+.btn-outline-sunset:hover {
+    color: #000;
+    background-color: #fff;
+    border-color: #A3AAB196;
+}
+
+.btn:hover i {
+    color: red;
+}
+
+/* i=== ЦВЕТА (background) === */
+.info {
+    background: rgb(96 173 253 / 89%);
+}
+
+.info-1 {
+    background: rgb(13 202 240 / 37%);
+}
+
+.success, .low {
+    background: rgba(112, 253, 155, 0.89);
+}
+
+.danger, .do.first, .high {
+    background: rgba(253, 105, 105, 0.89);
+}
+
+.warning, .medium {
+    background: rgba(255, 246, 114, 0.89);
+}
+
+.secondary {
+    background: rgb(108 117 125 / 59%);
+}
+
+.sunset {
+    background: #d3dde796;
+}
+
+/* ==== ОКОНЧАНИЕ ==== ЦВЕТА ДЛЯ ВСЕХ СТРАНИЦ ==== */
+/* =======================================================================*/
+/* ==== FUNCTIONS BLINK, BLUR, HIDDEN ==== */
+/* i мигание элемента */
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+/* i изменение цвета текста */
+@keyframes colorChange {
+    0% {
+        color: #ff7e79;
+    }
+    /* Светло-красный */
+    5% {
+        color: #ff9279;
+    }
+    /* Коралловый */
+    10% {
+        color: #ffae79;
+    }
+    /* Оранжевый */
+    15% {
+        color: #ffc479;
+    }
+    /* Песочный */
+    20% {
+        color: #ffdb79;
+    }
+    /* Светло-жёлтый */
+    25% {
+        color: #ffff79;
+    }
+    /* Жёлтый */
+    30% {
+        color: #dbff79;
+    }
+    /* Жёлто-зелёный */
+    35% {
+        color: #b4ff79;
+    }
+    /* Салатовый */
+    40% {
+        color: #8cff79;
+    }
+    /* Светло-зелёный */
+    45% {
+        color: #79ff9e;
+    }
+    /* Мятный */
+    50% {
+        color: #79ffca;
+    }
+    /* Бирюзовый */
+    55% {
+        color: #79ff9e;
+    }
+    /* Мятный */
+    60% {
+        color: #8cff79;
+    }
+    /* Светло-зелёный */
+    65% {
+        color: #b4ff79;
+    }
+    /* Салатовый */
+    70% {
+        color: #dbff79;
+    }
+    /* Жёлто-зелёный */
+    75% {
+        color: #ffff79;
+    }
+    /* Жёлтый */
+    80% {
+        color: #ffdb79;
+    }
+    /* Светло-жёлтый */
+    85% {
+        color: #ffc479;
+    }
+    /* Песочный */
+    90% {
+        color: #ffae79;
+    }
+    /* Оранжевый */
+    95% {
+        color: #ff9279;
+    }
+    /* Коралловый */
+    100% {
+        color: #ff7e79;
+    }
+    /* Светло-красный */
+}
+
+.coloring {
+    animation: colorChange 4s infinite;
+}
+
+/* i изменение цвета background */
+@keyframes bgChange {
+    0% {
+        background: #ff7e79;
+    }
+    /* Светло-красный */
+    5% {
+        background: #ff9279;
+    }
+    /* Коралловый */
+    10% {
+        background: #ffae79;
+    }
+    /* Оранжевый */
+    15% {
+        background: #ffc479;
+    }
+    /* Песочный */
+    20% {
+        background: #ffdb79;
+    }
+    /* Светло-жёлтый */
+    25% {
+        background: #ffff79;
+    }
+    /* Жёлтый */
+    30% {
+        background: #dbff79;
+    }
+    /* Жёлто-зелёный */
+    35% {
+        background: #b4ff79;
+    }
+    /* Салатовый */
+    40% {
+        background: #8cff79;
+    }
+    /* Светло-зелёный */
+    45% {
+        background: #79ff9e;
+    }
+    /* Мятный */
+    50% {
+        background: #79ffca;
+    }
+    /* Бирюзовый */
+    55% {
+        background: #79ff9e;
+    }
+    /* Мятный */
+    60% {
+        background: #8cff79;
+    }
+    /* Светло-зелёный */
+    65% {
+        background: #b4ff79;
+    }
+    /* Салатовый */
+    70% {
+        background: #dbff79;
+    }
+    /* Жёлто-зелёный */
+    75% {
+        background: #ffff79;
+    }
+    /* Жёлтый */
+    80% {
+        background: #ffdb79;
+    }
+    /* Светло-жёлтый */
+    85% {
+        background: #ffc479;
+    }
+    /* Песочный */
+    90% {
+        background: #ffae79;
+    }
+    /* Оранжевый */
+    95% {
+        background: #ff9279;
+    }
+    /* Коралловый */
+    100% {
+        background: #ff7e79;
+    }
+    /* Светло-красный */
+}
+
+.bg-coloring {
+    animation: bgChange 4s infinite;
+}
+
+/* i Мигание каждую секунду (задайте нужное значение) */
+.blinking {
+    /* резкое мигание */
+    /*animation: blink 1s step-end infinite;*/
+    /* плавное мигание */
+    animation: blink 1s infinite;
+}
+
+/* i блюр для элементов*/
+.blury {
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    background-color: #f0f8ff6b;
+}
+
+/* i скрытие элементов */
+.hidden {
+    display: none;
+}
+
+/* i сделать элементы такие как ссылка не кликабельными */
+.disabled {
+    pointer-events: none;
+    color: gray;
+}
+
+/*i установки для боксов которые будут скролится */
+.scrollable {
+    height: 95vh;
+    overflow: scroll;
+}
+
+/* i for sorting columns */
+.sortable:hover {
+    background: #3dd5f3;
+}
+
+/* i индикатор колеса загрузки */
+.loading-element {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    z-index: 9999;
+}
+
+.loading-element .spinner-border {
+    width: 200px;
+    height: 200px;
+    font-size: 3rem;
+}
+
+.divider-vertical {
+    border-left: solid 1px black;
+}
+
+/* ==== ОКОНЧАНИЕ ===== FUNCTIONS BLINK, BLUR, HIDDEN ==== */
+/* ======================================================================= */
+/* i===== NAVIGATION PANEL ===== */
+.navbar-brand {
+    letter-spacing: 3px;
+    font-size: 2rem;
+    font-weight: 500;
+}
+
+/*.navbar-scroll .navbar-brand,*/
+/*.navbar-scroll .nav-link,*/
+/*.navbar-scroll .fa-bars {*/
+/*    color: #fff;*/
+/*}*/
+
+.navbar-scroll {
+    box-shadow: none;
+}
+
+.navbar-scrolled .navbar-brand,
+.navbar-scrolled .nav-link,
+.navbar-scrolled .fa-bars {
+    color: #4f4f4f;
+}
+
+.navbar-expand-lg .navbar-nav .nav-link {
+    padding-right: 0;
+    padding-left: 0;
+}
+
+.step-btn, #back-btn {
+    width: 10rem;
+}
+
+.url, .swb, .lang {
+    margin: .3rem;
+}
+
+.lang {
+    background: transparent;
+    border: none;
+}
+
+button.url.btn {
+    width: max-content;
+}
+
+.display-1 {
+    font-weight: 500 !important;
+    letter-spacing: 40px;
+}
+
+@media (max-width: 450px) {
+    #intro {
+        height: 950px !important;
+    }
+}
+
+@media (min-width: 550px) and (max-width: 750px) {
+    #intro {
+        height: 1100px !important;
+    }
+}
+
+@media (min-width: 800px) and (max-width: 990px) {
+    #intro {
+        height: 600px !important;
+    }
+}
+
+@media (max-width: 991px) {
+    .divider-vertical {
+        border: none;
+    }
+
+    .navbar-scroll {
+        background-color: #fff;
+    }
+
+    .navbar-scroll .navbar-brand,
+    .navbar-scroll .nav-link,
+    .navbar-scroll {
+        color: #4f4f4f !important;
+    }
+
+    button.url.btn, button.swb.btn {
+        width: 100%;
+    }
+}
+
+@media (min-width: 1600px) {
+    .display-1 {
+        font-size: 10rem;
+    }
+}
+
+/* button [X] on some pages for exit from page */
+.out-btn {
+    position: absolute;
+    /*top: 2rem;*/
+    width: 10%;
+    text-align: center;
+    right: 2rem;
+    border: solid red 1px;
+    color: red;
+    background: transparent;
+    font-size: 25px;
+    border-radius: 7px;
+    padding: 7px;
+    cursor: pointer;
+}
+
+.out-btn:hover {
+    background: red;
+    color: white;
+}
+
+/*i LANGUAGE ICONS FLAG */
+i.flag:not(.icon) {
+    display: inline-block;
+    width: 20px;
+    height: 11px;
+    margin: 0 .5em 0 0;
+    line-height: 11px;
+    text-decoration: inherit;
+    vertical-align: baseline;
+    backface-visibility: hidden
+}
+
+i.flag::before {
+    display: inline-block;
+    width: 16px;
+    height: 11px;
+    content: "";
+    background: url("/public/images/flags.png") no-repeat -108px -1976px
+}
+
+i.flag-ru:before,
+i.flag-russia:before {
+    background-position: -72px -884px !important
+}
+
+i.flag-us:before, i.flag-america:before,
+i.flag-united-states:before {
+    background-position: -72px -1950px !important
+}
+
+i.flag-il:before, i.flag-israel:before {
+    background-position: -36px -676px !important
+}
+
+/* ===== ОКОНЧАНИЕ ====== NAVIGATION PANEL ===== */
+/* i======================================================================= */
+/* ====== SEARCH ANSWER ON ALL PAGES ======= */
+/* ответ от сервера при поиске по БД */
+.search-box {
+    display: none;
+    position: absolute;
+    width: fit-content;
+    height: 10em;
+    margin: 10px;
+    padding: 10px;
+    cursor: pointer;
+    background: #ffffff;
+    overflow-y: scroll;
+}
+
+#searchAnswer p, .search-box p {
+    width: 100%;
+    margin: 0;
+    padding: .8rem;
+}
+
+#searchAnswer p:hover, .search-box p:hover {
+    background: #baecf6;
+}
+
+/* ====== ОКОНЧАНИЕ ====== SEARCH ANSWER ON ALL PAGES ======= */
+/* i=================================================================== */
+/* ===== POPUP CHAT WINDOW ===== */
+/* Button used to open the chat form - fixed at the bottom of the page */
+.open-button {
+    background-color: blue;
+    /*background-color: #555;*/
+    color: white;
+    padding: 15px 15px;
+    border: none;
+    cursor: pointer;
+    opacity: 0.8;
+    position: fixed;
+    bottom: 40px;
+    right: 28px;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 20px;
+}
+
+/* i The popup chat - hidden by default */
+.chat-popup {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    right: 15px;
+    border: 3px solid #f1f1f1;
+    z-index: 9;
+}
+
+.msg_count {
+    position: absolute;
+    top: -7px;
+    left: 0;
+    background: red;
+    border-radius: 50%;
+    padding: 4px;
+    font-size: 10px;
+    display: none;
+}
+
+.msg_content {
+    min-height: 200px;
+    background: aliceblue;
+    overflow: scroll;
+}
+
+/* Add styles to the form container */
+.form-container {
+    width: 500px;
+    max-width: 500px;
+    padding: 10px;
+    background-color: white;
+}
+
+/* Full-width textarea */
+.form-container textarea {
+    width: 100%;
+    padding: 15px;
+    margin: 5px 0 22px 0;
+    border: none;
+    background: #f1f1f1;
+    resize: none;
+    min-height: 120px;
+}
+
+/* When the textarea gets focus, do something */
+.form-container textarea:focus {
+    background-color: #ddd;
+    outline: none;
+}
+
+/* Set a style for the submit/send button */
+.form-container .btn {
+    /*background-color: #04AA6D;*/
+    color: white;
+    padding: 16px 20px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 10px !important;
+    opacity: 0.8;
+}
+
+/* Add a red background color to the cancel button */
+.form-container .cancel {
+    background-color: red;
+}
+
+/* Add some hover effects to buttons */
+.form-container .btn:hover, .open-button:hover {
+    opacity: 1;
+}
+
+/* ===== OKOH4AHNE ======= POPUP CHAT WINDOW ===== */
+
+/*
+ *i MEDIA QUERIES
+ * Как использовать эту таблицу:
+ * Mobile-first подход:
+ * Основные стили, которые не обернуты в медиа запросы, применяются к самым маленьким экранам.
+ * Это позволяет начать стилизацию с мобильной версии.
+ *
+ *i Breakpoints:
+ * Медиа запросы используются для уточнения стилей при увеличении размера экрана.
+ * Каждый новый брейкпоинт добавляет или переопределяет стили для устройств с большим экраном.
+ *
+ *i Примечания:
+ * Подбор брейкпоинтов:
+ * Выбор брейкпоинтов должен соответствовать содержимому вашего сайта.
+ * Не все сайты требуют всех перечисленных брейкпоинтов. Выбирайте те, которые необходимы для вашего конкретного проекта.
+ *
+ *i Тестирование:
+ * Всегда тестируйте ваши стили на реальных устройствах или с помощью инструментов разработчика в браузере,
+ * чтобы убедиться, что медиа запросы срабатывают корректно на всех целевых разрешениях экрана.
+ * Используйте эту таблицу медиа запросов как основу для создания отзывчивых веб-страниц,
+ * которые корректно отображаются на устройствах с различными размерами экранов.
+ **/
+/* Основные стили */
+
+/* i Extra small devices (телефоны, менее 576px) */
+/* i Нет необходимости в медиа запросе для xs, так как это mobile-first подход */
+
+/* Small devices (телефоны, 576px и больше) */
+@media (min-width: 576px) {
+    /* Ваши CSS стили здесь */
+}
+
+/* Medium devices (планшеты, 768px и больше) */
+@media (min-width: 768px) {
+    /* Ваши CSS стили здесь */
+}
+
+/* Large devices (настольные компьютеры, 992px и больше) */
+@media (min-width: 992px) {
+    /* Ваши CSS стили здесь */
+    body, html {
+        font-size: 14px;
+    }
+}
+
+/* Extra large devices (большие настольные компьютеры, 1200px и больше) */
+@media (min-width: 1200px) {
+    /* Ваши CSS стили здесь */
+}
+
+/* Дополнительно, можно добавить очень большие экраны (1400px и больше) */
+@media (min-width: 1400px) {
+    /* Ваши CSS стили здесь */
+}
+
+/* END MEDIA */

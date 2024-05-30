@@ -1,0 +1,373 @@
+<?php
+isset($_SESSION['userBean']) or header("Location: /") and exit();
+require 'projects/Project.php';
+$page = 'new_project';
+$user = $_SESSION['userBean'];
+$id = null;
+$buttonSave = 'Create Project';
+$disabled = 'disabled';
+$backButton = '/';
+
+
+/* условие: проект создается при создании заказа */
+if (isset($_GET['orders'])) {
+    $buttonSave = 'Create project from Orders';
+    $backButton = '/new_order';
+}
+
+/* СОЗДАЕМ НОВЫЙ ПРОЕКТ И СОХРАНЯЕМ В БД */
+if (isset($_POST['projectName']) && !isset($_SESSION['editmode'])) {
+    /* создание нового проекта в БД */
+    $_SESSION['info'] = $args = Project::createNewProject($_POST, $user, $_FILES);
+
+    /* возврат на страницу добавления заказа с данными о новом проекте */
+    if (!empty($args['id'])) {
+        if (isset($_GET['orders'])) {
+            $url = "customerName=" . urlencode($args['customerName']) .
+                "&customer_id=" . urlencode($args['customerId']) .
+                "&projectName=" . urlencode($args['projectName']) .
+                "&projectRevision=" . urlencode($args['projectRevision']) .
+                "&project_id=" . urlencode($args['id']);
+            header("Location: /new_order?$url");
+            exit();
+        }
+
+        /* Переадресация на страницу добавления данных к проекту */
+        $_SESSION['projectid'] = $args['id'];
+        header("Location: /check_part_list?pid={$args['id']}");
+        exit();
+    }
+}
+
+/* РЕДАКТИРОВАНИЕ СУЩЕСТВУЮЩЕГО ПРОЕКТА */
+if (isset($_POST['projectName']) && isset($_SESSION['editmode']) && $_SESSION['editmode'] == 'activated') {
+    /* добавляем в пост id проекта */
+    $_POST['projectid'] = $_SESSION['projectid'];
+    $args = Project::editProject($_POST, $user, $_FILES);
+}
+
+/* АКТИВАЦИЯ EDITING MODE */
+if (isset($_GET["pid"]) && $_GET['pid'] == "editmode" || isset($_SESSION['editmode']) && !isset($_GET['back-id'])) {
+    $_SESSION['editmode'] = 'activated';
+    $project = R::load(PROJECTS, $_SESSION['projectid']);
+    $buttonSave = 'Update Project';
+    $disabled = '';
+    $backButton = "edit_project?pid=" . $_SESSION['projectid'];
+    $id = $project->id;
+}
+
+// приходим из order-details tab-3 tools, возвращаемся обратно после изменений
+if (isset($_GET["pid"]) && isset($_GET['mode']) && $_GET['mode'] == "editmode" && isset($_GET['back-id'])) {
+    $_SESSION['editmode'] = 'activated';
+    $_SESSION['projectid'] = $_GET["pid"];
+    $project = R::load(PROJECTS, $_GET["pid"]);
+    $buttonSave = 'Update Project';
+    $disabled = '';
+    $backButton = "order/preview?orid={$_GET['back-id']}&tab=tab3";
+    $id = $project->id;
+}
+?>
+<!DOCTYPE html>
+<html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
+<head>
+
+    <?php
+    /* ICON, TITLE, STYLES AND META TAGS */
+    HeadContent($page);
+    ?>
+    <style>
+        .tool-name {
+            font-size: 170%;
+            display: flex;
+            align-items: center; /* Выравнивание по центру вертикально */
+            text-align: left; /* Выравнивание текста к левому краю */
+        }
+
+        .tools-row {
+            display: inline-flex;
+            flex-wrap: nowrap;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<?php
+if ($backButton == '/') {
+    /* NAVIGATION PANEL */
+    $title = ['title' => 'Project Creations', 'app_role' => $user['app_role']];
+    NavBarContent($page, $title, null, Y['N_PROJECT']);
+} else {
+    //back button to edit-project or home
+    ?>
+    <header style="height: 6rem;">
+        <form action="" id="routing" class="hidden" method="post"></form>
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg fixed-top navbar-scroll blury">
+            <div class="container-fluid">
+                <!-- TITLE -->
+                <h3 class="navbar-brand">Edit Project Information</h3>
+                <!-- GAMBURGER BUTTON -->
+                <button class="navbar-toggler" type="button" data-mdb-toggle="collapse"
+                        data-mdb-target="#navBarContent" aria-controls="navBarContent" aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon d-flex justify-content-start align-items-center"></span>
+                </button>
+                <div class="w-100 mainSearchForm"></div>
+                <div class="collapse navbar-collapse" id="navBarContent">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <button type="button" value="<?= $backButton ?>" class="url btn btn-outline-danger">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <?php
+}
+/* DISPLAY MESSAGES FROM SYSTEM */
+DisplayMessage($args ?? null);
+?>
+
+<div class="container mt-5 px-3 py-3 rounded" style="background: beige;">
+    <div class="row">
+        <div class="col-8"><h3><?= (!$id) ? 'Create Project' : 'Edit Project'; ?></h3></div>
+        <?php $lastId = R::getCol("SELECT MAX(id) FROM projects"); ?>
+        <div class="col-4"><h3>Project ID: &nbsp; <?= !$id ? $lastId[0] + 1 : $id; ?></h3></div>
+    </div>
+    <!-- search from fields -->
+    <div class="search-box rounded" id="searchAnswer"></div>
+
+    <form id="createProjectForm" action="" method="post" enctype="multipart/form-data" autocomplete="off">
+        <!--i CUSTOMER NAME ID -->
+        <div class="mb-3">
+            <div class="row">
+                <div class="col-8">
+                    <label for="customerName" class="form-label">Customer Name <b class="text-danger">*</b> <i class="bi bi-search"></i></label>
+                </div>
+                <div class="col-4">
+                    <label for="customerId" class="form-label">Customer ID</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-8">
+                    <input type="text" class="form-control searchThis" id="customerName" name="customerName"
+                           value="<?= (!empty($project['customername'])) ? $project['customername'] : set_value('customerName'); ?>"
+                           data-request="customer" required>
+                </div>
+                <div class="col-4">
+                    <input type="text" class="form-control" id="customerId" name="customerId" readonly
+                           value="<?= (!empty($project['customerid'])) ? $project['customerid'] : set_value('customerId'); ?>">
+                </div>
+            </div>
+        </div>
+        <!--i CUSTOMER PRIORITY AND HEAD PAY -->
+        <div class="mb-3">
+            <div class="row">
+                <div class="col-6">
+                    <label for="priorityMakat" class="form-label">Priority makat <!--<b class="text-danger">*</b>--></label>
+                </div>
+                <div class="col-6">
+                    <label for="headPay" class="form-label">Head Pay <!--<b class="text-danger">*</b>--></label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <input type="text" name="priorityMakat" value="<?= (!empty($project['priority'])) ? $project['priority'] : set_value('priorityMakat'); ?>"
+                           class="form-control" id="priorityMakat">
+                </div>
+                <div class="col-6">
+                    <input type="text" name="headPay" value="<?= (!empty($project['headpay'])) ? $project['headpay'] : set_value('headPay'); ?>"
+                           id="headPay" class="form-control">
+                </div>
+            </div>
+        </div>
+        <!--i PROJECT NAME, INCOMING DATE, REVISION -->
+        <div class="mb-3">
+            <div class="row">
+                <div class="col-7">
+                    <label for="pn" class="form-label" id="pn_label">Project Name <b class="text-danger">*</b></label>
+                </div>
+                <div class="col-3">
+                    <label for="pr" class="form-label">Project Version <b class="text-danger">*</b></label>
+                </div>
+                <div class="col-2">
+                    <label for="date_in" class="form-label">Project start Date <b class="text-danger">*</b></label>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-7">
+                    <input type="text" name="projectName" value="<?= (!empty($project['projectname'])) ? $project['projectname'] : set_value('projectName'); ?>"
+                           class="form-control" id="pn" data-mode="<?= !empty($_GET['pid']) ? $_GET['pid'] : '0'; ?>" required>
+                </div>
+                <div class="col-3">
+                    <input type="text" class="form-control" id="pr" name="projectRevision" required
+                           value="<?= (!empty($project['revision'])) ? $project['revision'] : set_value('projectRevision'); ?>">
+                </div>
+                <div class="col-2">
+                    <input type="datetime-local" class="form-control" id="date_in" name="date_in"
+                           value="<?= (!empty($project->date_in)) ? $project->date_in : date('Y-m-d H:i'); ?>" required>
+                </div>
+            </div>
+        </div>
+        <!--i EXECUTOR PROJECT NAME, ROUTE CARD NAMES  -->
+
+        <div class="mb-4">
+            <div class="row">
+                <div class="col-6">
+                    <label for="en" class="form-label">Executor Name <b class="text-danger">*</b></label>
+                    <input type="text" class="form-control" id="en" name="executorName" required
+                           value="<?= (!empty($project['executor'])) ? $project['executor'] : set_value('executorName', 'NTI'); ?>">
+                </div>
+                <div class="col-6">
+                    <label for="rcn" class="form-label">Route Card Name <b class="text-danger">*</b></label>
+                    <select id="rcn" name="route_card_name" class="form-select" aria-label="Route Card Name">
+                        <option selected>Choose Route Card Name for this Project</option>
+                        <?php
+                        // создать потом массив имен для рут карт документов и сохранить в БД
+                        $opt = ['1' => 'option 1', '2' => 'option 2', '3' => 'option 3', '4' => 'option 4', '5' => 'option 5'];
+                        foreach ($opt as $key => $item) {
+                            echo '<option value="' . $key . '">' . $item . '</option>';
+                        } ?>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+
+        <!--i PROJECT FILES -->
+        <div class="row mb-3">
+            <div class="col">
+                <button type="button" class="btn btn-outline-primary form-control" id="pickFile"
+                        data-who="file">Upload Project Documentation (PDF Only)
+                </button>
+                <input type="file" name="dockFile" id="pdf_file" accept=".pdf" hidden/>
+            </div>
+
+            <?php
+            // если файл пдф был загружен (для редактирования)
+            if (!empty($project['projectdocs']) && strpos($project['projectdocs'], '.pdf') !== false) { ?>
+                <div class="col">
+                    <a type="button" target="_blank" class="btn btn-outline-info form-control" href="<?= $project['projectdocs'] ?? ''; ?>">
+                        View or Download Document
+                    </a>
+                </div>
+                <?php
+            }
+
+            // ели папка не пуста и переменная есть в БД (для редактирования)
+            if (!empty($project->docsdir) && isDirEmpty($project->docsdir)) {
+                $href = "/wiki?pr_dir=$project->docsdir";
+                ?>
+                <div class="col">
+                    <a type="button" target="_blank" class="btn btn-outline-info form-control" href="<?= $href; ?>">
+                        View or Download Project Files
+                    </a>
+                </div>
+            <?php } ?>
+
+            <div class="col">
+                <!--i добавления файлов к проекту -->
+                <button type="button" class="btn btn-outline-primary form-control " id="projects_files_btn">
+                    <?php $t = 'Warning! All files must be outside the folders, 
+                    saving the folder is possible only in archived form, 
+                    the file size cannot exceed 300MB in total! 
+                    All types of files are allowed for uploading, 
+                    you can download or view files after uploading and saving the project.'; ?>
+                    <i class="bi bi-info-circle" data-title="<?= $t; ?>"></i>
+                    <span id="pick_files_text">Upload Additional files</span>
+                </button>
+                <input type="file" name="projects_files[]" id="projects_files" accept="*/*" multiple hidden>
+            </div>
+        </div>
+
+        <!--i FOR SUB ASSEMBLY PROJECT ROUTECARD -->
+        <div class="checkbox mb-3">
+            <div class="row">
+                <div class="col-9 border-end">
+                    <?php $sub_assy = (!empty($project['sub_assembly']) && $project['sub_assembly'] == 1) ? 'checked' : ''; ?>
+                    <div class="form-check form-switch fs-3">
+                        <input class="form-check-input track-change" type="checkbox" id="sub_assembly" name="sub_assembly"
+                               value="1" <?= $sub_assy; ?>>
+                        <label class="form-check-label fs-5" for="sub_assembly" style="font-size: large">
+                            Photos or videos are not required when creating project assembly steps.
+                            By selecting this option, you can proceed to save the steps without including media content,
+                            which is crucial for compiling the assembly manual.
+                        </label>
+                    </div>
+                </div>
+                <div class="col-3 border-start">
+                    <?php $project_type = (!empty($project['project_type']) && $project['project_type'] == 1) ? 'checked' : ''; ?>
+                    <div class="form-check form-switch fs-3">
+                        <input class="form-check-input track-change" type="checkbox" id="project_type" name="project_type"
+                               value="1" <?= $project_type; ?>>
+                        <label class="form-check-label fs-5" for="project_type" style="font-size: large">
+                            Project type: CMT assembly line.
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!--i ADDITIONAL INFORMATIONS -->
+        <div class="mb-3">
+            <?php $area = (!empty($project['extra'])) ? $project['extra'] : set_value('extra'); ?>
+            <label for="ai" class="form-label">Additional information</label>
+            <textarea class="form-control" id="ai" name="extra"><?= $area; ?></textarea>
+        </div>
+
+        <!--i CHOOSE TOOL TO PROJECT AND CREATE PROJECT BUTTONS -->
+        <div class="row mt-5">
+            <div class="col-8">
+                <button class="btn btn-outline-dark form-control dropdown-toggle" type="button" id="dropdownMenuTools" data-bs-toggle="dropdown" aria-expanded="false">
+                    Choose Tools to Project
+                </button>
+                <div class="dropdown-menu w-50" aria-labelledby="dropdownMenuTools">
+                    <!-- список инструментов на производстве, выбирается при создании проекта -->
+                    <div class="dropdown-item border-bottom tools-row">
+                        <div class="col-1 border-end">Check</div>
+                        <div class="col-4 border-end">Preview</div>
+                        <div class="col">Tool Name</div>
+                    </div>
+
+                    <div style="overflow-y: scroll; height: 40rem;">
+                        <?php
+                        $table = R::find(TOOLS);
+                        $toolsChoosen = (!empty($project['tools']) && $project['tools'] != 'NC') ? explode(',', $project['tools']) : null;
+                        foreach ($table as $row) {
+                            $on = '';
+                            if ($toolsChoosen != null && in_array($row->id, $toolsChoosen, true) !== false) {
+                                $on = 'checked';
+                            }
+                            ?>
+                            <div class="dropdown-item border-bottom tools-row">
+                                <div class="col-1 tool-name">
+                                    <input class="form-check-input" type="checkbox" name="selected-tools[]" <?= 'value="' . $row->id . '" ' . $on; ?>>
+                                </div>
+                                <div class="col-4">
+                                    <img src="<?= $row->image; ?>" alt="Tools" style="width: 250px; height: auto;">
+                                </div>
+                                <div class="col tool-name"><?= $row->toolname; ?></div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <button type="submit" class="btn btn-outline-success form-control" id="createProjectBtn" <?= $disabled; ?>>
+                    <?= $buttonSave; ?>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- JAVASCRIPTS -->
+<?php ScriptContent($page); ?>
+<script src="/public/js/add-project.js"></script>
+</body>
+</html>

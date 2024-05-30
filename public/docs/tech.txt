@@ -1,0 +1,318 @@
+База данных
+production_line
+├── users/ ONEtoMANY ++
+│   ├── ID
+│   ├── name
+│   ├── app_role
+│   ├── job_role
+│   ├── extra
+│   ├── filterby_status
+│   ├── filterby_user
+│   ├── filterby_client
+│   └── date_in
+│
+├── customers/ ONEtoMANY ++
+│   ├── ID
+│   ├── name
+│   ├── head_pay
+│   ├── address
+│   ├── phone
+│   ├── contact
+│   ├── information
+│   ├── extra
+│   └── date_in
+│
+├── projects/ MANYtoMANY +
+│   ├── ID
+│   ├── name
+│   ├── customer - [relations to customers]
+│   ├── revision
+│   ├── executors
+│   ├── revision
+│   ├── project_path
+│   ├── docs_path
+│   ├── history_path
+│   ├── project_bom - [relations to project_bom]
+│   ├── extra
+│   ├── tools
+│   ├── share_link
+│   └── date_in
+│
+├── project_step/ MANYtoONE
+│   ├── ID
+│   ├── projects_id - [relations to projects]
+│   ├── validation
+│   ├── image
+│   ├── video
+│   ├── routaction
+│   ├── routid
+│   ├── description
+│   ├── revision
+│   ├── step
+│   └── date_in
+│
+├── Odrers/ ONEtoONE
+│   ├── UID
+│   ├── project -> project/UID
+│   ├── project_name
+│   ├── purchase_order
+│   ├── status
+│   ├── extra
+│   └── date_in
+│
+├── Materials/ ONEtoMANY
+│   ├── UID
+│   ├── product
+│   ├── manufacture_number
+│   ├── rohs
+│   ├── qty
+│   ├── part_value
+│   ├── package
+│   ├── extra
+│   └── date_in
+│
+├── order_bom/ ONEtoMANY
+│   ├── UID
+│   ├──
+│   ├── json_list
+│   ├── updated
+│   └── date_in
+│
+├── project_bom/ ONEtoONE
+│   ├── UID
+│   ├──
+│   ├── json_list
+│   ├── updated
+│   └── date_in
+│
+├──  rout_action/ ONEtoMANY  +
+│   ├── ID
+│   ├── action
+│   ├── action_eng
+│   ├── sku
+│   ├── specifications
+│   └── date_in
+│
+├──  rout_card/ ONEtoONE
+│   ├── UID
+│   ├── action
+│   ├── stage
+│   ├── specifications
+│   └── date_in
+│
+├──  tools/ ONEtoMANY  +
+│   ├── ID
+│   ├── name
+│   ├── image
+│   ├── exp_date
+│   ├── specifications
+│   ├── sertificat ???
+│   ├── description ???
+│   ├── esd
+│   └── date_in
+│
+├──  settings/ ONEtoONE  +
+│   ├── ID
+│   ├── table_name
+│   ├── setup
+│   └── users_id - [relations to users]
+│
+├── History/
+│   ├── UID
+│   ├──
+│   ├──
+│   └── date_in
+│
+└── Log/
+    ├── UID/ User->UID
+    ├── details
+    ├── action (CRUD)
+    ├── extra
+    └── date_in
+
+
+    ---------------------------------------------------------------------------------
+    расположение файлов в проекте
+     nti.icu/
+    │
+    ├── index.php                       # Основной точка входа
+    │
+    ├── project/                        # Движок для проектов
+    │   ├── Project.php                 # класс с функционалом
+    │   ├── add-project.php             # страница создания проекта
+    │   ├── add-step.php                # мтраница создания шага
+    │   ├── edit-project.php            # страница редактирования проекта
+    │   ├── edit-step.php               # страница редактирования шага
+    │   └── preview.php                 # вывод всех проектов с поиском по ANY
+    │
+    ├── order/                          # Движок для заказов
+    │   ├── controller.php              # класс с функционалом
+    │   ├── create-order.php            # Создать заказ
+    │   ├── edit-order.php              # Редактировать заказ
+    │   ├── check-bom.php               # Проверка материалов заказа
+    │   └── preview.php                 # вывод всех заказов с поиском по ANY
+    │
+    ├── core/                           # Ядро приложения
+    │   ├── config.php                  # Конфигурации
+    │   ├── converter.php               # Конвертер файлов системы
+    │   ├── global.php                  # Глобальный функциогал системы
+    │   ├── logs.php                    # Логирование всех данных и действий (набор функционала)
+    │   ├── Routing.php                 # Класс переадресаций для сайта
+    │   └── rb.mysql.php                # ОРМ Ред Бин для работы с БД
+    │
+    ├── searching/                      # Движок поисковика
+    │   ├── getData.php                 # Поиск в проектах по (имя, дата, клиент)
+    │   └── args-view.php               # Поиск в заказах по (имя, дата, клиент, рабочий, статус)
+    │
+    ├── layout/                         # структура сайта
+    │   ├── PageLayout.php              # Заголовки страниц (подключения стилей, скриптов, прочая информация)
+    │   └── langs.json                  # Языковые страницы сайта (тексты, описания, ...)
+    │
+    ├── libs/                           # сторонние библиотеки для работы функционала
+    │   ├── tcpdf/                      # конвертер движок для работы с PDF
+    │   └── simpleXLSXGen.php           # конвертер в эксель файлы
+    │
+    ├── managment/                      # Движок для настроек пользователя
+    │   ├── controller.php              #
+    │   ├── customers.php               #
+    │   ├── projects.php                #
+    │   ├── rout-cart.php               #
+    │   ├── settings.php                #
+    │   ├── tools.php                   #
+    │   ├── users.php                   #
+    │   └── searching.php               #
+    │
+    ├── public/                         # Публичные файлы (CSS, JS, images)
+    │   ├── temporary/                  # Временная папка для загрузки файлов перед конвертацией
+    │   ├── docs/                       # Папка документации к проекту
+    │   ├── images/                     # Фотографии сайта
+    │   ├── css/                        # стили сайта
+    │   ├── js/                         # скрипты сайта
+    │   ├── 404.php                     # 404 сайта
+    │   └── shared.php                  # страница для не зарегистрированных пользователей.
+    │
+    └── storage/                        # Папка для хранения всех файлов проектов, заказов и схем
+        ├── projects/                   # Папка для хранения шагов проектов (фото)
+        │   ├── docs/                   # Папка для хранения документации к проектам (ВОМ, схема, ...)
+        │   └── history/                # Папка для хранения истории изменения шагов проектов (фото)
+        │
+        ├── orders/                     # Папка для хранения документации к заказам (ВОМ, теудат мешлоах ...)
+        │   ├── docs/                   # Папка для хранения документации к заказам (ВОМ, теудат мешлоах ...)
+        │   └──
+        │
+        ├── tools/                      # Папка хранения инструментария (фото, сертификаты)
+        │
+        └──
+
+    ---------------------------------------------------------------------------------
+    Rout Actions Flow
+
+    Cut and strip wires to length with a cutting machine.
+    Cut and strip wires to length by hand.
+    Strip wires manually using a cutter.
+    Strip wires manually using a stripper.
+    Strip wires semi-manually using a stripper.
+    Crimp wires with a tool by hand.
+    Crimp wires with an air crimping tool.
+    Solder wires to a connector.
+    Solder wires to a PCB.
+    Solder elements to a PCB.
+    Solder elements to a wire.
+    Insert a pin into a connector using a hand tool.
+    Insert a pin into a connector using a press tool.
+    Screw in a bolt with a hand screwdriver.
+    Screw in a bolt with an electric screwdriver.
+    Screw in a bolt with a Torque Screwdriver.
+    Screw in a bolt with an Electric Torque Screwdriver.
+    Fill spaces with epoxy glue.
+    Fill spaces with RTV resin by hand.
+    Fill spaces with RTV resin with a dispenser.
+    Test before gluing manually using Fluke.
+    Test before gluing using a Cirris PH2.
+    Test after gluing manually using Fluke.
+    Test after gluing using a Cirris PH2.
+    Conduct an X-Ray test.
+    The act of releasing a kit from a warehouse
+    The kit test
+    A usable tag exists and is valid for all SMT line components
+    Check the type of solder paste that matches the customer's requirements
+    Loading the feeders
+    Clean the mask at the beginning of the work and at the end of the work, make sure that the components are fresh for no more than three years
+    Ensure a good and homogeneous paste application on all pages of the PCB
+    Check orientations of all components in feeders as well as trays
+    Check the proper placement of all components before entering the oven
+    Make sure the oven temperature is correct and matches the correct profile
+    Check for visual integrity after oven
+    Perform manual completions, including soldering repairs as needed.
+    Conduct a final visual inspection.
+    Produce the first SMT line card and submit it for quality control approval. The rest of the batch can only be produced after receiving this approval.
+    Quality assurance approval.
+
+
+$texts = ['Cut and strip wires to length with a cutting machine.',
+    'Cut and strip wires to length by hand.',
+    'Strip wires manually using a cutter.',
+    'Strip wires manually using a stripper.',
+    'Strip wires semi-manually using a stripper.',
+    'Crimp wires with a tool by hand.',
+    'Crimp wires with an air crimping tool.',
+    'Solder wires to a connector.',
+    'Solder wires to a PCB.',
+    'Solder elements to a PCB.',
+    'Solder elements to a wire.',
+    '\Insert a pin into a connector using a hand tool.',
+    '\Insert a pin into a connector using a press tool.',
+    'Screw in a bolt with a hand screwdriver.',
+    'Screw in a bolt with an electric screwdriver.',
+    'Screw in a bolt with a Torque Screwdriver.',
+    'Screw in a bolt with an Electric Torque Screwdriver.',
+    'Fill spaces with epoxy glue.',
+    'Fill spaces with RTV resin by hand.',
+    'Fill spaces with RTV resin with a dispenser.',
+    'Test before gluing manually using Fluke.',
+    'Test before gluing using a Cirris PH2.',
+    'Test after gluing manually using Fluke.',
+    'Test after gluing using a Cirris PH2.',
+    'Conduct an X-Ray test.',
+    'The act of releasing a kit from a warehouse.',
+    'The kit test.',
+    'A usable tag exists and is valid for all SMT line components.',
+    'Check the type of solder paste that matches the customer\'s requirements.',
+    'Loading the feeders.',
+    'Clean the mask at the beginning of the work and at the end of the work, make sure that the components are fresh for no more than three years.',
+    'Ensure a good and homogeneous paste application on all pages of the PCB',
+    'Check orientations of all components in feeders as well as trays.',
+    'Check the proper placement of all components before entering the oven.',
+    'Make sure the oven temperature is correct and matches the correct profile.',
+    'Check for visual integrity after oven.',
+    'Perform manual completions, including soldering repairs as needed.',
+    'Conduct a final visual inspection.',
+    'Produce the first SMT line card and submit it for quality control approval. The rest of the batch can only be produced after receiving this approval.',
+    'Quality assurance approval.'];
+
+
+// Загружаем все существующие записи из таблицы
+$existingRows = R::findAll(ROUTE_ACTION);
+
+// Итерируемся по существующим записям и обновляем их
+foreach ($existingRows as $index => $route) {
+    if (isset($texts[$index])) { // Проверяем, существует ли элемент массива для этого индекса
+        $route->actions = $texts[$index]; // Обновляем текст
+        $route->sku = $index+1;
+        $route->specifications = 'IPC610';
+        R::store($route); // Сохраняем изменения в БД
+        unset($texts[$index]); // Удаляем использованный элемент из массива
+    } else {
+        break; // Прерываем цикл, если элементы массива закончились
+    }
+}
+
+// Добавляем новые записи для оставшихся элементов массива
+foreach ($texts as $ind => $text) {
+    $newRow = R::dispense(ROUTE_ACTION); // Создаем новый объект для таблицы
+    $newRow->actions = $text;
+    $newRow->sku = $ind+1;
+    $newRow->actions_eng = $text;
+    $newRow->specifications = 'IPC610';
+    R::store($newRow); // Сохраняем новую запись в БД
+}
