@@ -6,12 +6,12 @@ include_once 'Orders.php';
 if (isset($_POST['search-for-storage-box'])) {
     // Получаем текущий номер из запроса
     $currentNumber = _E($_POST['search-for-storage-box']);
-    // Ищем следующий доступный номер, где not_in_use = 0, есть индексация по колонке box
-    $nextBox = R::findOne(WH_SLOTS, 'box > ? AND not_in_use = 0 ORDER BY box ASC', [$currentNumber]);
+    // Ищем следующий доступный номер, где in_use = 0, есть индексация по колонке box
+    $nextBox = R::findOne(WH_SLOTS, 'box > ? AND in_use = 0 ORDER BY box ASC', [$currentNumber]);
 
     // Если следующего номера нет (мы достигли конца списка), начинаем сначала
     if (!$nextBox) {
-        $nextBox = R::findOne(WH_SLOTS, 'not_in_use = 0 ORDER BY box ASC');
+        $nextBox = R::findOne(WH_SLOTS, 'in_use = 0 ORDER BY box ASC');
     }
 
     // Возвращаем номер следующего доступного элемента

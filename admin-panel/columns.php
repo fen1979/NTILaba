@@ -43,7 +43,7 @@ The information will be displayed based on the order of the fields when saving.'
                     <button type="button" name="sel_tab" value="<?= PROJECT_BOM ?>" class="dob btn btn-outline-primary ms-2">Order and Project BOM</button>
                     <button type="button" name="sel_tab" value="<?= TOOLS ?>" class="dob btn btn-outline-primary ms-2">Tools</button>
                     <button type="button" name="sel_tab" value="<?= CLIENTS ?>" class="dob btn btn-outline-primary ms-2">Customers</button>
-                    <button type="button" name="sel_tab" value="<?= WH_NOMENCLATURE ?>" class="dob btn btn-outline-primary ms-2">Warehouse</button>
+                    <button type="button" name="sel_tab" value="<?= WH_ITEMS ?>" class="dob btn btn-outline-primary ms-2">Warehouse</button>
 
                     <button type="button" name="sel_tab" disabled value="routeactions" class="dob btn btn-outline-secondary ms-2">Rout Actions</button>
                     <button type="button" name="sel_tab" disabled value="users" class="dob btn btn-outline-secondary ms-2">Users</button>
@@ -93,8 +93,26 @@ The information will be displayed based on the order of the fields when saving.'
                             </thead>
                             <tbody>
                             <?php
-                            // Получение информации о структуре таблицы
-                            $tableColumns = R::inspect(_E($_POST['sel_tab']));
+                            // Функция для получения структуры таблицы
+                            function getTableColumns($tableName): array
+                            {
+                                return R::inspect($tableName);
+                            }
+
+                            // Имена таблиц
+                            $tables = ['warehouse', 'whitems', 'whinvoice'];
+                            $tableColumns = [];
+
+                            if ($_POST['sel_tab'] == WH_ITEMS) {
+                                // Получаем данные о полях из трех таблиц и объединяем их
+                                foreach ($tables as $table) {
+                                    $tableColumns = array_merge($tableColumns, getTableColumns($table));
+                                }
+                            } else {
+                                // Получаем данные о полях из одной таблицы
+                                $tableColumns = getTableColumns(_E($_POST['sel_tab']));
+                            }
+
                             // Извлечение имен столбцов
                             $columnNames = array_keys($tableColumns);
                             // Вывод имен столбцов

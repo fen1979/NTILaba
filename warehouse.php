@@ -1,18 +1,49 @@
 <?php
 isset($_SESSION['userBean']) && isUserRole(ROLE_ADMIN) or header("Location: /order") and exit();
 require 'stock/WareHouse.php';
-
-// TODO добавить лог оборота деталей отдельно от лога программы и сделать отдельный вывод
-
 /* получение пользователя из сессии */
 $thisUser = $_SESSION['userBean'];
 $page = 'warehouse';
-$modalDelete = false;
 
-/* get all from DB for view */
-$goods = R::findAll(WH_NOMENCLATURE, 'ORDER BY id ASC');
-$settings = getUserSettings($thisUser, WH_NOMENCLATURE);
-$noSettingsYet = 'You have not yet configured the output styles for this table, do you want to configure it?';
+// SQL-запрос для получения всех записей из nomenclature (whitems) с прикрепленными записями из warehouse
+$items = WH_ITEMS;
+$warehouse = WAREHOUSE;
+$pagination = '';
+
+// Параметры пагинации
+if (isset($_GET['limit']))
+    $limit = (int)$_GET['limit'];
+else
+    $limit = 50;
+
+if ($limit != 0) {
+    $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $offset = ($currentPage - 1) * $limit;
+    $pagination = "LIMIT $limit OFFSET $offset";
+    // SQL-запрос для получения общего количества записей
+    $totalResult = R::count(WH_ITEMS);
+    $totalPages = ceil($totalResult / $limit);
+}
+
+$query = "
+        SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf
+        FROM $items wn
+        LEFT JOIN $warehouse w ON w.items_id = wn.id
+        AND w.fifo > DATE_SUB(NOW(), INTERVAL wn.shelf_life MONTH)
+        AND w.fifo = (
+            SELECT MIN(w2.fifo)
+            FROM $warehouse w2
+            WHERE w2.items_id = wn.id
+            AND w2.fifo > DATE_SUB(NOW(), INTERVAL wn.shelf_life MONTH)
+        )
+        ORDER BY wn.id ASC
+        $pagination
+    ";
+// Выполнение запроса и получение результатов
+$goods = R::getAll($query);
+
+// get user settings for preview table
+$settings = getUserSettings($thisUser, WH_ITEMS);
 ?>
 <!doctype html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
@@ -21,7 +52,6 @@ $noSettingsYet = 'You have not yet configured the output styles for this table, 
     /* ICON, TITLE, STYLES AND META TAGS */
     HeadContent($page);
     ?>
-    <!--suppress CssUnusedSymbol -->
     <style>
         table {
             border-collapse: collapse;
@@ -55,13 +85,36 @@ $noSettingsYet = 'You have not yet configured the output styles for this table, 
         .notice {
             white-space: pre-wrap;
         }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        .pagination a {
+            margin: 0 5px;
+            padding: 8px 16px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            color: #007bff;
+        }
+
+        .pagination a.active {
+            background-color: #007bff;
+            color: white;
+            border: 1px solid #007bff;
+        }
+
+        .pagination a:hover:not(.active) {
+            background-color: #ddd;
+        }
     </style>
 </head>
 <body>
-<!-- NAVIGATION BAR -->
 <?php
+// NAVIGATION BAR
 NavBarContent($page, $thisUser, null, Y['STOCK']);
-$t = 'Press the [+] button to add new item in storage, or CSV button to import file';
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>
@@ -78,7 +131,7 @@ DisplayMessage($args ?? null);
                 <?php
                 // выводим заголовки согласно настройкам пользователя
                 foreach ($settings as $k => $set) {
-                    echo '<th>' . L::TABLES(WH_NOMENCLATURE, $set) . '</th>';
+                    echo '<th>' . L::TABLES(WH_ITEMS, $set) . '</th>';
                 }
                 ?>
             </tr>
@@ -109,7 +162,15 @@ DisplayMessage($args ?? null);
                             <td><a type="button" class="btn btn-outline-info" href="<?= $item['datasheet'] ?> " target="_blank">Open Datasheet</a></td>
                             <?php
                         } else {
-                            echo '<td>' . $item[$set] . '</td>';
+                            // output data from two tables warehouse and whitems
+                            if ($set == 'owner' && !empty($item[$set])) {
+                                // get owner name from json data set
+                                $wh = json_decode($item[$set])->name;
+                            } else {
+                                $wh = $item[$set] ?? '';
+                            }
+                            // print data to page
+                            echo '<td>' . $wh . '</td>';
                         }
                     }
                 } ?>
@@ -118,22 +179,41 @@ DisplayMessage($args ?? null);
             </tbody>
         </table>
 
-    <?php } else { ?>
+        <?php
+        if ($limit != 0) {
+            $limit_n = (isset($_GET['limit'])) ? '&limit=' . $_GET['limit'] : '';
+            ?>
+            <!-- Пагинация -->
+            <div class="pagination">
+                <?php if ($currentPage > 1): ?>
+                    <a href="warehouse?page=<?= $currentPage - 1 . $limit_n; ?>">&laquo; Previous</a>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <a href="warehouse?page=<?= $i . $limit_n; ?>" class="<?= $i == $currentPage ? 'active' : ''; ?>"><?= $i; ?></a>
+                <?php endfor; ?>
+
+                <?php if ($currentPage < $totalPages): ?>
+                    <a href="warehouse?page=<?= $currentPage + 1 . $limit_n; ?>">Next &raquo;</a>
+                <?php endif; ?>
+            </div>
+
+        <?php }
+    } else { ?>
 
         <div class="mt-3">
-            <h3><?= $noSettingsYet ?></h3>
+            <h3>You have not yet configured the output styles for this table, do you want to configure it?</h3>
             <br>
             <button type="button" class="url btn btn-outline-info" value="setup?route-page=1">Configure it</button>
         </div>
     <?php } ?>
 </div>
-<?php
 
-// Футер
-footer($page);
-?>
 <button type="button" class="url hidden" value="" id="routing-btn"></button>
 <?php
+// Футер
+footer($page);
+
 /* SCRIPTS */
 ScriptContent($page);
 ?>

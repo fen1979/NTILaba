@@ -9,20 +9,6 @@ if (isset($_POST['userName']) && isset($_POST['userPassword'])) {
     if ($user && password_verify($pass, $user['user_hash'])) {
         // Регенерация ID сессии при каждом входе (после успешной аутентификации, например)
         session_regenerate_id(true);
-        // Установка времени жизни данных сессии
-        ini_set('session.gc_maxlifetime', 10800); // 3 часа = 10800 секунд
-        // Установка параметров cookie для сессии
-        session_set_cookie_params([
-            'lifetime' => 10800, // 3 часа
-            'path' => '/',
-            'domain' => $_SERVER['HTTP_HOST'],
-            'secure' => true, // только HTTPS
-            'httponly' => true, // не доступен для JavaScript
-            'samesite' => 'Lax' // или 'Strict'
-        ]);
-        // Установка вероятности запуска сборщика мусора
-        ini_set('session.gc_probability', 1);
-        ini_set('session.gc_divisor', 100); // С вероятностью 1% при каждом запуске сессии
 
         $_SESSION['userBean'] = $user;
         $_SESSION['preview_mode'] = true;

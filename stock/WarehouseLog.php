@@ -1,4 +1,5 @@
 <?php
+
 class WarehouseLog
 {
 //    Пример записи в лог:
@@ -97,7 +98,7 @@ class WarehouseLog
      */
     public static function registerMovement($item_id, $from, $to, $quantity, $user): array
     {
-        $item = R::findOne(WH_NOMENCLATURE, 'id = ?', [$item_id]);
+        $item = R::findOne(WH_ITEMS, 'id = ?', [$item_id]);
         // Должна записывать в лог:
         $log = R::dispense(WAREHOUSE_LOGS);
         $log->action = 'MOVEMENT'; // тип операции

@@ -242,27 +242,37 @@ class L
         //$tableData['settings']['id'] = 'Setting №';
 
         /* TABLE WAREHOUSE */
-        $tableData['whnomenclature']['part_name'] = 'Part Name';
-        $tableData['whnomenclature']['part_value'] = 'Part Value';
-        $tableData['whnomenclature']['part_type'] = 'Part Type';
-        $tableData['whnomenclature']['footprint'] = 'Footprint';
-        $tableData['whnomenclature']['manufacture_pn'] = 'Manufacture P/N';
-        $tableData['whnomenclature']['manufacturer'] = 'Manufacturer';
-        $tableData['whnomenclature']['owner_pn'] = 'Owner P/N';
-        $tableData['whnomenclature']['actual_qty'] = 'Amount';
-        $tableData['whnomenclature']['min_qty'] = 'Min. Amount';
-        $tableData['whnomenclature']['storage_shelf'] = 'Storage Shelf';
-        $tableData['whnomenclature']['storage_box'] = 'Storage Box';
-        $tableData['whnomenclature']['class_number'] = 'Class';
-        $tableData['whnomenclature']['datasheet'] = 'Datasheet';
-        $tableData['whnomenclature']['owner'] = 'Part Owner';
-        $tableData['whnomenclature']['invoice'] = 'Invoice';
-        $tableData['whnomenclature']['notes'] = 'Note';
-        $tableData['whnomenclature']['description'] = 'Description';
-        $tableData['whnomenclature']['manufacture_date'] = 'Mfr. Date';
-        $tableData['whnomenclature']['exp_date'] = 'Exp Date';
-        $tableData['whnomenclature']['date_in'] = 'Date In';
-        $tableData['whnomenclature']['item_image'] = 'Image';
+        $tableData['whitems']['part_name'] = 'Part Name';
+        $tableData['whitems']['part_value'] = 'Part Value';
+        $tableData['whitems']['part_type'] = 'Part Type';
+        $tableData['whitems']['footprint'] = 'Footprint';
+        $tableData['whitems']['manufacture_pn'] = 'Manufacture P/N';
+        $tableData['whitems']['manufacturer'] = 'Manufacturer';
+        $tableData['whitems']['datasheet'] = 'Datasheet';
+        $tableData['whitems']['notes'] = 'Note';
+        $tableData['whitems']['description'] = 'Description';
+        $tableData['whitems']['actual_qty'] = 'Quantity';
+        $tableData['whitems']['min_qty'] = 'Min. Amount';
+        $tableData['whitems']['class_number'] = 'Class';
+        $tableData['whitems']['shelf_life'] = 'Shelf Life';
+        $tableData['whitems']['item_image'] = 'Image';
+
+        // warehouse sub table
+        $tableData['whitems']['quantity'] = 'Amount';
+        $tableData['whitems']['manufacture_pn'] = 'Manufacture P/N';
+        $tableData['whitems']['owner_pn'] = 'Owner P/N';
+        $tableData['whitems']['owner'] = 'Part Owner';
+        $tableData['whitems']['storage_shelf'] = 'Storage Shelf';
+        $tableData['whitems']['storage_box'] = 'Storage Box';
+
+        // invoice sub table
+        $tableData['whitems']['invoice'] = 'Invoice';
+        $tableData['whitems']['lot'] = 'Item Lot';
+        $tableData['whitems']['quantity'] = 'QTY Arrived';
+        $tableData['whitems']['supplier'] = 'Supplier';
+        $tableData['whitems']['manufacture_date'] = 'Mfr. Date';
+        $tableData['whitems']['date_in'] = 'Date In';
+
 
         /* TABLE GLOBAL LOGS */
         $tableData['logs']['id'] = 'Log №';
@@ -318,8 +328,11 @@ const PROJECT_STEPS = 'projectsteps';
 const PROJECT_BOM = 'projectbom';
 const CLIENTS = 'customers';
 const USERS = 'users'; // users tabla
-const WH_NOMENCLATURE = 'whnomenclature'; // перечень товарной базы
-const WAREHOUSE = 'warehouse'; // товарный склад, приход/рарсход
+const SUPPLIERS = 'suppliers';
+
+const WH_ITEMS = 'whitems'; // перечень товарной базы
+const WH_INVOICE = 'whinvoice'; // товарный склад, приход/рарсход
+const WAREHOUSE = 'warehouse'; // динамический склад, кол-во и прочее
 const WAREHOUSE_LOGS = 'warehouselogs'; // логи склада
 const WH_SLOTS = 'whslots'; // места для хранения товара
 const ASSY_PROGRESS = 'assyprogress';
@@ -421,3 +434,8 @@ const IGNORE_LIST = [
     ['type' => 'contains', 'value' => 'storage/projects/']
     // Добавляйте сюда новые условия для игнорирования
 ];
+
+/**
+ * СПИСОК ВАРИАНТОВ ВИДОВ ДЕТАЛЕЙ В БД
+ */
+const ITEM_TYPES = ["SMT", "TH", "CM", "PM", "SOLDER", "CRIMP", "LM"];

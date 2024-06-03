@@ -24,8 +24,8 @@ function backupWarehouse()
     }
 
     /* get all from DB for view */
-    $goods = R::findAll(WH_NOMENCLATURE, 'ORDER BY id ASC');
-    $settings = getUserSettings($thisUser, WH_NOMENCLATURE);
+    $goods = R::findAll(WH_ITEMS, 'ORDER BY id ASC');
+    $settings = getUserSettings($thisUser, WH_ITEMS);
     $noSettingsYet = 'You have not yet configured the output styles for this table, do you want to configure it?';
     ?>
     <!doctype html>
@@ -106,7 +106,7 @@ function backupWarehouse()
                     <?php
                     // выводим заголовки согласно настройкам пользователя
                     foreach ($settings as $k => $set) {
-                        echo '<th>' . L::TABLES(WH_NOMENCLATURE, $set) . '</th>';
+                        echo '<th>' . L::TABLES(WH_ITEMS, $set) . '</th>';
                     }
                     ?>
                 </tr>
@@ -239,7 +239,7 @@ function backupFillItem()
 // добавление новой запчасти в БД
     if (isset($_POST['partToSave'])) {
         if ($_POST['partToSave'] == 'new') {
-            $args = WareHouse::createNewItem($_POST, $user);
+            $args = WareHouse::CreateNewWarehouseItem($_POST, $user);
             // if sved item was from ORDER-BOM
             if (isset($_GET['orid']) && isset($_GET['pid'])) {
                 header("Location: /check_bom?orid=" . _E($_GET['orid']) . "&pid=" . _E($_GET['pid']));
@@ -268,7 +268,7 @@ function backupFillItem()
 
 // приходим из списка склада для редактирования запчасти
     if (isset($_GET['itemid']) && !isset($_GET['newitem'])) {
-        $item = R::load(WH_NOMENCLATURE, _E($_GET['itemid']));
+        $item = R::load(WH_ITEMS, _E($_GET['itemid']));
         if (isset($_GET['view'])) {
             $hideSaveButton = true;
         }
@@ -688,7 +688,7 @@ function backupItemView()
     /* получение пользователя из сессии */
     $user = $_SESSION['userBean'];
     $page = 'view_item';
-    $item = R::load(WH_NOMENCLATURE, _E($_GET['itemid']));
+    $item = R::load(WH_ITEMS, _E($_GET['itemid']));
     ?>
     <!doctype html>
     <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>

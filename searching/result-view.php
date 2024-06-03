@@ -6,8 +6,18 @@
  * функция вывода поиска на странице добавления клиента
  */
 function viewCustomer($result, $col)
-{
-    foreach ($result as $item) {
+{ ?>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Priority</th>
+        <th>Contact</th>
+        <th>Info</th>
+    </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($result as $item) {
         // Подготавливаем данные для атрибута data-info
         $infoData = json_encode([
             'name' => $item[$col[0]],
@@ -16,17 +26,52 @@ function viewCustomer($result, $col)
             'priority' => $item[$col[3]],
             'clientID' => $item['id'],
             'headpay' => $item['head_pay']
-        ]);
-        ?>
-        <p class="customer rounded border-bottom" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
-            ID: <span class="text-info me-2"><?= $item['id']; ?></span>
-            Name: <span class="text-info me-2"><?= $item[$col[0]]; ?></span>
-            Priority: <span class="text-info me-2"><?= $item[$col[3]]; ?></span>
-            Contact: <span class="text-info me-2"><?= $item[$col[1]]; ?></span>
-            Info: <span class="text-info me-2"><?= $item[$col[2]]; ?></span>
-        </p>
-        <?php
-    }
+        ]); ?>
+
+        <tr class="customer item-list" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
+            <td><?= $item['id']; ?></td>
+            <td><?= $item[$col[0]]; ?></td>
+            <td><?= $item[$col[3]]; ?></td>
+            <td><?= $item[$col[1]]; ?></td>
+            <td><?= $item[$col[2]]; ?></td>
+        </tr>
+    <?php } ?>
+    </tbody>
+    <?php
+}
+
+/**
+ * ФУНКЦИЯ ВЫВОДА ДАННЫХ ДЛЯ ПОЛЕЙ SUPPLIER/MANUFACTURER
+ * @param $result
+ * @param $request
+ * @return void
+ */
+function viewSupplier($result, $request)
+{ ?>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Who</th>
+        <th>Info</th>
+        <th>Rating</th>
+    </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($result as $sup) {
+        $infoData = json_encode([
+            'is_request' => $request,
+            'supplier_id' => $sup['id'],
+            'supplier_name' => $sup['name']
+        ]); ?>
+        <tr class="supplier item-list" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
+            <td><?= $sup['name']; ?></td>
+            <td><?= $sup['sup_type']; ?></td>
+            <td><?= $sup['description']; ?></td>
+            <td><?= $sup['rating']; ?></td>
+        </tr>
+    <?php } ?>
+    </tbody>
+    <?php
 }
 
 /**
@@ -52,32 +97,6 @@ function viewLineProject($result, $col)
             Vers: <span class="text-info me-2"><?= $item[$col[2]]; ?></span>
             Name: <span class="text-info me-2"><?= $item[$col[0]]; ?></span>&nbsp;
             Customer: <span class="text-info me-2"><?= $item[$col[1]]; ?></span>&nbsp;
-        </p>
-        <?php
-    }
-}
-
-/**
- * @param $result
- * @return void
- * функция вывода результата поиска на странице создания ВОМ заказа
- */
-function viewParts($result)
-{
-    foreach ($result as $item) {
-        // Подготавливаем данные для атрибута data-info
-        $infoData = json_encode([
-            'partName' => "{$item['part_name']}, {$item['part_value']}, {$item['footprint']}",
-            'MFpartName' => $item['manufacture_pn'],
-            'ownerPartName' => $item['owner_pn'],
-            'lineID' => $item['id']]);
-        ?>
-        <p class="parts rounded border-bottom" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
-            <?= $item['part_name']; ?>: <span class="text-primary me-2"><?= "{$item['part_value']}, {$item['footprint']}"; ?></span>
-            Manufacture: <span class="text-primary me-2"><?= $item['manufacture_pn']; ?></span>
-            Owner P/N: <span class="text-primary me-2"><?= $item['owner_pn']; ?></span>
-            Exp date: <span class="text-primary me-2"><?= $item['exp_date']; ?></span>
-            Amount: <span class="text-primary me-2"><?= $item['actual_qty']; ?></span>
         </p>
         <?php
     }
@@ -156,17 +175,17 @@ function viewFullProject($result, $user)
                                 <i class="bi bi-eye"></i>
                             </a>
 
-<!--                            --><?php //if (isUserRole(ROLE_ADMIN)) { ?>
-<!--                                <a type="button" title="Take To Job" class="btn btn-outline-success" href="/new_order?pid=--><?php //= $projectId; ?><!--">-->
-<!--                                    <i class="bi bi-tools"></i>-->
-<!--                                </a>-->
-<!--                                <button type="button" title="Archive" class="btn btn-outline-warning archive" data-projectid="--><?php //= $projectId; ?><!--">-->
-<!--                                    <i class="bi bi-archive-fill"></i>-->
-<!--                                </button>-->
-<!--                                <button type="button" title="Delete" class="btn btn-outline-danger delete-button" data-projectid="--><?php //= $projectId; ?><!--">-->
-<!--                                    <i class="bi bi-trash"></i>-->
-<!--                                </button>-->
-<!--                            --><?php //} ?>
+                            <!--                            --><?php //if (isUserRole(ROLE_ADMIN)) { ?>
+                            <!--                                <a type="button" title="Take To Job" class="btn btn-outline-success" href="/new_order?pid=--><?php //= $projectId; ?><!--">-->
+                            <!--                                    <i class="bi bi-tools"></i>-->
+                            <!--                                </a>-->
+                            <!--                                <button type="button" title="Archive" class="btn btn-outline-warning archive" data-projectid="--><?php //= $projectId; ?><!--">-->
+                            <!--                                    <i class="bi bi-archive-fill"></i>-->
+                            <!--                                </button>-->
+                            <!--                                <button type="button" title="Delete" class="btn btn-outline-danger delete-button" data-projectid="--><?php //= $projectId; ?><!--">-->
+                            <!--                                    <i class="bi bi-trash"></i>-->
+                            <!--                                </button>-->
+                            <!--                            --><?php //} ?>
                         </div>
                     </div>
                 </div>
@@ -292,7 +311,6 @@ function viewOrder($result, $user)
 
 /**
  * вывод результата поиска на странице логов
- *
  * @param $result
  * @return void
  */
@@ -311,7 +329,7 @@ function viewLogs($result)
 }
 
 /**
- * функция вывода результатов поиска на странице склада
+ * ФУНКЦИЯ ВЫВОДА РЕЗУЛЬТАТА ДЛЯ СТРАНИЦЫ СКЛАД, ДОБАВЛЕНИЕ ДЕТАЛИ, БОМ ПРОЕКТА
  * @param $result
  * @param $searchString
  * @param $request
@@ -321,47 +339,15 @@ function viewLogs($result)
 function viewStorageItems($result, $searchString, $request, $user)
 {
     if ($result) {
-        $settings = getUserSettings($user, WH_NOMENCLATURE);
+        // ВЫВОД ТАБЛИЦЫ ПРИ ПОИСКЕ НА ГЛАВНОЙ СТРАНИЦЕ СКЛАДА
+        if ($request == 'warehouse_nav') {
+            $settings = getUserSettings($user, WH_ITEMS);
+            foreach ($result as $item) {
+                if (!empty($item['owner'])) {
+                    // get owner name from json data set
+                    $wh = json_decode($item['owner'])->name;
+                }
 
-        foreach ($result as $item) {
-            $infoData = json_encode([
-                'partName' => $item['part_name'],
-                'partValue' => $item['part_value'],
-                'footprint' => $item['footprint'],
-                'part-type' => $item['part_type'],
-                'MFpartName' => $item['manufacture_pn'],
-                'manufacturer' => $item['manufacturer'],
-                'ownerPartName' => $item['owner_pn'],
-                'amount' => $item['actual_qty'],
-                'minQTY' => $item['min_qty'],
-                'storShelf' => $item['storage_shelf'],
-                'storBox' => $item['storage_box'],
-                'storState' => $item['storage_state'],
-                'storageClass' => $item['class_number'],
-                'datasheet' => $item['datasheet'],
-                'description' => $item['description'],
-                'notes' => $item['notes'],
-                'manufacturedDate' => $item['manufacture_date'],
-                'shelfLife' => $item['shelf_life'],
-                'invoice' => $item['invoice'],
-                'lot' => $item['lots'],
-                'owner' => $item['owner']
-            ]);
-            if ($request == 'warehouse') {
-                // вывод результатов поиска на страницу просмотра элемента
-                ?>
-                <p class="part border-bottom p-2" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
-                    Part Name: <span class="text-info me-2"><?= $item['part_name']; ?></span>
-                    Manufacture P/N: <span class="text-info me-2"><?= $item['manufacture_pn']; ?></span>
-                    Value: <span class="text-info me-2"><?= $item['part_value']; ?></span>
-                    Owner: <span class="text-info me-2"><?= $item['owner']; ?></span>
-                    Owner P/N: <span class="text-info me-2"><?= $item['owner_pn']; ?></span>
-                    Exp date: <span class="text-info me-2"><?= $item['exp_date']; ?></span>
-                    Amount: <span class="text-info me-2"><?= $item['actual_qty']; ?></span>
-                    Storage State: <span class="text-info me-2"><?= $item['storage_state']; ?></span>
-                </p>
-                <?php
-            } else {
                 // вывод результата поиска на страницу просмотра всей БД
                 $color = '';
                 if ((int)$item['actual_qty'] <= (int)$item['min_qty']) {
@@ -386,7 +372,15 @@ function viewStorageItems($result, $searchString, $request, $user)
                             <td><a type="button" class="btn btn-outline-info" href="<?= $item['datasheet'] ?> " target="_blank">Open Datasheet</a></td>
                             <?php
                         } else {
-                            echo '<td>' . $item[$set] . '</td>';
+                            // output data from two tables warehouse and whitems
+                            if ($set == 'owner' && !empty($wh)) {
+                                // get owner name from json data set
+                                $wr = $wh;
+                            } else {
+                                $wr = $item[$set] ?? '';
+                            }
+                            // print data to page
+                            echo '<td>' . $wr . '</td>';
                         }
                     }
                     ?>
@@ -394,6 +388,70 @@ function viewStorageItems($result, $searchString, $request, $user)
                 <?php
             }
         }
+
+        // ВЫВОД ТАБЛИЦЫ ПРИ ПОИСКЕ ПО value, name, mf P/N, owner P/N,
+        if ($request == 'warehouse') {
+            ?>
+            <thead>
+            <tr>
+                <th>Value</th>
+                <th>MF P/N</th>
+                <th>Owner P/N</th>
+                <th>QTY</th>
+                <th>Exp Date</th>
+                <th>Footprint</th>
+                <th>Where</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($result as $item) {
+                if (!empty($item['owner'])) {
+                    // get owner name from json data set
+                    $wh = json_decode($item['owner'])->name;
+                }
+                $infoData = json_encode([
+                    // item table fields
+                    'part_name' => $item['part_name'],
+                    'part_value' => $item['part_value'],
+                    'part_type' => $item['part_type'],
+                    'manufacture_part_number' => $item['manufacture_pn'],
+                    'manufacturer' => $item['manufacturer'],
+                    'footprint' => $item['footprint'],
+                    'minimal_quantity' => $item['min_qty'],
+                    'description' => $item['description'],
+                    'notes' => $item['notes'],
+                    'datasheet' => $item['datasheet'],
+                    'shelf_life' => $item['shelf_life'],
+                    'storage_class' => $item['class_number'],
+                    // warehouse table fields
+                    'owner' => $wh,
+                    'owner_part_name' => $item['owner_pn'],
+                    'quantity' => $item['actual_qty'],
+                    'storage_box' => $item['storage_box'],
+                    'storage_shelf' => $item['storage_shelf'],
+                    'storage_state' => $item['storage_state'],
+                    // invoice table fields
+                    // 'manufactured_date' => $item['manufacture_date'],
+                    // 'part_lot' => $item['lots'],
+                    // 'invoice' => $item['invoice']б
+                    // 'supplier' => $item['supplier']
+                ]);
+                ?>
+                <tr class="part item-list" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
+                    <td><?= $item['part_value']; ?></td>
+                    <td><?= $item['manufacture_pn']; ?></td>
+                    <td><?= $item['owner_pn']; ?></td>
+                    <td><?= $item['quantity']; ?></td>
+                    <td><?= $item['fifo']; ?></td>
+                    <td><?= $item['footprint']; ?></td>
+                    <td><?= $item['storage_state']; ?></td>
+                </tr>
+            <?php } ?>
+            </tbody>
+            <?php
+        }
+
+        //  ВЫВОД ПРИГЛАШЕНИЯ ДОБАВИТЬ НОВЫЙ ТОВАР НА СКЛАД ПРИ ОТСУТСТВИИ РЕЗУЛЬТАТОВ ПОИСКА НА ГЛАВНОЙ СТРАНИЦЕ СКЛАДА
     } else {
         if ($request != 'warehouse') {
             ?>
@@ -411,7 +469,7 @@ function viewStorageItems($result, $searchString, $request, $user)
  * @param $result
  * @return void
  */
-function viewPartsForBOM($result)
+function viewPartsForProjectBOM($result)
 {
     if ($result): foreach ($result as $item):
 
@@ -423,7 +481,8 @@ function viewPartsForBOM($result)
             'manufacturer' => $item['manufacturer'],
             'MFpartName' => $item['manufacture_pn'],
             'ownerPartName' => $item['owner_pn'],
-            'description' => !empty($item['extra']) ? $item['extra'] : ' '
+            'notes' => !empty($item['notes']) ? $item['notes'] : ' ',
+            'description' => !empty($item['description']) ? $item['description'] : ' '
         ]);
 
         ?>
@@ -436,8 +495,8 @@ function viewPartsForBOM($result)
             <td><?= $item['manufacturer']; ?></td>
             <td><?= $item['manufacture_pn']; ?></td>
             <td><?= $item['owner_pn']; ?></td>
-            <td><?= !empty($item['extra']) ? $item['extra'] : 'N'; ?></td>
-            <td><?= 'N' ?></td>
+            <td><?= !empty($item['description']) ? $item['description'] : 'N'; ?></td>
+            <td><?= !empty($item['notes']) ? $item['notes'] : 'N'; ?></td>
             <td><?= $item['actual_qty']; ?></td>
         </tr>
     <?php endforeach; endif;

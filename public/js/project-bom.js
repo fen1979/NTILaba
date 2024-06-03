@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
         $("#mf_pn").val(info.MFpartName); // Устанавливаем
         $("#owner_pn").val(info.ownerPartName); // Устанавливаем
         $("#desc").val(info.description); // Устанавливаем
-       // $("#nt").val(info.notes); // Устанавливаем
+        $("#nt").val(info.notes); // Устанавливаем
     });
 });
 

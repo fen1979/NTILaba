@@ -42,20 +42,20 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
             }
             break;
 
+        case 'supplier':
+        case 'manufacturer':
+            {
+                /* search for suppliers and manufactirers */
+                viewSupplier(dynamicSearch(SUPPLIERS, ['name'], $mySearchString), $request);
+            }
+            break;
+
         case 'priority':
             {
                 /* search for order creation page */
                 $colForSearch = ['priority'];
                 $col = ['name', 'contact', 'information', 'priority'];
                 viewCustomer(dynamicSearch(CLIENTS, $colForSearch, $mySearchString), $col);
-            }
-            break;
-
-        case 'parts_bom':
-            {
-                /* search for parts, orders view page */
-                $col = ['part_value', 'manufacture_pn', 'owner_pn'];
-                viewParts(dynamicSearch(WH_NOMENCLATURE, $col, $mySearchString));
             }
             break;
 
@@ -87,12 +87,18 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
             }
             break;
 
+        case 'project_bom':
+            {
+                /* search for project BOM filling  */
+                viewPartsForProjectBOM(SearchWarehouseItems($mySearchString, WH_ITEMS, WAREHOUSE));
+            }
+            break;
+
         case 'warehouse_nav':
         case 'warehouse':
             {
                 /* search for warehouse creation, updation, view page */
-                $col = ['manufacture_pn', 'part_name', 'part_value', 'date_in'];
-                viewStorageItems(dynamicSearch(WH_NOMENCLATURE, $col, $mySearchString), $mySearchString, $request, $_SESSION['userBean']);
+                viewStorageItems(SearchWarehouseItems($mySearchString, WH_ITEMS, WAREHOUSE), $mySearchString, $request, $_SESSION['userBean']);
             }
             break;
 
@@ -104,14 +110,6 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
             }
             break;
 
-        case 'project_bom':
-            {
-                /* search for warehouse creation, updation, view page */
-                $col = ['manufacture_pn', 'part_name', 'part_value', 'owner_pn', 'owner'];
-                viewPartsForBOM(dynamicSearch(WH_NOMENCLATURE, $col, $mySearchString));
-            }
-            break;
-
         default:
             echo 'No Result by search';
             break;
@@ -119,6 +117,7 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
     exit();
 }
 
+// function for any search in DB
 function dynamicSearch($tableName, $columns, $searchString)
 {
     // Проверяем, что имя таблицы и столбцы допустимы
@@ -142,6 +141,28 @@ function dynamicSearch($tableName, $columns, $searchString)
     // Выполняем запрос
     $sql = "SELECT * FROM $tableName WHERE $whereClause";
     return R::getAll($sql, [':search' => '%' . $searchString . '%']);
+}
+
+// function for search in warehouse only!!!
+function SearchWarehouseItems($searchTerm, $table_one, $table_two)
+{
+    // SQL-запрос для поиска в двух таблицах и объединения результатов
+    $query = "
+    SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf
+    FROM $table_one wn
+    LEFT JOIN $table_two w ON wn.id = w.items_id
+    WHERE wn.part_name LIKE ?
+       OR wn.part_value LIKE ?
+       OR wn.part_type LIKE ?
+       OR w.manufacture_pn LIKE ?
+       OR w.owner LIKE ?
+       OR w.owner_pn LIKE ?
+    ORDER BY w.fifo ASC
+";
+    $q = '%' . $searchTerm . '%';
+    $params = [$q, $q, $q, $q, $q, $q];
+    // Возвращение результатов в виде массива
+    return R::getAll($query, $params);
 }
 
 exit();

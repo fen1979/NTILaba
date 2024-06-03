@@ -9,8 +9,19 @@ if (!R::testConnection()) {
     exit ('No database connection');
 }
 
+// настройки в файле php.ini
+// Установка времени жизни куки 3 часа = 10800 секунд
+//ini_set('session.cookie_lifetime',  10800);
+// Установка времени жизни данных сессии 3 часа = 10800 секунд
+//ini_set('session.gc_maxlifetime', 10800);
+// Установка вероятности запуска сборщика мусора
+//ini_set('session.gc_probability', 1);
+// С вероятностью 1% при каждом запуске сессии
+//ini_set('session.gc_divisor', 100);
+
+// Установка параметров cookie для сессии
+session_set_cookie_params(10800);
 // Запуск сессии
-// настройки сессии и куки находятся на странице логин.пхп
 session_start();
 
 /* VIEW MODE FOR SITE DARK/LIGHT ================== */

@@ -16,7 +16,6 @@ form input[required], form select[required], form textarea[required] {
     box-shadow: red 0 0 2px;
 }
 
-
 /*i
  * вывод информации о каком либо действии
  * или ошибке в левый верхний угол экрана
@@ -34,6 +33,10 @@ form input[required], form select[required], form textarea[required] {
 }
 
 /* i==== ЦВЕТА КНОПОК ДЛЯ ВСЕХ СТРАНИЦ ==== */
+.btn {
+    /*margin: .3rem;*/
+}
+
 .btn-outline-success {
     color: #fff;
     background-color: #31e491;
@@ -479,7 +482,7 @@ form input[required], form select[required], form textarea[required] {
     width: 10rem;
 }
 
-.url, .swb, .lang {
+.url, .swb, .lang, .m-03 {
     margin: .3rem;
 }
 

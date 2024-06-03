@@ -11,7 +11,7 @@ $pageMode = 'Create New Item';
 // ДОБАВЛЕНИЕ НОВОЙ ЗАПЧАСТИ В БД
 if (isset($_POST['save-item']) && $_POST['save-item'] == 'new') {
     // ДОБАВЛЯЕМ ЗАПЧАСТЬ
-    $args = WareHouse::createNewItem($_POST, $user);
+    $args = WareHouse::CreateNewWarehouseItem($_POST, $user);
 
     // ЕСЛИ ДОБАВЛЕНИЕ ПРОИЗОШЛО ИЗ БОМА-ЗАКАЗА
     if (isset($_GET['orid']) && isset($_GET['pid'])) {
@@ -66,8 +66,8 @@ if (isset($_GET['item-id']) && isset($_GET['qty'])) {
 if (isset($_GET['itemid']) && !isset($_GET['newitem'])) {
     $pageMode = 'Part information';
 
-    $item = R::load(WH_NOMENCLATURE, _E($_GET['itemid']));
-    $lots = R::findAll(WAREHOUSE, 'items_id = ?', [_E($_GET['itemid'])]);
+    $item = R::load(WH_ITEMS, _E($_GET['itemid']));
+    $lots = R::findAll(WH_INVOICE, 'items_id = ?', [_E($_GET['itemid'])]);
     $logs = R::findAll(WAREHOUSE_LOGS, 'items_id = ?', [_E($_GET['itemid'])]);
     if (isset($_GET['view'])) {
         $hideSaveButton = true;
@@ -254,6 +254,7 @@ DisplayMessage($args ?? null);
                 <div class="row g-3 mb-3">
                     <div class="col">
                         <label for="part-owner" class="form-label"><i class="bi bi-search"></i> Part Owner <b class="text-danger">*</b></label>
+                        <input type="hidden" name="owner-id" id="owner-id">
                         <input type="text" class="searchThis form-control" id="part-owner" placeholder="Part owner (REQUIRED)"
                                name="owner" value="<?= set_value('owner', $item['owner'] ?? ''); ?>" data-request="owner" required>
                     </div>
@@ -645,6 +646,8 @@ ScriptContent('view_item');
             let info = JSON.parse($(this).attr('data-info'));
             // Устанавливаем полученные значения в поля ввода
             $("#part-owner").val(info.name); // Устанавливаем имя клиента
+            $("#owner-id").val(info.clientID); // Устанавливаем id
+
             // Очищаем результаты поиска
             searchModal.hide();
         });

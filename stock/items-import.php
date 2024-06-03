@@ -88,7 +88,7 @@ if (isset($_POST['importCsvFile'])) {
                             // если нет то создаем новый
                             if ($result[0]) {
                                 // записываем данные в БД
-                                $goods = R::dispense(WH_NOMENCLATURE);
+                                $goods = R::dispense(WH_ITEMS);
                                 // fixme только для наших запчастей (костыль решить что с этим делать)
                                 $goods->part_name = $rowData['part_name'] ?? getNtiCustomNumberForItem($ourPN, $rowData); // optional
                                 $goods->part_value = $rowData['part_value']; // required
@@ -120,7 +120,7 @@ if (isset($_POST['importCsvFile'])) {
                             // if exist but invoice not exist (like new arrival)
                             if ($result[0] === 'exist') {
                                 // переписываем данные в БД
-                                $goods = R::load(WH_NOMENCLATURE, $result[1]);
+                                $goods = R::load(WH_ITEMS, $result[1]);
                                 $goods->actual_qty = $goods->actual_qty + (float)$rowData['actual_qty'] ?? 0.0;
                                 if (!empty($goods->invoice)) {
                                     $in = explode(',', $goods->invoice);

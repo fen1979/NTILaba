@@ -125,8 +125,9 @@ class WareHouse
      * @return string[]
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    public static function createNewItem($post, $user): array
+    public static function CreateNewWarehouseItem($post, $user): array
     {
+        // ПРОВЕРЯЕМ ЕСЛИ ФОТО КОПИРОВАНО С САЙТА
         $imageExist = false;
         $imageData = null;
         if (!empty($_POST['imageData']) && strpos($_POST['imageData'], 'data:image') === 0) {
@@ -134,79 +135,91 @@ class WareHouse
             $imageData = $post['imageData'];
         }
 
+        // ПРОВЕРЯЕМ БЕЗОПАСНОСТЬ ДАННЫЧ
         $post = self::checkPostDataAndConvertToArray($post);
-        $goods = R::dispense(WH_NOMENCLATURE);
 
+        // СОЗДАЕМ ЗАПИСЬ В ТАБЛИЦЕ ТОВАРОВ
+        $item = R::dispense(WH_ITEMS);
+        $item->part_name = $post['part-name'];
+        $item->part_value = $post['part-value'];
+        $item->part_type = $post['part-type'];
+        $item->footprint = $post['footprint'] ?? '';
+        $item->manufacturer = $post['manufacturer'];
+        $item->manufacture_pn = $post['manufacture-part-number'];
+        // при первом добавлении заносим полученное количество
+        // при повторном добавлении плюсуем
+        $item->actual_qty = $post['quantity']; // решить куда сохранять в итоге
+        // нужна для обозначения нехватки товара
+        $item->min_qty = $post['minimal-quantity']; // решить куда сохранять в итоге
+        $sl_mo = $item->shelf_life = $post['shelf-life'] ?? 12;
+        $item->class_number = $post['storage-class'];
+        $item->datasheet = $post['datasheet'] ?? '';
+        $item->description = $post['description'] ?? '';
+        $item->notes = $post['notes'] ?? '';
+        $item->date_in = date('Y-m-d H:i');
         // если фото было выбрано физически
         if (!empty($_FILES['item-image']['name'][0])) {
             $result = self::convertAndSaveImageForItem($_FILES['item-image'], $post['manufacture-part-number']); // return url path for image or null
-            $goods->item_image = $result['file-path'] ?? null;
+            $item->item_image = $result['file-path'] ?? null;
             $res = $result;
         }
-
         // если фото было где то скопированно а не выбрано физически
         if ($imageExist) {
             $result = self::convertAndSavePastedImageForItem($imageData, $post['manufacture-part-number']);
-            $goods->item_image = $result['file-path'] ?? null;
+            $item->item_image = $result['file-path'] ?? null;
             $res = $result;
         }
-
-        // остальные данные для сохранения
-        $goods->part_name = $post['part-name'];
-        $goods->part_value = $post['part-value'];
-        $goods->part_type = $post['part-type'];
-        $goods->footprint = $post['footprint'];
-        $goods->manufacturer = $post['manufacturer'];
-        $goods->manufacture_pn = $post['manufacture-part-number'];
-        $goods->actual_qty = $post['total-quantity'];
-        $goods->min_qty = $post['minimal-quantity'];
-        $sl_mo = $goods->shelf_life = $post['shelf-life'] ?? 12;
-        $goods->class_number = $post['storage-class'];
-        $goods->datasheet = $post['datasheet'];
-        $goods->description = $post['description'];
-        $goods->notes = $post['notes'];
-        $goods->date_in = date('Y-m-d H:i');
-
         // store new item
-        $item_id = R::store($goods);
+        $item_id = R::store($item);
 
-        // creation accessory table for this arrival
-        $accessory = R::dispense(WAREHOUSE);
-        $accessory->items_id = $item_id;
-        $lot = $accessory->lot = $post['part-lot'] ?? 'N:' . date('m/Y') . ':TI~' . $id;
-        $accessory->invoice = $post['invoice'] ?? '';
-        $accessory->supplier = $post['supplier'];
-        $accessory->owner = $post['owner'];
-        $accessory->owner_pn = $post['owner-part-name'];
-        $accessory->quantity = $post['quantity']; // was amount
-        $accessory->storage_box = $post['storage-box'];
-        $accessory->storage_shelf = $post['storage-shelf'];
-        $mf_date = $accessory->manufacture_date = str_replace('T', ' ', $post['manufactured-date']);
-        // Создание объекта DateTime из строки
+
+        // СОЗДАЕМ ЗАПИСЬ В ТАБЛИЦУ СКЛАД
+        $warehouse = R::dispense(WAREHOUSE);
+        $warehouse->items_id = $item_id;
+        // создаем json обьект для дальнейшего использования
+        $owner_data = '{"name":"' . $post['owner'] . '", "ID":"' . $post['owner-id'] . '"}';
+        $warehouse->owner = $owner_data; // this part owner
+        $warehouse->owner_pn = $post['owner-part-name'] ?? '';
+        // полученное кол-во нового товара
+        $warehouse->quantity = $post['quantity'];
+        $warehouse->storage_box = $post['storage-box'];
+        $warehouse->storage_shelf = $post['storage-shelf'];
+        $warehouse->storage_state = $post['storage-state'];
+        $mf_date = $warehouse->manufacture_date = str_replace('T', ' ', $post['manufactured-date']);
+        // Создание срока годности для товара
         $datetime = new DateTime($mf_date);
-        // Добавление месяцев к дате
         $datetime->add(new DateInterval("P{$sl_mo}M"));
-        // Преобразование даты обратно в строку
-        $accessory->expaire_date = $datetime->format('Y-m-d H:i');
-        $accessory->date_in = $goods->date_in;
+        $warehouse->fifo = $datetime->format('Y-m-d H:i');
+        $warehouse->date_in = $item->date_in;
+        $warehouse_id = R::store($warehouse);
 
-        // Преобразование объекта в массив и в JSON-строку
-        $accessoryData = json_encode($accessory->export(), JSON_UNESCAPED_UNICODE);
-        $lot_id = R::store($accessory);
 
-        /* writing stock log for this action */
+        // СОЗДАЕМ ЗАПИСЬ В ТАБЛИЦУ ИНВОЙСОВ
+        $invoice = R::dispense(WH_INVOICE);
+        $invoice->items_id = $item_id;
+        $invoice->quantity = $post['quantity']; // полученное кол-во товара в этой накладной
+        $invoice->warehouses_id = $warehouse_id;
+        $lot = $invoice->lot = !empty($post['part-lot']) ? $post['part-lot'] : 'N:' . date('m/Y') . ':TI~' . $item_id;
+        $invoice->invoice = $post['invoice']; // this airrval invoice
+        $invoice->supplier = '{"name":"' . ($post['supplier'] ?? '') . '","id":"' . ($post['supplier-id'] ?? '') . '"}'; // this airrval suplplier
+        $invoice->owner = $owner_data; // this part owner
+        $invoice->date_in = $item->date_in;
+        $invoice_id = R::store($invoice);
+
+
+        // ЗАПИСЫВАЕМ В ЛОГ ОПЕРАЦИЮ И ДАННЫЕ ТАБЛИЦ
         $log_data['item_id'] = $item_id; // id stored item for search in logs
-        // Преобразование объекта в массив и в JSON-строку
-        // item full data for save in to log
-        $log_data['item_data'] = json_encode($goods->export(), JSON_UNESCAPED_UNICODE);
-        $log_data['lot_id'] = $lot_id; // lot id for search in logs
+        // Преобразование объекта ITEM в массив и в JSON-строку
+        $log_data['item_data'] = json_encode($item->export(), JSON_UNESCAPED_UNICODE);
+        $log_data['lot_id'] = $invoice_id; // lot id for search in logs
         $log_data['lot'] = $lot; // lot number for preview in logs
-        $log_data['lot_data'] = $accessoryData; // lot stored information
-        $log_data['invoice'] = $post['invoice'] ?? ''; // invoice for view
-        $log_data['supplier_id'] = $post['supplier-id']; // id for seach
-        $log_data['supplier'] = $post['supplier']; // name for view
+        // Преобразование объекта WAREHOUSE в массив и в JSON-строку
+        $log_data['lot_data'] = json_encode($warehouse->export(), JSON_UNESCAPED_UNICODE); // lot stored information
+        $log_data['invoice'] = $post['invoice']; // invoice for view
+        $log_data['supplier_id'] = $post['supplier-id'] ?? ''; // id for seach
+        $log_data['supplier'] = $post['supplier'] ?? ''; // name for view
         $log_data['owner_pn'] = $post['owner-part-name']; // id for search
-        $log_data['owner'] = $post['owner']; // name for view
+        $log_data['owner'] = $owner_data; // name for view
         $log_data['quantity'] = $post['quantity']; // amount for view
         $log_data['operation'] = 'NEW ITEM CREATION';
         return WarehouseLog::registerArrival($log_data, $user);
@@ -229,7 +242,7 @@ class WareHouse
         }
 
         $post = self::checkPostDataAndConvertToArray($post);
-        $goods = R::load(WH_NOMENCLATURE, $post['item_id']);
+        $goods = R::load(WH_ITEMS, $post['item_id']);
 
         // Преобразование объекта в массив до изменений и в JSON-строку
         $itemDataBefore = json_encode($goods->export(), JSON_UNESCAPED_UNICODE);
@@ -255,7 +268,7 @@ class WareHouse
         $goods->footprint = $post['footprint'];
         $goods->manufacturer = $post['manufacturer'];
         $goods->manufacture_pn = $post['MFpartName'];
-        $goods->actual_qty = $post['amount'];
+        // $goods->actual_qty = $post['amount'];
         $goods->min_qty = $post['minQTY'];
         $sl_mo = $goods->shelf_life = $post['shelfLife'] ?? 12;
         $goods->class_number = $post['partClassNumber'];
@@ -285,7 +298,7 @@ class WareHouse
     public static function replenishInventory($post, $user): array
     {
         $post = self::checkPostDataAndConvertToArray($post);
-        $goods = R::load(WH_NOMENCLATURE, $post['item_id']);
+        $goods = R::load(WH_ITEMS, $post['item_id']);
         // Преобразование объекта в массив и в JSON-строку
         $itemData = json_encode($goods->export(), JSON_UNESCAPED_UNICODE);
 
@@ -338,7 +351,7 @@ class WareHouse
     public static function reserveItemForOrder($post, $user): array
     {
         $post = self::checkPostDataAndConvertToArray($post);
-        $goods = R::load(WH_NOMENCLATURE, $post['save-item']);
+        $goods = R::load(WH_ITEMS, $post['save-item']);
         $stored_qty = $goods->actual_qty;
         // если кол-во отличается от сохраненного и имеет знак минус то отнимаем
         if (strpos($post['amount'], '-') !== false)
@@ -421,7 +434,7 @@ class WareHouse
 
         $search = !empty($owner_pn) ? trim($owner_pn) : null;
         if ($search != null) {
-            $stock = R::findOne(WH_NOMENCLATURE, 'owner_pn = ?', [$search]);
+            $stock = R::findOne(WH_ITEMS, 'owner_pn = ?', [$search]);
             if ($stock) {
                 $am = $stock->actual_qty;
                 $stock->actual_qty = $am + (float)$postData['import_qty'];
@@ -462,7 +475,7 @@ class WareHouse
 
         // Проводим запрос в БД только если $search не пуст
         if ($search !== null) {
-            $wh = R::findOne(WH_NOMENCLATURE, 'owner_pn = ?', [$search]);
+            $wh = R::findOne(WH_ITEMS, 'owner_pn = ?', [$search]);
 
             // Проверяем, что результат запроса действительно существует
             if ($wh) {
@@ -493,7 +506,7 @@ class WareHouse
         $part_number = !empty($part_number) ? $part_number : null;
         $owner_pn = !empty($owner_pn) ? $owner_pn : null;
         if ($part_number || $owner_pn)
-            return R::findOne(WH_NOMENCLATURE, 'manufacture_pn LIKE ? OR owner_pn LIKE ?', [$part_number, $owner_pn]);
+            return R::findOne(WH_ITEMS, 'manufacture_pn LIKE ? OR owner_pn LIKE ?', [$part_number, $owner_pn]);
         else
             return null;
     }
@@ -511,7 +524,7 @@ class WareHouse
         $invoice = $rowData['invoice'] ?? null;
 
         // Поиск полного совпадения
-        $fullMatch = R::findOne(WH_NOMENCLATURE, 'manufacture_pn LIKE ? AND invoice LIKE ?', ['%' . $manufacture_pn . '%', '%' . $invoice . '%']);
+        $fullMatch = R::findOne(WH_ITEMS, 'manufacture_pn LIKE ? AND invoice LIKE ?', ['%' . $manufacture_pn . '%', '%' . $invoice . '%']);
 
         // Если найдено полное совпадение
         if ($fullMatch) {
@@ -519,7 +532,7 @@ class WareHouse
         }
 
         // Поиск частичного совпадения (без учета invoice)
-        $partialMatch = R::findOne(WH_NOMENCLATURE, 'part_value = ? AND owner_pn = ? AND manufacture_pn LIKE ?', [
+        $partialMatch = R::findOne(WH_ITEMS, 'part_value = ? AND owner_pn = ? AND manufacture_pn LIKE ?', [
             $part_value, $owner_pn, '%' . $manufacture_pn . '%'
         ]);
 
@@ -532,53 +545,15 @@ class WareHouse
         return [true];
     }
 
-
-    //I BACK UP CODE
-    public static function updateItemBACKUP_CODE($post, $user): array
+    // функция возвращает данные из таблицы склада warehouse
+    //$wh_item = findClosestShelfLifeItem($item);
+    public static function findClosestShelfLifeItem($item): ?\RedBeanPHP\OODBBean
     {
-        $post = self::checkPostDataAndConvertToArray($post);
-        if ((!isset($post['item-id']) && !isset($post['new-invoice']) && !isset($post['new-amount']))) {
-            $goods = R::load(WH_NOMENCLATURE, $post['save-item']);
-            // остальные данные для сохранения
-            $goods->part_name = $post['partName'];
-            $goods->part_value = $post['partValue'];
-            $goods->part_type = $post['part-type'];
-            $goods->footprint = $post['footprint'];
-            $goods->manufacturer = $post['manufacturer'];
-            $goods->manufacture_pn = $post['MFpartName'];
-            $goods->owner_pn = $post['ownerPartName'];
-            // получаем сохраненное значение кол-ва деталей
-            $stored_qty = $goods->actual_qty;
-
-            $goods->min_qty = $post['minQTY'];
-            $goods->storage_box = $post['storBox'];
-            $goods->storage_shelf = $post['storShelf'];
-            $goods->class_number = $post['partClassNumber'];
-            $goods->datasheet = $post['datasheet'];
-            $goods->owner = $post['owner'];
-            $supplier = $goods->supplier = $post['supplier'];
-            $goods->description = $post['description'];
-            $goods->notes = $post['notes'];
-
-            // добавляем инвойс если он есть
-            $goods->invoice = $post['invoice'] ?? '';
-            //  добавляем лот
-            $goods->lots = implode(',', $lt);
-
-            $goods->manufacture_date = str_replace('T', ' ', $post['manufacturedDate']);
-            $goods->exp_date = str_replace('T', ' ', $post['expDate']);
-            $goods->date_in = date('Y-m-d H:i');
-
-            $id = R::store($goods);
-
-            /* writing stock log */
-            return WarehouseLog::registerWriteOff($id, $post['amount'], null, null, $supplier, $invoice, $lot, $user);
-
-        }
-        $stor_place = $goods->storage_shelf . '/' . $goods->storage_box;
-        /* writing stock log */
-        return WarehouseLog::registerWriteOff($id, $post['new-amount'], $supplier, $stor_place, $supplier, $invoice, $lot, $user);
-
+        // Вычисление даты, от которой мы будем искать записи
+        $x_day = strtotime("-{$item['shelf_life']} months");
+        // Конвертация $x_day в формат даты для сравнения с полем fifo
+        $x_day_date = date('Y-m-d H:i', $x_day);
+        // Выполнение запроса и получение результата
+        return R::findOne(WAREHOUSE, 'items_id = ? AND fifo > ? ORDER BY fifo ASC LIMIT 1', [$item['id'], $x_day_date]);
     }
-    // i ---------------------------------------------
 }

@@ -223,7 +223,7 @@ class Orders
         $box = $order->storage_box = $post['storageBox']; // номер коробки для запчастей к заказу
         // обновляем значение в нумерации указывая что данный номер занят
         // TODO  сделать сброс после завершения проекта или на одном из статусов например когда ушел в упаковку
-        R::exec("UPDATE storage SET not_in_use = 1 WHERE id = ?", [$post['storageBox']]);
+        R::exec("UPDATE storage SET in_use = 1 WHERE id = ?", [$post['storageBox']]);
 
         $order->order_folder = self::makeFolderInStorage(unicum()); // папка заказа для хранения информации
         $order->date_in = str_replace('T', ' ', $post['date_in']); // дата создания заказа
@@ -325,11 +325,11 @@ class Orders
             if (!empty($order->storage_box) && $order->storage_box != $post['storageBox']) {
                 $box = $order->storage_box;
                 // возвращаем коробку обратно в систему если коробка была изменена
-                R::exec("UPDATE storage SET not_in_use = 0 WHERE id = ?", [$order->storage_box]);
+                R::exec("UPDATE storage SET in_use = 0 WHERE id = ?", [$order->storage_box]);
                 // присваиваем новый номер коробки для запчастей к заказу
                 $order->storage_box = $post['storageBox'];
                 // обновляем значение в нумерации указывая что данный номер занят
-                R::exec("UPDATE storage SET not_in_use = 1 WHERE id = ?", [$post['storageBox']]);
+                R::exec("UPDATE storage SET in_use = 1 WHERE id = ?", [$post['storageBox']]);
                 // message to order log
                 $msg .= "<b class='text-primary'>Storage box changet FROM: $box -> TO: {$post['storageBox']}</b><br>";
             }

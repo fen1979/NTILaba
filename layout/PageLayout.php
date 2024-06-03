@@ -385,30 +385,42 @@ function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid): void
         if ($page == 'view_item' && $pid != null) {
             ?>
             <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-dark rounded" value="warehouse?#row-<?= ($pid - 4); ?>">
+                <button type="button" class="url btn btn-sm btn-outline-dark" value="warehouse?#row-<?= ($pid - 4); ?>">
                     Back To List <i class="bi bi-house"></i>
                 </button>
             </li>
 
             <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-diliny rounded" value="warehouse/write_off?item_id=<?= $pid; ?>">
+                <button type="button" class="url btn btn-sm btn-outline-diliny" value="warehouse/write_off?item_id=<?= $pid; ?>">
                     Write off Item manualy <i class="bi bi-plus"></i>
                 </button>
             </li>
         <?php } ?>
+        <li class="nav-item dropdown">
+            <button class="m-03 btn btn-outline-diliny btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Numbers of row
+            </button>
+            <ul class="dropdown-menu dropdown-menu" aria-labelledby="items-view-limit">
+                <li><a class="dropdown-item" href="warehouse?limit=50">50</a></li>
+                <li><a class="dropdown-item" href="warehouse?limit=100">100</a></li>
+                <li><a class="dropdown-item" href="warehouse?limit=500">500</a></li>
+                <li><a class="dropdown-item" href="warehouse?limit=0">All</a></li>
+            </ul>
+        </li>
+
         <li class="nav-item">
-            <button type="button" class="url btn btn-sm btn-outline-diliny rounded" value="warehouse/the_item?newitem">
+            <button type="button" class="url btn btn-sm btn-outline-diliny" value="warehouse/the_item?newitem">
                 Add New Item <i class="bi bi-plus"></i>
             </button>
         </li>
 
         <li class="nav-item">
-            <button type="button" class="url btn btn-sm btn-outline-diliny rounded" value="import-csv">
+            <button type="button" class="url btn btn-sm btn-outline-diliny" value="import-csv">
                 Import Items From File <i class="bi bi-filetype-csv"></i>
             </button>
         </li>
         <li class="nav-item">
-            <button type="button" class="url btn btn-sm btn-outline-dark rounded" value="movement-log">
+            <button type="button" class="url btn btn-sm btn-outline-dark" value="movement-log">
                 Check Warehouse Logs <i class="bi bi-list-task"></i>
             </button>
         </li>
