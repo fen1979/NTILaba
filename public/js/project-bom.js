@@ -65,15 +65,17 @@ document.addEventListener("DOMContentLoaded", function () {
         // Извлекаем и парсим данные из атрибута data-info
         let info = JSON.parse($(this).attr('data-info'));
         // Устанавливаем полученные значения в поля ввода
-        $("#pn").val(info.partName); // Устанавливаем
-        $("#pv").val(info.partValue); // Устанавливаем
-        $("#part_type").val(info.partType); // Устанавливаем
-        $("#footprint").val(info.footprint); // Устанавливаем
+        $("#item_id").val(info.item_id); // Устанавливаем Item ID
+        $("#pn").val(info.partName); // Устанавливаем Item Name
+        $("#pv").val(info.partValue); // Устанавливаем Item Value
+        $("#part_type").val(info.partType); // Устанавливаем Item Type
+        $("#footprint").val(info.footprint); // Устанавливаем Footprint
         $("#mf").val(info.manufacturer); // Устанавливаем
         $("#mf_pn").val(info.MFpartName); // Устанавливаем
         $("#owner_pn").val(info.ownerPartName); // Устанавливаем
         $("#desc").val(info.description); // Устанавливаем
         $("#nt").val(info.notes); // Устанавливаем
+
     });
 });
 

@@ -68,6 +68,10 @@ if (isset($_POST['approved-for-work'])) {
 }
 
 /* добавка части к ВОМ и составление таблицы материалов которые есть для ЗАКАЗ НАРЯДА */
+
+// если запчасти нет то добавляем ее через меню прихода новой запчасти
+// если запчасть есть то добавляем новый приход на склад с сопутствующими документами
+// изменить данные для работы с существующими запчастями
 if (isset($_POST['import_qty']) && isset($_POST['item_id'])) {
     $item_id = _E($_POST['item_id']);
     $args = WareHouse::updateQuantityForItem($_POST, $user);
@@ -76,7 +80,7 @@ if (isset($_POST['import_qty']) && isset($_POST['item_id'])) {
         $item_id = "item-id={$_POST['item_id']}";
         $qty = "qty={$_POST['import_qty']}";
         $backLink = "orid={$_GET['orid']}&pid={$_GET['pid']}";
-        header("Location: /warehouse/the_item?new-item&$invoice&$item_id&$qty&$backLink");
+        header("Location: /arrivals?new-item&$invoice&$item_id&$qty&$backLink");
     }
 }
 ?>
@@ -211,7 +215,7 @@ DisplayMessage($args ?? null);
             if ($projectBom) {
                 foreach ($projectBom as $line) {
                     $required_qty = $line['amount'] * $order['order_amount'];
-                    $actual_qty = WareHouse::getActualQtyFromWarehouse($line['owner_pn']);
+                    $actual_qty = WareHouse::GetActualQtyForItem($line['customerid']);
                     if ($actual_qty > $required_qty) {
                         $color = 'success';
                     } elseif ($actual_qty < $required_qty) {

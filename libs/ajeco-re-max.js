@@ -117,8 +117,9 @@ dom.addEventListener("DOMContentLoaded", function () {
      * Плавно отображает элемент, изменяя его CSS свойства `display` и `opacity`.
      * @param {string} selector - Селектор элемента, который будет показан.
      * @param {number|string} speed - Длительность анимации в миллисекундах или ключевые слова "slow" или "fast".
+     * @param {boolean} blur - затемнение задней части окна
      */
-    dom.show = function (selector, speed) {
+    dom.show = function (selector, speed, blur = false) {
         const element = dom.e(selector);
         if (element) {
             // Определяем длительность анимации
@@ -131,6 +132,7 @@ dom.addEventListener("DOMContentLoaded", function () {
                     element.style.display = 'block';
                     element.style.opacity = "0";
                     element.style.transition = `opacity ${duration}ms`;
+                    if (blur) element.classList.add("modal-blur");
 
                     setTimeout(() => {
                         element.style.opacity = "1";
@@ -138,8 +140,23 @@ dom.addEventListener("DOMContentLoaded", function () {
                 } else {
                     element.style.display = 'block';
                     element.style.opacity = "1";
+                    if (blur) element.classList.add("modal-blur");
                 }
+                dimiss(selector);
             }
+        }
+
+        // устанавливаем событие клик на кнопки закрытия модального окна
+        function dimiss(selector) {
+            // Найти все элементы с атрибутом data-aj-dismiss="modal"
+            const elements = document.querySelectorAll('[data-aj-dismiss="modal"]');
+
+            // Присвоить событие click каждому найденному элементу
+            elements.forEach(element => {
+                element.addEventListener('click', function () {
+                    dom.hide(selector);
+                });
+            });
         }
     };
 
@@ -562,6 +579,7 @@ dom.addEventListener("DOMContentLoaded", function () {
     });
 
     // анимированное удаление отчета о операциях
+    // used on all site pages
     dom.doAnimation(".fade-out", 2000, 5000);
 
     // добавление эффекта blur в нав бар при прокрутке страницы вверх
@@ -574,29 +592,30 @@ dom.addEventListener("DOMContentLoaded", function () {
             console.error('Error during fetch:', error);
             return;
         }
+
         // вывод информации на разных страницах
-        // клиент, проект, заказ, и тд
+        // used on pages: project, order, warehouse
         let searchAnswer = dom.e("#searchAnswer");
         if (searchAnswer) {
-            let elem = dom.e("#full_height");
-            if (elem) {
+            //let elem = dom.e("#full_height");
+            //if (elem) {
                 searchAnswer.innerHTML = result;
-            } else {
-                searchAnswer.innerHTML = result;
-                searchAnswer.style.display = "block";
-            }
+           // } else {
+           //      searchAnswer.innerHTML = result;
+           //      searchAnswer.style.display = "block";
+           //  }
         }
 
-        // вывод информации на странице склада
-        let item = dom.e("#goods");
-        if (item) {
-            let searchAnswerGoods = dom.e("#searchAnswerGoods");
-            searchAnswerGoods.innerHTML = result;
-            searchAnswerGoods.style.height = "10rem";
-            searchAnswerGoods.style.background = "azure";
+        // вывод информации в модальное окно
+        // used on pages: arrival, create-order, create-project
+        let modalTable = dom.e("#searchModal");
+        if (modalTable) {
+            dom.e("#search-responce").innerHTML = result;
+            dom.show("#searchModal", "fast", true);
         }
 
-        // вывод информации на странице заполнения бома проекта
+        // вывод информации на странице заполнения BOM проекта
+        // used on pages: project-bom
         let table = dom.e("#itemTable");
         if (table) {
             dom.e("#tbody-responce").innerHTML = result;

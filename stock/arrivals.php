@@ -30,21 +30,22 @@ if (isset($_POST['save-new-item'])/* && $_POST['save-new-item'] == 'new'*/) {
             width: auto;
             max-width: 100%;
         }
-
-        #searchAnswerGoods p:hover {
-            cursor: pointer;
-            background: #023786;
-            color: white;
-            border-radius: 4px;
-        }
-
         .input {
-            display: flex;
-            width: 20em;
-            padding: 0.3em;
+            display: block;
+            width: 100%;
+            padding: .375rem .75rem;
+            font-size: .9rem;
+            font-weight: 400;
+            line-height: 1.5;
+            background-clip: padding-box;
+            border: .05em solid #ced4da;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            border-radius: .25rem;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
             margin: .3em;
-            border: none;
-            border-radius: 5px;
+
         }
 
         /* СТИЛИ ДЛЯ ВЫВОДА ТАБЛИЦ */
@@ -104,139 +105,138 @@ NavBarContent($page, $title, null, Y['STOCK']);
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>
-<div class="container-fluid my-3 border-top">
-    <form action="" method="post" enctype="multipart/form-data" autocomplete="off">
-        <!-- id for editing only -->
-        <input type="hidden" name="item_id" value="<?= $item->id ?? ''; ?>">
-        <!-- hidden data -->
-        <input type="hidden" name="imageData" id="imageData">
-        <input type="hidden" name="item-image" id="item-image-file">
-        <input type="hidden" name="owner-id" id="owner-id" value=""/>
-        <input type="hidden" name="supplier-id" id="supplier-id" value=""/>
+<div class="container-fluid border-top">
+    <div class="row">
 
-        <!-- item data -->
-        <input type="text" placeholder="Part name"
-               name="part-name" id="part-name" class="input searchThis" data-request="warehouse"
-               value="<?= set_value('part-name'); ?>"/>
-        <input type="text" placeholder="Part value"
-               name="part-value" id="part-value" class="input searchThis" data-request="warehouse"
-               value="<?= set_value('part-value'); ?>" required/>
+        <div class="col-5">
+            <!-- part image -->
+            <div id="pasteArea" contenteditable="true" class="mb-4 border-bottom"></div>
 
-        <?php $t = 'SMT = Surface mount, TH = Through holes, CM = Cable Mount, PM = Panel Mount, 
-                        SOLDER = Soldering to wires, CRIMP = Crimping technic, LM = In line mount.
-                         No Case sensitive!!!'; ?>
-        <select name="part-type" id="part-type" class="input" data-title="<?= $t ?>" required>
-            <?php foreach (ITEM_TYPES as $type): ?>
-                <option value="<?= $type ?>"><?= $type ?></option>
-            <?php endforeach; ?>
-        </select>
-        <input type="text" placeholder="MF P/N"
-               name="manufacture-part-number" id="manufacture-part-number" class="input searchThis" data-request="warehouse"
-               value="<?= set_value('manufacture-part-number'); ?>" required/>
-        <input type="text" placeholder="MF"
-               name="manufacturer" id="manufacturer" class="input searchThis" data-request="manufacturer"
-               value="<?= set_value('manufacturer'); ?>"/>
-        <input type="text" placeholder="F/P"
-               name="footprint" id="footprint" class="input"
-               value="<?= set_value('footprint'); ?>"/>
-        <input type="number" placeholder="Min QTY"
-               name="minimal-quantity" id="minimal-quantity" class="input"
-               value="<?= set_value('minimal-quantity'); ?>" required/>
-        <input type="text" placeholder="Desc"
-               name="description" id="description" class="input"
-               value="<?= set_value('description'); ?>"/>
-        <input type="text" placeholder="Note"
-               name="notes" id="notes" class="input"
-               value="<?= set_value('notes'); ?>"/>
-        <input type="text" placeholder="DataSheet"
-               name="datasheet" id="datasheet" class="input"
-               value="<?= set_value('datasheet'); ?>"/>
-        <input type="text" placeholder="Shelf life"
-               name="shelf-life" id="shelf-life" class="input"
-               value="<?= set_value('shelf-life'); ?>" required/>
-        <input type="text" placeholder="Storage class"
-               name="storage-class" id="storage-class" class="input"
-               value="<?= set_value('storage-class'); ?>" required/>
-        <input type="text" placeholder="Storage state"
-               name="storage-state" id="storage-state" class="input"
-               value="<?= set_value('storage-state'); ?>" required/>
-
-        <!-- warehouse data -->
-        <input type="text" placeholder="Owner"
-               name="owner" id="owner" class="input searchThis" data-request="owner"
-               value="<?= set_value('owner'); ?>" required/>
-        <input type="text" placeholder="Owner P/N"
-               name="owner-part-name" id="owner-part-name" class="input searchThis" data-request="warehouse"
-               value="<?= set_value('owner-part-name'); ?>"/>
-        <input type="number" placeholder="QTY"
-               name="quantity" id="quantity" class="input"
-               value="<?= set_value('quantity'); ?>" required/>
-        <input type="number" placeholder="Storage box"
-               name="storage-box" id="storage-box" class="input"
-               value="<?= set_value('storage-box'); ?>" required/>
-        <input type="text" placeholder="Storage shelf"
-               name="storage-shelf" id="storage-shelf" class="input"
-               value="<?= set_value('storage-shelf'); ?>" required/>
-
-        <!-- invoice - lot data -->
-        <input type="datetime-local" placeholder="MF date"
-               name="manufactured-date" id="manufactured-date" class="input"
-               value="<?= set_value('manufactured-date', date('Y-m-d H:i')); ?>" required/>
-        <input type="text" placeholder="Lot"
-               name="part-lot" id="part-lot" value="<?= set_value('part-lot'); ?>" class="input"/>
-        <input type="text" placeholder="Invoice"
-               name="invoice" id="invoice" value="<?= set_value('invoice'); ?>" class="input" required/>
-        <input type="text" placeholder="Supplier" class="input searchThis" data-request="supplier"
-               name="supplier" id="supplier" value="<?= set_value('supplier'); ?>"/>
-
-        <!-- other information -->
-        <div class="mb-3">
-            <button type="button" id="item-image-btn" class="btn btn-outline-primary input">Take Item Picture</button>
-            <a role="button" id="search-item-goog" href="" class="btn btn-outline-warning input" target="_blank">
-                <i class="bi bi-google" data-title="Search Item on Google"></i>
-            </a>
-            <a role="button" id="search-item-octo" href="" class="btn btn-outline-info input" target="_blank">
-                <i class="bi bi-snapchat" data-title="Search Item on Octopart"></i>
-            </a>
+            <img class="rounded add-img-style hidden" id="item-image-preview" alt="Item image"
+                 src="/public/images/drop-here.png">
         </div>
 
-        <!-- part image -->
-        <div id="pasteArea" contenteditable="true" class="mb-4 border-bottom"> </div>
-
-        <img class="rounded add-img-style hidden" id="item-image-preview" alt="Item image"
-             src="/public/images/drop-here.png">
-
-        <button type="submit" name="save-new-item" class="btn btn-outline-success input">Save new item</button>
-    </form>
-</div>
-
-<!-- The Search result Modal -->
-<div class="modal" id="searchModal">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h4 class="modal-title">Search Result</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="col-2">
+            <!-- other information -->
+            <div class="mb-3">
+                <a role="button" id="search-item-goog" href="" class="btn btn-outline-warning input" target="_blank">
+                    <i class="bi bi-google" data-title="Search Item on Google"></i>
+                    &nbsp; Search Item on Google
+                </a>
+                <a role="button" id="search-item-octo" href="" class="btn btn-outline-info input" target="_blank">
+                    <i class="bi bi-snapchat" data-title="Search Item on Octopart"></i>
+                    &nbsp; Search Item on Octopart
+                </a>
             </div>
-
-            <!-- Modal body -->
-            <div class="modal-body">
-                <table id="search-responce">
-                    <!-- table for preview search results -->
-                </table>
+            <div class="mb-3">
+                <button type="button" id="item-image-btn" class="btn btn-outline-primary input">Take Item Picture</button>
             </div>
+        </div>
 
-            <!-- Modal footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-            </div>
+        <div class="col-5">
+            <form action="" method="post" enctype="multipart/form-data" autocomplete="off">
+                <!-- id for editing only -->
+                <input type="hidden" name="item_id" value="<?= $item->id ?? ''; ?>">
+                <!-- hidden data -->
+                <input type="hidden" name="imageData" id="imageData">
+                <input type="file" name="item-image" id="item-image-file" class="hidden">
+                <input type="hidden" name="owner-id" id="owner-id"/>
+                <input type="hidden" name="supplier-id" id="supplier-id"/>
+
+                <!-- item data -->
+                <input type="text" placeholder="Part name"
+                       name="part-name" id="part-name" class="input searchThis" data-request="warehouse"
+                       value="<?= set_value('part-name'); ?>"/>
+                <input type="text" placeholder="Part value"
+                       name="part-value" id="part-value" class="input searchThis" data-request="warehouse"
+                       value="<?= set_value('part-value'); ?>" required/>
+
+                <?php $t = 'SMT = Surface mount, TH = Through holes, CM = Cable Mount, PM = Panel Mount, 
+                        SOLDER = Soldering to wires, CRIMP = Crimping technic, LM = In line mount.
+                         No Case sensitive!!!'; ?>
+                <select name="part-type" id="part-type" class="input" data-title="<?= $t ?>" required>
+                    <?php foreach (ITEM_TYPES as $type): ?>
+                        <option value="<?= $type ?>"><?= $type ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <input type="text" placeholder="MF P/N"
+                       name="manufacture-part-number" id="manufacture-part-number" class="input searchThis" data-request="warehouse"
+                       value="<?= set_value('manufacture-part-number'); ?>" required/>
+                <input type="text" placeholder="MF"
+                       name="manufacturer" id="manufacturer" class="input searchThis" data-request="manufacturer"
+                       value="<?= set_value('manufacturer'); ?>"/>
+                <input type="text" placeholder="F/P"
+                       name="footprint" id="footprint" class="input"
+                       value="<?= set_value('footprint'); ?>"/>
+                <input type="number" placeholder="Min QTY"
+                       name="minimun-quantity" id="minimun-quantity" class="input"
+                       value="<?= set_value('minimun-quantity'); ?>" required/>
+                <input type="text" placeholder="Desc"
+                       name="description" id="description" class="input"
+                       value="<?= set_value('description'); ?>"/>
+                <input type="text" placeholder="Note"
+                       name="notes" id="notes" class="input"
+                       value="<?= set_value('notes'); ?>"/>
+                <input type="text" placeholder="DataSheet"
+                       name="datasheet" id="datasheet" class="input"
+                       value="<?= set_value('datasheet'); ?>"/>
+                <input type="text" placeholder="Shelf life"
+                       name="shelf-life" id="shelf-life" class="input"
+                       value="<?= set_value('shelf-life'); ?>" required/>
+                <input type="text" placeholder="Storage class"
+                       name="storage-class" id="storage-class" class="input"
+                       value="<?= set_value('storage-class'); ?>" required/>
+                <input type="text" placeholder="Storage state"
+                       name="storage-state" id="storage-state" class="input"
+                       value="<?= set_value('storage-state'); ?>" required/>
+
+                <!-- warehouse data -->
+                <input type="text" placeholder="Owner"
+                       name="owner" id="owner" class="input searchThis" data-request="owner"
+                       value="<?= set_value('owner'); ?>" required/>
+                <?php $t = 'Name of the spare part in the NTI company. 
+                It is important to choose the appropriate name for the correct numbering of the incoming product/spare part. 
+                If this number is not available or if the spare part/product belongs to another customer, select the "OTHERS" option'; ?>
+                <select name="owner-part-key" id="owner-part-key" class="input" data-title="<?= $t ?>" required>
+                    <?php
+                    foreach (NTI_PN as $val => $name): ?>
+                        <option value="<?= $val ?>"><?= $name ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <input type="text" placeholder="Owner P/N"
+                       name="owner-part-name" id="owner-part-name" class="input searchThis" data-request="warehouse"
+                       value="<?= set_value('owner-part-name'); ?>"/>
+                <input type="number" placeholder="QTY"
+                       name="quantity" id="quantity" class="input"
+                       value="<?= set_value('quantity'); ?>" required/>
+                <input type="number" placeholder="Storage box"
+                       name="storage-box" id="storage-box" class="input"
+                       value="<?= set_value('storage-box'); ?>" required/>
+                <input type="text" placeholder="Storage shelf"
+                       name="storage-shelf" id="storage-shelf" class="input"
+                       value="<?= set_value('storage-shelf'); ?>" required/>
+
+                <!-- invoice - lot data -->
+                <input type="datetime-local" placeholder="MF date"
+                       name="manufactured-date" id="manufactured-date" class="input"
+                       value="<?= set_value('manufactured-date', date('Y-m-d H:i')); ?>" required/>
+                <input type="text" placeholder="Lot"
+                       name="part-lot" id="part-lot" value="<?= set_value('part-lot'); ?>" class="input"/>
+                <input type="text" placeholder="Invoice"
+                       name="invoice" id="invoice" value="<?= set_value('invoice'); ?>" class="input" required/>
+                <input type="text" placeholder="Supplier" class="input searchThis" data-request="supplier"
+                       name="supplier" id="supplier" value="<?= set_value('supplier'); ?>"/>
+
+                <button type="submit" name="save-new-item" class="btn btn-outline-success input">Save new item</button>
+            </form>
         </div>
     </div>
 </div>
 
 <?php
+// MODAL DIALOG FOR VIEW RESPONCE FROM SERVER IF SEARCHED VALUE EXIST
+SearchResponceModalDialog($page, 'search-responce');
+
 /* SCRIPTS */
 ScriptContent('view_item');
 ?>
@@ -258,16 +258,11 @@ ScriptContent('view_item');
                     reader.readAsDataURL(blob);
                     // Создаем URL для Blob и Выводим изображение
                     let img = document.getElementById('item-image-preview');
-                        img.src = URL.createObjectURL(blob);
-                        img.classList.remove("hidden");
-                        dom.e("#pasteArea").classList.add("hidden");
+                    img.src = URL.createObjectURL(blob);
+                    img.classList.remove("hidden");
+                    dom.e("#pasteArea").classList.add("hidden");
                 }
             }
-        });
-
-        // search modal constanta for use
-        const searchModal = new bootstrap.Modal('#searchModal', {
-            keyboard: true
         });
 
         // creation links for searching elements
@@ -291,7 +286,7 @@ ScriptContent('view_item');
                 dom.e("#manufacture-part-number").value = info.manufacture_part_number;
                 dom.e("#manufacturer").value = info.manufacturer;
                 dom.e("#footprint").value = info.footprint;
-                dom.e("#minimal-quantity").value = info.minimal_quantity;
+                dom.e("#minimun-quantity").value = info.minimal_quantity;
                 dom.e("#description").value = info.description;
                 dom.e("#notes").value = info.notes;
                 dom.e("#datasheet").value = info.datasheet;
@@ -308,7 +303,7 @@ ScriptContent('view_item');
                 // dom.e("#invoice").value = info.invoice;
                 // dom.e("#supplier").value = info.supplier;
                 // Очищаем результаты поиска
-                searchModal.hide();
+                dom.hide("#searchModal");
                 createSearchLinks(info.MFpartName);
             }
         });
@@ -321,7 +316,7 @@ ScriptContent('view_item');
                 dom.e("#owner").value = info.name; // Устанавливаем имя клиента
                 dom.e("#owner-id").value = info.clientID; // Устанавливаем ID клиента
                 // Очищаем результаты поиска
-                searchModal.hide();
+                dom.hide("#searchModal");
             }
         });
 
@@ -338,41 +333,8 @@ ScriptContent('view_item');
                     dom.e("#manufacturer").value = info.supplier_name; // Устанавливаем имя производителя
                 }
                 // Очищаем результаты поиска
-                searchModal.hide();
+                dom.hide("#searchModal");
             }
-        });
-
-        // fixme Main Search filed search engine request/response
-        $(document).on("keyup", ".searchThis", function () {
-            let search = $(this).val();
-            let req = $(this).data("request");
-
-            // Если поле поиска пустое, скрываем блок с результатами и не выполняем AJAX-запрос
-            if (!search) {
-                searchModal.hide();
-                return;
-            }
-
-            // Выполняем AJAX-запрос только если поле поиска не пустое
-            $.post({
-                url: BASE_URL + "searching/getData.php",
-                data: {"suggest": search, "request": req},
-                beforeSend: function (xhr) {
-                    xhr.overrideMimeType("text/plain; charset=utf-8");
-                },
-                success: function (result) {
-                    searchModal.show();
-                    // Проверяем, не пустой ли результат
-                    if (result.trim() === '') {
-                        searchModal.hide();
-                    } else {
-                        $("#search-responce").html(result).show();
-                    }
-                },
-                error: function (error) {
-                    console.error(error);
-                }
-            });
         });
 
         // Получаем строку парт-номеров из базы данных

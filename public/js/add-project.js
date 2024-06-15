@@ -37,19 +37,17 @@ document.addEventListener("DOMContentLoaded", function () {
         checkbox.dispatchEvent(new Event('change')); // Trigger the change event
 
         // Вызов функции проверки валидности формы после изменения состояния чекбокса
-        dom.e('#createProjectForm input[required], #createProjectForm textarea[required], #createProjectForm input[type="checkbox"]', function () {
-            this.dispatchEvent(new Event('input')); // Инициирование события input для запуска валидации
-        });
+        dom.e('#createProjectForm input[required], #createProjectForm textarea[required], #createProjectForm input[type="checkbox"]',
+            function () {
+                this.dispatchEvent(new Event('input')); // Инициирование события input для запуска валидации
+            });
     });
+
     // Обработка клика по результату поиска клиента
-    dom.in("click", "#searchAnswer p.customer, #searchAnswer p.customer span", function (event) {
-        // Используем closest для получения элемента p.customer, когда клик происходит на span или p
-        let customer = event.target.closest('p.customer');
-
-        if (customer) {
+    dom.in("click", "#search-responce tr.customer", function () {
+        if (this.parentElement.dataset.info) {
             // Извлекаем и парсим данные из атрибута data-info
-            let info = JSON.parse(customer.dataset.info);
-
+            let info = JSON.parse(this.parentElement.dataset.info);
             // Устанавливаем полученные значения в поля ввода
             dom.e("#customerName").value = info.name; // Устанавливаем имя клиента
             dom.e("#customerId").value = info.clientID; // Устанавливаем ID клиента
@@ -57,16 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
             dom.e("#headPay").value = info.headpay; // Устанавливаем приоритет
 
             // Очищаем результаты поиска
-            dom.e("#searchAnswer").textContent = '';
-            dom.e("#searchAnswer").style.display = 'none';
-        }
-    }, 'body');
-    // скрываем ответ от сервера при клике на странице
-    dom.in('click', "body", function (event) {
-        const searchAnswer = dom.e("#searchAnswer");
-        // Проверяем, что клик произошел вне элемента searchAnswer и что он видим
-        if (!searchAnswer.contains(event.target) && getComputedStyle(searchAnswer).display !== 'none') {
-            searchAnswer.style.display = 'none';
+            dom.hide("#searchModal");
         }
     });
 

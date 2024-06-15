@@ -19,7 +19,7 @@ dom.addEventListener("DOMContentLoaded", function () {
         dom.e("#password").focus();
     });
     // searching some data on page in DB
-    let args = {url: BASE_URL + "adminka/searching.php", method: "POST", headers: null}
+    let args = {url: BASE_URL + "admin-panel/searching.php", method: "POST", headers: null}
     dom.makeRequest("#searchThis", "keyup", "", args, function (error, result, _) {
         if (error) {
             console.error('Error during fetch:', error);

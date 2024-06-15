@@ -285,7 +285,7 @@ DisplayMessage($args ?? null);
                     <tbody>
                     <?php
                     foreach ($projectBom as $line) {
-                        $color = (($line['amount'] * $order['order_amount']) <= WareHouse::getActualQtyFromWarehouse($line['owner_pn'])) ?
+                        $color = (($line['amount'] * $order['order_amount']) <= WareHouse::GetActualQtyForItem($line['customerid'], $line['item_id'])) ?
                             'success' : 'danger';
                         ?>
                         <tr class="item-list <?= $color; ?>">
@@ -302,12 +302,12 @@ DisplayMessage($args ?? null);
                                     <?php
                                 }
                             }
-                            $storage = WareHouse::getActualQtyFromWarehouse($line['owner_pn'], true);
+                            $storage = WareHouse::GetOneItemFromWarehouse($line['manufacture_pn'], $line['owner_pn']);
                             $shelf = $storage['storage_shelf'] ?? 'N/A';
                             $box = $storage['storage_box'] ?? 'N/A';
                             ?>
                             <td><?= $shelf . ' / ' . $box; ?></td>
-                            <td><?= $storage['actual_qty'] ?? '0'; ?></td>
+                            <td><?= $storage['quantity'] ?? '0'; ?></td>
                         </tr>
                         <?php
                     } ?>
@@ -725,7 +725,7 @@ and click the “ok” button to complete the operation.
             <?php
             require_once 'assembly-type.php';
             if ($project->project_type == 0) {
-                standardSaaemblyProjectType($order, $stepsData, $assy_in_progress, $amount);
+                standardAssemblyProjectType($order, $stepsData, $assy_in_progress, $amount);
             }
             if ($project->project_type == 1) {
                 smtAssemblyProjectType($order, $amount, $projectBom);

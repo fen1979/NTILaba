@@ -1,4 +1,5 @@
 <?php
+require 'stock/WareHouse.php';
 
 class Project
 {
@@ -431,15 +432,27 @@ class Project
         $partList->manufacturer = $post['manufacturer'];  // manufacturer
         $partList->manufacture_pn = $post['manufacture_pn'];  // manufacturer p/n
         $partList->owner_pn = $post['owner_pn'] ?? '';  // customer p/n && our p/n
+
+        // добавляем ID детали из БД если она есть в БД
+        // если детали нет то оставляем пустое поле
+        if (!empty($post['item_id'])) {
+            $partList->item_id = $post['item_id'];  // warehouse item id
+        } else {
+            $wh = WareHouse::GetOneItemFromWarehouse($post['manufacture_pn'], $post['owner_pn']);  // warehouse item id
+            if ($wh)
+                $partList->item_id = $wh->id;
+            else
+                $partList->item_id = null;
+        }
         $partList->description = $post['description'];  // description
         $partList->notes = $post['note'];  // note
         // before set number to DB check if this digit
         $partList->amount = self::isDigits($post['qty']);  // amount for one peace can be double!!!
-
         // tables relations
         $partList->projects_id = $project->id;
 
         R::store($partList);
+
         $res = ['info' => 'Item Added successfully', 'color' => 'success'];
         /* [ LOG WRITING ACTION ] */
         $details = 'Item for project ID= ' . $project_id . ', Added to BOM';
@@ -515,6 +528,19 @@ class Project
                             $goods->notes = $rowData['note'] ?? '';
                             $goods->projects_id = $project->id;
                             $goods->customerid = $project->customerid;
+
+                            // добавляем ID детали из БД если она есть в БД
+                            // если детали нет то оставляем пустое поле
+                            if (!empty($rowData['item_id'])) {
+                                $partList->item_id = $rowData['item_id'];  // warehouse item id
+                            } else {
+                                $wh = WareHouse::GetOneItemFromWarehouse($rowData['manufacture_pn'], $rowData['owner_pn']);  // warehouse item id
+                                if ($wh)
+                                    $partList->item_id = $wh->id;
+                                else
+                                    $partList->item_id = null;
+                            }
+
                             $goods->date_in = date("Y-m-d H:i");
 
                             R::store($goods);

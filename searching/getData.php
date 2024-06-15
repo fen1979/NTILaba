@@ -154,7 +154,7 @@ function SearchWarehouseItems($searchTerm, $table_one, $table_two)
     WHERE wn.part_name LIKE ?
        OR wn.part_value LIKE ?
        OR wn.part_type LIKE ?
-       OR w.manufacture_pn LIKE ?
+       OR wn.manufacture_pn LIKE ?
        OR w.owner LIKE ?
        OR w.owner_pn LIKE ?
     ORDER BY w.fifo ASC

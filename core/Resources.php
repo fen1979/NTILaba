@@ -439,3 +439,10 @@ const IGNORE_LIST = [
  * СПИСОК ВАРИАНТОВ ВИДОВ ДЕТАЛЕЙ В БД
  */
 const ITEM_TYPES = ["SMT", "TH", "CM", "PM", "SOLDER", "CRIMP", "LM"];
+
+/**
+ * СПИСОК НАЗВАНИЙ ПАРТ НОМЕРОВ ДЛЯ NTI
+ */
+const NTI_PN = ['NON' => 'Other', 'NCAP' => 'Capacitor', 'NRES' => 'Resistor', 'NDIO' => 'Diode', 'NIC' => 'Micro Chip', 'NTR' => 'Transistor',
+    'NCR' => 'Oscilator', 'NFU' => 'Fuse', 'NFB' => 'Ferrite bead', 'NCON' => 'Connector', 'NIND' => 'Inductor', 'NPIN' => 'Pins',
+    'NW' => 'Wires', 'NTUBE' => 'Shrink Tube'];

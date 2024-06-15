@@ -47,15 +47,16 @@ if (isset($_GET['undo']) && isset($_GET['bomid'])) {
     exit();
 }
 
+// получаем проект в котором работаем
 $project = R::load(PROJECTS, $_GET['pid']);
 $p_name = $project->projectname;
 $c_name = $project->customername;
+
+// получение БОМа проекта для вывода в таблице
 $it = R::FindAll(PROJECT_BOM, 'projects_id = ?', [$_GET['pid']]);
-if ($it) {
-    $sku = count($it) + 1;
-} else {
-    $sku = 1;
-}
+
+// уточнение кол-ва элементов в БОМе для вывода на странице
+$sku = ($it) ? (count($it) + 1) : 1;
 
 /* edit item from project bom */
 if (isset($_GET['edit-item'])) {
@@ -137,6 +138,7 @@ DisplayMessage($args ?? null);
 
         <h5 class="text-center">Adding Form</h5>
         <form action="" method="post" autocomplete="off" id="uploadForm" enctype="multipart/form-data">
+            <input type="hidden" name="item_id" id="item_id">
             <div class="mb-2">
                 <label for="sku" class="form-label">SKU <b class="text-danger">*</b></label>
                 <input type="text" class="form-control" name="sku" id="sku" value="<?= $sku; ?>" required>

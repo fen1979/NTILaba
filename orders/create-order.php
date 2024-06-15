@@ -95,6 +95,48 @@ $title = ['title' => $titleText, 'app_role' => $user['app_role']];
     /* ICON, TITLE, STYLES AND META TAGS */
     HeadContent($page);
     ?>
+    <style>
+        /* СТИЛИ ДЛЯ ВЫВОДА ТАБЛИЦ */
+        .modal-body {
+            /* убираем падинги от бутстрапа */
+            padding: 0;
+        }
+
+        .item-list:hover {
+            background: #0d6efd;
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: normal;
+            cursor: pointer;
+        }
+
+        table thead tr th {
+            /* Important */
+            position: sticky;
+            z-index: 100;
+            top: 0;
+        }
+
+        th:last-child, td:last-child {
+            text-align: right;
+            padding-right: 1rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 5px;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #717171;
+            color: #ffffff;
+        }
+    </style>
 </head>
 <body>
 
@@ -115,8 +157,6 @@ DisplayMessage($result ?? null);
             <div class="col-4"><h3>Order ID: &nbsp; <?= $order->id; ?></h3></div>
         <?php endif; ?>
     </div>
-    <!-- search some order, client, project details -->
-    <div class="search-box rounded" id="searchAnswer"></div>
 
     <form id="createOrderForm" action="" method="post" enctype="multipart/form-data" autocomplete="off">
         <input type="hidden" name="order-id" value="<?= $order['id'] ?? ''; ?>">
@@ -149,7 +189,7 @@ DisplayMessage($result ?? null);
                            value="<?= set_value('priority', $client->priority ?? '0'); ?>" required data-field-id="priority">
                 </div>
                 <div class="col-auto">
-                    <button type="button" value="create_client?orders" class="url btn btn-outline-primary">Add Customer</button>
+                    <button type="button" value="create_client?routed-from=create-order" class="url btn btn-outline-primary">Add Customer</button>
                 </div>
             </div>
         </div>
@@ -351,7 +391,13 @@ DisplayMessage($result ?? null);
     Proceed with caution and ensure all serial numbers are correctly assigned and documented.
 </span>
 
-<?php ScriptContent($page); ?>
+<?php
+// MODAL DIALOG FOR VIEW RESPONCE FROM SERVER IF SEARCHED VALUE EXIST
+SearchResponceModalDialog($page, 'search-responce');
+
+// SCRIPTS
+ScriptContent($page);
+?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // Отключение автоматического закрытия выпадающих списков
@@ -360,14 +406,10 @@ DisplayMessage($result ?? null);
         });
 
         // Обработка клика по результату поиска клиента
-        dom.in("click", "#searchAnswer p.customer, #searchAnswer p.customer span", function (event) {
-            // Используем closest для получения элемента p.customer, когда клик происходит на span или p
-            let customer = event.target.closest('p.customer');
-
-            if (customer) {
+        dom.in("click", "#search-responce tr.customer", function () {
+            if (this.parentElement.dataset.info) {
                 // Извлекаем и парсим данные из атрибута data-info
-                let info = JSON.parse(customer.dataset.info);
-
+                let info = JSON.parse(this.parentElement.dataset.info);
                 // Устанавливаем полученные значения в поля ввода
                 dom.e("#clientName").value = info.name; // Устанавливаем имя клиента
                 dom.e("#customer_id").value = info.clientID; // Устанавливаем ID клиента
@@ -375,28 +417,22 @@ DisplayMessage($result ?? null);
                 dom.e("#purchaseOrder").value = info.headpay; // Устанавливаем приоритет
 
                 // Очищаем результаты поиска
-                dom.e("#searchAnswer").textContent = '';
-                dom.e("#searchAnswer").style.display = 'none';
+                dom.hide("#searchModal");
             }
-        }, "body");
+        });
 
         // Обработка клика по результату поиска project
-        dom.in("click", "#searchAnswer p.project, #searchAnswer p.project span", function (event) {
-            // Используем closest для получения элемента p.customer, когда клик происходит на span или p
-            let project = event.target.closest('p.project');
-
-            if (project) {
+        dom.in("click", "#search-responce tr.project", function () {
+            if (this.parentElement.dataset.info) {
                 // Извлекаем и парсим данные из атрибута data-info
-                let info = JSON.parse(project.dataset.info);
-
+                let info = JSON.parse(this.parentElement.dataset.info);
                 // Устанавливаем полученные значения в поля ввода
                 dom.e("#projectName").value = info.name; // Устанавливаем имя в поле ввода
                 dom.e("#projectRevision").value = info.revision; // Устанавливаем ревизию в поле ввода
                 dom.e("#project_id").value = info.projectID; // Устанавливаем id в скрытое поле
 
                 // Очищаем результаты поиска
-                dom.e("#searchAnswer").textContent = '';
-                dom.e("#searchAnswer").style.display = 'none';
+                dom.hide("#searchModal");
             }
         }, "body");
 

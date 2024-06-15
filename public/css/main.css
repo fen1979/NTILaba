@@ -394,11 +394,18 @@ form input[required], form select[required], form textarea[required] {
     animation: blink 1s infinite;
 }
 
-/* i блюр для элементов*/
+/* i блюр для элементов */
 .blury {
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     background-color: #f0f8ff6b;
+}
+
+/*i blur style for modal dialog */
+.modal-blur {
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    background-color: rgba(48, 55, 63, 0.62);
 }
 
 /* i скрытие элементов */

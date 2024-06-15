@@ -82,24 +82,33 @@ function viewSupplier($result, $request)
  * форма поиска по проектам
  */
 function viewLineProject($result, $col)
-{
-    foreach ($result as $item) {
+{ ?>
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Version</th>
+        <th>Name</th>
+        <th>Customer</th>
+    </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($result as $item) {
         // Подготавливаем данные для атрибута data-info
         $infoData = json_encode([
             'name' => $item[$col[0]],
             'client' => $item[$col[1]],
             'revision' => $item[$col[2]],
             'projectID' => $item['id'],
-        ]);
-        ?>
-        <p class="project rounded border-bottom" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
-            ID: <span class="text-danger me-2"><?= $item['id']; ?></span>
-            Vers: <span class="text-info me-2"><?= $item[$col[2]]; ?></span>
-            Name: <span class="text-info me-2"><?= $item[$col[0]]; ?></span>&nbsp;
-            Customer: <span class="text-info me-2"><?= $item[$col[1]]; ?></span>&nbsp;
-        </p>
-        <?php
-    }
+        ]); ?>
+        <tr class="project item-list" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
+            <td><?= $item['id']; ?></td>
+            <td><?= $item[$col[2]]; ?></td>
+            <td><?= $item[$col[0]]; ?></td>
+            <td><?= $item[$col[1]]; ?></td>
+        </tr>
+    <?php } ?>
+    </tbody>
+    <?php
 }
 
 /**
@@ -318,12 +327,12 @@ function viewLogs($result)
 {
     foreach ($result as $log) {
         ?>
-        <tr>
-            <th class="text-primary" scope="row"><?= $log['user']; ?></th>
-            <th class="text-primary"><?= $log['action']; ?></th>
-            <th class="text-primary"><?= $log['object_type']; ?></th>
+        <tr class="item-list">
+            <td class="text-primary"><?= $log['user']; ?></td>
+            <td class="text-primary"><?= $log['action']; ?></td>
+            <td class="text-primary"><?= $log['object_type']; ?></td>
             <td><?= $log['details']; ?></td>
-            <th class="text-primary"><?= $log['date']; ?></th>
+            <td class="text-primary"><?= $log['date']; ?></td>
         </tr>
     <?php }
 }
@@ -350,9 +359,9 @@ function viewStorageItems($result, $searchString, $request, $user)
 
                 // вывод результата поиска на страницу просмотра всей БД
                 $color = '';
-                if ((int)$item['actual_qty'] <= (int)$item['min_qty']) {
+                if ((int)$item['quantity'] <= (int)$item['min_qty']) {
                     $color = 'danger';
-                } elseif ((int)$item['actual_qty'] <= (int)$item['min_qty'] + ((int)$item['min_qty'] / 2)) {
+                } elseif ((int)$item['quantity'] <= (int)$item['min_qty'] + ((int)$item['min_qty'] / 2)) {
                     $color = 'warning';
                 }
                 ?>
@@ -426,7 +435,7 @@ function viewStorageItems($result, $searchString, $request, $user)
                     // warehouse table fields
                     'owner' => $wh,
                     'owner_part_name' => $item['owner_pn'],
-                    'quantity' => $item['actual_qty'],
+                    'quantity' => $item['quantity'],
                     'storage_box' => $item['storage_box'],
                     'storage_shelf' => $item['storage_shelf'],
                     'storage_state' => $item['storage_state'],
@@ -465,7 +474,8 @@ function viewStorageItems($result, $searchString, $request, $user)
 }
 
 /**
- * searching in PROJECT BOM page
+ * ПОИСК ЭЛЕМЕНТА НА СКЛАДЕ ПРИ ЗАПОЛНЕНИИ PROJECT BOM
+ * ВЫВОД ДАННЫХ В ТАБЛИЦУ НА СТРАНИЦЕ
  * @param $result
  * @return void
  */
@@ -474,6 +484,7 @@ function viewPartsForProjectBOM($result)
     if ($result): foreach ($result as $item):
 
         $infoData = json_encode([
+            'item_id' => $item['id'],
             'partName' => $item['part_name'],
             'partValue' => $item['part_value'],
             'footprint' => $item['footprint'],

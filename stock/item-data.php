@@ -23,12 +23,12 @@ if (isset($_POST['save-item']) && $_POST['save-item'] == 'new') {
 // ОБНОВЛЕНИЕ НОМЕНКЛАТУРЫ ЗАПЧАСТИ
 if (isset($_POST['save-item']) && $_POST['save-item'] == 'update') {
     // ОБНОВЛЯЕМ НОМЕНКЛАТУРНЫЕ ДАННЫЕ ТОЛЬКО!!!
-    $args = WareHouse::updateNomenclatureItem($_POST, $user);
+    $args = WareHouse::UpdateNomenclatureItem($_POST, $user);
 }
 
 // ПРИХОД ЗАПЧАСТЕЙ НА СКЛАД
 if (isset($_POST['updating-quantity'])) {
-    $args = WareHouse::replenishInventory($_POST, $user);
+    $args = WareHouse::ReplenishInventory($_POST, $user);
 }
 
 // АРХИВАЦИЯ ИЛИ УДАЛЕНИЕ ЗАПИСИ В БД

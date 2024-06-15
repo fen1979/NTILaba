@@ -141,9 +141,9 @@ DisplayMessage($args ?? null);
             <?php if (!empty($goods)) {
                 foreach ($goods as $item) {
                     $color = '';
-                    if ((int)$item['actual_qty'] <= (int)$item['min_qty']) {
+                    if ((int)$item['quantity'] <= (int)$item['min_qty']) {
                         $color = 'danger';
-                    } elseif ((int)$item['actual_qty'] <= (int)$item['min_qty'] + ((int)$item['min_qty'] / 2)) {
+                    } elseif ((int)$item['quantity'] <= (int)$item['min_qty'] + ((int)$item['min_qty'] / 2)) {
                         $color = 'warning';
                     } ?>
 

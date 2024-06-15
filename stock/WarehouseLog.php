@@ -1,47 +1,45 @@
 <?php
-
 class WarehouseLog
 {
-//    Пример записи в лог:
-//
-//    Тип операции: Поступление
-//    Дата и время: 2024-03-16 14:30
-//    Идентификаторы товара: SKU12345, "Ноутбук Model X"
-//    Количество: Принято 10 шт., на складе после операции 50 шт.
-//    Источник: Поставщик "Техника+".
-//    Пользователь: Складской менеджер Иванов И.И.
-//    Документы: Накладная № 45678 от 16.03.2024.
-//    Дополнительные замечания: Товар требует дополнительной проверки качества.
-
     /**
      * Регистрация поступления товара на склад.
-     *
-     * @param string $item_id Идентификатор товара.
-     * @param int $quantity Количество поступившего товара.
-     * @param mixed $supplier Источник поступления (поставщик).
-     * @param mixed $invoice Идентификатор документа (накладная).
-     * @param mixed $lot Идентификатор вдетали (номер).
-     * @param mixed $user Идентификатор пользователя, проводившего операцию.
-     * @throws \\RedBeanPHP\RedException\SQL
+     * @param $itemData
+     * @param $warehouseData
+     * @param $invoiceData
+     * @param $user
+     * @return string[]
      */
-    public static function registerArrival($log_data, $user): array
+    public static function registerNewArrival($itemData, $warehouseData, $invoiceData, $user): array
     {
+        // $itemData
+        //  ["id"], ["part_name"], ["part_value"], ["part_type"], ["footprint"], ["manufacturer"], ["manufacture_pn"],
+        // ["min_qty"], ["shelf_life"], ["class_number"], ["datasheet"], ["description"], ["notes"], ["date_in"]
+        // $warehouseData
+        //  ["id"], ["items_id"], ["owner"]->"{"name":"NTI", "id":""}", ["owner_pn"], ["quantity"], ["storage_box"],
+        // ["storage_shelf"], ["storage_state"], ["manufacture_date"], ["fifo"], ["date_in"]
+        // $invoiceData
+        //  ["id"], ["items_id"], ["quantity"], ["warehouses_id"], ["lot"], ["invoice"],
+        // ["supplier"]=>"{"name":"Toshiba Electronic Devices & Storage","id":""}"
+        // ["owner"]=> string(23) "{"name":"NTI", "id":""}", ["date_in"]
+
         // Должна записывать в лог:
         $log = R::dispense(WAREHOUSE_LOGS);
-        $log->action = $log_data['operation']; // тип операции
-        $log->date_in = date('Y-m-d H:i'); // дату и время
-        $log->items_id = $log_data['item_id']; // идентификатор товара
-        $log->items_data = $log_data['item_data']; // товар
-        $log->quantity = $log_data['quantity']; // количество товара
-        $log->supplier_id = $log_data['supplier_id']; // id (поставщик).
-        $log->supplier = $log_data['supplier']; // источник (поставщик).
-        $log->invoice = $log_data['invoice']; // идентификатор документа (накладная).
-        $log->lot_id = $log_data['lot_id']; // идентификатор запчасти на складе LOT:id.
-        $log->lot_data = $log_data['lot_data']; // accessori table line full stack
-        $log->lot = $log_data['lot']; // идентификатор запчасти на складе LOT:num.
-        $log->owner = $log_data['owner']; // customer ppart owner
-        $log->owner_pn = $log_data['owner_pn']; // part name from customer
-        $log->user = $user['user_name']; // идентификатор пользователя
+        $log->action = 'NEW ITEM CREATION'; // тип операции
+        $log->date_in = date('Y-m-d H:i');
+        // item
+        $log->items_id = $itemData['id']; // идентификатор товара
+        $log->items_data = json_encode($itemData, JSON_UNESCAPED_UNICODE);
+
+        // warehouse
+        $log->warehouse_id = $warehouseData['id']; // идентификатор документа (warehouse).
+        $log->warehouse_data = json_encode($warehouseData, JSON_UNESCAPED_UNICODE);
+
+        // invoice
+        $log->invoice_id = $invoiceData['id']; // идентификатор документа (invoice).
+        $log->invoice_data = json_encode($invoiceData['invoice'], JSON_UNESCAPED_UNICODE);
+
+        $log->user_id = $user['id']; // идентификатор пользователя
+        $log->user = $user['user_name'];
         R::store($log);
         return ['info' => 'Part was added successfully', 'color' => 'success'];
     }

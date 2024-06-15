@@ -100,7 +100,7 @@ The information will be displayed based on the order of the fields when saving.'
                             }
 
                             // Имена таблиц
-                            $tables = ['warehouse', 'whitems', 'whinvoice'];
+                            $tables = ['warehouse', 'whitems'];//, 'whinvoice'];
                             $tableColumns = [];
 
                             if ($_POST['sel_tab'] == WH_ITEMS) {

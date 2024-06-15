@@ -8,7 +8,7 @@ if (!empty($_GET['shared'])) {
 <!DOCTYPE html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
 <head>
-    
+
     <?php HeadContent('shared'); ?>
 </head>
 <body>
@@ -39,13 +39,11 @@ if (!empty($_GET['shared'])) {
     </nav>
 </header>
 
-<?php
-if ($projectData){
-?>
+<?php if ($projectData): ?>
 <div class="container-fluid mt-4">
-    <div class="row" id="searchAnswer">
+    <div class="row">
         <?php
-        foreach ($projectData as $key => $value) {
+        foreach ($projectData as $key => $value) :
             $imgPath = $value['image'];
             $videoPath = (strpos($value['video'], '.mp4') !== false) ? $value['video'] : 'none';
             $projectId = $value['projects_id'];
@@ -94,9 +92,9 @@ if ($projectData){
                     </div>
                 </div>
             </div>
-            <?php
-        }
-        }
+        <?php
+        endforeach;
+        endif;
         ?>
     </div>
 </div>

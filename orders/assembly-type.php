@@ -15,7 +15,7 @@
  */
 
 // STANDARD PROJECT ASSEMBLY TYPE
-function standardSaaemblyProjectType($order, $stepsData, $assy_in_progress, $amount): void
+function standardAssemblyProjectType($order, $stepsData, $assy_in_progress, $amount): void
 { ?>
     <div class="step-box mt-3">
         <?php if ($order->status == 'st-8' && $assy_in_progress) {
@@ -235,7 +235,7 @@ function smtAssemblyProjectType($order, $amount, $projectBom): void
 
                         <?php
                         // trying to find component in our DB
-                        $it = WareHouse::findItemInWareHouseByManufacturePN($item['manufacture_pn'], $item['owner_pn']);
+                        $it = WareHouse::GetOneItemFromWarehouse($item['manufacture_pn'], $item['owner_pn']);
                         if ($it) {
                             // if component exist then writing where is stored
                             $stor = $it->storage_shelf ?? 'N/A' . ' / ' . $it->storage_box ?? 'N/A';

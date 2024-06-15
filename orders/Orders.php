@@ -831,7 +831,7 @@ class Orders
         // то значение будет 1, при стандартном раскладе значение 0
         if ((int)$order['pre_assy'] == 0) {
             foreach ($projectBom as $item) {
-                $inShelf = WareHouse::getActualQtyFromWarehouse($item['owner_pn'], true);
+                $inShelf = WareHouse::GetActualQtyForItem($item, true);
                 if (!$inShelf || ($item['amount'] * $order['order_amount']) > $inShelf['actual_qty'])
                     return false;
             }
@@ -851,7 +851,7 @@ class Orders
         $minProductionAmount = PHP_INT_MAX; // Инициализируем максимально возможным числом
 
         foreach ($projectBom as $item) {
-            $inShelf = WareHouse::getActualQtyFromWarehouse($item['owner_pn'], true);
+            $inShelf = WareHouse::GetActualQtyForItem($item['owner_pn'], true);
 
             // Если какой-то компонент отсутствует на складе, возвращаем 0
             if (!$inShelf || $inShelf['actual_qty'] <= 0) {
@@ -894,7 +894,7 @@ class Orders
             $projectBom = R::findAll(PROJECT_BOM, 'projects_id = ?', [$project_id]);
             foreach ($projectBom as $item) {
                 // просмотреть БОМ проекта и умножить количество в боме на количество в заказе,
-                $stock = WareHouse::getActualQtyFromWarehouse($item['owner_pn'], true);
+                $stock = WareHouse::GetActualQtyForItem($item['owner_pn'], true);
                 // проверить наличие на складе:
                 if ($stock) {
                     // если больше чем нужно отнять нужное и сохранить остатки(записать в лог склада)

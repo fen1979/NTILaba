@@ -409,7 +409,10 @@ function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid): void
         </li>
 
         <li class="nav-item">
-            <button type="button" class="url btn btn-sm btn-outline-diliny" value="warehouse/the_item?newitem">
+            <!--            <button type="button" class="url btn btn-sm btn-outline-diliny" value="warehouse/the_item?newitem">-->
+            <!--                Add New Item <i class="bi bi-plus"></i>-->
+            <!--            </button>-->
+            <button type="button" class="url btn btn-sm btn-outline-diliny" value="arrivals">
                 Add New Item <i class="bi bi-plus"></i>
             </button>
         </li>
@@ -629,6 +632,38 @@ function ShowGroupChatPopup($page, $user = null)
             </div>
             <button type="submit" class="btn btn-success">Send</button>
         </form>
+    </div>
+    <?php
+}
+
+
+// MODAL DIALOG FOR VIEW RESPONCE FROM SERVER IF SEARCHED VALUE EXIST
+// used on pages: arrivals,
+function SearchResponceModalDialog($page, $answer_id): void
+{ ?>
+    <div class="modal" id="searchModal">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Search Result</h4>
+                    <button type="button" class="btn-close" data-aj-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <table id="<?= $answer_id ?>">
+                        <!-- table for preview search results -->
+                    </table>
+                </div>
+
+                <!-- Modal footer x -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-aj-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
     <?php
 }

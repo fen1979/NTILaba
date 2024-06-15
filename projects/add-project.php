@@ -88,6 +88,54 @@ if (isset($_GET["pid"]) && isset($_GET['mode']) && $_GET['mode'] == "editmode" &
             flex-wrap: nowrap;
             text-align: center;
         }
+
+        /* СТИЛИ ДЛЯ ВЫВОДА ТАБЛИЦ */
+        .modal-body {
+            /* убираем падинги от бутстрапа */
+            padding: 0;
+        }
+
+        .item-list:hover {
+            background: #0d6efd;
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: normal;
+            cursor: pointer;
+        }
+
+        table thead tr th {
+            /* Important */
+            position: sticky;
+            z-index: 100;
+            top: 0;
+        }
+
+        th:last-child, td:last-child {
+            text-align: right;
+            padding-right: 1rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 5px;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #717171;
+            color: #ffffff;
+        }
+
+        #pasteArea {
+            height: 30rem;
+            background-image: url(/public/images/drop-here.png);
+            background-repeat: no-repeat;
+            background-position: center;
+        }
     </style>
 </head>
 <body>
@@ -137,29 +185,34 @@ DisplayMessage($args ?? null);
         <?php $lastId = R::getCol("SELECT MAX(id) FROM projects"); ?>
         <div class="col-4"><h3>Project ID: &nbsp; <?= !$id ? $lastId[0] + 1 : $id; ?></h3></div>
     </div>
-    <!-- search from fields -->
-    <div class="search-box rounded" id="searchAnswer"></div>
 
     <form id="createProjectForm" action="" method="post" enctype="multipart/form-data" autocomplete="off">
         <!--i CUSTOMER NAME ID -->
         <div class="mb-3">
             <div class="row">
-                <div class="col-8">
+                <div class="col-6">
                     <label for="customerName" class="form-label">Customer Name <b class="text-danger">*</b> <i class="bi bi-search"></i></label>
                 </div>
-                <div class="col-4">
+                <div class="col-3">
                     <label for="customerId" class="form-label">Customer ID</label>
                 </div>
+                <div class="col-3"></div>
             </div>
             <div class="row">
-                <div class="col-8">
+                <div class="col-6">
                     <input type="text" class="form-control searchThis" id="customerName" name="customerName"
                            value="<?= (!empty($project['customername'])) ? $project['customername'] : set_value('customerName'); ?>"
                            data-request="customer" required>
                 </div>
-                <div class="col-4">
+                <div class="col-3">
                     <input type="text" class="form-control" id="customerId" name="customerId" readonly
                            value="<?= (!empty($project['customerid'])) ? $project['customerid'] : set_value('customerId'); ?>">
+                </div>
+                <div class="col-3">
+                    <?php $href = "/create_client?routed-from=create-project"; ?>
+                    <a role="button" class="btn btn-outline-diliny form-control" id="createCustomer" href="<?= $href ?>">
+                        Add New Customer
+                    </a>
                 </div>
             </div>
         </div>
@@ -366,8 +419,12 @@ DisplayMessage($args ?? null);
     </form>
 </div>
 
-<!-- JAVASCRIPTS -->
-<?php ScriptContent($page); ?>
+<?php
+// MODAL DIALOG FOR VIEW RESPONCE FROM SERVER IF SEARCHED VALUE EXIST
+SearchResponceModalDialog($page, 'search-responce');
+
+// SCRIPTS
+ScriptContent($page); ?>
 <script src="/public/js/add-project.js"></script>
 </body>
 </html>

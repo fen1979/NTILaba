@@ -4,14 +4,35 @@ isset($_SESSION['userBean']) or header("Location: /") and exit();
 $user = $_SESSION['userBean'];
 $page = 'customers';
 $client = null;
-$saveButtonIcon = '<i class="bi bi-people"></i>';
+$saveButtonText = 'Save New Customer';
 
 /* creation new customer from creation new order page */
-if (isset($_GET['orders'])) {
-    $saveButtonIcon = '<i class="bi bi-people-fill"></i>';
+if (isset($_GET['routed-from']) || isset($_GET['search'])) {
+    $saveButtonText = 'Save and Back to ' . $_GET['routed-from'];
 }
 
 // create or update and save new customer
+function backDataToRoutedPage(array $get, array $args, $urlData): void
+{
+    // routed from create project page
+    if (isset($get['routed-from'])) {
+        $_SESSION['info'] = $args;
+        $url = 'customer_name=' . urlencode($urlData->name) . '&priority=' . urlencode($urlData->priority) .
+            '&customer_id=' . urlencode($urlData->id);
+        switch ($get['routed-from']) {
+            // back to project creation page with parameters
+            case 'create-project':
+                header("Location: new_project?$url");
+                break;
+            // back to order creation page with parameters
+            case 'create-order':
+                header("Location: new_order?$url");
+                break;
+        }
+        exit();
+    }
+}
+
 if (isset($_POST['createCstomer'])) {
     $extraPhones = ['phone_1' => _E($_POST['extraPhone_1']), 'phone_2' => _E($_POST['extraPhone_2'])];
     $extraContact = ['contact_1' => _E($_POST['extraContact_1']), 'contact_2' => _E($_POST['extraContact_2'])];
@@ -43,13 +64,11 @@ if (isset($_POST['createCstomer'])) {
 
     $args = ['color' => 'success', 'info' => 'Customer Saved successfully!'];
 
-    // back to order creation page with parameters
-    if (isset($_GET['orders'])) {
-        $_SESSION['info'] = $args;
-        $url = 'customerName=' . urlencode($name) . '&priority=' . urlencode($priority) . '&customer_id=' . urlencode($id);
-        header("Location: new_order?$url");
-        exit();
-    }
+    // if routed from order or project pages back data to page
+    $urlData['id'] = $id;
+    $urlData['name'] = $name;
+    $urlData['priority'] = $priority;
+    backDataToRoutedPage($_GET, $args, $urlData);
 
     // if customer was edited
     if (isset($_POST['cuid'])) {
@@ -87,17 +106,10 @@ if ($user) {
     </style>
 </head>
 <body>
+<?php
+$title = ['title' => 'Customers', 'app_role' => $user['app_role']];
+NavBarContent($page, $title, null, Y['CLIENT']);
 
-<?php if (isset($_GET['orders'])) { ?>
-    <!-- back button to order-creation or home -->
-    <a type="button" class="out-btn" href="/new_order">
-        <i class="bi bi-x-lg"></i>
-    </a>
-    <?php
-} else {
-    $title = ['title' => 'Customers', 'app_role' => $user['app_role']];
-    NavBarContent($page, $title, null, Y['CLIENT']);
-}
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>
@@ -105,15 +117,6 @@ DisplayMessage($args ?? null);
     <div class="row">
         <!-- CUSTOMER ADDING FORM -->
         <div class="col-4 rounded p-2 ms-2" style="background: antiquewhite;">
-            <h3>
-                <?php $t = 'To search, click on the field and start writing. Search fields are marked with a search sign'; ?>
-                <!--<small><i class="bi bi-info-circle" data-title="<?php /*= $t; */ ?>"></i> </small>&nbsp;-->
-                Create New
-            </h3>
-
-            <!--<div class="search-box rounded" id="searchAnswer"></div>-->
-            <!--<i class="bi bi-search"></i>&nbsp; .searchThis , data-request="customer" -->
-
             <form id="createOrderForm" action="" method="post" enctype="multipart/form-data" autocomplete="off">
                 <input type="hidden" name="cuid" value="<?= $client['id'] ?? '0' ?>">
                 <div class="mb-3">
@@ -265,8 +268,8 @@ DisplayMessage($args ?? null);
                 </div>
 
                 <button type="submit" class="btn btn-primary form-control mb-2 mt-3" name="createCstomer">
-                    Save New Customer
-                    <?= $saveButtonIcon; ?>
+                    <?= $saveButtonText; ?>
+                    <i class="bi bi-people-fill"></i>
                 </button>
             </form>
         </div>
@@ -320,27 +323,17 @@ DisplayMessage($args ?? null);
 <?php ScriptContent($page); ?>
 <script>
     // document.addEventListener("DOMContentLoaded", function () {
-    //
     //     // Обработка клика по результату поиска клиента
-    //     dom.in("click", "#searchAnswer p.customer, #searchAnswer p.customer span", function (event) {
-    //         // Используем closest для получения элемента p.customer, когда клик происходит на span или p
-    //         let customer = event.target.closest('p.customer');
-    //
-    //         if (customer) {
+    //     dom.in("click", "#search-responce tr.customer", function () {
+    //         if (this.parentElement.dataset.info) {
     //             // Извлекаем и парсим данные из атрибута data-info
-    //             let info = JSON.parse(customer.dataset.info);
-    //
-    //             // Устанавливаем полученные значения в поля ввода
-    //             dom.e("#customerName").value = info.name; // Устанавливаем имя клиента
-    //             //dom.e("#customer_id").value = info.clientID; // Устанавливаем ID клиента
-    //             dom.e("#priorityMakat").value = info.priority; // Устанавливаем приоритет
-    //             dom.e("#headPay").value = info.headpay; // Устанавливаем приоритет
-    //
+    //             let info = JSON.parse(this.parentElement.dataset.info);
+    //             dom.e("#owner").value = info.name; // Устанавливаем имя клиента
+    //             dom.e("#owner-id").value = info.clientID; // Устанавливаем ID клиента
     //             // Очищаем результаты поиска
-    //             dom.e("#searchAnswer").textContent = '';
-    //             dom.e("#searchAnswer").style.display = "none";
+    //             dom.hide("#searchModal);
     //         }
-    //     }, "body");
+    //     });
     // }); //  конец реди док
 
     function changeClientInformation(id) {

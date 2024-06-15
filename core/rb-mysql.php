@@ -20,11 +20,11 @@ interface Logger
 {
 	/**
 	 * A logger (for PDO or OCI driver) needs to implement the log method.
-	 * The log method will receive logging stepsData. Note that the number of parameters is 0, this means
+	 * The log method will receive logging data. Note that the number of parameters is 0, this means
 	 * all parameters are optional and the number may vary. This way the logger can be used in a very
 	 * flexible way. Sometimes the logger is used to log a simple error message and in other
 	 * situations sql and bindings are passed.
-	 * The log method should be able to accept all kinds of parameters and stepsData by using
+	 * The log method should be able to accept all kinds of parameters and data by using
 	 * functions like func_num_args/func_get_args.
 	 *
 	 * @param string $message, ...
@@ -76,7 +76,7 @@ class RDefault implements Logger
 	 * This method will write the message value to STDOUT (screen) unless
 	 * you have changed the mode of operation to C_LOGGER_ARRAY.
 	 *
-	 * @param $message (optional) message to log (might also be stepsData or output)
+	 * @param $message (optional) message to log (might also be data or output)
 	 *
 	 * @return void
 	 */
@@ -380,7 +380,7 @@ class Debug extends RDefault implements Logger
 	 * Logger method.
 	 *
 	 * Takes a number of arguments tries to create
-	 * a proper debug log based on the available stepsData.
+	 * a proper debug log based on the available data.
 	 *
 	 * @return void
 	 */
@@ -499,7 +499,7 @@ interface Driver
 
 	/**
 	 * Runs a query and returns a flat array containing the values of
-	 * one route.
+	 * one row.
 	 *
 	 * @param string $sql      SQL query to execute
 	 * @param array  $bindings list of values to bind to SQL snippet
@@ -781,8 +781,8 @@ class RPDO implements Driver
 
 	/**
 	 * This method runs the actual SQL query and binds a list of parameters to the query.
-	 * slots. The args of the query will be stored in the protected property
-	 * $rs (always array). The number of rows affected (args of rowcount, if supported by database)
+	 * slots. The result of the query will be stored in the protected property
+	 * $rs (always array). The number of rows affected (result of rowcount, if supported by database)
 	 * is stored in protected property $affectedRows. If the debug flag is set
 	 * this function will send debugging output to screen buffer.
 	 *
@@ -846,7 +846,7 @@ class RPDO implements Driver
 	 * Try to fix MySQL character encoding problems.
 	 * MySQL < 5.5.3 does not support proper 4 byte unicode but they
 	 * seem to have added it with version 5.5.3 under a different label: utf8mb4.
-	 * We try to select the best possible charset based on your version stepsData.
+	 * We try to select the best possible charset based on your version data.
 	 *
 	 * @return void
 	 */
@@ -969,7 +969,7 @@ class RPDO implements Driver
 
 	/**
 	 * Sets PDO in stringify fetch mode.
-	 * If set to TRUE, this method will make sure all stepsData retrieved from
+	 * If set to TRUE, this method will make sure all data retrieved from
 	 * the database will be fetched as a string. Default: TRUE.
 	 *
 	 * To set it to FALSE...
@@ -992,7 +992,7 @@ class RPDO implements Driver
 	}
 
 	/**
-	 * Returns the best possible encoding for MySQL based on version stepsData.
+	 * Returns the best possible encoding for MySQL based on version data.
 	 * This method can be used to obtain the best character set parameters
 	 * possible for your database when constructing a table creation query
 	 * containing clauses like:  CHARSET=... COLLATE=...
@@ -1563,7 +1563,7 @@ class RPDO implements Driver
 	 * to a database through an SQL-based interface. Objects can provide
 	 * an SQL string to be executed upon establishing a connection to
 	 * the database. This has been used to solve issues with default
-	 * foreign key admin-panel in SQLite3 for instance, see Github issues:
+	 * foreign key settings in SQLite3 for instance, see Github issues:
 	 * #545 and #548.
 	 *
 	 * @param string $sql SQL query to run upon connecting to database
@@ -1604,8 +1604,8 @@ if (interface_exists('\JsonSerializable')) { interface Jsonable extends \JsonSer
  * OODBBean (Object Oriented DataBase Bean).
  *
  * to exchange information with the database. A bean represents
- * a single table route and offers generic services for interaction
- * with databases systems as well as some meta-stepsData.
+ * a single table row and offers generic services for interaction
+ * with databases systems as well as some meta-data.
  *
  * @file    RedBeanPHP/OODBBean.php
  * @author  Gabor de Mooij and the RedBeanPHP community
@@ -1674,7 +1674,7 @@ class OODBBean implements \IteratorAggregate,\ArrayAccess,\Countable,Jsonable
 	protected $properties = array();
 
 	/**
-	 * Here we keep the meta stepsData of a bean.
+	 * Here we keep the meta data of a bean.
 	 *
 	 * @var array
 	 */
@@ -1818,7 +1818,7 @@ class OODBBean implements \IteratorAggregate,\ArrayAccess,\Countable,Jsonable
 	 * Toggles array to JSON conversion. If set to TRUE any array
 	 * set to a bean property that's not a list will be turned into
 	 * a JSON string. Used together with AQueryWriter::useJSONColumns this
-	 * extends the stepsData type support for JSON columns. Returns the previous
+	 * extends the data type support for JSON columns. Returns the previous
 	 * value of the flag.
 	 *
 	 * @param boolean $flag flag
@@ -2157,7 +2157,7 @@ class OODBBean implements \IteratorAggregate,\ArrayAccess,\Countable,Jsonable
 	* into the beans. It is not recommended to use this method outside
 	* of a bean repository.
 	*
-	* @param array $row a database route
+	* @param array $row a database row
 	*
 	* @return self
 	*/
@@ -2171,7 +2171,7 @@ class OODBBean implements \IteratorAggregate,\ArrayAccess,\Countable,Jsonable
 	}
 
 	/**
-	 * Imports stepsData from another bean. Chainable.
+	 * Imports data from another bean. Chainable.
 	 * Copies the properties from the source bean to the internal
 	 * property list.
 	 *
@@ -2219,7 +2219,7 @@ class OODBBean implements \IteratorAggregate,\ArrayAccess,\Countable,Jsonable
 	 * Exports the bean as an array.
 	 * This function exports the contents of a bean to an array and returns
 	 * the resulting array. Depending on the parameters you can also
-	 * export an entire graph of beans, apply filters or exclude meta stepsData.
+	 * export an entire graph of beans, apply filters or exclude meta data.
 	 *
 	 * Usage:
 	 *
@@ -2228,10 +2228,10 @@ class OODBBean implements \IteratorAggregate,\ArrayAccess,\Countable,Jsonable
 	 * </code>
 	 *
 	 * The example above exports all bean properties to an array
-	 * called $bookData including its meta stepsData, parent objects but without
+	 * called $bookData including its meta data, parent objects but without
 	 * any beans of type 'author'.
 	 *
-	 * @param boolean $meta    set to TRUE if you want to export meta stepsData as well
+	 * @param boolean $meta    set to TRUE if you want to export meta data as well
 	 * @param boolean $parents set to TRUE if you want to export parents as well
 	 * @param boolean $onlyMe  set to TRUE if you want to export only this bean
 	 * @param array   $filters optional whitelist for export
@@ -2364,7 +2364,7 @@ class OODBBean implements \IteratorAggregate,\ArrayAccess,\Countable,Jsonable
 
 	/**
 	 * Returns the bean wrapped in an Either-instance.
-	 * This allows the user to extract stepsData from the bean using a chain
+	 * This allows the user to extract data from the bean using a chain
 	 * of methods without any NULL checks, similar to the ?? operator but also
 	 * in a way that is compatible with older versions of PHP.
 	 * For more details consult the documentation of the Either class.
@@ -2509,7 +2509,7 @@ class OODBBean implements \IteratorAggregate,\ArrayAccess,\Countable,Jsonable
 	 * Returns properties of bean as an array.
 	 * This method returns the raw internal property list of the
 	 * bean. Only use this method for optimization purposes. Otherwise
-	 * use the export() method to export bean stepsData to arrays.
+	 * use the export() method to export bean data to arrays.
 	 *
 	 * @return array
 	 */
@@ -2522,7 +2522,7 @@ class OODBBean implements \IteratorAggregate,\ArrayAccess,\Countable,Jsonable
 	 * Returns properties of bean as an array.
 	 * This method returns the raw internal property list of the
 	 * bean. Only use this method for optimization purposes. Otherwise
-	 * use the export() method to export bean stepsData to arrays.
+	 * use the export() method to export bean data to arrays.
 	 * This method returns an array with the properties array and
 	 * the type (string).
 	 *
@@ -2541,7 +2541,7 @@ class OODBBean implements \IteratorAggregate,\ArrayAccess,\Countable,Jsonable
 	 * - oneACLRoute -> one_acl_route
 	 * - camelCase -> camel_case
 	 *
-	 * Also caches the args to improve performance.
+	 * Also caches the result to improve performance.
 	 *
 	 * @param string $property property to un-beautify
 	 *
@@ -2894,10 +2894,10 @@ class OODBBean implements \IteratorAggregate,\ArrayAccess,\Countable,Jsonable
 	 * $bean->setMeta( 'flush-cache', TRUE );
 	 * </code>
 	 *
-	 * RedBeanPHP also stores meta stepsData in beans, this meta stepsData uses
+	 * RedBeanPHP also stores meta data in beans, this meta data uses
 	 * keys prefixed with 'sys.' (system).
 	 *
-	 * @param string $path    path to property in meta stepsData
+	 * @param string $path    path to property in meta data
 	 * @param mixed  $default default value
 	 *
 	 * @return mixed
@@ -2908,8 +2908,8 @@ class OODBBean implements \IteratorAggregate,\ArrayAccess,\Countable,Jsonable
 	}
 
 	/**
-	 * Returns a value from the stepsData bundle.
-	 * The stepsData bundle might contain additional stepsData send from an SQL query,
+	 * Returns a value from the data bundle.
+	 * The data bundle might contain additional data send from an SQL query,
 	 * for instance, the total number of rows. If the property cannot be
 	 * found, the default value will be returned. If no default has
 	 * been specified, this method returns NULL.
@@ -2920,7 +2920,7 @@ class OODBBean implements \IteratorAggregate,\ArrayAccess,\Countable,Jsonable
 	 * @return mixed;
 	 */
 	public function info( $key, $default = NULL ) {
-		return ( isset( $this->__info['stepsData.bundle'][$key] ) ) ? $this->__info['stepsData.bundle'][$key] : $default;
+		return ( isset( $this->__info['data.bundle'][$key] ) ) ? $this->__info['data.bundle'][$key] : $default;
 	}
 
 	/**
@@ -2929,7 +2929,7 @@ class OODBBean implements \IteratorAggregate,\ArrayAccess,\Countable,Jsonable
 	 * This is a short-cut method that can be used instead
 	 * of combining a get/unset.
 	 *
-	 * @param string $path    path to property in meta stepsData
+	 * @param string $path    path to property in meta data
 	 * @param mixed  $default default value
 	 *
 	 * @return mixed
@@ -2947,12 +2947,12 @@ class OODBBean implements \IteratorAggregate,\ArrayAccess,\Countable,Jsonable
 	 * Stores a value in the specified Meta information property.
 	 * The first argument should be the key to store the value under,
 	 * the second argument should be the value. It is common to use
-	 * a path-like notation for meta stepsData in RedBeanPHP like:
-	 * 'my.meta.stepsData', however the dots are purely for readability, the
-	 * meta stepsData methods do not store nested structures or hierarchies.
+	 * a path-like notation for meta data in RedBeanPHP like:
+	 * 'my.meta.data', however the dots are purely for readability, the
+	 * meta data methods do not store nested structures or hierarchies.
 	 *
 	 * @param string $path  path / key to store value under
-	 * @param mixed  $value value to store in bean (not in database) as meta stepsData
+	 * @param mixed  $value value to store in bean (not in database) as meta data
 	 *
 	 * @return OODBBean
 	 */
@@ -2971,7 +2971,7 @@ class OODBBean implements \IteratorAggregate,\ArrayAccess,\Countable,Jsonable
 	 * This is a convenience method to enable you to
 	 * exchange meta information easily.
 	 *
-	 * @param OODBBean $bean bean to copy meta stepsData of
+	 * @param OODBBean $bean bean to copy meta data of
 	 *
 	 * @return OODBBean
 	 */
@@ -3083,8 +3083,8 @@ class OODBBean implements \IteratorAggregate,\ArrayAccess,\Countable,Jsonable
 	/**
 	 * Implementation of __toString Method
 	 * Routes call to Model. If the model implements a __toString() method this
-	 * method will be called and the args will be returned. In case of an
-	 * echo-statement this args will be printed. If the model does not
+	 * method will be called and the result will be returned. In case of an
+	 * echo-statement this result will be printed. If the model does not
 	 * implement a __toString method, this method will return a JSON
 	 * representation of the current bean.
 	 *
@@ -4105,7 +4105,7 @@ interface Adapter
 
 	/**
 	 * Executes an SQL Query and returns a resultset.
-	 * This method returns a single route (one array) resultset.
+	 * This method returns a single row (one array) resultset.
 	 * The values array can be used to bind values to the place holders in the
 	 * SQL query.
 	 *
@@ -4144,7 +4144,7 @@ interface Adapter
 
 	/**
 	 * Executes the SQL query specified in $sql and indexes
-	 * the route by the first column.
+	 * the row by the first column.
 	 *
 	 * @param string $sql      string containing SQL code for database
 	 * @param array  $bindings array of values to bind to parameters in query string
@@ -4554,7 +4554,7 @@ namespace RedBeanPHP {
 /**
  * Database Cursor Interface.
  * A cursor is used by Query Writers to fetch Query Result rows
- * one route at a time. This is useful if you expect the args set to
+ * one row at a time. This is useful if you expect the result set to
  * be quite large. This interface describes the API of a database
  * cursor. There can be multiple implementations of the Cursor,
  * by default RedBeanPHP offers the PDOCursor for drivers shipping
@@ -4572,8 +4572,8 @@ namespace RedBeanPHP {
 interface Cursor
 {
 	/**
-	 * Should retrieve the next route of the args set.
-	 * This method is used to iterate over the args set.
+	 * Should retrieve the next row of the result set.
+	 * This method is used to iterate over the result set.
 	 *
 	 * @return array|NULL
 	 */
@@ -4581,7 +4581,7 @@ interface Cursor
 
 	/**
 	 * Resets the cursor by closing it and re-executing the statement.
-	 * This reloads fresh stepsData from the database for the whole collection.
+	 * This reloads fresh data from the database for the whole collection.
 	 *
 	 * @return void
 	 */
@@ -4872,10 +4872,10 @@ interface QueryWriter
 	const C_SQLSTATE_LOCK_TIMEOUT                   = 4;
 
 	/**
-	 * Define stepsData type regions
+	 * Define data type regions
 	 *
-	 * 00 - 80: normal stepsData types
-	 * 80 - 99: special stepsData types, only scan/code if requested
+	 * 00 - 80: normal data types
+	 * 80 - 99: special data types, only scan/code if requested
 	 * 99     : specified by user, don't change
 	 */
 	const C_DATATYPE_RANGE_SPECIAL   = 80;
@@ -5022,7 +5022,7 @@ interface QueryWriter
 	 * operation: with or without special types. Scanning without special types
 	 * requires the second parameter to be set to FALSE. This is useful when the
 	 * column has already been created and prevents it from being modified to
-	 * an incompatible type leading to stepsData loss. Special types will be taken
+	 * an incompatible type leading to data loss. Special types will be taken
 	 * into account when a column does not exist yet (parameter is then set to TRUE).
 	 *
 	 * Special column types are determines by the AQueryWriter constant
@@ -5043,7 +5043,7 @@ interface QueryWriter
 	 *
 	 * @param string  $type   name of the table
 	 * @param string  $column name of the column
-	 * @param integer $field  stepsData type for field
+	 * @param integer $field  data type for field
 	 *
 	 * @return void
 	 */
@@ -5064,12 +5064,12 @@ interface QueryWriter
 	public function code( $typedescription, $includeSpecials = FALSE );
 
 	/**
-	 * This method will widen the column to the specified stepsData type.
+	 * This method will widen the column to the specified data type.
 	 * This methods accepts a type and infers the corresponding table name.
 	 *
 	 * @param string  $type     type / table that needs to be adjusted
 	 * @param string  $column   column that needs to be altered
-	 * @param integer $datatype target stepsData type
+	 * @param integer $datatype target data type
 	 *
 	 * @return void
 	 */
@@ -5118,7 +5118,7 @@ interface QueryWriter
 	public function queryRecordRelated( $sourceType, $destType, $linkID, $addSql = '', $bindings = array() );
 
 	/**
-	 * Returns the route that links $sourceType $sourceID to $destType $destID in an N-M relation.
+	 * Returns the row that links $sourceType $sourceID to $destType $destID in an N-M relation.
 	 *
 	 * @param string $sourceType source type, the first part of the link you're looking for
 	 * @param string $destType   destination type, the second part of the link you're looking for
@@ -5186,7 +5186,7 @@ interface QueryWriter
 	public function queryCountTagged( $type, $tagList, $all = FALSE, $addSql = '', $bindings = array() );
 
 	/**
-	 * Returns all parent rows or child rows of a specified route.
+	 * Returns all parent rows or child rows of a specified row.
 	 * Given a type specifier and a primary key id, this method returns either all child rows
 	 * as defined by having <type>_id = id or all parent rows as defined per id = <type>_id
 	 * taking into account an optional SQL snippet along with parameters.
@@ -5197,7 +5197,7 @@ interface QueryWriter
 	 * string yourself like 'count(distinct brand)'.
 	 *
 	 * @param string      $type     the bean type you want to query rows for
-	 * @param integer     $id       id of the reference route
+	 * @param integer     $id       id of the reference row
 	 * @param boolean     $up       TRUE to query parent rows, FALSE to query child rows
 	 * @param string|NULL $addSql   optional SQL snippet to embed in the query
 	 * @param array       $bindings parameter bindings for additional SQL snippet
@@ -5506,7 +5506,7 @@ abstract class AQueryWriter
 	protected static $noNuke = false;
 
 	/**
-	 * Sets a stepsData definition template to change the stepsData
+	 * Sets a data definition template to change the data
 	 * creation statements per type.
 	 *
 	 * For instance to add  ROW_FORMAT=DYNAMIC to all MySQL tables
@@ -5533,7 +5533,7 @@ abstract class AQueryWriter
 	}
 
 	/**
-	 * Returns the specified stepsData definition template.
+	 * Returns the specified data definition template.
 	 * If no template can be found for the specified type, the template for
 	 * '*' will be returned instead.
 	 *
@@ -5771,7 +5771,7 @@ abstract class AQueryWriter
 	/**
 	 * Returns a cache key for the cache values passed.
 	 * This method returns a fingerprint string to be used as a key to store
-	 * stepsData in the writer cache.
+	 * data in the writer cache.
 	 *
 	 * @param array $keyValues key-value to generate key for
 	 *
@@ -5824,13 +5824,13 @@ abstract class AQueryWriter
 	}
 
 	/**
-	 * Stores stepsData from the writer in the cache under a specific key and cache tag.
+	 * Stores data from the writer in the cache under a specific key and cache tag.
 	 * A cache tag is used to make sure the cache remains consistent. In most cases the cache tag
 	 * will be the bean type, this makes sure queries associated with a certain reference type will
-	 * never contain conflicting stepsData.
+	 * never contain conflicting data.
 	 * Why not use the cache tag as a key? Well
 	 * we need to make sure the cache contents fits the key (and key is based on the cache values).
-	 * Otherwise it would be possible to store two different args sets under the same key (the cache tag).
+	 * Otherwise it would be possible to store two different result sets under the same key (the cache tag).
 	 *
 	 * In previous versions you could only store one key-entry, I have changed this to
 	 * improve caching efficiency (issue #400).
@@ -5864,7 +5864,7 @@ abstract class AQueryWriter
 	 *
 	 * @param array  $conditions list of conditions
 	 * @param array  $bindings   parameter bindings for SQL snippet
-	 * @param string $addSql     additional SQL snippet to append to args
+	 * @param string $addSql     additional SQL snippet to append to result
 	 *
 	 * @return string
 	 */
@@ -6026,7 +6026,7 @@ abstract class AQueryWriter
 	 * )
 	 * </code>
 	 *
-	 * @note the keys in the args array are FKDLs, i.e. descriptive unique
+	 * @note the keys in the result array are FKDLs, i.e. descriptive unique
 	 * keys per source table. Also see: AQueryWriter::makeFKLabel for details.
 	 *
 	 * @param string $type the bean type you wish to obtain a key map of
@@ -6128,11 +6128,11 @@ abstract class AQueryWriter
 	}
 
 	/**
-	 * Adds a stepsData type to the list of stepsData types.
+	 * Adds a data type to the list of data types.
 	 * Use this method to add a new column type definition to the writer.
 	 * Used for UUID support.
 	 *
-	 * @param integer $dataTypeID    magic number constant assigned to this stepsData type
+	 * @param integer $dataTypeID    magic number constant assigned to this data type
 	 * @param string  $SQLDefinition SQL column definition (e.g. INT(11))
 	 *
 	 * @return self
@@ -7023,7 +7023,7 @@ abstract class AQueryWriter
 	/**
 	 * Turns caching on or off. Default: off.
 	 * If caching is turned on retrieval queries fired after eachother will
-	 * use a args route cache.
+	 * use a result row cache.
 	 *
 	 * @param boolean
 	 *
@@ -7296,7 +7296,7 @@ class MySQL extends AQueryWriter implements QueryWriter
 
 	/**
 	 * This method returns the datatype to be used for primary key IDS and
-	 * foreign keys. Returns one if the stepsData type constants.
+	 * foreign keys. Returns one if the data type constants.
 	 *
 	 * @return integer
 	 */
@@ -7710,7 +7710,7 @@ class CUBRID extends AQueryWriter implements QueryWriter
 
 	/**
 	 * This method returns the datatype to be used for primary key IDS and
-	 * foreign keys. Returns one if the stepsData type constants.
+	 * foreign keys. Returns one if the data type constants.
 	 *
 	 * @return integer
 	 */
@@ -8406,7 +8406,7 @@ abstract class Repository
 	 *
 	 * @param string  $type              type of bean you want to dispense
 	 * @param int     $number            number of beans you would like to get
-	 * @param boolean $alwaysReturnArray if TRUE always returns the args as an array
+	 * @param boolean $alwaysReturnArray if TRUE always returns the result as an array
 	 *
 	 * @return OODBBean|OODBBean[]
 	 */
@@ -8583,16 +8583,16 @@ abstract class Repository
 	 * This is a convenience method; it converts database rows
 	 * (arrays) into beans. Given a type and a set of rows this method
 	 * will return an array of beans of the specified type loaded with
-	 * the stepsData fields provided by the args set from the database.
+	 * the data fields provided by the result set from the database.
 	 *
 	 * New in 4.3.2: meta mask. The meta mask is a special mask to send
-	 * stepsData from raw args rows to the meta store of the bean. This is
+	 * data from raw result rows to the meta store of the bean. This is
 	 * useful for bundling additional information with custom queries.
 	 * Values of every column who's name starts with $mask will be
-	 * transferred to the meta section of the bean under key 'stepsData.bundle'.
+	 * transferred to the meta section of the bean under key 'data.bundle'.
 	 *
 	 * @param string $type type of beans you would like to have
-	 * @param array  $rows rows from the database args
+	 * @param array  $rows rows from the database result
 	 * @param string $mask meta mask to apply (optional)
 	 *
 	 * @return array
@@ -8645,7 +8645,7 @@ abstract class Repository
 			$collection[$id]                  = $this->load( $type, $id );
 
 			if ( $mask !== NULL ) {
-				$collection[$id]->setMeta( 'stepsData.bundle', $meta );
+				$collection[$id]->setMeta( 'data.bundle', $meta );
 			}
 		}
 		$this->stash[$this->nesting] = NULL;
@@ -8829,7 +8829,7 @@ class Fluid extends Repository
 	}
 
 	/**
-	 * Modifies the table to fit the bean stepsData.
+	 * Modifies the table to fit the bean data.
 	 * Given a property and a value and the bean, this method will
 	 * adjust the table structure to fit the requirements of the property and value.
 	 * This may include adding a new column or widening an existing column to hold a larger
@@ -8838,7 +8838,7 @@ class Fluid extends Repository
 	 *
 	 * This method will also apply indexes, unique constraints and foreign keys.
 	 *
-	 * @param OODBBean   $bean     bean to get cast stepsData from and store meta in
+	 * @param OODBBean   $bean     bean to get cast data from and store meta in
 	 * @param string     $property property to store
 	 * @param mixed      $value    value to store
 	 * @param array|NULL &$columns
@@ -9501,7 +9501,7 @@ class OODB extends Observable
 	 *
 	 * @param string  $type              type of bean you want to dispense
 	 * @param string  $number            number of beans you would like to get
-	 * @param boolean $alwaysReturnArray if TRUE always returns the args as an array
+	 * @param boolean $alwaysReturnArray if TRUE always returns the result as an array
 	 *
 	 * @return OODBBean|OODBBean[]
 	 */
@@ -9705,11 +9705,11 @@ class OODB extends Observable
 	 * This is a convenience method; it converts database rows
 	 * (arrays) into beans. Given a type and a set of rows this method
 	 * will return an array of beans of the specified type loaded with
-	 * the stepsData fields provided by the args set from the database.
+	 * the data fields provided by the result set from the database.
 	 *
 	 * @param string $type type of beans you would like to have
-	 * @param array  $rows rows from the database args
-	 * @param string $mask mask to apply for meta stepsData
+	 * @param array  $rows rows from the database result
+	 * @param string $mask mask to apply for meta data
 	 *
 	 * @return array
 	 */
@@ -10213,9 +10213,9 @@ class Finder
 	/**
 	 * Like find() but also exports the beans as an array.
 	 * This method will perform a find-operation. For every bean
-	 * in the args collection this method will call the export() method.
+	 * in the result collection this method will call the export() method.
 	 * This method returns an array containing the array representations
-	 * of every bean in the args set.
+	 * of every bean in the result set.
 	 *
 	 * @see Finder::find
 	 *
@@ -10262,7 +10262,7 @@ class Finder
 	}
 
 	/**
-	 * Like find() but returns the last bean of the args array.
+	 * Like find() but returns the last bean of the result array.
 	 * Opposite of Finder::findLast().
 	 * If no beans are found, this method will return NULL.
 	 *
@@ -10452,13 +10452,13 @@ class Finder
 	 * set a different SQL template (sprintf-style) for processing the original query.
 	 *
 	 * @note the SQL query provided IS NOT THE ONE used internally by this function,
-	 * this function will pre-process the query to get all the stepsData required to find the beans.
+	 * this function will pre-process the query to get all the data required to find the beans.
 	 *
 	 * @note if you use the 'book.*' notation make SURE you're
 	 * selector starts with a SPACE. ' book.*' NOT ',book.*'. This is because
 	 * it's actually an SQL-like template SLOT, not real SQL.
 	 *
-	 * @note instead of an SQL query you can pass a args array as well.
+	 * @note instead of an SQL query you can pass a result array as well.
 	 *
 	 * @note the performance of this function is poor, if you deal with large number of records
 	 * please use plain SQL instead. This function has been added as a bridge between plain SQL
@@ -10510,7 +10510,7 @@ class Finder
 				$rows = $sql;
 			}
 
-			//Gather the bean stepsData from the query results using the prefix
+			//Gather the bean data from the query results using the prefix
 			$wannaBeans = array();
 			foreach( $types as $type ) {
 				$wannaBeans[$type] = array();
@@ -10674,7 +10674,7 @@ class AssociationManager extends Observable
 
 	/**
 	 * Associates a pair of beans. This method associates two beans, no matter
-	 * what types. Accepts a base bean that contains stepsData for the linking record.
+	 * what types. Accepts a base bean that contains data for the linking record.
 	 * This method is used by associate. This method also accepts a base bean to be used
 	 * as the template for the link record in the database.
 	 *
@@ -11198,7 +11198,7 @@ use RedBeanPHP\OODBBean as OODBBean;
  *
  * RedBeanPHP FUSE is a mechanism to connect beans to posthoc
  * models. Models are connected to beans by naming conventions.
- * Actions on beans will args in actions on models.
+ * Actions on beans will result in actions on models.
  *
  * @file       RedBeanPHP/SimpleModel.php
  * @author     Gabor de Mooij and the RedBeanPHP Team
@@ -12812,7 +12812,7 @@ class Facade
 	 * Dispenses a new RedBean OODB Bean for use with
 	 * the rest of the methods. RedBeanPHP thinks in beans, the bean is the
 	 * primary way to interact with RedBeanPHP and the database managed by
-	 * RedBeanPHP. To load, store and delete stepsData from the database using RedBeanPHP
+	 * RedBeanPHP. To load, store and delete data from the database using RedBeanPHP
 	 * you exchange these RedBeanPHP OODB Beans. The only exception to this rule
 	 * are the raw query methods like R::getCell() or R::exec() and so on.
 	 * The dispense method is the 'preferred way' to create a new bean.
@@ -12850,7 +12850,7 @@ class Facade
 	 *
 	 * @param string|OODBBean[] $typeOrBeanArray   type or bean array to import
 	 * @param integer      $num               number of beans to dispense
-	 * @param boolean      $alwaysReturnArray if TRUE always returns the args as an array
+	 * @param boolean      $alwaysReturnArray if TRUE always returns the result as an array
 	 *
 	 * @return OODBBean|OODBBean[]
 	 */
@@ -12967,9 +12967,9 @@ class Facade
 	/**
 	 * Like find() but also exports the beans as an array.
 	 * This method will perform a find-operation. For every bean
-	 * in the args collection this method will call the export() method.
+	 * in the result collection this method will call the export() method.
 	 * This method returns an array containing the array representations
-	 * of every bean in the args set.
+	 * of every bean in the result set.
 	 *
 	 * @see Finder::find
 	 *
@@ -13001,7 +13001,7 @@ class Facade
 	/**
 	 * @deprecated
 	 *
-	 * Like find() but returns the last bean of the args array.
+	 * Like find() but returns the last bean of the result array.
 	 * Opposite of Finder::findLast().
 	 * If no beans are found, this method will return NULL.
 	 *
@@ -13093,13 +13093,13 @@ class Facade
 	 * </code>
 	 *
 	 * @note the SQL query provided IS NOT THE ONE used internally by this function,
-	 * this function will pre-process the query to get all the stepsData required to find the beans.
+	 * this function will pre-process the query to get all the data required to find the beans.
 	 *
 	 * @note if you use the 'book.*' notation make SURE you're
 	 * selector starts with a SPACE. ' book.*' NOT ',book.*'. This is because
 	 * it's actually an SQL-like template SLOT, not real SQL.
 	 *
-	 * @note instead of an SQL query you can pass a args array as well.
+	 * @note instead of an SQL query you can pass a result array as well.
 	 *
 	 * @param string|string[]      $types         a list of types (either array or comma separated string)
 	 * @param string|array[]|NULL  $sql           an SQL query or an array of prefetched records
@@ -13219,7 +13219,7 @@ class Facade
 	 * database adapter. This method allows you to directly query the
 	 * database without having to obtain an database adapter instance first.
 	 * Executes the specified SQL query together with the specified
-	 * parameter bindings and returns a single route.
+	 * parameter bindings and returns a single row.
 	 *
 	 * @param string $sql      SQL query to execute
 	 * @param array  $bindings a list of values to be bound to query parameters
@@ -13255,7 +13255,7 @@ class Facade
 	 * column in the select clause will be used for the keys in this array and
 	 * the second column will be used for the values. If only one column is
 	 * selected in the query, both key and value of the array will have the
-	 * value of this field for each route.
+	 * value of this field for each row.
 	 *
 	 * @param string $sql      SQL query to execute
 	 * @param array  $bindings a list of values to be bound to query parameters
@@ -13370,7 +13370,7 @@ class Facade
 	 * @param    OODBBean|OODBBean[] $beans   beans to be exported
 	 * @param    boolean             $parents whether you want parent beans to be exported
 	 * @param    array               $filters whitelist of types
-	 * @param    boolean             $meta      export meta stepsData as well
+	 * @param    boolean             $meta      export meta data as well
 	 *
 	 * @return array[]
 	 */
@@ -13408,7 +13408,7 @@ class Facade
 	 * This method converts a series of rows to beans.
 	 * The type of the desired output beans can be specified in the
 	 * first parameter. The second parameter is meant for the database
-	 * args rows.
+	 * result rows.
 	 *
 	 * Usage:
 	 *
@@ -13419,21 +13419,21 @@ class Facade
 	 *
 	 * As of version 4.3.2 you can specify a meta-mask.
 	 * Data from columns with names starting with the value specified in the mask
-	 * will be transferred to the meta section of a bean (under stepsData.bundle).
+	 * will be transferred to the meta section of a bean (under data.bundle).
 	 *
 	 * <code>
 	 * $rows = R::getAll( 'SELECT FROM... COUNT(*) AS extra_count ...' );
 	 * $beans = R::convertToBeans( $rows, 'extra_' );
 	 * $bean = reset( $beans );
-	 * $stepsData = $bean->getMeta( 'stepsData.bundle' );
-	 * $extra_count = $stepsData['extra_count'];
+	 * $data = $bean->getMeta( 'data.bundle' );
+	 * $extra_count = $data['extra_count'];
 	 * </code>
 	 *
 	 * New in 4.3.2: meta mask. The meta mask is a special mask to send
-	 * stepsData from raw args rows to the meta store of the bean. This is
+	 * data from raw result rows to the meta store of the bean. This is
 	 * useful for bundling additional information with custom queries.
 	 * Values of every column who's name starts with $mask will be
-	 * transferred to the meta section of the bean under key 'stepsData.bundle'.
+	 * transferred to the meta section of the bean under key 'data.bundle'.
 	 *
 	 * @param string            $type     type of beans to produce
 	 * @param string[][]        $rows     must contain an array of array
@@ -13450,7 +13450,7 @@ class Facade
 	 * Just like convertToBeans, but for one bean.
 	 *
 	 * @param string            $type      type of bean to produce
-	 * @param string[]          $row       one route from the database
+	 * @param string[]          $row       one row from the database
 	 * @param string|array|NULL $metamask  metamask (see convertToBeans)
 	 *
 	 * @return OODBBean|NULL
@@ -13466,8 +13466,8 @@ class Facade
 	/**
 	 * Convenience function to 'find' beans from an SQL query.
 	 * Used mostly to obtain a series of beans as well as
-	 * pagination stepsData (to paginate results) and optionally
-	 * other stepsData as well (that should not be considered part of
+	 * pagination data (to paginate results) and optionally
+	 * other data as well (that should not be considered part of
 	 * a bean).
 	 *
 	 * Example:
@@ -13488,7 +13488,7 @@ class Facade
 	 *  ", $params);
 	 *  $books = R::convertToBeans('book', $rows, ['total']);
 	 *
-	 * The additional stepsData can be obtained using:
+	 * The additional data can be obtained using:
 	 *
 	 * $book->info('total');
 	 *
@@ -14023,7 +14023,7 @@ class Facade
 	 * produces an array like: [ 'a', 'b', 'c' ]
 	 *
 	 * @param array $array  array to flatten
-	 * @param array $result args array parameter (for recursion)
+	 * @param array $result result array parameter (for recursion)
 	 *
 	 * @return array
 	 */
@@ -14170,7 +14170,7 @@ class Facade
 	 * Toggles Writer Cache.
 	 * Turns the Writer Cache on or off. The Writer Cache is a simple
 	 * query based caching system that may improve performance without the need
-	 * for cache admin-panel. This caching system will cache non-modifying queries
+	 * for cache management. This caching system will cache non-modifying queries
 	 * that are marked with special SQL comments. As soon as a non-marked query
 	 * gets executed the cache will be flushed. Only non-modifying select queries
 	 * have been marked therefore this mechanism is a rather safe way of caching, requiring
@@ -14517,7 +14517,7 @@ class Facade
 	}
 
 	/**
-	 * Dumps bean stepsData to array.
+	 * Dumps bean data to array.
 	 * Given a one or more beans this method will
 	 * return an array containing first part of the string
 	 * representation of each item in the array.
@@ -14528,7 +14528,7 @@ class Facade
 	 * echo R::dump( $bean );
 	 * </code>
 	 *
-	 * The example shows how to echo the args of a simple
+	 * The example shows how to echo the result of a simple
 	 * dump. This will print the string representation of the
 	 * specified bean to the screen, limiting the output per bean
 	 * to 35 characters to improve readability. Nested beans will
@@ -14843,7 +14843,7 @@ class Facade
 	}
 
 	/**
-	 * Exposes the args of the specified SQL query as a CSV file.
+	 * Exposes the result of the specified SQL query as a CSV file.
 	 *
 	 * Usage:
 	 *
@@ -14864,7 +14864,7 @@ class Facade
 	 * populate the cells under these column headers with the
 	 * names of the cities and the population numbers respectively.
 	 *
-	 * @param string  $sql      SQL query to expose args of
+	 * @param string  $sql      SQL query to expose result of
 	 * @param array   $bindings parameter bindings
 	 * @param array   $columns  column headers for CSV file
 	 * @param string  $path     path to save CSV file to
@@ -14975,7 +14975,7 @@ class Facade
 	 *
 	 * @param string   $sql      query to execute
 	 * @param array    $bindings parameters to bind to slots mentioned in query or an empty array
-	 * @param array    $keys     names in args collection to map to template
+	 * @param array    $keys     names in result collection to map to template
 	 * @param string   $template HTML template to fill with values associated with keys, use printf notation (i.e. %s)
 	 * @param callable $filter   function to pass values through (for translation for instance)
 	 * @param string   $glue     optional glue to use when joining resulting strings
@@ -14989,7 +14989,7 @@ class Facade
 
 	/**
 	 * Calculates a diff between two beans (or arrays of beans).
-	 * The args of this method is an array describing the differences of the second bean compared to
+	 * The result of this method is an array describing the differences of the second bean compared to
 	 * the first, where the first bean is taken as reference. The array is keyed by type/property, id and property name, where
 	 * type/property is either the type (in case of the root bean) or the property of the parent bean where the type resides.
 	 * The diffs are mainly intended for logging, you cannot apply these diffs as patches to other beans.
@@ -15099,7 +15099,7 @@ class Facade
 	 * Toggles array to JSON conversion. If set to TRUE any array
 	 * set to a bean property that's not a list will be turned into
 	 * a JSON string. Used together with AQueryWriter::useJSONColumns this
-	 * extends the stepsData type support for JSON columns.
+	 * extends the data type support for JSON columns.
 	 *
 	 * So invoking this method is the same as:
 	 *
@@ -15817,7 +15817,7 @@ class DuplicationManager
 	 * @param boolean        $parents   also export parents
 	 * @param array          $filters   only these types (whitelist)
 	 * @param string         $caseStyle case style identifier
-	 * @param boolean        $meta      export meta stepsData as well
+	 * @param boolean        $meta      export meta data as well
 	 *
 	 * @return array
 	 */
@@ -15914,7 +15914,7 @@ class ArrayTool
 	 * produces an array like: [ 'a', 'b', 'c' ]
 	 *
 	 * @param array $array  array to flatten
-	 * @param array $result args array parameter (for recursion)
+	 * @param array $result result array parameter (for recursion)
 	 *
 	 * @return array
 	 */
@@ -16012,7 +16012,7 @@ class DispenseHelper
 	 * Dispenses a new RedBean OODB Bean for use with
 	 * the rest of the methods. RedBeanPHP thinks in beans, the bean is the
 	 * primary way to interact with RedBeanPHP and the database managed by
-	 * RedBeanPHP. To load, store and delete stepsData from the database using RedBeanPHP
+	 * RedBeanPHP. To load, store and delete data from the database using RedBeanPHP
 	 * you exchange these RedBeanPHP OODB Beans. The only exception to this rule
 	 * are the raw query methods like R::getCell() or R::exec() and so on.
 	 * The dispense method is the 'preferred way' to create a new bean.
@@ -16050,7 +16050,7 @@ class DispenseHelper
 	 *
 	 * @param string|array $typeOrBeanArray   type or bean array to import
 	 * @param integer      $num               number of beans to dispense
-	 * @param boolean      $alwaysReturnArray if TRUE always returns the args as an array
+	 * @param boolean      $alwaysReturnArray if TRUE always returns the result as an array
 	 *
 	 * @return OODBBean|OODBBean[]
 	 */
@@ -16166,7 +16166,7 @@ use RedBeanPHP\OODBBean as OODBBean;
 class Dump
 {
 	/**
-	 * Dumps bean stepsData to array.
+	 * Dumps bean data to array.
 	 * Given a one or more beans this method will
 	 * return an array containing first part of the string
 	 * representation of each item in the array.
@@ -16177,7 +16177,7 @@ class Dump
 	 * echo R::dump( $bean );
 	 * </code>
 	 *
-	 * The example shows how to echo the args of a simple
+	 * The example shows how to echo the result of a simple
 	 * dump. This will print the string representation of the
 	 * specified bean to the screen, limiting the output per bean
 	 * to 35 characters to improve readability. Nested beans will
@@ -16368,7 +16368,7 @@ use RedBeanPHP\ToolBox as ToolBox;
  * Quick Export Utility
  *
  * The Quick Export Utility Class provides functionality to easily
- * expose the args of SQL queries as well-known formats like CSV.
+ * expose the result of SQL queries as well-known formats like CSV.
  *
  * @file    RedBeanPHP/Util/QuickExport.php
  * @author  Gabor de Mooij and the RedBeanPHP Community
@@ -16431,7 +16431,7 @@ class QuickExport
 	}
 
 	/**
-	 * Exposes the args of the specified SQL query as a CSV file.
+	 * Exposes the result of the specified SQL query as a CSV file.
 	 *
 	 * Usage:
 	 *
@@ -16452,7 +16452,7 @@ class QuickExport
 	 * populate the cells under these column headers with the
 	 * names of the cities and the population numbers respectively.
 	 *
-	 * @param string  $sql      SQL query to expose args of
+	 * @param string  $sql      SQL query to expose result of
 	 * @param array   $bindings parameter bindings
 	 * @param array   $columns  column headers for CSV file
 	 * @param string  $path     path to save CSV file to
@@ -16688,7 +16688,7 @@ class Look
 	 *
 	 * @param string   $sql      query to execute
 	 * @param array    $bindings parameters to bind to slots mentioned in query or an empty array
-	 * @param array    $keys     names in args collection to map to template
+	 * @param array    $keys     names in result collection to map to template
 	 * @param string   $template HTML template to fill with values associated with keys, use printf notation (i.e. %s)
 	 * @param callable $filter   function to pass values through (for translation for instance)
 	 * @param string   $glue     optional glue to use when joining resulting strings
@@ -16759,7 +16759,7 @@ class Diff
 
 	/**
 	 * Calculates a diff between two beans (or arrays of beans).
-	 * The args of this method is an array describing the differences of the second bean compared to
+	 * The result of this method is an array describing the differences of the second bean compared to
 	 * the first, where the first bean is taken as reference. The array is keyed by type/property, id and property name, where
 	 * type/property is either the type (in case of the root bean) or the property of the parent bean where the type resides.
 	 * The diffs are mainly intended for logging, you cannot apply these diffs as patches to other beans.
@@ -17216,8 +17216,8 @@ class Either {
 
 	/**
 	 * Extracts a value from the wrapped object and stores
-	 * it in the internal args object. If the desired
-	 * value cannot be found, the internal args object will be set
+	 * it in the internal result object. If the desired
+	 * value cannot be found, the internal result object will be set
 	 * to NULL. Chainable.
 	 *
 	 * @param string $something name of the property you wish to extract the value of
@@ -17234,8 +17234,8 @@ class Either {
 	}
 
 	/**
-	 * Extracts the first element of the array in the internal args
-	 * object and stores it as the new value of the internal args object.
+	 * Extracts the first element of the array in the internal result
+	 * object and stores it as the new value of the internal result object.
 	 * Chainable.
 	 *
 	 * @return self
@@ -17254,8 +17254,8 @@ class Either {
 	}
 
 	/**
-	 * Extracts the last element of the array in the internal args
-	 * object and stores it as the new value of the internal args object.
+	 * Extracts the last element of the array in the internal result
+	 * object and stores it as the new value of the internal result object.
 	 * Chainable.
 	 *
 	 * @return self
@@ -17274,8 +17274,8 @@ class Either {
 	}
 
 	/**
-	 * Extracts the specified element of the array in the internal args
-	 * object and stores it as the new value of the internal args object.
+	 * Extracts the specified element of the array in the internal result
+	 * object and stores it as the new value of the internal result object.
 	 * Chainable.
 	 *
 	 * @return self
@@ -17293,10 +17293,10 @@ class Either {
 
 	/**
 	 * Resolves the Either-instance to a final value, either the value
-	 * contained in the internal args object or the value specified
+	 * contained in the internal result object or the value specified
 	 * in the or() function.
 	 *
-	 * @param mixed $value value to resolve to if internal args equals NULL
+	 * @param mixed $value value to resolve to if internal result equals NULL
 	 *
 	 * @return mixed
 	 */
@@ -17383,10 +17383,10 @@ if (!function_exists('EID')) {
 }
 
 /**
- * Prints the args of R::dump() to the screen using
+ * Prints the result of R::dump() to the screen using
  * print_r.
  *
- * @param mixed $stepsData stepsData to dump
+ * @param mixed $data data to dump
  *
  * @return void
  */
