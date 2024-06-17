@@ -493,6 +493,57 @@ function LANGUAGE_BUTTONS(): void
     <?php
 }
 
+/**
+ * PAGINATION BUTTONS ON PAGES
+ * orders, projects, warehouse
+ * limit by default 25 per page
+ * @param $get
+ * @param $page
+ * @param $table
+ * @param int $limit
+ * @return string[]
+ */
+function PaginationForPages($get, $page, $table, int $limit = 25): array
+{
+    $pagination = '';
+    if (isset($get['limit']))
+        $limit = (int)$get['limit'];
+
+    // установка лимита для запроса в БД
+    if ($limit != 0) {
+        $currentPage = isset($get['page']) ? (int)$get['page'] : 1;
+        $offset = ($currentPage - 1) * $limit;
+        $pagination = "LIMIT $limit OFFSET $offset";
+        // SQL-запрос для получения общего количества записей
+        $totalResult = R::count($table);
+        $totalPages = ceil($totalResult / $limit);
+
+        $limit_n = (isset($_GET['limit'])) ? '&limit=' . $_GET['limit'] : '';
+        // Пагинация
+        $paginationButtons = '<div class="pagination">';
+        // the previos button
+        if ($currentPage > 1) {
+            $href = "$page?page=" . ($currentPage - 1) . $limit_n;
+            $paginationButtons .= "<a href='$href'>&laquo; Previous</a>";
+        }
+        // the pages buttons
+        for ($i = 1; $i <= $totalPages; $i++) {
+            $href = "$page?page=" . $i . $limit_n;
+            $paginationButtons .= "<a href='$href' class='" . ($i == $currentPage ? 'active' : '') . "'>$i</a>";
+        }
+        // the next button
+        if ($currentPage < $totalPages) {
+            $href = "$page?page=" . ($currentPage + 1) . $limit_n;
+            $paginationButtons .= "<a href='$href'>Next &raquo;</a>";
+        }
+        $paginationButtons .= '</div>';
+    } else {
+        $paginationButtons = '';
+    }
+
+    return [$pagination, $paginationButtons];
+}
+
 /* FOOTER FOR PAGES */
 function footer($page = '', $blur = '')
 { ?>

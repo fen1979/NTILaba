@@ -10,7 +10,7 @@ $items = WH_ITEMS;
 $warehouse = WAREHOUSE;
 
 // Параметры пагинации
-list($pagination, $paginationButtons) = PaginationForPage($_GET, $page, WH_ITEMS, 50);
+list($pagination, $paginationButtons) = PaginationForPages($_GET, $page, WH_ITEMS, 50);
 
 $query = "
         SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf

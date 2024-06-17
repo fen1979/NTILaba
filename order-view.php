@@ -22,7 +22,7 @@ if (isset($_POST['password']) && isset($_POST['idForUse'])) {
 $settings = getUserSettings($thisUser, ORDERS);
 
 // Параметры пагинации
-list($pagination, $paginationButtons) = PaginationForPage($_GET, $page, ORDERS);
+list($pagination, $paginationButtons) = PaginationForPages($_GET, $page, ORDERS);
 
 /* вывод заказов после фильтрации по статусу заказа, работникам и клиенту */
 $orderData = Orders::getOrdersByFilters($thisUser['filterby_status'], $thisUser['filterby_client'], $pagination);
