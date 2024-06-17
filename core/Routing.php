@@ -2,7 +2,7 @@
 // подключение Базы Данных МаринаДБ
 require "rb-mysql.php";
 // database name = !!!-> nti_production <-!!!
-R::setup('mysql:host=localhost;dbname=nti_production', 'root', '8CwG24YwZG');
+R::setup('mysql:host=localhost;dbname=db_name', 'root', 'root');
 // R::freeze( true ); /* тут выключение режима заморозки */
 
 if (!R::testConnection()) {
