@@ -21,9 +21,11 @@ if (isset($_POST['password']) && isset($_POST['idForUse'])) {
 /* настройки вывода от пользователя */
 $settings = getUserSettings($thisUser, ORDERS);
 
+// Параметры пагинации
+list($pagination, $paginationButtons) = PaginationForPage($_GET, $page, ORDERS);
+
 /* вывод заказов после фильтрации по статусу заказа, работникам и клиенту */
-$orderData = Orders::getOrdersByFilters($thisUser['filterby_status'], $thisUser['filterby_client']);
-//$orderData = Orders::getOrdersByFilters($user['filterby_status'], $user['filterby_user'], $user['filterby_client'], $user);
+$orderData = Orders::getOrdersByFilters($thisUser['filterby_status'], $thisUser['filterby_client'], $pagination);
 ?>
 <!doctype html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
@@ -154,7 +156,7 @@ DisplayMessage($args ?? null);
                     <i class="bi bi-filter"></i>
                 </button>
 
-                <?php if(isUserRole(ROLE_ADMIN)) { ?>
+                <?php if (isUserRole(ROLE_ADMIN)) { ?>
                     <!-- вывод таблицы данных xlsx для приорити по фильтрам -->
                     <button class="btn btn-outline-secondary" type="button" id="priority-out-data">
                         Priority
@@ -299,6 +301,9 @@ DisplayMessage($args ?? null);
         ShowGroupChatPopup($page, $thisUser);
         ?>
     </main>
+
+    <!-- pagination buttons -->
+    <?= $paginationButtons; ?>
 
     <!--  модальное окно форма для архивирования заказа  -->
     <div class="modal show" id="archive_order" style="backdrop-filter: blur(15px);">

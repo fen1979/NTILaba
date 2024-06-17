@@ -71,12 +71,11 @@ class Orders
      * this function work and for searching orders
      * @param $status
      * @param $customerName
+     * @param $pagination
      * @return array
      */
-    public static function getOrdersByFilters($status, $customerName): array
+    public static function getOrdersByFilters($status, $customerName, $pagination): array
     {
-        //i public static function getOrdersByFilters($status, $worker, $customerName, $user): array ???
-
         // Базовая часть запроса
         $query = "SELECT * FROM orders WHERE 1=1";
         $params = [];
@@ -90,17 +89,6 @@ class Orders
             $query .= " AND status IN (" . R::genSlots($stat) . ")";
             $params = array_merge($params, $stat);
         }
-
-        // Добавляем условия по работнику, если они указаны
-        // из за нескольких работников в фильтре не показывает как надо
-        // пока что фильтр по работнику через if в выводе заказов
-        // Select * FROM orders Where 1=1 AND workers LIKE "%Inna%" OR workers Like "%Amir%"
-        // if (!empty($worker)) {
-        //     $filterApplied = true; // Фильтр применен
-        //     $work = explode(',', $worker);
-        //     $query .= " AND workers LIKE %" . R::genSlots($work) . "%";
-        //     $params = array_merge($params, $work);
-        // }
 
         // Добавляем условие по имени клиента, если оно указано
         if (!empty($customerName)) {
@@ -118,9 +106,9 @@ class Orders
         // Проверяем, выбран ли фильтрв ВСЕ
         if (!$filterApplied && $status == '-1') {
             // Если фильтры были применены, возвращаем 'orders'
-            return R::findAll(ORDERS, 'ORDER BY id ASC');
+            return R::findAll(ORDERS, 'ORDER BY id ASC ' . $pagination);
         }
-
+        $query .= " $pagination";
         // Выполняем запрос
         $orders = R::getAll($query, $params);
 

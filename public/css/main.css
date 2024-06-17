@@ -731,6 +731,31 @@ i.flag-il:before, i.flag-israel:before {
 
 /* ===== OKOH4AHNE ======= POPUP CHAT WINDOW ===== */
 
+/* PAGINATION ON SOME PAGES */
+.pagination {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+}
+
+.pagination a {
+    margin: 0 5px;
+    padding: 8px 16px;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    color: #007bff;
+}
+
+.pagination a.active {
+    background-color: #007bff;
+    color: white;
+    border: 1px solid #007bff;
+}
+
+.pagination a:hover:not(.active) {
+    background-color: #ddd;
+}
+
 /*
  *i MEDIA QUERIES
  * Как использовать эту таблицу:

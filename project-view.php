@@ -19,12 +19,17 @@ if (isset($_POST['preview-mode'])) {
     $_SESSION['preview_mode'] = !$_SESSION['preview_mode'];
 }
 
+
 /* вывод всех проектов в список */
 $result = null;
 $viewBtnEdit = false;
 $user = $_SESSION['userBean'];
 $role = $user['app_role'];
-$result = R::findAll(PROJECTS, 'ORDER BY date_in DESC');
+
+// Параметры пагинации
+list($pagination, $paginationButtons) = PaginationForPage($_GET, $page, PROJECTS, 20);
+
+$result = R::findAll(PROJECTS, 'ORDER BY date_in DESC ' . $pagination);
 ?>
 
 <!doctype html>
@@ -175,19 +180,6 @@ DisplayMessage($args ?? null);
                                         <i class="bi bi-eye"></i>
                                         View Project
                                     </a>
-
-<!--                                    --><?php //if (isUserRole(ROLE_ADMIN)) { ?>
-<!--                                        <a type="button" title="Create New Order" class="btn btn-outline-diliny" href="/new_order?pid=--><?php //= $projectId; ?><!--&nord">-->
-<!--                                            <i class="bi bi-tools"></i>-->
-<!--                                        </a>-->
-<!--                                        <button type="button" title="Archive" class="btn btn-outline-diliny archive" data-projectid="--><?php //= $projectId; ?><!--">-->
-<!--                                            <i class="bi bi-archive-fill"></i>-->
-<!--                                        </button>-->
-<!---->
-<!--                                        <button type="button" title="Delete" class="btn btn-outline-danger delete-button" data-projectid="--><?php //= $projectId; ?><!--">-->
-<!--                                            <i class="bi bi-trash3-fill"></i>-->
-<!--                                        </button>-->
-<!--                                    --><?php //} ?>
                                 </div>
                             </div>
                         </div>
@@ -237,6 +229,9 @@ DisplayMessage($args ?? null);
             </div>
         </div>
     </div>
+
+    <!-- pagination buttons -->
+    <?= $paginationButtons ?>
 
     <!-- Футер -->
     <?php footer($page); ?>

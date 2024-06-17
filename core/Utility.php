@@ -296,3 +296,57 @@ function _dirPath(array $params): string
         exit();
     }
 }
+
+/**
+ * PAGINATION BUTTONS ON PAGES
+ * orders, projects, warehouse
+ * @param $get
+ * @param $page
+ * @param $table
+ * @param int $limit
+ * @return string[]
+ */
+function PaginationForPage($get, $page, $table, int $limit = 25): array
+{
+// Параметры пагинации
+    $pagination = '';
+    if (isset($get['limit']))
+        $limit = (int)$get['limit'];
+
+
+    if ($limit != 0) {
+        $currentPage = isset($get['page']) ? (int)$get['page'] : 1;
+        $offset = ($currentPage - 1) * $limit;
+        $pagination = "LIMIT $limit OFFSET $offset";
+        // SQL-запрос для получения общего количества записей
+        $totalResult = R::count($table);
+        $totalPages = ceil($totalResult / $limit);
+    }
+
+    if ($limit != 0) {
+        $limit_n = (isset($_GET['limit'])) ? '&limit=' . $_GET['limit'] : '';
+
+        // Пагинация
+        $paginationButtons = '<div class="pagination">';
+        // the previos button
+        if ($currentPage > 1) {
+            $paginationButtons .= '<a href="' . $page . '?page=' . ($currentPage - 1) . $limit_n . '">&laquo; Previous</a>';
+        }
+
+        // add pages buttons
+        for ($i = 1; $i <= $totalPages; $i++) {
+            $paginationButtons .= '<a href="' . $page . '?page=' . $i . $limit_n . '" class="' . ($i == $currentPage ? 'active' : '') . '">' . $i . '</a>';
+        }
+
+        // the next button
+        if ($currentPage < $totalPages) {
+            $paginationButtons .= '<a href="' . $page . '?page=' . ($currentPage + 1) . $limit_n . '">Next &raquo;</a>';
+        }
+
+        $paginationButtons .= '</div>';
+    } else {
+        $paginationButtons = '';
+    }
+
+    return [$pagination, $paginationButtons];
+}

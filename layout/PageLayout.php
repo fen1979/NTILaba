@@ -152,7 +152,10 @@ function ALL_PAGES_BUTTONS($page, $l): void
                 <?php } ?>
             </button>
         </li>
-    <?php endif; ?>
+    <?php endif;
+
+    NUMBERS_OF_ROW($page);
+    ?>
 
     <li class="nav-item">
         <button type="button" class="url btn btn-sm btn-outline-<?= ($l == Y['ORDER']) ? 'gold' : 'secondary'; ?>"
@@ -395,23 +398,13 @@ function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid): void
                     Write off Item manualy <i class="bi bi-plus"></i>
                 </button>
             </li>
-        <?php } ?>
-        <li class="nav-item dropdown">
-            <button class="m-03 btn btn-outline-diliny btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Numbers of row
-            </button>
-            <ul class="dropdown-menu dropdown-menu" aria-labelledby="items-view-limit">
-                <li><a class="dropdown-item" href="warehouse?limit=50">50</a></li>
-                <li><a class="dropdown-item" href="warehouse?limit=100">100</a></li>
-                <li><a class="dropdown-item" href="warehouse?limit=500">500</a></li>
-                <li><a class="dropdown-item" href="warehouse?limit=0">All</a></li>
-            </ul>
-        </li>
+            <?php
+        }
+        // выбор количества строк на странице
+        NUMBERS_OF_ROW($page);
+        ?>
 
         <li class="nav-item">
-            <!--            <button type="button" class="url btn btn-sm btn-outline-diliny" value="warehouse/the_item?newitem">-->
-            <!--                Add New Item <i class="bi bi-plus"></i>-->
-            <!--            </button>-->
             <button type="button" class="url btn btn-sm btn-outline-diliny" value="arrivals">
                 Add New Item <i class="bi bi-plus"></i>
             </button>
@@ -452,6 +445,25 @@ function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid): void
         </li>
         <?php
     }
+}
+
+/**
+ * numbers of row for preview on pages
+ */
+function NUMBERS_OF_ROW($page)
+{ ?>
+    <li class="nav-item dropdown">
+        <button class="m-03 btn btn-outline-diliny btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Numbers of row
+        </button>
+        <ul class="dropdown-menu dropdown-menu" aria-labelledby="items-view-limit">
+            <li><a class="dropdown-item" href="<?= $page ?>?limit=50">50</a></li>
+            <li><a class="dropdown-item" href="<?= $page ?>?limit=100">100</a></li>
+            <li><a class="dropdown-item" href="<?= $page ?>?limit=500">500</a></li>
+            <li><a class="dropdown-item" href="<?= $page ?>?limit=0">All</a></li>
+        </ul>
+    </li>
+    <?php
 }
 
 /**

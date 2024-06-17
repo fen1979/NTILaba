@@ -8,22 +8,9 @@ $page = 'warehouse';
 // SQL-запрос для получения всех записей из nomenclature (whitems) с прикрепленными записями из warehouse
 $items = WH_ITEMS;
 $warehouse = WAREHOUSE;
-$pagination = '';
 
 // Параметры пагинации
-if (isset($_GET['limit']))
-    $limit = (int)$_GET['limit'];
-else
-    $limit = 50;
-
-if ($limit != 0) {
-    $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    $offset = ($currentPage - 1) * $limit;
-    $pagination = "LIMIT $limit OFFSET $offset";
-    // SQL-запрос для получения общего количества записей
-    $totalResult = R::count(WH_ITEMS);
-    $totalPages = ceil($totalResult / $limit);
-}
+list($pagination, $paginationButtons) = PaginationForPage($_GET, $page, WH_ITEMS, 50);
 
 $query = "
         SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf
@@ -84,30 +71,6 @@ $settings = getUserSettings($thisUser, WH_ITEMS);
 
         .notice {
             white-space: pre-wrap;
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            padding: 10px 0;
-        }
-
-        .pagination a {
-            margin: 0 5px;
-            padding: 8px 16px;
-            text-decoration: none;
-            border: 1px solid #ddd;
-            color: #007bff;
-        }
-
-        .pagination a.active {
-            background-color: #007bff;
-            color: white;
-            border: 1px solid #007bff;
-        }
-
-        .pagination a:hover:not(.active) {
-            background-color: #ddd;
         }
     </style>
 </head>
@@ -179,27 +142,9 @@ DisplayMessage($args ?? null);
             </tbody>
         </table>
 
-        <?php
-        if ($limit != 0) {
-            $limit_n = (isset($_GET['limit'])) ? '&limit=' . $_GET['limit'] : '';
-            ?>
-            <!-- Пагинация -->
-            <div class="pagination">
-                <?php if ($currentPage > 1): ?>
-                    <a href="warehouse?page=<?= $currentPage - 1 . $limit_n; ?>">&laquo; Previous</a>
-                <?php endif; ?>
-
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="warehouse?page=<?= $i . $limit_n; ?>" class="<?= $i == $currentPage ? 'active' : ''; ?>"><?= $i; ?></a>
-                <?php endfor; ?>
-
-                <?php if ($currentPage < $totalPages): ?>
-                    <a href="warehouse?page=<?= $currentPage + 1 . $limit_n; ?>">Next &raquo;</a>
-                <?php endif; ?>
-            </div>
-
-        <?php }
-    } else { ?>
+        <!-- pagination buttons -->
+        <?= $paginationButtons ?>
+    <?php } else { ?>
 
         <div class="mt-3">
             <h3>You have not yet configured the output styles for this table, do you want to configure it?</h3>

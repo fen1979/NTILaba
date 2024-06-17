@@ -3,9 +3,11 @@ isset($_SESSION['userBean']) or header("Location: /") and exit();
 require_once 'projects/Project.php';
 /* страница редактирования одного шага в проекте */
 $page = 'edit_step';
+$user = $_SESSION['userBean'];
 $max = $ns = 0;
 $step = $projectid = '';
 $args = array();
+
 if (isset($_POST['save-changes'])) {
     $args = Project::editProjectStep($_POST, $_SESSION['userBean'], $_FILES, _E($_POST['step_id']));
 }
@@ -24,6 +26,7 @@ if (isset($_GET['pid']) && isset($_GET['sid'])) {
     $toolID = $step['tool'];
     $stepImage = $step['image'];
     $stepVideo = (strpos($step['video'], '.mp4') !== false) ? $step['video'] : 'none';
+    $projectName = $project->projectname;
 }
 ?>
 
@@ -39,7 +42,9 @@ if (isset($_GET['pid']) && isset($_GET['sid'])) {
 <body>
 <?php
 /* NAVIGATION BAR */
-NavBarContent($page, $_SESSION['userBean'], $_GET['pid']);
+$title = ['title' => '<b class="text-primary"> Project: ' . $projectName . '</b>', 'app_role' => $user['app_role'], 'link' => $user['link']];
+NavBarContent($page, $title, $_GET['pid']);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args);
 ?>
