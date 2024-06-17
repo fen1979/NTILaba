@@ -505,7 +505,7 @@ function LANGUAGE_BUTTONS(): void
  */
 function PaginationForPages($get, $page, $table, int $limit = 25): array
 {
-    $pagination = '';
+    $pagination = $paginationButtons = '';
     if (isset($get['limit']))
         $limit = (int)$get['limit'];
 
@@ -537,8 +537,6 @@ function PaginationForPages($get, $page, $table, int $limit = 25): array
             $paginationButtons .= "<a href='$href'>Next &raquo;</a>";
         }
         $paginationButtons .= '</div>';
-    } else {
-        $paginationButtons = '';
     }
 
     return [$pagination, $paginationButtons];
