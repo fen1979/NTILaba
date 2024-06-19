@@ -520,7 +520,7 @@ function PaginationForPages($get, $page, $table, int $limit = 25): array
 
         $limit_n = (isset($_GET['limit'])) ? '&limit=' . $_GET['limit'] : '';
         // Пагинация
-        $paginationButtons = '<div class="pagination">';
+        $paginationButtons = '<div class="pagination" id="pagination-container">';
         // the previos button
         if ($currentPage > 1) {
             $href = "$page?page=" . ($currentPage - 1) . $limit_n;

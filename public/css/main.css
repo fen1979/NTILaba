@@ -410,7 +410,7 @@ form input[required], form select[required], form textarea[required] {
 
 /* i скрытие элементов */
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 /* i сделать элементы такие как ссылка не кликабельными */

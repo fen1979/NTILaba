@@ -593,6 +593,12 @@ dom.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        // if pagination is exist on page
+        let pagination = dom.e("#pagination-container");
+        if(pagination){
+            pagination.classList.add("hidden");
+        }
+
         // вывод информации на разных страницах
         // used on pages: project, order, warehouse
         let searchAnswer = dom.e("#searchAnswer");
