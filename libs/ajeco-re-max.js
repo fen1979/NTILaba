@@ -115,6 +115,7 @@ dom.addEventListener("DOMContentLoaded", function () {
 
     /**
      * Плавно отображает элемент, изменяя его CSS свойства `display` и `opacity`.
+     * так же назначает события нажатий вне окна и закрытия окна кнопкой закрыть и ESC
      * @param {string} selector - Селектор элемента, который будет показан.
      * @param {number|string} speed - Длительность анимации в миллисекундах или ключевые слова "slow" или "fast".
      * @param {boolean} blur - затемнение задней части окна
@@ -142,12 +143,15 @@ dom.addEventListener("DOMContentLoaded", function () {
                     element.style.opacity = "1";
                     if (blur) element.classList.add("modal-blur");
                 }
-                dimiss(selector);
+
+                // Устанавливаем обработчики
+                attachDismissHandlers(selector);
+                attachEscKeyHandler(selector);
             }
         }
 
         // устанавливаем событие клик на кнопки закрытия модального окна
-        function dimiss(selector) {
+        function attachDismissHandlers(selector) {
             // Найти все элементы с атрибутом data-aj-dismiss="modal"
             const elements = document.querySelectorAll('[data-aj-dismiss="modal"]');
 
@@ -157,6 +161,18 @@ dom.addEventListener("DOMContentLoaded", function () {
                     dom.hide(selector);
                 });
             });
+        }
+
+        // Обработка нажатия клавиши ESC для скрытия
+        function attachEscKeyHandler(selector) {
+            function handleEscKey(event) {
+                if (event.key === 'Escape') {
+                    dom.hide(selector);
+                    document.removeEventListener('keydown', handleEscKey);
+                }
+            }
+
+            document.addEventListener('keydown', handleEscKey);
         }
     };
 
@@ -595,7 +611,7 @@ dom.addEventListener("DOMContentLoaded", function () {
 
         // if pagination is exist on page
         let pagination = dom.e("#pagination-container");
-        if(pagination){
+        if (pagination) {
             pagination.classList.add("hidden");
         }
 
@@ -605,11 +621,11 @@ dom.addEventListener("DOMContentLoaded", function () {
         if (searchAnswer) {
             //let elem = dom.e("#full_height");
             //if (elem) {
-                searchAnswer.innerHTML = result;
-           // } else {
-           //      searchAnswer.innerHTML = result;
-           //      searchAnswer.style.display = "block";
-           //  }
+            searchAnswer.innerHTML = result;
+            // } else {
+            //      searchAnswer.innerHTML = result;
+            //      searchAnswer.style.display = "block";
+            //  }
         }
 
         // вывод информации в модальное окно

@@ -132,12 +132,12 @@ DisplayMessage($args);
                                         <i class="bi bi-pencil"></i>
                                     </a>
                                     <!-- Кнопка для открытия модального окна -->
-                                    <button type="button" class="btn btn-outline-danger ms-1 delete-button" title="Delete Step">
+                                    <button type="button" class="btn btn-outline-danger ms-1 delete-button" title="Delete Step"
+                                            data-projectid="<?= $projectID ?>" data-stepid="<?= $step_id ?>">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
                                 <?php
-                                echo '<p class="data-for-modal" data-projectid="' . $projectID . '" data-stepid="' . $step_id . '" hidden></p>';
                             }
                             $t = 'By clicking on the revision, 
                             you will be taken to the archive page of the change history of this step for this project, 
@@ -164,7 +164,7 @@ DisplayMessage($args);
 <!-- END Container  -->
 
 <!--  модальное окно форма для удаления одного шага в проекте  -->
-<div class="modal" id="deleteModal" style="backdrop-filter: blur(15px);">
+<div class="modal" id="deleteModal">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
 
@@ -176,6 +176,7 @@ DisplayMessage($args);
 
             <!-- Содержимое модального окна -->
             <div class="modal-body">
+                <p>Project id: <span id="pid"></span>, Step id: <span id="sid"></span>. If you not see this numbers that some went wrong!</p>
                 <form action="" method="post">
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
@@ -192,7 +193,7 @@ DisplayMessage($args);
 </div>
 
 <!--  модальное окно форма для удаления или архивации проекта  -->
-<div class="modal" id="deleteProjectModal" style="backdrop-filter: blur(15px);">
+<div class="modal" id="deleteProjectModal">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
 
@@ -216,7 +217,7 @@ DisplayMessage($args);
                     <div class="mb-3">
                         <label for="pr_password" class="form-label">Password</label>
                         <input type="password" class="form-control" id="pr_password" name="password" required autofocus>
-                        <input type="text" class="form-control" id="dnProjectID" name="projectid" hidden>
+                        <input type="hidden" class="form-control" id="dnProjectID" value="" name="projectid">
                     </div>
                     <button type="submit" id="delete-btn" name="delete" class="btn btn-outline-danger hidden">Delete Project</button>
                     <button type="submit" id="archive-btn" name="archive" class="btn btn-outline-warning hidden">Archive Project</button>
@@ -232,6 +233,5 @@ if (isDirEmpty($projectForView->docsdir) && $projectForView->docsdir != 'storage
 }
 ScriptContent($page); ?>
 <script type="text/javascript" src="/public/js/edit-project.js"></script>
-
 </body>
 </html>

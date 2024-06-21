@@ -190,51 +190,15 @@ DisplayMessage($args ?? null);
         <?php
     }
 
-
     /* POPUP CHAT WINDOW */
     ShowGroupChatPopup($page, $user);
+
+    /* PAGINATION BUTTONS */
+    echo $paginationButtons;
+
+    /* FOOTER FOR PAGE */
+    footer($page);
     ?>
-
-    <!--  модальное окно форма для удаления или архивации проекта  -->
-    <div class="modal" id="deleteModal" style="backdrop-filter: blur(15px);">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-
-                <!-- Заголовок модального окна -->
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modal-title">
-                        Delete Project
-                        <br>
-                        <b class="text-danger">Please be advised:
-                            <br>This action is irreversible and requires thorough consideration.
-                            <br>Once initiated, there is no turning back, so weigh your decision carefully.
-                        </b>
-                    </h5>
-
-                    <button type="button" class="btn-close" data-aj-dismiss="modal" style="border:solid red 1px;"></button>
-                </div>
-
-                <!-- Содержимое модального окна -->
-                <div class="modal-body">
-                    <form action="" method="post">
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required autofocus>
-                            <input type="text" class="form-control" id="dfProjectID" name="projectid" hidden>
-                        </div>
-                        <button type="submit" id="delete-btn" name="delete" class="btn btn-outline-danger hidden">Delete Project</button>
-                        <button type="submit" id="archive-btn" name="archive" class="btn btn-outline-warning hidden">Archive Project</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- pagination buttons -->
-    <?= $paginationButtons ?>
-
-    <!-- Футер -->
-    <?php footer($page); ?>
 </div>
 <!-- END Container  -->
 <form action="" method="post" id="project_preview_switch">

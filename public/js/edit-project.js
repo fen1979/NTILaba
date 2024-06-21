@@ -7,37 +7,25 @@ document.addEventListener("DOMContentLoaded", function () {
         dom.e("#project_folder").value = dom.e("#project_folder_path").textContent.trim();
     }
 
-    /* при вводе в поле номер шага скрыть все елементы кроме этого поля */
-    $('#actStepInput').keyup(function () {
-        $("#saveBtn").removeClass("btn-danger").addClass("btn-success");
-        $("#errors").text("");
-
-        $(".version-box").addClass("hidden");
-        $(".image-picker").addClass("hidden");
-        $(".video-picker").addClass("hidden");
-        $(".checkbox").addClass("hidden");
-        $(".desc-box").addClass("hidden");
-        $(".prev-box").addClass("hidden");
-    });
-
     /* удаление данного шага с перестроением данных в БД */
-    $('.delete-button').on('click', function () {
-        let projectid = $(this).closest('.card').find('.data-for-modal').data('projectid');
-        let ident = $(this).closest('.card').find('.data-for-modal').data('stepid');
-        $('#dfProjectID').val(projectid);
-        $('#dfstepId').val(ident);
-
-        $('#deleteModal').modal('show');
-        $("#password").focus();
+    dom.in("click", ".delete-button", function () {
+        dom.e("#dfProjectID").value = this.dataset.projectid;
+        dom.e("#pid").textContent = this.dataset.projectid;
+        dom.e('#dfstepId').value = this.dataset.stepid;
+        dom.e('#sid').textContent = this.dataset.stepid;
+        dom.show("#deleteModal", "fast", true);
+        dom.e("#password").focus();
     });
 
     /* step image full view expande */
-    $(".expande").on("click", function () {
-        let cl = $(this).closest('.expanded-card');
-        cl.toggleClass("col-md-6");
+    dom.inAll("click", ".expande", function () {
+        let cl = this.closest('.expanded-card');
+        if (cl) {
+            cl.classList.toggle("col-md-6");
+        }
     });
 
-    $('.video-button').click(function () {
+    dom.in("click", ".video-button", function () {
         // Находим ближайшие элементы изображения и видео относительно кнопки
         let image = $(this).closest('.card').find('.image-preview');
         let video = $(this).closest('.card').find('.video-preview');
@@ -57,32 +45,40 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-
     /* действиe архивировать проект  */
-    $(".archive").on("click", function () {
-        let projectID = $(this).data("projectid");
-        $("#dnProjectID").val(projectID);
-
-        /* Откройте модальное окно */
-        $("#modal-title").text("Add Project to Archive");
-        $("#archive-btn").show();
-        $("#delete-btn").hide();
-        $("#deleteProjectModal").modal('show');
-        $("#pr_password").focus();
+    dom.in("click", ".archive", function () {
+        dom.e("#dnProjectID").value = this.dataset.projectid;
+        dom.e("#modal-title").textContent = "Add Project to Archive";
+        dom.show("#archive-btn");
+        dom.hide("#delete-btn");
+        dom.show("#deleteProjectModal", "fast", true);
+        dom.e("#pr_password").focus();
     });
 
     /* действиe удалить проект  */
-    $(".deleteProjectButton").on("click", function () {
-        let projectID = $(this).data("projectid");
-        $("#dnProjectID").val(projectID);
-
-        /* Откройте модальное окно */
-        $("#modal-title").html("Delete Project<br><b class=\"text-danger\">Please be advised:" +
+    dom.in("click", ".deleteProjectButton", function () {
+        dom.e("#dnProjectID").value = this.dataset.projectid;
+        dom.e("#modal-title").innerHTML = "Delete Project<br><b class=\"text-danger\">Please be advised:" +
             "<br>This action is irreversible and requires thorough consideration." +
-            "<br>Once initiated, there is no turning back, so weigh your decision carefully.</b>");
-        $("#delete-btn").show();
-        $("#archive-btn").hide();
-        $("#deleteProjectModal").modal('show');
-        $("#pr_password").focus();
+            "<br>Once initiated, there is no turning back, so weigh your decision carefully.</b>";
+        dom.show("#delete-btn");
+        dom.hide("#archive-btn");
+        dom.show("#deleteProjectModal", "fast", true);
+        dom.e("#pr_password").focus();
     });
+
 }); // End document.ready
+
+
+/* при вводе в поле номер шага скрыть все елементы кроме этого поля */
+// $('#actStepInput').keyup(function () {
+//     $("#saveBtn").removeClass("btn-danger").addClass("btn-success");
+//     $("#errors").text("");
+//
+//     $(".version-box").addClass("hidden");
+//     $(".image-picker").addClass("hidden");
+//     $(".video-picker").addClass("hidden");
+//     $(".checkbox").addClass("hidden");
+//     $(".desc-box").addClass("hidden");
+//     $(".prev-box").addClass("hidden");
+// });

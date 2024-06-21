@@ -30,34 +30,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    /* действиe архивировать проект  */
-    $(".archive").on("click", function () {
-        let projectID = $(this).data("projectid");
-        $("#dfProjectID").val(projectID);
-
-        /* Откройте модальное окно */
-        $("#modal-title").text("Add Project to Archive");
-        $("#archive-btn").show();
-        $("#delete-btn").hide();
-        $("#deleteModal").modal('show');
-        $("#password").focus();
-    });
-
-    /* действиe удалить проект  */
-    $(".delete-button").on("click", function () {
-        let projectID = $(this).data("projectid");
-        $("#dfProjectID").val(projectID);
-
-        /* Откройте модальное окно */
-        $("#modal-title").html("Delete Project<br><b class=\"text-danger\">Please be advised:" +
-            "<br>This action is irreversible and requires thorough consideration." +
-            "<br>Once initiated, there is no turning back, so weigh your decision carefully.</b>");
-        $("#delete-btn").show();
-        $("#archive-btn").hide();
-        $("#deleteModal").modal('show');
-        $("#password").focus();
-    });
-
 }); // End document.ready
 
 function copyToClipboard(text) {
