@@ -171,7 +171,7 @@ DisplayMessage($args);
             <!-- Заголовок модального окна -->
             <div class="modal-header">
                 <h5 class="modal-title">Delete Step</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" style="border:solid red 1px;"></button>
+                <button type="button" class="btn-close" data-aj-dismiss="modal" style="border:solid red 1px;"></button>
             </div>
 
             <!-- Содержимое модального окна -->
@@ -207,7 +207,7 @@ DisplayMessage($args);
                     </b>
                 </h5>
 
-                <button type="button" class="btn-close" data-bs-dismiss="modal" style="border:solid red 1px;"></button>
+                <button type="button" class="btn-close" data-aj-dismiss="modal" style="border:solid red 1px;"></button>
             </div>
 
             <!-- Содержимое модального окна -->

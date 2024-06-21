@@ -313,7 +313,7 @@ DisplayMessage($args ?? null);
                 <!-- Заголовок модального окна -->
                 <div class="modal-header">
                     <h5 class="modal-title text-danger">Archivate Order</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="border:solid red 1px;"></button>
+                    <button type="button" class="btn-close" data-aj-dismiss="modal" style="border:solid red 1px;"></button>
                 </div>
 
                 <!-- Содержимое модального окна -->

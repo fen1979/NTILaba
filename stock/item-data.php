@@ -504,7 +504,7 @@ DisplayMessage($args ?? null);
             <!-- Modal Header -->
             <div class="modal-header">
                 <h4 class="modal-title">Search Result</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-aj-dismiss="modal"></button>
             </div>
 
             <!-- Modal body -->
@@ -512,7 +512,7 @@ DisplayMessage($args ?? null);
 
             <!-- Modal footer -->
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" data-aj-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -539,7 +539,7 @@ DisplayMessage($args ?? null);
             <!-- Заголовок модального окна -->
             <div class="modal-header">
                 <h5 class="modal-title">Delete Item № <span id="itemId"></span></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" style="border:solid red 1px;"></button>
+                <button type="button" class="btn-close" data-aj-dismiss="modal" style="border:solid red 1px;"></button>
             </div>
 
             <!-- Содержимое модального окна -->

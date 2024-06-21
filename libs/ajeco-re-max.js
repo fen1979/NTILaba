@@ -664,7 +664,7 @@ dom.addEventListener("DOMContentLoaded", function () {
 
         // Set interval to check for changes every 120000 milliseconds (2 minutes)
         // setInterval(checkForChanges, 120000);
-        setInterval(checkForChanges, 12000);
+        setInterval(checkForChanges, 2000);
     };
 
     // слушатель колеса загрузки

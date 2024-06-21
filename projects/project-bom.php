@@ -278,7 +278,7 @@ DisplayMessage($args ?? null);
             <!-- Заголовок модального окна -->
             <div class="modal-header">
                 <h5 class="modal-title text-danger">Delete Item number: <b id="item-number"></b></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" style="border:solid red 1px;"></button>
+                <button type="button" class="btn-close" data-aj-dismiss="modal" style="border:solid red 1px;"></button>
             </div>
 
             <!-- Содержимое модального окна -->

@@ -241,7 +241,7 @@ class L
         /* TABLE SETTINGS */
         //$tableData['settings']['id'] = 'Setting №';
 
-        /* TABLE WAREHOUSE */
+        /* TABLES OF WAREHOUSE */
         $tableData['whitems']['part_name'] = 'Part Name';
         $tableData['whitems']['part_value'] = 'Part Value';
         $tableData['whitems']['part_type'] = 'Part Type';
@@ -333,7 +333,7 @@ const SUPPLIERS = 'suppliers';
 const WH_ITEMS = 'whitems'; // перечень товарной базы
 const WH_INVOICE = 'whinvoice'; // товарный склад, приход/рарсход
 const WAREHOUSE = 'warehouse'; // динамический склад, кол-во и прочее
-const WAREHOUSE_LOGS = 'warehouselogs'; // логи склада
+const WAREHOUSE_LOGS = 'whlogs'; // логи склада
 const WH_SLOTS = 'whslots'; // места для хранения товара
 const ASSY_PROGRESS = 'assyprogress';
 const TOOLS = 'tools'; // tools table
@@ -378,13 +378,10 @@ const CHECK_BOX = [
     'Then take the order to work.'
 ];
 
-/* LOG ACTIONS CONSTANTS AND SOME TEXTS */
-//const ACTION = ['CREATION', 'UPDATING', 'EDITING', 'DELETING'];
-
 /**
  * ORDER - 0
  *
- * ORDER_BOM - 1 ???
+ * ORDER_BOM - 1 ? fix this ?
  *
  * ORDER_CHAT - 2
  *
