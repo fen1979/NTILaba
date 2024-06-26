@@ -215,6 +215,7 @@ class Orders
 
         $order->order_folder = self::makeFolderInStorage(unicum()); // папка заказа для хранения информации
         $order->date_in = str_replace('T', ' ', $post['date_in']); // дата создания заказа
+        $order->date_out = str_replace('T', ' ', $post['date_out']); // дата отдачи заказа
         $order->subtraction = 0; // нужна для понимания что заказ в работе и списание больше не нужно если вдруг что
 
         /* привязка к таблицам проекта и клиента
@@ -230,6 +231,7 @@ class Orders
             . 'Order Prioritet: ' . $post['prioritet'] . ',<br>'
             . 'Order Workers: ' . $post['orderWorkers'] . ',<br>'
             . 'Forwarded to: ' . $post['forwardedTo'] . ',<br>'
+            . 'Вудшмукн вфеу: ' . $post['date_out'] . ',<br>'
             . $firstQty
             . 'Storage Shelf: ' . $shelf . ' / '
             . 'Box: ' . $box;
@@ -323,6 +325,7 @@ class Orders
             }
 
             $order->date_in = str_replace('T', ' ', $post['date_in']); // дата создания заказа
+            $order->date_out = str_replace('T', ' ', $post['date_out']); // дата отдачи заказа
             $orderId = R::store($order);
 
             // updating other DB tables if needed
@@ -334,8 +337,11 @@ class Orders
                         $msg .= "Priority number changed to: {$post['priority']}<br>";
                         R::exec("UPDATE customers SET priority = ? WHERE id = ?", [$post['priority'], $post['customer_id']]);
                         break;
-                    case 'date':
-                        $msg .= "Date changedto: {$post['date_in']}<br>";
+                    case 'date_in':
+                        $msg .= "Application date changed to: {$post['date_in']}<br>";
+                        break;
+                        case 'date_out':
+                        $msg .= "Delivery date changed to: {$post['date_out']}<br>";
                         break;
                     case 'head_pay':
                         $msg .= "Head pay changed to: {$post['purchaseOrder']}<br>";

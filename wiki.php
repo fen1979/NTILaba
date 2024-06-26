@@ -107,6 +107,13 @@ if (isset($_GET['dir']) && isset($_GET['mode']) && $_GET['mode'] == 'add-project
             margin-inline-end: 1em;
             color: #dc3545;
         }
+
+        .btn-container {
+            flex-wrap: wrap;
+            justify-content: left;
+            align-items: center;
+            align-content: center;
+        }
     </style>
 </head>
 <body>
@@ -170,7 +177,7 @@ DisplayMessage($args);
             $files = scandir($directory);
             // Выводим кнопки для директорий на самом верхнем уровне
             if ($isRoot) {
-                echo '<div class="d-flex">';
+                echo '<div class="d-flex btn-container">';
                 foreach ($files as $file) {
                     if ($file === '.' || $file === '..') continue;
                     $filePath = $directory . '/' . $file;

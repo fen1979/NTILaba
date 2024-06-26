@@ -29,7 +29,7 @@ $role = $user['app_role'];
 // Параметры пагинации
 list($pagination, $paginationButtons) = PaginationForPages($_GET, $page, PROJECTS, 20);
 
-$result = R::findAll(PROJECTS, 'ORDER BY date_in DESC ' . $pagination);
+$result = R::findAll(PROJECTS, 'ORDER BY id DESC ' . $pagination);
 ?>
 
 <!doctype html>

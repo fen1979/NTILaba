@@ -233,14 +233,17 @@ DisplayMessage($result ?? null);
                 <div class="col-2">
                     <label for="fai_qty" class="form-label">FAI Qty</label>
                 </div>
-                <div class="col-3">
+                <div class="col-2">
                     <label for="storageBox" class="form-label">Storage Box <b class="text-danger">*</b></label>
                 </div>
-                <div class="col-3">
+                <div class="col-2">
                     <label for="storageShelf" class="form-label">Storage Shelf/Place </label>
                 </div>
                 <div class="col-2">
-                    <label for="date_in" class="form-label">Order incoming date <b class="text-danger">*</b></label>
+                    <label for="date_in" class="form-label">Application date <b class="text-danger">*</b></label>
+                </div>
+                <div class="col-2">
+                    <label for="date_out" class="form-label">Delivery time <b class="text-danger">*</b></label>
                 </div>
             </div>
 
@@ -254,20 +257,25 @@ DisplayMessage($result ?? null);
                            value="<?= set_value('fai_qty', $order['fai_qty'] ?? '3') ?>" min="0" data-field-id="fai_qty">
                 </div>
 
-                <div class="col-3">
+                <div class="col-2">
                     <input type="text" class="form-control" id="storageBox" name="storageBox"
                            value="<?= set_value('storageBox', $order['storage_box'] ?? ''); ?>"
                            placeholder="Click here for new number" required>
                 </div>
 
-                <div class="col-3">
+                <div class="col-2">
                     <input type="text" class="form-control track-change" id="storageShelf" name="storageShelf"
                            value="<?= set_value('storageShelf', $order['storage_shelf'] ?? ''); ?>" placeholder="Write your shelf here" data-field-id="shelf">
                 </div>
 
                 <div class="col-2">
                     <input type="datetime-local" class="form-control track-change" id="date_in" name="date_in"
-                           value="<?= $order['date_in'] ?? date('Y-m-d H:i'); ?>" required data-field-id="date">
+                           value="<?= $order['date_in'] ?? date('Y-m-d H:i'); ?>" required data-field-id="date_in">
+                </div>
+
+                <div class="col-2">
+                    <input type="datetime-local" class="form-control track-change" id="date_out" name="date_out"
+                           value="<?= $order['date_out'] ?? date('Y-m-d H:i'); ?>" required data-field-id="date_out">
                 </div>
             </div>
         </div>
