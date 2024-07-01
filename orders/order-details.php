@@ -13,6 +13,7 @@ include_once 'orders/Orders.php';
 $user = $_SESSION['userBean'];
 $role = $user['app_role'];
 $page = 'order_details';
+
 // tab by default
 $A_T = $_GET['tab'] ?? 'tab1'; // Active Tab
 /* получение ID заказа */
@@ -60,6 +61,7 @@ if (isset($_POST['orid']) || isset($orderid)) {
     $order = R::load(ORDERS, $orderid);
     $projectid = $order['projects_id'];
     $amount = $order['order_amount'];
+    $reserve = R::count(WH_RESERV, 'WHERE order_uid = ?', [$order->id]); // find if exist reserved BOM items
     $customer = R::load(CLIENTS, $order->customers_id);
     $project = R::load(PROJECTS, $projectid);
     $stepsData = R::findAll(PROJECT_STEPS, 'projects_id = ? ORDER BY step ASC', [$projectid]);
@@ -103,7 +105,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST)) {
         case 'repite_order':
             $action = 'initiation';
             break;
-
         case 'backToWork':
         case 'take-a-step-to-work':
         case 'next_step':
@@ -162,6 +163,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST)) {
         header("Location: /order/preview?orid=$orderid&tab=tab$tab" . $sid);
         exit();
     }
+}
+
+// reserving bom for order
+if (isset($_POST['do-reserve-bom'])) {
+    $args = Orders::ReserveBomForOrder($user, $_GET, $projectBom, $reserve);
+    $reserve = $reserve == 0 ? 1 : $reserve;
+}
+
+// unreserving bom for order
+if (isset($_POST['do-unreserve-bom'])) {
+    $args = Orders::UnReserveBomForOrder($user, $_GET, $projectBom);
+    $reserve = 0;
 }
 ?>
 <!doctype html>
@@ -314,6 +327,19 @@ DisplayMessage($args ?? null);
                     </tbody>
                 </table>
 
+                <!-- form for reserve this bom for project -->
+                <form action="" method="post" class="form mt-3">
+                    <label for="btn-reserve-bom">Reserve BOM items for this order</label>
+                    <br>
+                    <?php
+                    if ($reserve > 0) : ?>
+                        <button id="btn-unreserve-bom" name="do-unreserve-bom" class="btn btn-outline-success ">
+                            Undo Reserved BOM for this order
+                        </button>
+                    <?php else: ?>
+                        <button id="btn-reserve-bom" name="do-reserve-bom" class="btn btn-outline-success ">Do Reserve</button>
+                    <?php endif; ?>
+                </form>
                 <?php
             } else {
                 $_SESSION['projectid'] = $project->id;

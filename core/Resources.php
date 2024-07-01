@@ -334,6 +334,7 @@ const WH_ITEMS = 'whitems'; // перечень товарной базы
 const WH_INVOICE = 'whinvoice'; // товарный склад, приход/рарсход
 const WAREHOUSE = 'warehouse'; // динамический склад, кол-во и прочее
 const WAREHOUSE_LOGS = 'whlogs'; // логи склада
+const WH_RESERV = 'whreserv'; // созданный резерв запчастей для заказов
 const WH_SLOTS = 'whslots'; // места для хранения товара
 const ASSY_PROGRESS = 'assyprogress';
 const TOOLS = 'tools'; // tools table

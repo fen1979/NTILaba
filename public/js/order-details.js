@@ -4,7 +4,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // при загрузке в чате прокручиваем в конец чата
     let chatContainer = $("#chatWindow");
-    let isDirty = false; // Флаг для отслеживания изменений
+    // Флаг для отслеживания изменений на странице
+    let isDirty = false;
 
     // noinspection JSValidateTypes
     chatContainer.scrollTop(chatContainer.prop("scrollHeight"));

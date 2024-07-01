@@ -340,7 +340,7 @@ class Orders
                     case 'date_in':
                         $msg .= "Application date changed to: {$post['date_in']}<br>";
                         break;
-                        case 'date_out':
+                    case 'date_out':
                         $msg .= "Delivery date changed to: {$post['date_out']}<br>";
                         break;
                     case 'head_pay':
@@ -880,6 +880,7 @@ class Orders
         // в метод передать даннные БОМ проекта и еще что то для корректной работы
         // вынести всю работу со складом в класс склада
         // логирование организовать в самом складе при работе методов
+        // добавить отчисттку резерва для заказа
 
         if ($order->subtraction == 0) {
             $order_amount = $order->order_amount;
@@ -1015,8 +1016,8 @@ class Orders
         if ($order->subtraction == 0 && $project->project_type == 0) {
             $stockCheck = self::checkStockAndSubtract($project->id, $order, $storage_space, $user);
         } elseif ($project->project_type == 1) {
-            $res[] = self::smtAssemblingOrderIntiation($order, $project, $user, $steps);
-            // усли одной из запчастей нет то выводим ошибку и отменяем все операции
+            $res[] = self::smtAssemblingOrderInitiation($order, $project, $user, $steps);
+            // если одной из запчастей нет то выводим ошибку и отменяем все операции
             $res['tab'] = '6';
             return $res;
         }
@@ -1045,6 +1046,7 @@ class Orders
 
             $msg = "Work on this order was started by: {$user['user_name']}<br>";
             $msg .= "Spare parts for the order were written off from the warehouse";
+            // пишем в чат заказа о данной операции
             $res[] = self::saveChatMessage($orid, $user, ['messageText' => $msg, 'readonly' => 1]);
 
             $res[] = ['info' => 'Creation Started Successfully', 'color' => 'success'];
@@ -1334,7 +1336,7 @@ class Orders
      * @return array
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    private static function smtAssemblingOrderIntiation($order, $project, $user, $steps): array
+    private static function smtAssemblingOrderInitiation($order, $project, $user, $steps): array
     {
         // сохраняем в БД данные для заказа
         $ws = $order->date_start = date('Y-m-d H:i'); // работа над заказом началась
@@ -1364,6 +1366,107 @@ class Orders
         }
         return $res;
     }
+
+    /**
+     * Reserving BOM for project/order
+     * @param $user
+     * @param array $get
+     * @param array|null $projectBom
+     * @param $reserve
+     * @return string[]
+     */
+    public static function ReserveBomForOrder($user, array $get, ?array $projectBom, $reserve): array
+    {
+        $order = R::load(ORDERS, _E($get['orid']));
+        $reservations = [];
+
+        // if BOM isn't reserved
+        if ($reserve == 0 && $projectBom) {
+            try {
+                R::begin(); // Начинаем транзакцию
+                foreach ($projectBom as $item) {
+                    // Ищем записи в БД на данную деталь
+                    $result = self::searchItemsAndWarehouse($item['part_name'], $item['part_value'], $item['manufacture_pn'],
+                        $order->customers_id, $item['owner_pn']);
+
+                    if (!empty($result['items']['id']) && !empty($result['warehouse'])) {
+                        $reserv = R::dispense(WH_RESERV);
+                        $reserv->items_id = $result['items']['id'];
+                        $reserv->wh_uid = $result['warehouse']['id'];
+                        $reserv->order_uid = $order->id;
+                        $reserv->project_uid = $order->projects_id;
+                        $reserv->client_uid = $order->customers_id;
+                        $reserv->reserved_qty = ((int)$item['amount'] * (int)$order->order_amount);
+                        $reservations[] = $reserv;
+                    } else {
+                        R::rollback(); // Откатываем транзакцию в случае ошибки
+                        return ['info' => 'Some Item not found in Stock, all operation is aborted', 'color' => 'warning', 'hide'=>'hand'];
+                    }
+                }
+
+                // Сохраняем все записи в конце, если все проверки прошли успешно
+                R::storeAll($reservations);
+                R::commit(); // Завершаем транзакцию
+
+                return ['info' => 'BOM for this order was reserved. To undo this action, press the unreserve button below the BOM table', 'color' => 'success'];
+            } catch (Exception $e) {
+                R::rollback(); // Откатываем транзакцию в случае исключения
+                return ['info' => 'An error occurred: ' . $e->getMessage(), 'color' => 'danger', 'hide'=>'hand'];
+            }
+        }
+
+        return ['info' => 'No BOM to reserve or already reserved', 'color' => 'warning'];
+    }
+
+    /**
+     * Undo reserved items for project/order
+     * @param $user
+     * @param array $get
+     * @param array|null $projectBom
+     * @param $reserve
+     * @return string[]
+     */
+    public static function UnReserveBomForOrder($user, array $get, $reserve): array
+    {
+        $order = R::load(ORDERS, _E($get['orid']));
+        $reserv = R::findAll(WH_RESERV, 'order_uid = ? AND project_uid = ? AND client_uid = ?', [$order->id, $order->projects_id, $order->customers_id]);
+
+        // Начинаем транзакцию
+        R::begin();
+        try {
+            // when BOM is reserved
+            if ($reserve > 0 && $reserv) {
+                foreach ($reserv as $item) {
+                    R::trash($item);
+                }
+            }
+            // Фиксируем транзакцию
+            R::commit();
+            return ['info' => 'BOM for this order was unreserved', 'color' => 'success'];
+        } catch (Exception $e) {
+            // Откатываем транзакцию в случае ошибки
+            R::rollback();
+            return ['info' => 'An error occurred: ' . $e->getMessage(), 'color' => 'danger'];
+        }
+    }
+
+    // функция поиска запчасти в БД при резервировании БОМА для заказа
+    private static function searchItemsAndWarehouse($partName, $partValue, $manufacturePn, $owner_id, $owner_pn): array
+    {
+        $pn = (empty($partName) || $partName == 0) ? null : $partName;
+        $pv = (empty($partValue) || $partValue == 0) ? null : $partValue;
+        $resultItems = R::findOne(WH_ITEMS, 'part_name = ? OR part_value = ? OR manufacture_pn = ?', [$pn, $pv, $manufacturePn]);
+
+        $itId = ($resultItems && !empty($resultItems->id)) ? $resultItems->id : null;
+        $opn = !empty($owner_pn) ? $owner_pn : null;
+        $res = R::findOne(WAREHOUSE, 'items_id = ? OR owner_pn = ?', [$itId, $opn]);
+        if ($res) {
+            $resultWarehouse = $res;
+        }
+
+        return ['items' => $resultItems ?? [null], 'warehouse' => $resultWarehouse ?? [null]];
+    }
+
 
 } // окончание класса
 

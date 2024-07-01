@@ -185,7 +185,7 @@ ScriptContent($page);
                 // Получаем значение data-id
                 const dataId = row.dataset.id;
                 let btn = dom.e("#routing-btn");
-                btn.value = "warehouse/the_item?edititem&itemid=" + dataId
+                btn.value = "warehouse/the_item?itemid=" + dataId
                 btn.click();
             }
         });

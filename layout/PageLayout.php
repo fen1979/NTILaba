@@ -14,7 +14,6 @@ function HeadContent($page)
     <title><?= L::TITLES($page ?? ''); ?></title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <!--    <link href="/public/css/bootstrap.min.css" rel="stylesheet">-->
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.2/font/bootstrap-icons.css">
@@ -598,6 +597,7 @@ function ScriptContent($page = null)
  * and the “info” key is information in text form that should be displayed on the page.
  * how to use $args = ['color'=>'some_class_witch_color_settings', 'info'=>'some text to preview on page'];
  * and if was redirect got ingo from $_SESSION['info']
+ * when exist arg 'hide' then message isnt close automaticaly
  * @param $args
  * @return void
  */
