@@ -399,7 +399,7 @@ class Orders
         $password = _E($post['password']);
         $orderID = _E($post['idForUse']);
         $log_details = '';
-        $res = $out = [];
+        $res = [];
         /* check password */
         if (checkPassword($password)) {
             $order = R::load(ORDERS, $orderID);
@@ -407,39 +407,35 @@ class Orders
             if (isset($post['archivation']) && $order->status == 'st-111') {
                 $order->status = 'st-222';
                 R::store($order);
-                $res['info'] = 'Order added to archive successfully';
-                $res['color'] = 'success';
+                $res[] = ['info' => 'Order added to archive successfully', 'color' => 'success'];
                 /* log details */
                 $log_details = 'Order was added to archive, Order ID: ' . $orderID;
                 /* write readonly message to order chat */
                 $msg = ['readonly' => 1, 'messageText' => 'Order archivated<br>Transferred to status: Archivated.'];
-                $out[] = self::saveChatMessage($orderID, $user, $msg);
+                $res[] = self::saveChatMessage($orderID, $user, $msg);
             }
 
             /* extract order ftom archive */
-            if (isset($post['dearchivation'])) {
+            if (isset($post['archivation']) && $order->status == 'st-222') {
                 $order->status = 'st-111';
                 R::store($order);
-                $res['info'] = 'Order extracte from archive successfully';
-                $res['color'] = 'success';
+                $res[] = ['info' => 'Order extracte from archive successfully', 'color' => 'success'];
                 /* log details */
                 $log_details = 'Order ID: ' . $orderID . ', Extracted from archive';
                 /* write readonly message to order chat */
                 $msg = ['readonly' => 1, 'messageText' => 'Order dearchivated<br>Transferred to status: Complited.'];
-                $out[] = self::saveChatMessage($orderID, $user, $msg);
+                $res[] = self::saveChatMessage($orderID, $user, $msg);
             }
 
             /* [     LOGS FOR THIS ACTION     ] */
             if (!logAction($user['user_name'], 'ARCHIVATION', OBJECT_TYPE[0], $log_details)) {
-                $res['info'] = 'Log creation failed.';
-                $res['color'] = 'danger';
+                $res[] = ['info' => 'Log creation failed.', 'color' => 'danger'];
             }
         } else {
-            $res['info'] = "Incorrect password writed!";
-            $res['color'] = 'danger';
+            $res[] = ['info' => 'Incorrect password writed!', 'color' => 'danger'];
         }
-        $out[] = $res;
-        return $out;
+
+        return $res;
     }
 
     /**
@@ -1400,7 +1396,7 @@ class Orders
                         $reservations[] = $reserv;
                     } else {
                         R::rollback(); // Откатываем транзакцию в случае ошибки
-                        return ['info' => 'Some Item not found in Stock, all operation is aborted', 'color' => 'warning', 'hide'=>'hand'];
+                        return ['info' => 'Some Item not found in Stock, all operation is aborted', 'color' => 'warning', 'hide' => 'hand'];
                     }
                 }
 
@@ -1411,7 +1407,7 @@ class Orders
                 return ['info' => 'BOM for this order was reserved. To undo this action, press the unreserve button below the BOM table', 'color' => 'success'];
             } catch (Exception $e) {
                 R::rollback(); // Откатываем транзакцию в случае исключения
-                return ['info' => 'An error occurred: ' . $e->getMessage(), 'color' => 'danger', 'hide'=>'hand'];
+                return ['info' => 'An error occurred: ' . $e->getMessage(), 'color' => 'danger', 'hide' => 'hand'];
             }
         }
 

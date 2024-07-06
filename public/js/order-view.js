@@ -12,7 +12,7 @@ dom.addEventListener("DOMContentLoaded", function () {
 
     /* действиe архивировать заказ */
     dom.in("click", ".archive-order", function () {
-        dom.e("#idForUse").value = this.value;
+        dom.e("#idForUse").value = this.dataset.orid;
         /* Откройте модальное окно */
         dom.show("#archive_order");
         dom.e("#password").focus();

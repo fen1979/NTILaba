@@ -256,14 +256,17 @@ DisplayMessage($args ?? null);
                             }
 
                             // i buttons for some actions like delete, edite, & edit BOM
-                            if (isUserRole(ROLE_ADMIN)) {
-                                ?>
+                            if (isUserRole(ROLE_ADMIN)) { ?>
                                 <td>
-                                    <?php if ($order['status'] == 'st-111'): ?>
-                                        <button type="button" value="<?= $order['id']; ?>" class="archive-order btn btn-outline-dark" data-title="Archivate Order">
-                                            <i class="bi bi-archive"></i>
+                                    <?php
+                                    if ($order['status'] == 'st-111' || $order['status'] == 'st-222') {
+                                        $c = ($order['status'] == 'st-222') ? 'btn-outline-info' : 'btn-outline-dark';
+                                        $t = ($order['status'] == 'st-222') ? 'Dearchivate Order' : 'Archivate Order';
+                                        ?>
+                                        <button type="button" data-orid="<?= $order['id']; ?>" class="archive-order btn <?= $c ?>" data-title="<?= $t ?>">
+                                            <i class="bi bi-archive" data-orid="<?= $order['id']; ?>"></i>
                                         </button>
-                                    <?php endif; ?>
+                                    <?php } ?>
 
                                     <?php $url = "check_bom?orid={$order['id']}&pid={$order['projects_id']}"; ?>
                                     <button type="button" value="<?= $url; ?>" class="url btn btn-outline-primary" data-title="Edit order BOM">

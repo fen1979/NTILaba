@@ -1,5 +1,4 @@
 <?php
-
 // контент первого таба (TAB1) на странице выводится как функция для удобства редактирования кода
 function getOrderInformationHTML($orderid, $order, $customer, $project, $projectBom, $assy_in_progress, $chatLastMsg, $amount)
 {
