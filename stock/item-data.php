@@ -125,6 +125,10 @@ function getDataForTable($itemId, $orderId, $projectId, $clientId, $reservedQty)
             background-color: #0d6efd;
             border-color: #dee2e6 #dee2e6 #fff;
         }
+
+        .link-box {
+            display: grid;
+        }
     </style>
 </head>
 <body>
@@ -137,12 +141,51 @@ DisplayMessage($args ?? null);
 ?>
 <div class="container-fluid my-3 border-top border-bottom">
     <div class="row mt-2 mb-2">
-        <div class="col-8 border-end">
+        <div class="col-4">
             <p>Part name: <b><?= $item['part_name'] ?></b></p>
             <p>Part Value: <b><?= $item['part_value'] ?></b></p>
             <p>Part Type: <b><?= $item['part_type'] ?></b></p>
             <p>Manufacture P/N: <b><?= $item['manufacture_pn'] ?></b></p>
+            <p>Manufacturer: <b><?= $item['manufacturer'] ?></b></p>
+            <p>Shelf life: <b><?= $item['shelf_life'] ?></b> month</p>
+            <p>Storage Class: <b><?= $item['class_number'] ?></b></p>
+            <p>Footprint: <b><?= $item['footprint'] ?></b></p>
+
         </div>
+
+        <div class="col-4 border-end">
+            <?php
+            // Функция создания ссылок на новые парт номера
+            function linkCreation(array $mfn): string
+            {
+                $li = '';
+                foreach ($mfn as $l) {
+                    $li .= '<a href="https://www.google.com/search?q=' . $l . '&ie=UTF-8" target="_blank">Google <b>' . $l . '</b></a>';
+                    $li .= '<a href="https://octopart.com/search?q=' . $l . '&currency=USD&specs=0" target="_blank">Octopart <b>' . $l . '</b></a>';
+                }
+                return $li;
+            }
+
+            $mfn = explode(',', $item['manufacture_pn']);
+            if (!empty($mfn)) {
+                $link = linkCreation($mfn);
+            }
+            ?>
+            <div class="link-box">
+                <h4>Links to items</h4>
+                <?= $link ?>
+            </div>
+
+            <div class="mt-2">
+                <label for="dsription">Description</label>
+                <textarea id="dsription" readonly class="form-control"><?= $item['description'] ?></textarea>
+            </div>
+            <div class="mt-2">
+                <label for="notes">Notice</label>
+                <textarea id="notes" readonly class="form-control"><?= $item['notes'] ?></textarea>
+            </div>
+        </div>
+
         <!--i IMAGE CONTAINER-->
         <div class="col-4">
             <div class="m-2">
@@ -154,6 +197,7 @@ DisplayMessage($args ?? null);
     </div>
 </div>
 
+<h1 class="m-2">Additional information for this Item</h1>
 <div class="container-fluid border-top pt-3">
 
     <!--  кнопки переключения между табами -->

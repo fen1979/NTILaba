@@ -115,7 +115,7 @@ if (isset($_POST['import_qty']) && isset($_POST['item_id'])) {
 
         td {
             cursor: pointer;
-            padding: 8px;
+            padding-left: 3px;
             text-align: left;
             vertical-align: middle;
             word-break: break-word; /* Обеспечивает перенос слов внутри ячейки */
@@ -127,7 +127,7 @@ if (isset($_POST['import_qty']) && isset($_POST['item_id'])) {
 
         form {
             display: flex;
-            gap: 10px; /* Расстояние между элементами формы */
+            gap: 5px; /* Расстояние между элементами формы */
             align-items: center;
         }
 
@@ -215,7 +215,7 @@ DisplayMessage($args ?? null);
             if ($projectBom) {
                 foreach ($projectBom as $line) {
                     $required_qty = $line['amount'] * $order['order_amount'];
-                    $actual_qty = WareHouse::GetActualQtyForItem($line['customerid']);
+                    $actual_qty = WareHouse::GetActualQtyForItem($line['customerid'], $line['item_id']);
                     if ($actual_qty > $required_qty) {
                         $color = 'success';
                     } elseif ($actual_qty < $required_qty) {

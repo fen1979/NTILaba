@@ -67,7 +67,7 @@ function getOrderInformationHTML($orderid, $order, $customer, $project, $project
                         <button class="btn dropdown-toggle fs-5 bg-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Add or Remove User
                         </button>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu" style="padding: 5%;">
                             <?php
                             $allUsers = R::find(USERS);
                             $s = explode(',', $order['workers']);
