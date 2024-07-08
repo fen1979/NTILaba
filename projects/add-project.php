@@ -1,5 +1,5 @@
 <?php
-isset($_SESSION['userBean']) or header("Location: /") and exit();
+EnsureUserIsAuthenticated($_SESSION,'userBean');
 require 'projects/Project.php';
 $page = 'new_project';
 $user = $_SESSION['userBean'];
@@ -7,7 +7,6 @@ $id = null;
 $buttonSave = 'Create Project';
 $disabled = 'disabled';
 $backButton = '/';
-
 
 /* условие: проект создается при создании заказа */
 if (isset($_GET['orders'])) {

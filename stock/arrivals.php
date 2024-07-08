@@ -1,5 +1,5 @@
 <?php
-isset($_SESSION['userBean']) && $_SESSION['userBean']['app_role'] == ROLE_ADMIN or header("Location: /warehouse") and exit();
+EnsureUserIsAuthenticated($_SESSION,'userBean', ROLE_ADMIN, 'warehouse');
 require 'WareHouse.php';
 /* получение пользователя из сессии */
 $user = $_SESSION['userBean'];

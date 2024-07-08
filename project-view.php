@@ -1,6 +1,7 @@
 <?php
-isset($_SESSION['userBean']) or header("Location: /") and exit();
+EnsureUserIsAuthenticated($_SESSION,'userBean');
 require_once 'projects/Project.php';
+
 $page = 'project';
 /* delete or archive project */
 if (isset($_POST['projectid']) && isset($_POST['password'])) {

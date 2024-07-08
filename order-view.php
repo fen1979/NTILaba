@@ -1,5 +1,5 @@
 <?php
-isset($_SESSION['userBean']) or header("Location: /") and exit();
+EnsureUserIsAuthenticated($_SESSION,'userBean');
 include_once 'orders/Orders.php';
 $page = 'order';
 $orderid = null;

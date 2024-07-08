@@ -1,5 +1,5 @@
 <?php
-isset($_SESSION['userBean']) && $_SESSION['userBean']['app_role'] == ROLE_ADMIN or header("Location: /") and exit();
+EnsureUserIsAuthenticated($_SESSION, 'userBean', ROLE_ADMIN);
 $page = 'logs';
 /* получение пользователя из сессии */
 $thisUser = $_SESSION['userBean'];

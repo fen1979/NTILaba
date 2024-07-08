@@ -1,5 +1,5 @@
 <?php
-isset($_SESSION['userBean']) or header("Location: /") and exit();
+EnsureUserIsAuthenticated($_SESSION,'userBean');
 require 'WareHouse.php';
 /* получение пользователя из сессии */
 $thisUser = $_SESSION['userBean'];

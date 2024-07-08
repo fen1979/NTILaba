@@ -1,6 +1,45 @@
 <?php
 /* ------------------------- GLOBAL USE FUNCTIONS FOR ALL PAGES --------------------------- */
 /**
+ * Ensures the user is authenticated.
+ *
+ * This function checks if a specified value is present in the given array. If the value is not present,
+ * the user is redirected to a specified page. This function should be included at the
+ * beginning of any script that requires user authentication.
+ *
+ * Usage:
+ * Include this function in your script and call it at the beginning to ensure
+ * that only authenticated users can access the page.
+ *
+ * Parameters:
+ * @param array $valueForCheck The array to check for the specified value.
+ * @param string $valueName The key name of the value to check in the array.
+ * @param string $role The key name of users role in application.
+ * @param string $redirection The page to redirect to if the value is not present (default is '').
+ *
+ * Example:
+ * <?php
+ * require 'path/to/utility.php';
+ * EnsureUserIsAuthenticated($_SESSION, 'userBean'); redirection by default to index.php
+ * EnsureUserIsAuthenticated($_SESSION, 'userBean', ROLE_ADMIN, 'warehouse'); redirection to some page with role checking
+ * ?>
+ *
+ * @return void
+ */
+function EnsureUserIsAuthenticated(array $valueForCheck, string $valueName, string $role = '', string $redirection = ''): void
+{
+    if (!empty($role)) {
+        if (!isset($valueForCheck[$valueName]) && !isUserRole($role)) {
+            header("Location: /$redirection") and exit();
+        }
+    } else {
+        if (!isset($valueForCheck[$valueName])) {
+            header("Location: /$redirection") and exit();
+        }
+    }
+}
+
+/**
  * SOME USER DATA FOR LOGS
  * @return string
  */

@@ -1,6 +1,7 @@
 <?php
-isset($_SESSION['userBean']) or header("Location: /") and exit();
+EnsureUserIsAuthenticated($_SESSION,'userBean');
 include_once 'projects/Project.php';
+
 $page = 'project_part_list';
 $user = $_SESSION['userBean'];
 $backButton = ['url' => '/', 'text' => 'Back To Orders'];

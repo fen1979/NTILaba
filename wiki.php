@@ -33,7 +33,8 @@ if (isset($_POST['filePath']) && isset($_POST['targetDir'])) {
     exit();
 }
 
-isset($_SESSION['userBean']) or header("Location: /") and exit();
+EnsureUserIsAuthenticated($_SESSION,'userBean');
+
 $directory = (isset($_GET['pr_dir'])) ? _dirPath($_GET) : WIKI_FOLDER; // Путь к директории с файлами
 $page = 'wiki';
 $user = $_SESSION['userBean'];

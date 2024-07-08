@@ -1,5 +1,5 @@
 <?php
-isset($_SESSION['userBean']) or header("Location: /") and exit();
+EnsureUserIsAuthenticated($_SESSION,'userBean');
 require_once 'projects/Project.php';
 $page = 'edit_project';
 $user = $_SESSION['userBean'];

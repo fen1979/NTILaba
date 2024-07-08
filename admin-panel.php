@@ -1,5 +1,5 @@
 <?php
-isset($_SESSION['userBean']) or header("Location: /") and exit();
+EnsureUserIsAuthenticated($_SESSION,'userBean');
 /* class для работы с таблицами */
 require 'admin-panel/Management.php';
 
