@@ -2,22 +2,11 @@
 // подключение Базы Данных МаринаДБ
 require "rb-mysql.php";
 // database name = !!!-> nti_production <-!!!
-R::setup('mysql:host=localhost;dbname=db_name', 'root', 'root');
 // R::freeze( true ); /* тут выключение режима заморозки */
 
 if (!R::testConnection()) {
     exit ('No database connection');
 }
-
-// настройки в файле php.ini
-// Установка времени жизни куки 3 часа = 10800 секунд
-//ini_set('session.cookie_lifetime',  10800);
-// Установка времени жизни данных сессии 3 часа = 10800 секунд
-//ini_set('session.gc_maxlifetime', 10800);
-// Установка вероятности запуска сборщика мусора
-//ini_set('session.gc_probability', 1);
-// С вероятностью 1% при каждом запуске сессии
-//ini_set('session.gc_divisor', 100);
 
 // Установка параметров cookie для сессии
 session_set_cookie_params(10800);
@@ -151,12 +140,6 @@ class Routing
                 return;
             }
         }
-
-        // Игнорировать запросы favicon.ico
-//        if (strpos($uri, 'favicon.ico') !== false || strpos($uri, 'storage/projects/') !== false
-//            || $uri == '/' || $uri == '/sign-out' || strpos($uri, '.css') !== false) {
-//            return;
-//        }
 
         // Проверка наличия URI в списке роутов
         if (!$this->containsAnyRoute($uri)) {
