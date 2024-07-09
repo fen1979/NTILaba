@@ -57,6 +57,8 @@ function HeadContent($page)
  * @param $l // активная кнопка на страницах
  * @return void
  */
+
+// $navBarData = ['active_tab'=>$l, 'some_id'=>$pid, 'title'=>'some title'];
 function NavBarContent($page, $user = null, $pid = null, $l = ''): void
 {
     $role = $user['app_role']; ?>
@@ -111,6 +113,7 @@ function NavBarContent($page, $user = null, $pid = null, $l = ''): void
                                 EDIT_PROJECT_PAGE_BUTTONS($pid);
                                 break;
                             case 'view_item':
+                            case 'arrivals':
                             case 'warehouse':
                                 WAREHOUSE_PAGE_BUTTONS($l, $page, $pid);
                                 break;
@@ -153,7 +156,10 @@ function ALL_PAGES_BUTTONS($page, $l): void
         </li>
     <?php endif;
 
-    NUMBERS_OF_ROW($page);
+    if ($page != 'arrivals' && $page != 'view_item') {
+        // выбор количества строк на странице
+        NUMBERS_OF_ROW($page);
+    }
     ?>
 
     <li class="nav-item">
@@ -399,8 +405,11 @@ function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid): void
             </li>
             <?php
         }
+
         // выбор количества строк на странице
-        NUMBERS_OF_ROW($page);
+        if ($page != 'arrivals' && $page != 'view_item') {
+            NUMBERS_OF_ROW($page);
+        }
         ?>
 
         <li class="nav-item">

@@ -1,9 +1,9 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION,'userBean', ROLE_ADMIN, 'warehouse');
+EnsureUserIsAuthenticated($_SESSION, 'userBean', ROLE_ADMIN, 'warehouse');
 require 'WareHouse.php';
 /* получение пользователя из сессии */
 $user = $_SESSION['userBean'];
-$page = 'view_item';
+$page = 'arrivals';
 $pageMode = 'Add New Part';
 
 // ДОБАВЛЕНИЕ НОВОЙ ЗАПЧАСТИ В БД
@@ -30,6 +30,7 @@ if (isset($_POST['save-new-item'])/* && $_POST['save-new-item'] == 'new'*/) {
             width: auto;
             max-width: 100%;
         }
+
         .input {
             display: block;
             width: 100%;
@@ -128,6 +129,7 @@ DisplayMessage($args ?? null);
                     &nbsp; Search Item on Octopart
                 </a>
             </div>
+
             <div class="mb-3">
                 <button type="button" id="item-image-btn" class="btn btn-outline-primary input">Take Item Picture</button>
             </div>
@@ -227,6 +229,16 @@ DisplayMessage($args ?? null);
                 <input type="text" placeholder="Supplier" class="input searchThis" data-request="supplier"
                        name="supplier" id="supplier" value="<?= set_value('supplier'); ?>"/>
 
+                <div class="mb-3">
+                    <label for="warehouse-type" class="form-label">Warehouse Type <b class="text-danger">*</b></label>
+                    <?php $t = 'Required warehouse type indicator: the default warehouse for the production line is defined!'; ?>
+                    <select name="warehouse-type" id="warehouse-type" class="input" data-title="<?= $t ?>" required>
+                        <?php foreach (WH_TYPE as $key => $type): ?>
+                            <option value="<?= $key ?>"><?= $type ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
                 <button type="submit" name="save-new-item" class="btn btn-outline-success input">Save new item</button>
             </form>
         </div>
@@ -238,7 +250,7 @@ DisplayMessage($args ?? null);
 SearchResponceModalDialog($page, 'search-responce');
 
 /* SCRIPTS */
-ScriptContent('view_item');
+ScriptContent('arrivals');
 ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {

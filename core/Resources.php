@@ -88,6 +88,7 @@ class L
         $title['import_csv'] = 'Import File';
         $title['warehouse-log'] = 'Goods Log';
         $title['view_item'] = 'Item Information';
+        $title['arrivals'] = 'Add new Item';
 
         $title['admin-panel'] = 'Management';
         $title['customers'] = 'Clients';
@@ -419,7 +420,7 @@ const NO_VIEW_PAGES = ['new_order', 'edit_order', 'order_bom',
     'customers', 'docs',
     'admin-panel',
     'new_project', 'edit_project', 'edit_step', 'add_step',
-    'import_csv', 'view_item'];
+    'import_csv', 'view_item', 'arrivals'];
 
 /**
  *  Список игнорируемых путей и файлов
@@ -437,6 +438,11 @@ const IGNORE_LIST = [
  * СПИСОК ВАРИАНТОВ ВИДОВ ДЕТАЛЕЙ В БД
  */
 const ITEM_TYPES = ["SMT", "TH", "CM", "PM", "SOLDER", "CRIMP", "LM"];
+
+/**
+ * СПИСОК ИМЕН И ТИПОВ СКЛАДОВ
+ */
+const WH_TYPE = [0 => 'Production line', 1 => 'Agas Nagus', 2 => 'Some Storage'];
 
 /**
  * СПИСОК НАЗВАНИЙ ПАРТ НОМЕРОВ ДЛЯ NTI
