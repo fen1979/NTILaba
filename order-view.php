@@ -22,6 +22,7 @@ if (isset($_POST['password']) && isset($_POST['idForUse'])) {
 $settings = getUserSettings($thisUser, ORDERS);
 
 // Параметры пагинации
+//$conditions = ['query' => 'warehouses_id = ?', 'data' => $wh_type];
 list($pagination, $paginationButtons) = PaginationForPages($_GET, $page, ORDERS);
 
 /* вывод заказов после фильтрации по статусу заказа, работникам и клиенту */

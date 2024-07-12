@@ -8,26 +8,29 @@ $page = 'warehouse';
 // SQL-запрос для получения всех записей из nomenclature (whitems) с прикрепленными записями из warehouse
 $items = WH_ITEMS;
 $warehouse = WAREHOUSE;
-
+$wh_type = isset($_GET['wh-type']) ? _E($_GET['wh-type']) : '1';
 // Параметры пагинации
-list($pagination, $paginationButtons) = PaginationForPages($_GET, $page, WH_ITEMS, 50);
+list($pagination, $paginationButtons) = PaginationForPages($_GET, $page, WH_ITEMS, 50, ['query' => 'warehouses_id = ?', 'data' => $wh_type]);
 
 $query = "
-        SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf
-        FROM $items wn
-        LEFT JOIN $warehouse w ON w.items_id = wn.id
-        AND w.fifo > DATE_SUB(NOW(), INTERVAL wn.shelf_life MONTH)
-        AND w.fifo = (
-            SELECT MIN(w2.fifo)
-            FROM $warehouse w2
-            WHERE w2.items_id = wn.id
-            AND w2.fifo > DATE_SUB(NOW(), INTERVAL wn.shelf_life MONTH)
-        )
-        ORDER BY wn.id ASC
-        $pagination
-    ";
+    SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf
+    FROM $items wn
+    LEFT JOIN $warehouse w ON w.items_id = wn.id
+    AND w.fifo > DATE_SUB(NOW(), INTERVAL wn.shelf_life MONTH)
+    AND w.fifo = (
+        SELECT MIN(w2.fifo)
+        FROM $warehouse w2
+        WHERE w2.items_id = wn.id
+        AND w2.fifo > DATE_SUB(NOW(), INTERVAL wn.shelf_life MONTH)
+    )
+    WHERE wn.warehouses_id = $wh_type
+    ORDER BY wn.id ASC
+    $pagination
+";
+
 // Выполнение запроса и получение результатов
 $goods = R::getAll($query);
+
 
 // get user settings for preview table
 $settings = getUserSettings($thisUser, WH_ITEMS);

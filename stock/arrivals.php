@@ -233,8 +233,8 @@ DisplayMessage($args ?? null);
                     <label for="warehouse-type" class="form-label">Warehouse Type <b class="text-danger">*</b></label>
                     <?php $t = 'Required warehouse type indicator: the default warehouse for the production line is defined!'; ?>
                     <select name="warehouse-type" id="warehouse-type" class="input" data-title="<?= $t ?>" required>
-                        <?php foreach (WH_TYPE as $key => $type): ?>
-                            <option value="<?= $key ?>"><?= $type ?></option>
+                        <?php foreach (R::findAll(WH_TYPES) as $type): ?>
+                            <option value="<?= $type['id'] ?>"><?= $type['type_name'] ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>

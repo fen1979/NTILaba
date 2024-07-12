@@ -337,6 +337,7 @@ const WAREHOUSE = 'warehouse'; // динамический склад, кол-в
 const WAREHOUSE_LOGS = 'whlogs'; // логи склада
 const WH_RESERV = 'whreserv'; // созданный резерв запчастей для заказов
 const WH_SLOTS = 'whslots'; // места для хранения товара
+const WH_TYPES = 'whtypes'; // СПИСОК ИМЕН И ТИПОВ СКЛАДОВ
 const ASSY_PROGRESS = 'assyprogress';
 const TOOLS = 'tools'; // tools table
 const ROUTE_ACTION = 'routeaction';
@@ -438,11 +439,6 @@ const IGNORE_LIST = [
  * СПИСОК ВАРИАНТОВ ВИДОВ ДЕТАЛЕЙ В БД
  */
 const ITEM_TYPES = ["SMT", "TH", "CM", "PM", "SOLDER", "CRIMP", "LM"];
-
-/**
- * СПИСОК ИМЕН И ТИПОВ СКЛАДОВ
- */
-const WH_TYPE = [0 => 'Production line', 1 => 'Agas Nagus', 2 => 'Some Storage'];
 
 /**
  * СПИСОК НАЗВАНИЙ ПАРТ НОМЕРОВ ДЛЯ NTI

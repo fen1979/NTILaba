@@ -147,21 +147,54 @@ class Management
 
         $routAction->sku = _E($post['sku'] ?? '');
         $routAction->actions = _E($post['actions'] ?? '');
-        $routAction->actions_eng = _E($post['actions-eng'] ?? '');
+        $routAction->description = _E($post['description'] ?? '');
         $routAction->specifications = _E($post['specifications'] ?? '');
 
         if (R::store($routAction)) {
-            $res['color'] = 'success';
-            $res['info'] = "Rout Action Saved successfully!";
+            $res[] = ['info' => 'Rout Action Saved successfully!', 'color' => 'success'];
         } else {
-            $res['info'] = "Some things go wrong!";
-            $res['color'] = 'danger';
+            $res[] = ['info' => 'Some things go wrong!', 'color' => 'danger'];
         }
 
         /* [     LOGS FOR THIS ACTION     ] */
         if (!logAction($user['user_name'], $log_action, OBJECT_TYPE[8], $log_details)) {
-            $res['info'] = 'The log not created.';
-            $res['color'] = 'danger';
+            $res[] = ['info' => 'The log not created.', 'color' => 'danger'];
+        }
+        return $res;
+    }
+
+    /**
+     * ROUT ACTIONS CODE
+     *
+     * @param $post
+     * @param $user
+     * @return array
+     * @throws //\RedBeanPHP\RedException\SQL
+     */
+    public static function createUpdateWarehouseType($post, $user): array
+    {
+        $warehouseType = R::load(WH_TYPES, _E($post['wh-action-editing']));
+        if (isset($post['wh-action-editing']) && $warehouseType) {
+            $log_action = 'UPDATING';
+            $log_details = "Name Type №:$warehouseType->id was updated successfully";
+        } else {
+            $routAction = R::dispense(WH_TYPES);
+            $log_action = 'CREATING';
+            $log_details = "Name Type №:$warehouseType->id was created successfully";
+        }
+
+        $warehouseType->type_name = _E($post['type_name'] ?? '');
+        $warehouseType->description = _E($post['description'] ?? '');
+
+        if (R::store($warehouseType)) {
+            $res[] = ['info' => 'Name Type Saved successfully!', 'color' => 'success'];
+        } else {
+            $res[] = ['info' => 'Some things go wrong!', 'color' => 'danger'];
+        }
+
+        /* [     LOGS FOR THIS ACTION     ] */
+        if (!logAction($user['user_name'], $log_action, OBJECT_TYPE[6], $log_details)) {
+            $res[] = ['info' => 'The log not created.', 'color' => 'danger'];
         }
         return $res;
     }

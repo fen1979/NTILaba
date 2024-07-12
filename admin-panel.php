@@ -15,6 +15,10 @@ if (isset($_POST['idForUse']) && isset($_POST['password'])) {
 if (isset($_POST['rout-action-saving']) || isset($_POST['rout-action-editing'])) {
     $args = Management::createUpdateRoutAction($_POST, $user);
 }
+/* WAREHOUSE ACTIONS CODE ---------------------------------------------------------- */
+if (isset($_POST['wh-action-saving']) || isset($_POST['wh-action-editing'])) {
+    $args = Management::createUpdateWarehouseType($_POST, $user);
+}
 /* USERS ACTIONS CODE --------------------------------------------------------- */
 if (isset($_POST['user-data-editing'])) {
     $args = Management::editUserData($_POST);
@@ -111,5 +115,9 @@ switch ($_GET['route-page'] ?? 1) {
     case 8:
         /* страница настроек пользовательского аккаунта  */
         include_once 'admin-panel/profile.php';
+        break;
+        case 9:
+        /* страница настроек пользовательского аккаунта  */
+        include_once 'admin-panel/wh-types.php';
         break;
 }

@@ -251,6 +251,9 @@ function ADMIN_PANEL_BUTTONS($user, $page): void
         <li class="nav-item">
             <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-primary" value="6">Orders</button>
         </li>
+        <li class="nav-item">
+            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-primary" value="9">Warehouses</button>
+        </li>
 
     <?php } else { ?>
         <li class="nav-item">
@@ -509,9 +512,10 @@ function LANGUAGE_BUTTONS(): void
  * @param $page
  * @param $table
  * @param int $limit
+ * @param array $conditions ['query'=>'', 'data'=>'']
  * @return string[]
  */
-function PaginationForPages($get, $page, $table, int $limit = 25): array
+function PaginationForPages($get, $page, $table, int $limit = 25, array $conditions = []): array
 {
     $pagination = $paginationButtons = '';
     if (isset($get['limit']))
@@ -523,7 +527,11 @@ function PaginationForPages($get, $page, $table, int $limit = 25): array
         $offset = ($currentPage - 1) * $limit;
         $pagination = "LIMIT $limit OFFSET $offset";
         // SQL-запрос для получения общего количества записей
-        $totalResult = R::count($table);
+        if (!empty($conditions)) {
+            $totalResult = R::count($table, $conditions['query'], [$conditions['data']]);
+        } else {
+            $totalResult = R::count($table);
+        }
         $totalPages = ceil($totalResult / $limit);
 
         $limit_n = (isset($_GET['limit'])) ? '&limit=' . $_GET['limit'] : '';
