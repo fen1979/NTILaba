@@ -1,5 +1,5 @@
 <?php
-require 'stock/WareHouse.php';
+require 'warehouse/WareHouse.php';
 
 class Project
 {

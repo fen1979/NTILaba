@@ -89,19 +89,29 @@ function NavBarContent($page, $user = null, $pid = null, $l = ''): void
                     $elem = 'searchForm';
                     $allowed = '';
                 }
-                ?>
-                <div class="w-100 d-flex mainSearchForm" data-title="<?= FIND_T[$allowed ?? '']; ?>"
-                     style="justify-content: space-evenly; align-items: center;">
-                    <form action="" id="<?= $elem; ?>" class="form <?= $hideThis; ?>" style="width: 70%;">
-                        <input type="search" role="searchbox" aria-label="Search" class="searchThis form-control"
-                               data-request="<?= $page; ?>_nav" autofocus placeholder="Global Search" required>
-                    </form>
+                if ($page == 'order') {
+                    ?>
+                    <div class="w-100 d-flex mainSearchForm" data-title="<?= FIND_T[$allowed ?? '']; ?>"
+                         style="justify-content: space-evenly; align-items: center;">
 
-                    <form action="" id="orid-form" class="form">
-                        <input type="search" role="searchbox" aria-label="Search" class="searchThis form-control"
-                               data-request="order_id_search" placeholder="Search by ID" required>
-                    </form>
-                </div>
+                        <form action="" id="<?= $elem; ?>" class="form <?= $hideThis; ?>" style="width: 70%;">
+                            <input type="search" role="searchbox" aria-label="Search" class="searchThis form-control"
+                                   data-request="<?= $page; ?>_nav" autofocus placeholder="Global Search" required>
+                        </form>
+
+                        <form action="" id="orid-form" class="form">
+                            <input type="search" role="searchbox" aria-label="Search" class="searchThis form-control"
+                                   data-request="order_id_search" placeholder="Search by ID" required>
+                        </form>
+                    </div>
+                <?php } else { ?>
+                    <div class="w-100 ms-2 me-2 mainSearchForm" data-title="<?= FIND_T[$allowed ?? '']; ?>">
+                        <form action="" id="<?= $elem; ?>" class="form <?= $hideThis; ?>">
+                            <input type="search" role="searchbox" aria-label="Search" class="searchThis form-control"
+                                   data-request="<?= $page; ?>_nav" autofocus placeholder="Search" required>
+                        </form>
+                    </div>
+                <?php } ?>
 
                 <!-- NAVIGATION PANEL BUTTONS -->
                 <div class="collapse navbar-collapse" id="navBarContent">
@@ -199,7 +209,7 @@ function ALL_PAGES_BUTTONS($page, $l): void
     </li>
     <li class="nav-item">
         <button type="button" class="url btn btn-sm btn-outline-<?= ($l == Y['STOCK']) ? 'gold' : 'secondary'; ?>"
-                value="warehouse">Warehouse
+                value="wh">Warehouse
         </button>
     </li>
     <li class="nav-item">
@@ -352,7 +362,7 @@ function EDIT_PROJECT_PAGE_BUTTONS($pid): void
     </li>
     <?php if (isUserRole(ROLE_ADMIN)) { ?>
     <li class="nav-item">
-        <button type="button" class="url btn btn-sm btn-outline-secondary" value="warehouse">Warehouse</button>
+        <button type="button" class="url btn btn-sm btn-outline-secondary" value="wh">Warehouse</button>
     </li>
 <?php }
 }
@@ -402,13 +412,13 @@ function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid): void
         if ($page == 'view_item' && $pid != null) {
             ?>
             <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-dark" value="warehouse?#row-<?= ($pid - 4); ?>">
-                    Back To List <i class="bi bi-house"></i>
+                <button type="button" class="url btn btn-sm btn-outline-warning" value="arrivals?item_id=<?= $pid; ?>">
+                    Edit Item <i class="bi bi-pen"></i>
                 </button>
             </li>
 
             <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-diliny" value="warehouse/write_off?item_id=<?= $pid; ?>">
+                <button type="button" class="url btn btn-sm btn-outline-diliny" value="writeoff?item_id=<?= $pid; ?>">
                     Write off Item manualy <i class="bi bi-plus"></i>
                 </button>
             </li>
@@ -457,7 +467,7 @@ function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid): void
         </li>
         <li class="nav-item">
             <button type="button" class="url btn btn-sm btn-outline-<?= ($l == Y['STOCK']) ? 'gold' : 'secondary'; ?>"
-                    value="warehouse">Warehouse
+                    value="wh">Warehouse
             </button>
         </li>
         <?php

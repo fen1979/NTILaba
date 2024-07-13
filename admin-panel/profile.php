@@ -65,7 +65,7 @@ DisplayMessage($args ?? null);
                             <select class="form-select" id="landingPageSelect" name="link-pages">
                                 <option value="order" <?= ($user['link'] == 'order') ? 'selected' : ''; ?>>Orders</option>
                                 <option value="project" <?= ($user['link'] == 'project') ? 'selected' : ''; ?>>Projects</option>
-                                <option value="warehouse" <?= ($user['link'] == 'warehouse') ? 'selected' : ''; ?>>Warehouse</option>
+                                <option value="wh" <?= ($user['link'] == 'warehouse') ? 'selected' : ''; ?>>Warehouse</option>
                                 <option value="wiki" <?= ($user['link'] == 'wiki') ? 'selected' : ''; ?>>Wiki</option>
                             </select>
                         </div>

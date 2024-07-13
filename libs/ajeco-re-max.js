@@ -383,6 +383,7 @@ dom.addEventListener("DOMContentLoaded", function () {
                 tooltipSpan.style.position = "absolute";
                 tooltipSpan.style.zIndex = "99999";
                 tooltipSpan.style.width = styles.width;
+                tooltipSpan.style.height = styles.height;
                 tooltipSpan.style.backgroundColor = styles.bg_color;
                 tooltipSpan.style.color = styles.color;
                 tooltipSpan.style.padding = styles.padding;
@@ -588,7 +589,8 @@ dom.addEventListener("DOMContentLoaded", function () {
     * function need required arguments {width: '', bg_color: '', color:'', padding:''}
     */
     dom.doTitleView("data-title", {
-        width: "300px",
+        width: "350px",
+        height: "auto",
         bg_color: "#595e59",
         color: "#ffffff",
         padding: "10px"

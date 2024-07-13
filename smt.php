@@ -445,7 +445,7 @@ echo $b->item_in_work;
             if ($request != 'warehouse') {
                 ?>
                 <h4 class="py-3 px-3">Ooops seams this item not exist yet.</h4>
-                <a href="/warehouse/the_item?newitem=<?= $searchString; ?>" role="button" class="m-3 p-3 btn btn-outline-secondary">
+                <a href="/wh/the_item?newitem=<?= $searchString; ?>" role="button" class="m-3 p-3 btn btn-outline-secondary">
                     Do you want to create this Item?
                 </a>
                 <?php

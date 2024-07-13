@@ -1,6 +1,6 @@
 <?php
 EnsureUserIsAuthenticated($_SESSION,'userBean', ROLE_ADMIN);
-require 'stock/WareHouse.php';
+require 'warehouse/WareHouse.php';
 /* получение пользователя из сессии */
 $user = $_SESSION['userBean'];
 $page = 'view_item';

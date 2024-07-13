@@ -298,7 +298,7 @@ class WareHouse
         // store new item
         $item_id = R::store($goods);
 
-        /* writing stock log */
+        /* writing warehouse log */
         // пишем лог что поменялось и сохраняем две записи до и после изменений
         $log_data['item_data_before'] = $itemDataBefore; // item full data for save in to log
         $log_data['item_data_after'] = $itemDataAfter; // item full data for save in to log
@@ -397,7 +397,7 @@ class WareHouse
         // пишем лог о перемещении детали в заказ и сохраняем нужную инфу
 
         $stor_place = $goods->storage_shelf . '/' . $goods->storage_box;
-        /* writing stock log */
+        /* writing warehouse log */
         //return WarehouseLog::registerWriteOff($log_data, $user);
         return WarehouseLog::registerWriteOff($id, $post['new-amount'], $supplier, $stor_place, $supplier, $invoice, $lot, $user);
 
@@ -416,7 +416,7 @@ class WareHouse
 //
 //            $res[] = ['color' => 'success', 'info' => 'Item was deleted successfully!'];
 //            $bomid = Undo::StoreDeletedRecord(STORAGE, $itemId);
-//            $url = '<a href="/warehouse?undo=true&bomid=' . $bomid . '" class="btn btn-outline-dark fs-5">Undo Delete Item</a>';
+//            $url = '<a href="/wh?undo=true&bomid=' . $bomid . '" class="btn btn-outline-dark fs-5">Undo Delete Item</a>';
 //            $res[] = ['info' => $url, 'color' => 'dark'];
             $res[] = ['info' => 'TODO Archivation or deletion!!' . $itemId . $user['id'], 'color' => 'danger'];
 

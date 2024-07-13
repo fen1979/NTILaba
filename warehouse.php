@@ -1,6 +1,6 @@
 <?php
 EnsureUserIsAuthenticated($_SESSION, 'userBean', ROLE_ADMIN, 'order');
-require 'stock/WareHouse.php';
+require 'warehouse/WareHouse.php';
 /* получение пользователя из сессии */
 $thisUser = $_SESSION['userBean'];
 $page = 'warehouse';
@@ -122,12 +122,12 @@ DisplayMessage($args ?? null);
     <div class="d-flex align-items-center mb-2">
         <h1 class="ms-2 me-3">Warehouse filters</h1>
         <div class="d-inline">
-            <a href="warehouse" class="btn btn-outline-secondary btn-sm ms-1" id="warehouse-btn">Warehouse</a>
+            <a href="wh" class="btn btn-outline-secondary btn-sm ms-1" id="warehouse-btn">Warehouse</a>
             <?php
             foreach (R::findAll(WH_TYPES) as $row) {
                 $type = $row['type_name'];
                 $id = $row['id'];
-                echo '<a href="warehouse?wh-type=' . $id . '" class="btn btn-outline-secondary btn-sm ms-1" id="a' . $id . '">' . $type . '</a>';
+                echo '<a href="wh?wh-type=' . $id . '" class="btn btn-outline-secondary btn-sm ms-1" id="a' . $id . '">' . $type . '</a>';
             }
             ?>
         </div>
@@ -139,7 +139,6 @@ DisplayMessage($args ?? null);
             <thead>
             <tr>
                 <th>Warehouse</th>
-<!--                <th>ID</th>-->
                 <?php
                 // выводим заголовки согласно настройкам пользователя
                 foreach ($settings as $k => $set) {
@@ -160,7 +159,6 @@ DisplayMessage($args ?? null);
                     } ?>
 
                     <tr class="<?= $color; ?>" data-id="<?= $item['id']; ?>" id="row-<?= $item['id']; ?>">
-<!--                    <td>--><?php //= $item['id']; ?><!--</td>-->
                     <td><?= $item['type_name']; ?></td>
                     <?php
                     // выводим таблицу согласно настройкам пользователя
@@ -235,7 +233,7 @@ ScriptContent($page);
                 // Получаем значение data-id
                 const dataId = row.dataset.id;
                 let btn = dom.e("#routing-btn");
-                btn.value = "warehouse/the_item?itemid=" + dataId
+                btn.value = "wh/the_item?itemid=" + dataId
                 btn.click();
             }
         });

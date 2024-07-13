@@ -4,7 +4,15 @@ require 'WareHouse.php';
 /* получение пользователя из сессии */
 $user = $_SESSION['userBean'];
 $page = 'arrivals';
-$pageMode = 'Add New Part';
+$pageTitle = 'Add New Part';
+$pageMode = 'new';
+$item = null;
+// EDITING ITEM DATA
+if (!empty($_GET['item_id'])) {
+    $pageTitle = 'Edit Part Information';
+    $pageMode = 'edit';
+    $item = R::load(WH_ITEMS, _E($_GET['item_id']));
+}
 
 // ДОБАВЛЕНИЕ НОВОЙ ЗАПЧАСТИ В БД
 if (isset($_POST['save-new-item'])/* && $_POST['save-new-item'] == 'new'*/) {
@@ -101,7 +109,7 @@ if (isset($_POST['save-new-item'])/* && $_POST['save-new-item'] == 'new'*/) {
 <body>
 <!-- NAVIGATION BAR -->
 <?php
-$title = ['title' => $pageMode, 'app_role' => $user['app_role']];
+$title = ['title' => $pageTitle, 'app_role' => $user['app_role']];
 NavBarContent($page, $title, null, Y['STOCK']);
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
@@ -198,19 +206,20 @@ DisplayMessage($args ?? null);
                        value="<?= set_value('owner'); ?>" required/>
                 <?php $t = 'Name of the spare part in the NTI company. 
                 It is important to choose the appropriate name for the correct numbering of the incoming product/spare part. 
-                If this number is not available or if the spare part/product belongs to another customer, select the "OTHERS" option'; ?>
+                If this number is not available or if the spare part/product belongs to another customer, select the Other option'; ?>
                 <select name="owner-part-key" id="owner-part-key" class="input" data-title="<?= $t ?>" required>
-                    <?php
-                    foreach (NTI_PN as $val => $name): ?>
+                    <?php foreach (NTI_PN as $val => $name): ?>
                         <option value="<?= $val ?>"><?= $name ?></option>
                     <?php endforeach; ?>
                 </select>
                 <input type="text" placeholder="Owner P/N"
                        name="owner-part-name" id="owner-part-name" class="input searchThis" data-request="warehouse"
                        value="<?= set_value('owner-part-name'); ?>"/>
-                <input type="number" placeholder="QTY"
-                       name="quantity" id="quantity" class="input"
-                       value="<?= set_value('quantity'); ?>" required/>
+                <?php if ($pageMode != 'edit') { ?>
+                    <input type="number" placeholder="QTY"
+                           name="quantity" id="quantity" class="input"
+                           value="<?= set_value('quantity'); ?>" required/>
+                <?php } ?>
                 <input type="number" placeholder="Storage box"
                        name="storage-box" id="storage-box" class="input"
                        value="<?= set_value('storage-box'); ?>" required/>
@@ -224,8 +233,10 @@ DisplayMessage($args ?? null);
                        value="<?= set_value('manufactured-date', date('Y-m-d H:i')); ?>" required/>
                 <input type="text" placeholder="Lot"
                        name="part-lot" id="part-lot" value="<?= set_value('part-lot'); ?>" class="input"/>
-                <input type="text" placeholder="Invoice"
-                       name="invoice" id="invoice" value="<?= set_value('invoice'); ?>" class="input" required/>
+                <?php if ($pageMode != 'edit') { ?>
+                    <input type="text" placeholder="Invoice"
+                           name="invoice" id="invoice" value="<?= set_value('invoice'); ?>" class="input" required/>
+                <?php } ?>
                 <input type="text" placeholder="Supplier" class="input searchThis" data-request="supplier"
                        name="supplier" id="supplier" value="<?= set_value('supplier'); ?>"/>
 

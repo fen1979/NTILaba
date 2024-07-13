@@ -1,5 +1,5 @@
 <?php
-include_once 'stock/WareHouse.php';
+include_once 'warehouse/WareHouse.php';
 
 class Orders
 {
@@ -213,7 +213,8 @@ class Orders
         // TODO  сделать сброс после завершения проекта или на одном из статусов например когда ушел в упаковку
         R::exec("UPDATE storage SET in_use = 1 WHERE id = ?", [$post['storageBox']]);
 
-        $order->order_folder = self::makeFolderInStorage(unicum()); // папка заказа для хранения информации
+        $unic_name = strtolower($p_name) . '_' . date('Ymd_is'); // project name/date/
+        $order->order_folder = self::makeFolderInStorage($unic_name); // папка заказа для хранения информации
         $order->date_in = str_replace('T', ' ', $post['date_in']); // дата создания заказа
         $order->date_out = str_replace('T', ' ', $post['date_out']); // дата отдачи заказа
         $order->subtraction = 0; // нужна для понимания что заказ в работе и списание больше не нужно если вдруг что

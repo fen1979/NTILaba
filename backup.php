@@ -4,7 +4,7 @@ function backupWarehouse()
 {
     isset($_SESSION['userBean']) && isUserRole(ROLE_ADMIN) or header("Location: /order") and exit();
     isset($_SESSION['userBean']) or header("Location: /order") and exit();
-    require 'stock/WareHouse.php';
+    require 'warehouse/WareHouse.php';
 
 // TODO добавить лог оборота деталей отдельно от лога программы и сделать отдельный вывод
 
@@ -90,7 +90,7 @@ function backupWarehouse()
                 <thead>
                 <tr>
                     <th>
-                        <button type="button" class="url btn btn-danger rounded" value="warehouse/the_item?newitem">
+                        <button type="button" class="url btn btn-danger rounded" value="wh/the_item?newitem">
                             <i class="bi bi-plus"></i>
                         </button>
                     </th>
@@ -131,7 +131,7 @@ function backupWarehouse()
                             </button>
                         </td>
                         <td>
-                            <button type="button" class="url btn btn-outline-warning" value="warehouse/the_item?edititem&itemid=<?= $item['id']; ?>">
+                            <button type="button" class="url btn btn-outline-warning" value="wh/the_item?edititem&itemid=<?= $item['id']; ?>">
                                 <i class="bi bi-pencil"></i>
                             </button>
                         </td>
@@ -191,7 +191,7 @@ function backupWarehouse()
                 <!-- Содержимое модального окна -->
                 <div class="modal-body">
                     <h5 class="text-danger">Warning! This is irreversable operation!!!</h5>
-                    <form action="/warehouse" method="post" autocomplete="off">
+                    <form action="/wh" method="post" autocomplete="off">
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
                             <input type="password" class="form-control" id="password" name="password" required autofocus autocomplete="new-password">
@@ -229,7 +229,7 @@ function backupWarehouse()
 function backupFillItem()
 {
     isset($_SESSION['userBean']) && $_SESSION['userBean']['app_role'] == ROLE_ADMIN or header("Location: /") and exit();
-    require 'stock/WareHouse.php';
+    require 'warehouse/WareHouse.php';
 // TODO добавить лог оборота деталей отдельно от лога программы
     /* получение пользователя из сессии */
     $user = $_SESSION['userBean'];

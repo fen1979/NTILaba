@@ -49,11 +49,12 @@ $r->addRout('/create_supplier', 'profiles/suppliers.php');
 $r->addRout('/logs', 'admin-panel/logs.php');
 
 // warehouse pages
-$r->addRout('/warehouse', 'warehouse.php');
-$r->addRout('/warehouse/the_item', 'stock/item-data.php');
-$r->addRout('/import-csv', 'stock/items-import.php');
-$r->addRout('/movement-log', 'stock/warehouse-log.php');
-$r->addRout('/arrivals', 'stock/arrivals.php');
+$r->addRout('/wh', 'warehouse.php');
+$r->addRout('/wh/the_item', 'warehouse/item-data.php');
+$r->addRout('/import-csv', 'warehouse/items-import.php');
+$r->addRout('/movement-log', 'warehouse/wh-log.php');
+$r->addRout('/arrivals', 'warehouse/arrivals.php');
+$r->addRout('/writeoff', 'warehouse/writeoff.php');
 
 // wiki storage page
 $r->addRout('/wiki', 'wiki.php');
