@@ -58,6 +58,11 @@ if (isset($_GET['pid']) && isset($_GET['orid'])) {
         // Метод для добавления ячеек с автоматическим управлением размером шрифта
         public function addCellWithAutoFont($w, $h, $text, $border, $ln, $align, $maxChar, $fill = false)
         {
+            // Убедимся, что $text является строкой
+            // с версии 8ю0 метод обязан получать пустую строку вместо null!
+            if (!is_string($text)) {
+                $text = '';
+            }
             // Устанавливаем размер шрифта в зависимости от длины текста
             if (mb_strlen($text) > $maxChar) {
                 $this->SetFont('dejavusans', '', 6);

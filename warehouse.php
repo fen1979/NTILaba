@@ -8,12 +8,37 @@ $page = 'warehouse';
 // SQL-запрос для получения всех записей из nomenclature (whitems) с прикрепленными записями из warehouse
 $items = WH_ITEMS;
 $warehouse = WAREHOUSE;
-$wh_type = isset($_GET['wh-type']) ? _E($_GET['wh-type']) : '1';
-// Параметры пагинации
-list($pagination, $paginationButtons) = PaginationForPages($_GET, $page, WH_ITEMS, 50, ['query' => 'warehouses_id = ?', 'data' => $wh_type]);
+$whtypes = WH_TYPES;
+$type_query = '';
+$conditions = [];
 
+// фильтрация по складам
+if (isset($_GET['wh-type'])) {
+    $wh_type = _E($_GET['wh-type']);
+    $type_query = ' WHERE wn.warehouses_id = ' . $wh_type;
+    $conditions = ['query' => 'warehouses_id = ?', 'data' => $wh_type];
+}
+
+// Параметры пагинации
+list($pagination, $paginationButtons) = PaginationForPages($_GET, $page, WH_ITEMS, 50, $conditions);
+
+//$query = "
+//    SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf
+//    FROM $items wn
+//    LEFT JOIN $warehouse w ON w.items_id = wn.id
+//    AND w.fifo > DATE_SUB(NOW(), INTERVAL wn.shelf_life MONTH)
+//    AND w.fifo = (
+//        SELECT MIN(w2.fifo)
+//        FROM $warehouse w2
+//        WHERE w2.items_id = wn.id
+//        AND w2.fifo > DATE_SUB(NOW(), INTERVAL wn.shelf_life MONTH)
+//    )
+//    $type_query
+//    ORDER BY wn.id ASC
+//    $pagination
+//";
 $query = "
-    SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf
+    SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf, wt.type_name
     FROM $items wn
     LEFT JOIN $warehouse w ON w.items_id = wn.id
     AND w.fifo > DATE_SUB(NOW(), INTERVAL wn.shelf_life MONTH)
@@ -23,10 +48,12 @@ $query = "
         WHERE w2.items_id = wn.id
         AND w2.fifo > DATE_SUB(NOW(), INTERVAL wn.shelf_life MONTH)
     )
-    WHERE wn.warehouses_id = $wh_type
+    LEFT JOIN $whtypes wt ON wt.id = wn.warehouses_id
+    $type_query
     ORDER BY wn.id ASC
     $pagination
 ";
+
 
 // Выполнение запроса и получение результатов
 $goods = R::getAll($query);
@@ -75,6 +102,11 @@ $settings = getUserSettings($thisUser, WH_ITEMS);
         .notice {
             white-space: pre-wrap;
         }
+
+        .active-filter {
+            background-color: #0d6efd;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -86,14 +118,28 @@ DisplayMessage($args ?? null);
 ?>
 
 <div class="container-fluid">
-    <h1 class="ms-2">Warehouse</h1>
+    <!-- кнопки фильтрации по складам -->
+    <div class="d-flex align-items-center mb-2">
+        <h1 class="ms-2 me-3">Warehouse filters</h1>
+        <div class="d-inline">
+            <a href="warehouse" class="btn btn-outline-secondary btn-sm ms-1" id="warehouse-btn">Warehouse</a>
+            <?php
+            foreach (R::findAll(WH_TYPES) as $row) {
+                $type = $row['type_name'];
+                $id = $row['id'];
+                echo '<a href="warehouse?wh-type=' . $id . '" class="btn btn-outline-secondary btn-sm ms-1" id="a' . $id . '">' . $type . '</a>';
+            }
+            ?>
+        </div>
+    </div>
 
     <!-- ВЫВОД ДАННЫХ ПОСЛЕ СОХРАНЕНИЯ ЗАПЧАСТИ В БД -->
     <?php if ($settings) { ?>
         <table class="custom-table">
             <thead>
             <tr>
-                <th>ID</th>
+                <th>Warehouse</th>
+<!--                <th>ID</th>-->
                 <?php
                 // выводим заголовки согласно настройкам пользователя
                 foreach ($settings as $k => $set) {
@@ -114,7 +160,8 @@ DisplayMessage($args ?? null);
                     } ?>
 
                     <tr class="<?= $color; ?>" data-id="<?= $item['id']; ?>" id="row-<?= $item['id']; ?>">
-                    <td><?= $item['id']; ?></td>
+<!--                    <td>--><?php //= $item['id']; ?><!--</td>-->
+                    <td><?= $item['type_name']; ?></td>
                     <?php
                     // выводим таблицу согласно настройкам пользователя
                     foreach ($settings as $key => $set) {
@@ -192,6 +239,22 @@ ScriptContent($page);
                 btn.click();
             }
         });
+
+        // указатель активного фильтра складов
+        const urlParams = new URLSearchParams(window.location.search);
+        const whType = urlParams.get('wh-type');
+
+        if (whType) {
+            const activeButton = dom.e('#a' + whType);
+            if (activeButton) {
+                activeButton.classList.add('active-filter');
+            }
+        } else {
+            const defaultButton = dom.e('#warehouse-btn');
+            if (defaultButton) {
+                defaultButton.classList.add('active-filter');
+            }
+        }
     });
 </script>
 </body>

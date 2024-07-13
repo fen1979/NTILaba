@@ -228,94 +228,99 @@ function getOrderProgress($order): string
  */
 function viewOrder($result, $user)
 {
-    if ($user) {
-        foreach ($user['ownSettingsList'] as $item) {
-            if (isset($item['table_name']) && $item['table_name'] == 'orders') {
-                $settings = json_decode($item['setup']);
-                break;
-            }
-        }
-    }
-
-    $byUser = explode(',', $user['filterby_user']);
-    $orders_ids = $customer_name = $priority_id = '';
-    foreach ($result as $order) {
-        $progress = getOrderProgress($order);
-        /* filter by user */
-        $workers = explode(',', $order['workers']);
-        if (!empty(array_intersect($workers, $byUser)) || $byUser[0] == 'all') {
-
-            /* формируем приорити данные для заказов ID заказов через запятую добавляем в скрытую форму
-            а при клике на кнопку дай приорити открываем новую страницу и формируем там таблицу типа эксель */
-            $orders_ids .= $order['id'] . ',';
-            $customer_name = $order['customer_name'];
-            $priority_id = $order['client_priority'];
-            ?>
-            <tr class="align-middle order-row border-bottom">
-            <?php
-            if ($settings) {
-                // creating table using user settings
-                foreach ($settings as $k => $item) {
-                    $click = ($k === 0 && (in_array($thisUser['user_name'], $workers) || isUserRole(ROLE_ADMIN))) ? ' onclick="getInfo(' . $order['id'] . ')"' : '';
-                    if ($item == 'status') {
-                        // status colorise bg and play text
-                        $color = L::STATUS($order[$item], 1);
-                        echo '<td class="border-end ' . $color . '"' . $click . '>' . L::STATUS($order[$item]) . '</td>';
-
-                    } elseif ($item == 'prioritet') {
-                        // prioritet colorise bg
-                        $c = strtolower($order[$item]);
-                        echo '<td class="border-end ' . $c . '"' . $click . '>' . $order[$item] . '</td>';
-
-                    } elseif ($item == 'order_progress') {
-                        // order progress preview
-                        echo '<td class="border-end"' . $click . '>' . $progress . '</td>';
-
-                    } else {
-                        // regular tab cel
-                        echo '<td class="border-end"' . $click . '>' . $order[$item] . '</td>';
-                    }
+    if ($result) {
+        if ($user) {
+            foreach ($user['ownSettingsList'] as $item) {
+                if (isset($item['table_name']) && $item['table_name'] == 'orders') {
+                    $settings = json_decode($item['setup']);
+                    break;
                 }
             }
+        }
 
-            //i buttons for some actions like delete, edite, & edit BOM
-            if (isUserRole(ROLE_ADMIN)) {
+        $byUser = explode(',', $user['filterby_user']);
+        $orders_ids = $customer_name = $priority_id = '';
+        foreach ($result as $order) {
+            $progress = getOrderProgress($order);
+            /* filter by user */
+            $workers = explode(',', $order['workers']);
+            if (!empty(array_intersect($workers, $byUser)) || $byUser[0] == 'all') {
+
+                /* формируем приорити данные для заказов ID заказов через запятую добавляем в скрытую форму
+                а при клике на кнопку дай приорити открываем новую страницу и формируем там таблицу типа эксель */
+                $orders_ids .= $order['id'] . ',';
+                $customer_name = $order['customer_name'];
+                $priority_id = $order['client_priority'];
                 ?>
-                <td>
-                    <?php if ($order['status'] == 'st-111'): ?>
-                        <button type="button" value="<?= $order['id']; ?>" class="archive-order btn btn-outline-dark" data-title="Archivate Order">
-                            <i class="bi bi-archive"></i>
-                        </button>
-                    <?php endif; ?>
-
-                    <?php $url = "check_bom?orid={$order['id']}&pid={$order['projects_id']}"; ?>
-                    <button type="button" value="<?= $url; ?>" class="url btn btn-outline-primary" data-title="Edit order BOM">
-                        <i class="bi bi-card-list"></i>
-                    </button>
-                    <?php $url = "edit_order?orid={$order['id']}&pid={$order['projects_id']}"; ?>
-                    <button type="button" value="<?= $url; ?>" class="url btn btn-outline-warning" data-title="Edit Order">
-                        <i class="bi bi-pencil"></i>
-                    </button>
-
-                </td>
-                </tr>
+                <tr class="align-middle order-row border-bottom">
                 <?php
-            }
-        } // if(filter-by-user)
-    } // end foreach()
+                if ($settings) {
+                    // creating table using user settings
+                    foreach ($settings as $k => $item) {
+                        $click = ($k === 0 && (in_array($thisUser['user_name'], $workers) || isUserRole(ROLE_ADMIN))) ? ' onclick="getInfo(' . $order['id'] . ')"' : '';
+                        if ($item == 'status') {
+                            // status colorise bg and play text
+                            $color = L::STATUS($order[$item], 1);
+                            echo '<td class="border-end ' . $color . '"' . $click . '>' . L::STATUS($order[$item]) . '</td>';
 
-    // форма вывода данных для таблицы приорити
-    ?>
-    <tr class="hidden">
-        <td>
-            <form action="/priority-out" method="post" target="_blank" id="priority-form" class="hidden">
-                <input type="hidden" name="order-ids" value="<?= $orders_ids; ?>">
-                <input type="hidden" name="customer-name" value="<?= $customer_name; ?>">
-                <input type="hidden" name="priority-id" value="<?= $priority_id; ?>">
-            </form>
-        </td>
-    </tr>
-    <?php
+                        } elseif ($item == 'prioritet') {
+                            // prioritet colorise bg
+                            $c = strtolower($order[$item]);
+                            echo '<td class="border-end ' . $c . '"' . $click . '>' . $order[$item] . '</td>';
+
+                        } elseif ($item == 'order_progress') {
+                            // order progress preview
+                            echo '<td class="border-end"' . $click . '>' . $progress . '</td>';
+
+                        } else {
+                            // regular tab cel
+                            echo '<td class="border-end"' . $click . '>' . $order[$item] . '</td>';
+                        }
+                    }
+                }
+
+                //i buttons for some actions like delete, edite, & edit BOM
+                if (isUserRole(ROLE_ADMIN)) {
+                    ?>
+                    <td>
+                        <?php if ($order['status'] == 'st-111'): ?>
+                            <button type="button" value="<?= $order['id']; ?>" class="archive-order btn btn-outline-dark" data-title="Archivate Order">
+                                <i class="bi bi-archive"></i>
+                            </button>
+                        <?php endif; ?>
+
+                        <?php $url = "check_bom?orid={$order['id']}&pid={$order['projects_id']}"; ?>
+                        <button type="button" value="<?= $url; ?>" class="url btn btn-outline-primary" data-title="Edit order BOM">
+                            <i class="bi bi-card-list"></i>
+                        </button>
+                        <?php $url = "edit_order?orid={$order['id']}&pid={$order['projects_id']}"; ?>
+                        <button type="button" value="<?= $url; ?>" class="url btn btn-outline-warning" data-title="Edit Order">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+
+                    </td>
+                    </tr>
+                    <?php
+                }
+            } // if(filter-by-user)
+        } // end foreach()
+
+        // форма вывода данных для таблицы приорити
+        ?>
+        <tr class="hidden">
+            <td>
+                <form action="/priority-out" method="post" target="_blank" id="priority-form" class="hidden">
+                    <input type="hidden" name="order-ids" value="<?= $orders_ids; ?>">
+                    <input type="hidden" name="customer-name" value="<?= $customer_name; ?>">
+                    <input type="hidden" name="priority-id" value="<?= $priority_id; ?>">
+                </form>
+            </td>
+        </tr>
+        <?php
+    } else { ?>
+        <h1>No result by your search!</h1>
+        <?php
+    }
 }
 
 /**
@@ -367,7 +372,8 @@ function viewStorageItems($result, $searchString, $request, $user)
                 ?>
                 <!-- это полный набор переменных выводимых из БД -->
                 <tr class="<?= $color; ?>" data-id="<?= $item['id']; ?>" id="row-<?= $item['id']; ?>">
-                    <td><?= $item['id']; ?></td>
+                    <!--                    <td>--><?php //= $item['id']; ?><!--</td>-->
+                    <td><?= $item['type_name']; ?></td>
                     <?php
                     // выводим таблицу согласно настройкам пользователя
                     foreach ($settings as $set) {
@@ -432,6 +438,7 @@ function viewStorageItems($result, $searchString, $request, $user)
                     'datasheet' => $item['datasheet'],
                     'shelf_life' => $item['shelf_life'],
                     'storage_class' => $item['class_number'],
+                    'wh_type' => $item['type_name'],
                     // warehouse table fields
                     'owner' => $wh,
                     'owner_part_name' => $item['owner_pn'],
@@ -453,7 +460,8 @@ function viewStorageItems($result, $searchString, $request, $user)
                     <td><?= $item['quantity']; ?></td>
                     <td><?= $item['fifo']; ?></td>
                     <td><?= $item['footprint']; ?></td>
-                    <td><?= $item['storage_state']; ?></td>
+                    <!--                    <td>--><?php //= $item['storage_state']; ?><!--</td>-->
+                    <td><?= $item['type_name']; ?></td>
                 </tr>
             <?php } ?>
             </tbody>

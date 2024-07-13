@@ -86,6 +86,13 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
                 viewOrder(dynamicSearch(ORDERS, $col, $mySearchString), $_SESSION['userBean']);
             }
             break;
+        case 'order_id_search':
+            {
+                /* search for orders view page */
+                $col = ['id'];
+                viewOrder(dynamicSearch(ORDERS, $col, $mySearchString), $_SESSION['userBean']);
+            }
+            break;
 
         case 'project_bom':
             {
@@ -148,8 +155,9 @@ function SearchWarehouseItems($searchTerm, $table_one, $table_two)
 {
     // SQL-запрос для поиска в двух таблицах и объединения результатов
     $query = "
-    SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf
+    SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf, wt.type_name
     FROM $table_one wn
+    LEFT JOIN whtypes wt ON wt.id = wn.warehouses_id
     LEFT JOIN $table_two w ON wn.id = w.items_id
     WHERE wn.part_name LIKE ?
        OR wn.part_value LIKE ?

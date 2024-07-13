@@ -90,10 +90,16 @@ function NavBarContent($page, $user = null, $pid = null, $l = ''): void
                     $allowed = '';
                 }
                 ?>
-                <div class="w-100 me-2 ms-2 mainSearchForm" data-title="<?= FIND_T[$allowed ?? '']; ?>">
-                    <form action="" id="<?= $elem; ?>" class="form <?= $hideThis; ?>">
-                        <input type="search" role="searchbox" aria-label="Search" id="navbar-search" class="searchThis form-control"
-                               data-request="<?= $page; ?>_nav" autofocus placeholder="Search" required>
+                <div class="w-100 d-flex mainSearchForm" data-title="<?= FIND_T[$allowed ?? '']; ?>"
+                     style="justify-content: space-evenly; align-items: center;">
+                    <form action="" id="<?= $elem; ?>" class="form <?= $hideThis; ?>" style="width: 70%;">
+                        <input type="search" role="searchbox" aria-label="Search" class="searchThis form-control"
+                               data-request="<?= $page; ?>_nav" autofocus placeholder="Global Search" required>
+                    </form>
+
+                    <form action="" id="orid-form" class="form">
+                        <input type="search" role="searchbox" aria-label="Search" class="searchThis form-control"
+                               data-request="order_id_search" placeholder="Search by ID" required>
                     </form>
                 </div>
 

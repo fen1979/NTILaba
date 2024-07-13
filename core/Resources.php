@@ -252,7 +252,6 @@ class L
         $tableData['whitems']['datasheet'] = 'Datasheet';
         $tableData['whitems']['notes'] = 'Note';
         $tableData['whitems']['description'] = 'Description';
-        $tableData['whitems']['actual_qty'] = 'Quantity';
         $tableData['whitems']['min_qty'] = 'Min. Amount';
         $tableData['whitems']['class_number'] = 'Class';
         $tableData['whitems']['shelf_life'] = 'Shelf Life';
@@ -260,7 +259,6 @@ class L
 
         // warehouse sub table
         $tableData['whitems']['quantity'] = 'Amount';
-        $tableData['whitems']['manufacture_pn'] = 'Manufacture P/N';
         $tableData['whitems']['owner_pn'] = 'Owner P/N';
         $tableData['whitems']['owner'] = 'Part Owner';
         $tableData['whitems']['storage_shelf'] = 'Storage Shelf';
@@ -269,7 +267,7 @@ class L
         // invoice sub table
         $tableData['whitems']['invoice'] = 'Invoice';
         $tableData['whitems']['lot'] = 'Item Lot';
-        $tableData['whitems']['quantity'] = 'QTY Arrived';
+        $tableData['whitems']['quantity'] = 'QTY [pcs, m]';
         $tableData['whitems']['supplier'] = 'Supplier';
         $tableData['whitems']['manufacture_date'] = 'Mfr. Date';
         $tableData['whitems']['date_in'] = 'Date In';

@@ -1,7 +1,9 @@
 <?php
+require 'core/Routing.php';
 function backupWarehouse()
 {
     isset($_SESSION['userBean']) && isUserRole(ROLE_ADMIN) or header("Location: /order") and exit();
+    isset($_SESSION['userBean']) or header("Location: /order") and exit();
     require 'stock/WareHouse.php';
 
 // TODO добавить лог оборота деталей отдельно от лога программы и сделать отдельный вывод
@@ -183,7 +185,7 @@ function backupWarehouse()
                 <!-- Заголовок модального окна -->
                 <div class="modal-header">
                     <h5 class="modal-title">Delete Item № <span id="itemId"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="border:solid red 1px;"></button>
+                    <button type="button" class="btn-close" data-aj-dismiss="modal" style="border:solid red 1px;"></button>
                 </div>
 
                 <!-- Содержимое модального окна -->
@@ -246,7 +248,7 @@ function backupFillItem()
                 exit();
             }
         } else {
-            $args = WareHouse::updateNomenclatureItem($_POST, $user);
+            $args = WareHouse::UpdateNomenclatureItem($_POST, $user);
         }
     }
 
@@ -526,7 +528,7 @@ function backupFillItem()
                 <!-- Modal Header -->
                 <div class="modal-header">
                     <h4 class="modal-title">Search Result</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-aj-dismiss="modal"></button>
                 </div>
 
                 <!-- Modal body -->
@@ -534,7 +536,7 @@ function backupFillItem()
 
                 <!-- Modal footer -->
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" data-aj-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -1007,3 +1009,141 @@ function backupItemView()
     </html>
     <?php
 }
+
+?>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh; /* Высота экрана */
+        }
+        /*th, td{*/
+        /*    height: 65px;*/
+        /*}*/
+
+        #table-fixed {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 30%; /* Ширина фиксированной таблицы */
+            overflow-y: auto; /* Вертикальный скролл */
+            z-index: 100; /* Высший приоритет отображения */
+            background-color: white; /* Предотвращение перекрытия фонами */
+            white-space: break-spaces;
+        }
+
+        #table-fixed thead th {
+            position: sticky;
+            top: 0;
+            background-color: #c7dfec; /* Цвет фона заголовков */
+            z-index: 101; /* Заголовок выше остального контента таблицы */
+        }
+
+        #table-fixed th, #table-fixed td {
+            text-align: left;
+            padding: 0 5px;
+            border: 1px solid #ddd;
+        }
+
+        #table-fixed tr:hover {
+            cursor: pointer;
+            background: #baecf6;
+        }
+
+        #table-fixed tr.clickable:hover {
+            background: #0739ff;
+        }
+
+        #table-moving-container {
+            margin-left: 41%; /* Отступ слева на ширину первой таблицы */
+            overflow: auto; /* Скролл во всех направлениях */
+            position: relative;
+            z-index: 99; /* Меньше z-index первой таблицы */
+            padding-top: 0; /* Убедитесь, что вторая таблица начинается сразу после первой */
+        }
+
+        #table-moving {
+            width: 200%; /* Ширина второй таблицы, чтобы показать горизонтальный скролл */
+            /*white-space: nowrap; !* Для предотвращения переноса строк *!*/
+        }
+
+        #table-moving thead th {
+            position: sticky;
+            top: 0;
+            background-color: #c7dfec; /* Цвет фона заголовков */
+            z-index: 100; /* Заголовок выше остального контента таблицы */
+        }
+
+        #table-moving th, #table-moving td {
+            text-align: left;
+            padding: 0 5px;
+            border: 1px solid #ddd;
+        }
+
+        #table-moving tr:hover {
+            cursor: pointer;
+            background: #baecf6;
+        }
+
+        #table-moving tr.clickable:hover {
+            background: #0739ff;
+        }
+    </style>
+</head>
+<body>
+<div id="table-fixed-container">
+    <table id="table-fixed">
+        <thead>
+        <tr>
+            <th>Image</th>
+            <th>Value</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach (R::findAll(WH_ITEMS) as $item) { ?>
+            <tr class="clickable">
+                <td><?= $item['item_image'] ?></td>
+                <td><?= "{$item['part_name']}, {$item['part_value']}, {$item['part_type']}, {$item['footprint']}" ?></td>
+                <td><?= $item['description'] ?></td>
+            </tr>
+        <?php } ?>
+        </tbody>
+    </table>
+</div>
+<div id="table-moving-container">
+    <table id="table-moving">
+        <thead>
+        <tr>
+            <th>Data</th>
+            <th>Name</th>
+            <th>Value</th>
+            <th>Type</th>
+            <th>Footprint</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach (R::findAll(WH_ITEMS) as $item) { ?>
+            <tr class="clickable">
+                <td><?= $item['date_in'] ?></td>
+                <td><?= $item['part_name'] ?></td>
+                <td><?= $item['part_value'] ?></td>
+                <td><?= $item['part_type'] ?></td>
+                <td><?= $item['footprint'] ?></td>
+                <td><?= $item['description'] ?></td>
+            </tr>
+        <?php } ?>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

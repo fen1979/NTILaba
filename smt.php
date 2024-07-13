@@ -1,4 +1,5 @@
 <?php
+//R::setup('mysql:host=localhost;dbname=nti_production', 'root', '8CwG24YwZG');
 
 //phpinfo();
 //echo 'session.gc_maxlifetime: ' . ini_get('session.gc_maxlifetime') . '<br>';
@@ -57,109 +58,83 @@
 <body>
 <?php
 include 'core/Routing.php';
-// RT0402FRE071KL, MC0402WGF1001TCE
-// CPF0402B22K6E1
-//$pn = 'RT0402FRE071KL';
-//$in = '08394';
-//$part_value = '1K 1% 1/16W';
-//$owner_pn = 'NRES1';
-////$r = R::findOne(STORAGE, 'manufacture_pn LIKE ? AND invoice LIKE ?', ['%'.$pn.'%', '%'.$in.'%']);
-//$r = R::findOne(STORAGE, 'part_value = ? AND owner_pn = ? AND manufacture_pn LIKE ?', [
-//    $part_value, $owner_pn, '%'.$pn.'%'
-//]);
+// разборка таблицы которая была в самом начале на 3 подтаблицы
+//$st = R::findAll('whnomenclature');
+//foreach ($st as $value) {
+//    $date_in = $value['manufacture_date'];
+////    создаем и заполняем номенклатуру
+//    $it = R::dispense(WH_ITEMS);
+//    $it->part_name = $value['part_name'];
+//    $it->part_value = $value['part_value'];
+//    $it->part_type = $value['part_type'];
+//    $it->footprint = $value['footprint'];
+//    $it->manufacturer = !empty($value['manufacturer']) ? $value['manufacturer'] : 'Not Added Yet';
+//    $it->manufacture_pn = $value['manufacture_pn'];
 //
-//var_dump($r->invoice);
+//    $quantity = $value['actual_qty'];
+//    $ten_percent = $quantity * 0.10;
+//    $it->min_qty = floor($ten_percent);
+//    $sl_mo = $it->shelf_life = $value['shelf_life'] ?? 12;
+//    $it->class_number = $value['class_number'];
+//    $it->datasheet = !empty($value['datasheet']) ? $value['datasheet'] : 'Not Added Yet';
+//    $it->description = !empty($value['description']) ? $value['description'] : 'Not Added Yet';
+//    $it->notes = !empty($value['notes']) ? $value['notes'] : 'Not Added Yet';
+//    $it->date_in = $date_in;
+//    $it->item_image = $value['item_image'] ?? null;
+//    $iid = R::store($it);
 //
-//
-//if (!empty($r->invoice)) {
-//    $inv = explode(',', $r->invoice);
-//    if (!empty($in) && !in_array($in, $inv))
-//        $inv[] = $in;
-//
-//    $r->invoice = implode(',', $inv);
-//} else {
-//    $r->invoice = $in ?? '';
-//}
-//
-//echo '<br>';
-//var_dump($r->invoice);
-//echo date('y/m/d');
-//$st = R::findAll(WH_NOMENCLATURE);
-//foreach ($st as $key => $value) {
-//    if ($value['actual_qty'] != 0) {
-//        $s = R::dispense(WAREHOUSE);
-//        $s->items_id = $key; // Ссылка на товар.
-//        $s->lot = 'N:' . date('m/Y') . ':TI~' . $key;
-//        $s->invoice = 'base flooding';
-//        $s->supplier = '{"name": "Mouser", "id":"1"}';   // name/id
-//        $id = ($value['owner'] == 'NTI') ? 14 : 2; // 14 = nti, 2 = flying
-//        $s->owner = '{"name":"' . $value['owner'] . '", "id":"' . $id . '"}';   // /name
-//        $s->owner_pn = $value['owner_pn'];
-//        $s->quantity = $value['actual_qty']; //  Количество товара в поставке.
-//
-//        if (strpos($value['part_name'], 'Resistor') !== false) {
-//            $s->storage_box = 1;
+////    создаем и заполняем склад
+//    $s = R::dispense(WAREHOUSE);
+//    $s->items_id = $iid;
+//    $id = ($value['owner'] == 'NTI') ? 14 : 2; // 14 = nti, 2 = flying
+//    $owner_data = '{"name":"' . $value['owner'] . '", "id":"' . $id . '"}';
+//    $s->owner = $owner_data;
+//    $s->owner_pn = $value['owner_pn'];
+//    $s->quantity = $value['actual_qty'];
+//    if (strpos($value['part_name'], 'Resistor') !== false) {
+//        $s->storage_box = 1;
+//        $s->storage_shelf = 'SMT-1';
+//    } else
+//        if (strpos($value['part_name'], 'Capacitor') !== false) {
+//            $s->storage_box = 2;
 //            $s->storage_shelf = 'SMT-1';
 //        } else
-//            if (strpos($value['part_name'], 'Capacitor') !== false) {
-//                $s->storage_box = 2;
-//                $s->storage_shelf = 'SMT-1';
+//            if (strpos($value['part_name'], 'Diod') !== false || strpos($value['part_name'], 'Micro Chip') !== false ||
+//                strpos($value['part_name'], 'Oscilator') !== false) {
+//                $s->storage_box = 3;
+//                $s->storage_shelf = 'SMT-2';
 //            } else
-//                if (strpos($value['part_name'], 'Diod') !== false || strpos($value['part_name'], 'Micro Chip') !== false ||
-//                    strpos($value['part_name'], 'Oscilator') !== false) {
-//                    $s->storage_box = 3;
+//                if (strpos($value['part_name'], 'Connector') !== false || strpos($value['part_name'], 'Pins') !== false) {
+//                    $s->storage_box = 5;
+//                    $s->storage_shelf = 'SMT-3';
+//                } else {
+//                    $s->storage_box = 4;
 //                    $s->storage_shelf = 'SMT-2';
-//                } else
-//                    if (strpos($value['part_name'], 'Connector') !== false || strpos($value['part_name'], 'Pins') !== false) {
-//                        $s->storage_box = 5;
-//                        $s->storage_shelf = 'SMT-3';
-//                    } else {
-//                        $s->storage_box = 4;
-//                        $s->storage_shelf = 'SMT-2';
-//                    }
+//                }
+//
+//    $s->storage_state = 'On Shelf';
+//    $mf_date = $s->manufacture_date = $value['manufacture_date'];
+//    $datetime = new DateTime($mf_date);
+//    $datetime->add(new DateInterval("P{$sl_mo}M"));
+//    $s->fifo = $datetime->format('Y-m-d H:i');
+//    $s->date_in = $date_in;
+//    $wid = R::store($s);
 //
 //
-//        $s->manufacture_date = $value['manufacture_date'];
-//        $s->expaire_date = $value['exp_date'];
-//        $s->date_in = $value['date_in'];
-//        //R::store($s);
-//
-//        $quantity = $value['actual_qty'];
-//        $ten_percent = $quantity * 0.10;
-//        $rounded_ten_percent = floor($ten_percent); // Или можно использовать intval($ten_percent)
-//
-//        //R::exec("UPDATE stock SET min_qty = ? WHERE id = ?", [$rounded_ten_percent, $key]);
-//    }
+//    //    создаем и заполняем инвойс
+//    $in = R::dispense(WH_INVOICE);
+//    $in->items_id = $iid;
+//    $in->quantity = $value['actual_qty'];
+//    $in->warehouses_id = $wid;
+//    $in->lot = 'N:' . date('m/Y') . ':TI~' . $iid;
+//    $in->invoice = 'base flooding';
+//    $in->supplier = '{"name":"Mouser Electronics", "id":"2"}';
+//    $in->owner = $owner_data;
+//    $in->date_in = $date_in;
+//    R::store($in);
 //}
 
-// заполнение динамической таблицы склада
-//$st = R::findAll(WH_INVOICE);
-//foreach ($st as $value) {
-//
-//    if ($value['quantity'] != 0) {
-//        $s = R::dispense(WAREHOUSE);
-//        $s->items_id = $value['items_id']; // Ссылка на товар.
-//        // Получение значения поля manufacture_pn из таблицы whnomenclature, где id=12
-//        $s->manufacture_pn = R::getCell('SELECT manufacture_pn FROM whnomenclature WHERE id = ?', [$value['items_id']]);
-//        $s->owner = $value['owner'];
-//        $s->owner_pn = $value['owner_pn'];
-//        $s->quantity = $value['quantity'];
-//        $s->storage_box = $value['storage_box'];
-//        $s->storage_shelf = $value['storage_shelf'];
-//        $s->date_in = $value['date_in'];
-//
-//        $sl_mo = 12;
-//        // Создание объекта DateTime из строки
-//        $datetime = new DateTime($value['manufacture_date']);
-//        // Добавление месяцев к дате
-//        $datetime->add(new DateInterval("P{$sl_mo}M"));
-//
-//        // Преобразование даты обратно в строку
-//        $s->fifo = $datetime->format('Y-m-d H:i');
-//        //R::store($s);
-//        //R::exec("UPDATE stock SET min_qty = ? WHERE id = ?", [$rounded_ten_percent, $key]);
-//    }
-//}
+
 function searchInventory($searchTerm, $tables, $mainTable, $fieldsTable, $sort)
 {
     // Создание части SQL-запроса для JOIN и WHERE условий
@@ -225,7 +200,7 @@ function SearchWarehouseItems($searchTerm)
     WHERE wn.part_name LIKE ? 
        OR wn.part_value LIKE ?
        OR wn.part_type LIKE ?
-       OR w.manufacture_pn LIKE ?
+       OR wn.manufacture_pn LIKE ?
        OR w.owner LIKE ?
        OR w.owner_pn LIKE ?
     ORDER BY w.fifo ASC
@@ -240,16 +215,138 @@ function SearchWarehouseItems($searchTerm)
 if (isset($_GET['search'])) {
     //$result = SearchWarehouseItems($_GET['search']);
     $result = searchInventory($_GET['search'], $tables, $mainTable, $fieldsTable, $sort);
+}
 
+if (isset($_GET['owner-part-key'])) {
+    GetNtiPartNumberForItem($_GET['owner-part-key']);
 }
 
 $settings = getUserSettings($_SESSION['userBean'], WH_ITEMS);
+// поиск и вывод последнего парт номера клиента тест функции
+function GetNtiPartNumberForItem($key)
+{
+// Составление SQL-запроса
+    $sql = "SELECT MAX(CAST(SUBSTRING(owner_pn, LENGTH(:key) + 1) AS UNSIGNED)) AS max_number FROM warehouse WHERE owner_pn LIKE :keyPattern";
+
+// Выполнение запроса и получение результата
+    $maxNumber = R::getCell($sql, [':key' => $key, ':keyPattern' => $key . '%']);
+
+// Вывод результата
+    if (!empty($maxNumber))
+        print_r(["key" => $key, "maxNumber" => $maxNumber]);
+}
+
+function checkDuplicates($data): array
+{
+    // Поля из формы для поиска
+    $part_value = $data['part_value'] ?? null;
+    $manufacture_pn = $data['manufacture_pn'] ?? null;
+    $owner_pn = $data['owner_pn'] ?? null;
+    $invoice = $data['invoice'] ?? null;
+
+    // Имена таблиц для запроса
+    $wh_item = WH_ITEMS; // поля для поиска: part_value, manufacture_pn
+    $wh_invoice = WH_INVOICE; // поля для поиска: invoice, owner
+    $warehouse = WAREHOUSE; // поля для поиска: owner_pn, owner
+
+    // Создаем шаблоны для поиска с учетом любых разделителей и местоположения
+    $search_part_value = '%' . $part_value . '%';
+    $search_manufacture_pn = '%' . $manufacture_pn . '%';
+    $search_owner_pn = '%' . $owner_pn . '%';
+    $search_invoice = '%' . $invoice . '%';
+
+    // SQL-запрос для поиска полного совпадения
+    $sqlFullMatch = "SELECT w.* FROM $warehouse w JOIN $wh_item wi ON wi.id = w.items_id
+        JOIN $wh_invoice win ON win.id = w.invoice_id WHERE
+            wi.part_value LIKE ? AND wi.manufacture_pn LIKE ? AND
+            w.owner_pn LIKE ? AND win.invoice LIKE ?";
+
+    // Выполнение запроса и получение результата
+    $fullMatch = R::getRow($sqlFullMatch, [$search_part_value, $search_manufacture_pn, $search_owner_pn, $search_invoice]);
+
+    // Если найдено полное совпадение
+    if ($fullMatch) {
+        return [false];
+    }
+
+    // SQL-запрос для поиска частичного совпадения (без учета invoice)
+    $sqlPartialMatch = "SELECT w.* FROM $warehouse w JOIN $wh_item wi ON wi.id = w.items_id
+        WHERE wi.part_value LIKE ? AND wi.manufacture_pn LIKE ? AND w.owner_pn LIKE ?";
+
+    // Выполнение запроса и получение результата
+    $partialMatch = R::getRow($sqlPartialMatch, [$search_part_value, $search_manufacture_pn, $search_owner_pn]);
+
+    // Если найдено частичное совпадение
+    if ($partialMatch) {
+        return ['exist', $partialMatch['id']];
+    }
+
+    // Если ничего не найдено в БД
+    return [true];
+}
+
+function dropAutoincrementInWarehouse()
+{
+    // Найдите максимальное значение id
+    $max_id = R::getCell('SELECT MAX(id) FROM whitems');
+    // Установите новое автоинкрементное значение
+    $new_auto_increment = $max_id + 1;
+    R::exec('ALTER TABLE whitems AUTO_INCREMENT = ?', [$new_auto_increment]);
+
+    // Найдите максимальное значение id
+    $max_id = R::getCell('SELECT MAX(id) FROM warehouse');
+    // Установите новое автоинкрементное значение
+    $new_auto_increment = $max_id + 1;
+    R::exec('ALTER TABLE warehouse AUTO_INCREMENT = ?', [$new_auto_increment]);
+
+    // Найдите максимальное значение id
+    $max_id = R::getCell('SELECT MAX(id) FROM whinvoice');
+    // Установите новое автоинкрементное значение
+    $new_auto_increment = $max_id + 1;
+    R::exec('ALTER TABLE whinvoice AUTO_INCREMENT = ?', [$new_auto_increment]);
+}
+
+//dropAutoincrementInWarehouse();
+
+//
+
+// заполенение БОМа проекта подготовка метода для переноса на страницу БОМ проекта
+// после адаптции условие для внесения новой запчасти будет отсутствие ID запчасти при отправке данных со страницы
+// так как при выборе существующей ЗЧ имеется ID то при его отсутствии это будет новая ЗЧ
+$pbo = R::findAll(PROJECT_BOM);
+foreach ($pbo as $b) {
+    //$pb = R::dispense('prbom');
+    //$pb->item_id = ; // номер в каталоге запчастей
+    //$pb->wh_first_id = $b->; // номер на складе самый первый пришедший не равный 0
+    //$pb->project_id = $b->projects_id; // номер проекта
+    //$pb->owner_id = $b->customerid; // номер клиента
+    //$pb->required_qty = $b->amount; // требуемое кол-во
+    //$pb->item_in_work = $b->item_in_work; //
+    //$pb->designator = !empty($b->notes) ? $b->notes: null; // наименование запчастей на плате для установки (SMT only)
+    //$pb->
+    //$pb->date_in = $b->date_in; //
+echo $b->item_in_work;
+//R::store($pb);
+
+}
+
 ?>
 <form action="">
     <input type="text" name="search">
+    <br>
+    <?php $t = 'Name of the spare part in the NTI company. 
+                It is important to choose the appropriate name for the correct numbering of the incoming product/spare part. 
+                If this number is not available or if the spare part/product belongs to another customer, select the "OTHERS" option'; ?>
+    <select name="owner-part-key" id="owner-part-key" class="input" data-title="<?= $t ?>" required>
+        <?php
+        foreach (NTI_PN as $val => $name): ?>
+            <option value="<?= $val ?>"><?= $name ?></option>
+        <?php endforeach; ?>
+    </select>
+    <br>
     <button type="submit">su</button>
 </form>
-
+<br><br><br>
 <!-- ВЫВОД ДАННЫХ ПОСЛЕ СОХРАНЕНИЯ ЗАПЧАСТИ В БД -->
 <?php if ($settings) { ?>
     <table class="custom-table">
@@ -270,75 +367,78 @@ $settings = getUserSettings($_SESSION['userBean'], WH_ITEMS);
         if ($result) {
 
             foreach ($result as $item) {
-                $infoData = json_encode([
-                    'partName' => $item['part_name'],
-                    'partValue' => $item['part_value'],
-                    'footprint' => $item['footprint'],
-                    'part-type' => $item['part_type'],
-                    'MFpartName' => $item['manufacture_pn'],
-                    'manufacturer' => $item['manufacturer'],
-                    'ownerPartName' => $item['owner_pn'],
-                    'amount' => $item['actual_qty'],
-                    'minQTY' => $item['min_qty'],
-                    'storShelf' => $item['storage_shelf'],
-                    'storBox' => $item['storage_box'],
-                    'storState' => $item['storage_state'],
-                    'storageClass' => $item['class_number'],
-                    'datasheet' => $item['datasheet'],
-                    'description' => $item['description'],
-                    'notes' => $item['notes'],
-                    'manufacturedDate' => $item['manufacture_date'],
-                    'shelfLife' => $item['shelf_life'],
-                    'invoice' => $item['invoice'],
-                    'lot' => $item['lots'],
-                    'owner' => $item['owner']
-                ]);
-                if ($request == 'warehouse') {
-                    // вывод результатов поиска на страницу просмотра элемента
-                    ?>
-                    <p class="part border-bottom p-2" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
-                        Part Name: <span class="text-info me-2"><?= $item['part_name']; ?></span>
-                        Manufacture P/N: <span class="text-info me-2"><?= $item['manufacture_pn']; ?></span>
-                        Value: <span class="text-info me-2"><?= $item['part_value']; ?></span>
-                        Owner: <span class="text-info me-2"><?= $item['owner']; ?></span>
-                        Owner P/N: <span class="text-info me-2"><?= $item['owner_pn']; ?></span>
-                        Exp date: <span class="text-info me-2"><?= $item['exp_date']; ?></span>
-                        Amount: <span class="text-info me-2"><?= $item['actual_qty']; ?></span>
-                        Storage State: <span class="text-info me-2"><?= $item['storage_state']; ?></span>
-                    </p>
-                    <?php
-                } else {
-                    // вывод результата поиска на страницу просмотра всей БД
-                    $color = '';
-                    if ((int)$item['actual_qty'] <= (int)$item['min_qty']) {
-                        $color = 'danger';
-                    } elseif ((int)$item['actual_qty'] <= (int)$item['min_qty'] + ((int)$item['min_qty'] / 2)) {
-                        $color = 'warning';
-                    }
-                    ?>
-                    <!-- это полный набор переменных выводимых из БД -->
-                    <tr class="<?= $color; ?>" data-id="<?= $item['id']; ?>" id="row-<?= $item['id']; ?>">
-                        <td><?= $item['id']; ?></td>
+                $d = checkDuplicates($item);
+                if ($d[0]) {
+                    $infoData = json_encode([
+                        'partName' => $item['part_name'],
+                        'partValue' => $item['part_value'],
+                        'footprint' => $item['footprint'],
+                        'part-type' => $item['part_type'],
+                        'MFpartName' => $item['manufacture_pn'],
+                        'manufacturer' => $item['manufacturer'],
+                        'ownerPartName' => $item['owner_pn'],
+                        'amount' => $item['actual_qty'],
+                        'minQTY' => $item['min_qty'],
+                        'storShelf' => $item['storage_shelf'],
+                        'storBox' => $item['storage_box'],
+                        'storState' => $item['storage_state'],
+                        'storageClass' => $item['class_number'],
+                        'datasheet' => $item['datasheet'],
+                        'description' => $item['description'],
+                        'notes' => $item['notes'],
+                        'manufacturedDate' => $item['manufacture_date'],
+                        'shelfLife' => $item['shelf_life'],
+                        'invoice' => $item['invoice'],
+                        'lot' => $item['lots'],
+                        'owner' => $item['owner']
+                    ]);
+                    if ($request == 'warehouse') {
+                        // вывод результатов поиска на страницу просмотра элемента
+                        ?>
+                        <p class="part border-bottom p-2" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
+                            Part Name: <span class="text-info me-2"><?= $item['part_name']; ?></span>
+                            Manufacture P/N: <span class="text-info me-2"><?= $item['manufacture_pn']; ?></span>
+                            Value: <span class="text-info me-2"><?= $item['part_value']; ?></span>
+                            Owner: <span class="text-info me-2"><?= $item['owner']; ?></span>
+                            Owner P/N: <span class="text-info me-2"><?= $item['owner_pn']; ?></span>
+                            Exp date: <span class="text-info me-2"><?= $item['exp_date']; ?></span>
+                            Amount: <span class="text-info me-2"><?= $item['actual_qty']; ?></span>
+                            Storage State: <span class="text-info me-2"><?= $item['storage_state']; ?></span>
+                        </p>
                         <?php
-                        // выводим таблицу согласно настройкам пользователя
-                        foreach ($settings as $set) {
-                            if ($set == 'item_image') {
-                                ?>
-                                <td>
-                                    <?php $img_href = ($item['part_type'] == 'SMT') ? '/public/images/smt.webp' : '/public/images/pna_en.webp' ?>
-                                    <img src="<?= $item['item_image'] ?? $img_href; ?>" alt="goods" width="100" height="auto">
-                                </td>
-                            <?php } elseif ($set == 'datasheet') {
-                                ?>
-                                <td><a type="button" class="btn btn-outline-info" href="<?= $item['datasheet'] ?> " target="_blank">Open Datasheet</a></td>
-                                <?php
-                            } else {
-                                echo '<td>' . $item[$set] . '</td>';
-                            }
+                    } else {
+                        // вывод результата поиска на страницу просмотра всей БД
+                        $color = '';
+                        if ((int)$item['quantity'] <= (int)$item['min_qty']) {
+                            $color = 'danger';
+                        } elseif ((int)$item['quantity'] <= (int)$item['min_qty'] + ((int)$item['min_qty'] / 2)) {
+                            $color = 'warning';
                         }
                         ?>
-                    </tr>
-                    <?php
+                        <!-- это полный набор переменных выводимых из БД -->
+                        <tr class="<?= $color; ?>" data-id="<?= $item['id']; ?>" id="row-<?= $item['id']; ?>">
+                            <td><?= $item['id']; ?></td>
+                            <?php
+                            // выводим таблицу согласно настройкам пользователя
+                            foreach ($settings as $set) {
+                                if ($set == 'item_image') {
+                                    ?>
+                                    <td>
+                                        <?php $img_href = ($item['part_type'] == 'SMT') ? '/public/images/smt.webp' : '/public/images/pna_en.webp' ?>
+                                        <img src="<?= $item['item_image'] ?? $img_href; ?>" alt="goods" width="100" height="auto">
+                                    </td>
+                                <?php } elseif ($set == 'datasheet') {
+                                    ?>
+                                    <td><a type="button" class="btn btn-outline-info" href="<?= $item['datasheet'] ?> " target="_blank">Open Datasheet</a></td>
+                                    <?php
+                                } else {
+                                    echo '<td>' . $item[$set] . '</td>';
+                                }
+                            }
+                            ?>
+                        </tr>
+                        <?php
+                    }
                 }
             }
         } else {
