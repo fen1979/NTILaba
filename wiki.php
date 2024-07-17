@@ -130,7 +130,7 @@ DisplayMessage($args);
 
 <div class="row ms-3 me-3">
     <div class="col-3">
-        <?php if (isUserRole(ROLE_ADMIN)) { ?>
+        <?php if (isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)){ ?>
             <button class='btn drop-target btn-trash' data-dir='delete'><i class='bi bi-trash'></i></button>
         <?php }
         if ($backBtn) { ?>

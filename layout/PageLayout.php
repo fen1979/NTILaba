@@ -193,7 +193,7 @@ function ALL_PAGES_BUTTONS($page, $l): void
         </button>
     </li>
 
-    <?php if (isUserRole(ROLE_ADMIN)) {
+    <?php if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) {
     $text = ($page == 'edit_order') ? 'Edit' : 'New'; ?>
 
     <li class="nav-item">
@@ -242,7 +242,7 @@ function ALL_PAGES_BUTTONS($page, $l): void
  */
 function ADMIN_PANEL_BUTTONS($user, $page): void
 {
-    if (isUserRole(ROLE_ADMIN)) {
+    if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) {
         if (!in_array($page, [1, 7, 8])) { ?>
             <li class="nav-item" style="white-space: nowrap">
                 <button type="button" id="create-btn" class="btn btn-sm btn-outline-danger" style="margin: .3rem">
@@ -302,7 +302,7 @@ function ADMIN_PANEL_BUTTONS($user, $page): void
  */
 function EDIT_PROJECT_PAGE_BUTTONS($pid): void
 {
-    if (isUserRole(ROLE_ADMIN)) {
+    if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) {
         // сделать чтоб открывалось в новой вкладке
         ?>
         <li class="nav-item" style="white-space: nowrap">
@@ -364,7 +364,7 @@ function EDIT_PROJECT_PAGE_BUTTONS($pid): void
     <li class="nav-item">
         <button type="button" class="url btn btn-sm btn-outline-secondary" value="order">Orders</button>
     </li>
-    <?php if (isUserRole(ROLE_ADMIN)) { ?>
+    <?php if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) { ?>
     <li class="nav-item">
         <button type="button" class="url btn btn-sm btn-outline-secondary" value="wh">Warehouse</button>
     </li>
@@ -412,7 +412,7 @@ function EDIT_AND_ADD_STEP_BUTTONS($pid): void
  */
 function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid): void
 {
-    if (isUserRole(ROLE_ADMIN)) {
+    if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) {
         if ($page == 'view_item' && $pid != null) {
             ?>
             <li class="nav-item">
@@ -720,8 +720,7 @@ function ShowGroupChatPopup($page, $user = null)
                 </button>
                 <div class="dropdown-menu w-100" id="dropdown-menu">
                     <?php
-                    $allUsers = R::find(USERS);
-                    foreach ($allUsers as $u) {
+                    foreach (R::find(USERS) as $u) {
                         if ($u['id'] != '1') {
                             ?>
                             <div class="radio-item">

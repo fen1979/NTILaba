@@ -34,7 +34,7 @@ class WareHouseLog
         // ["owner"]=> string(23) "{"name":"NTI", "id":""}", ["date_in"]
 
         // Должна записывать в лог:
-        $log = R::dispense(WAREHOUSE_LOGS);
+        $log = R::dispense(WH_LOGS);
         $log->action = 'NEW ITEM CREATION'; // тип операции
         $log->date_in = date('Y-m-d H:i');
         // item
@@ -79,7 +79,7 @@ class WareHouseLog
     {
         // Должна записывать в лог:
         $operation_type = (strpos($quantity, '-') !== false) ? 'WRITEOFF' : 'RECEIVING'; // тип операции
-        $log = R::dispense(WAREHOUSE_LOGS);
+        $log = R::dispense(WH_LOGS);
         $log->action = $operation_type; // тип операции
         $log->date_in = date('Y-m-d H:i'); // дату и время
         $log->items_id = $item_id; // идентификатор товара
@@ -109,7 +109,7 @@ class WareHouseLog
     {
         $item = R::findOne(WH_ITEMS, 'id = ?', [$item_id]);
         // Должна записывать в лог:
-        $log = R::dispense(WAREHOUSE_LOGS);
+        $log = R::dispense(WH_LOGS);
         $log->action = 'MOVEMENT'; // тип операции
         $log->date_in = date('Y-m-d H:i'); // дату и время
         $log->items_id = $item_id; // идентификатор товара
@@ -136,7 +136,7 @@ class WareHouseLog
     public static function updatingSomeData($item_id, $logData, $user): array
     {
         // Должна записать в лог:
-        $log = R::dispense(WAREHOUSE_LOGS);
+        $log = R::dispense(WH_LOGS);
         $log->action = 'ITEM_UPDATED'; // тип операции
         $log->date_in = date('Y-m-d H:i'); // дату и время
         $log->user_id = $user['id']; // идентификатор пользователя

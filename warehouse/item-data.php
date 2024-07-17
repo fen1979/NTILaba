@@ -19,6 +19,8 @@ if (isset($_GET['itemid'])) {
     $wh = R::findAll(WAREHOUSE, 'items_id = ?', [$item->id]);
     // получаем весь резерв на данный товар
     $wh_reserv = R::findAll(WH_RESERV, 'WHERE items_id = ?', [$item->id]);
+    // получаем логирование по данному товару
+    $logs = R::findAll(WH_LOGS, 'WHERE items_id = ?', [$item->id]);
 
     foreach ($wh_reserv as $line) {
         $item_id = $line['items_id'];
@@ -264,7 +266,8 @@ DisplayMessage($args ?? null);
                 <tbody>
                 <?php foreach ($data as $row) { ?>
                     <tr class='item-list'>
-                        <td class="hidden">line_id=<?= $row['id'] ?></td>
+                        <td class="hidden">{"id":<?= $line['id']; ?>,"table":"whreserv"}</td>
+
                         <td><?= $row['id'] ?></td>
                         <td><?= $row['order_amount'] ?></td>
                         <td><?= $row['date_in'] ?></td>
@@ -312,7 +315,7 @@ DisplayMessage($args ?? null);
                 if (!empty($wh)) {
                     foreach ($wh as $line) { ?>
                         <tr class="item-list">
-                            <td class="hidden">line_id=<?= $line['id']; ?></td>
+                            <td class="hidden">{"id":<?= $line['id']; ?>,"table":"warehouse"}</td>
 
                             <td><?= $line['owner_pn']; ?></td>
                             <td><?= json_decode($line['owner'])->name; ?></td>
@@ -343,7 +346,6 @@ DisplayMessage($args ?? null);
                     <th>Invoice</th>
                     <th>Supplier</th>
                     <th>Owner</th>
-                    <!-- todo для количества надо сделать возможность как в приорити и изменение через пароль с указанием причины изменения из списка -->
                     <th>Arrival QTY</th>
                     <th>Date In</th>
                 </tr>
@@ -355,7 +357,8 @@ DisplayMessage($args ?? null);
                 if (!empty($lots)) {
                     foreach ($lots as $line) { ?>
                         <tr class="item-list">
-                            <td class="hidden">line_id=<?= $line['id']; ?></td>
+                            <td class="hidden">{"id":<?= $line['id']; ?>,"table":"whinvoice"}</td>
+
                             <td><?= $line['lot']; ?></td>
                             <td><?= $line['invoice']; ?></td>
                             <td><?= json_decode($line['supplier'])->name; ?></td>
@@ -380,13 +383,7 @@ DisplayMessage($args ?? null);
                 <thead>
                 <tr>
                     <th>Item Id</th>
-                    <th>Lot ID</th>
-                    <th>Invoice</th>
-                    <th>Supplier</th>
-                    <th>QTY</th>
                     <th>Action</th>
-                    <th>Moved From</th>
-                    <th>Moved To</th>
                     <th>User</th>
                     <th>Date In</th>
                 </tr>
@@ -398,16 +395,9 @@ DisplayMessage($args ?? null);
                 if (!empty($logs)) {
                     foreach ($logs as $line) {
                         echo '<tr>';
-                        echo '<td class="hidden">line_id=' . $line['id'] . '</td>';
                         echo '<td>' . $line['items_id'] . '</td>';
-                        echo '<td>' . $line['lot'] . '</td>';
-                        echo '<td>' . $line['invoice'] . '</td>';
-                        echo '<td>' . $line['supplier'] . '</td>';
-                        echo '<td>' . $line['quantity'] . '</td>';
                         echo '<td>' . $line['action'] . '</td>';
-                        echo '<td>' . $line['from'] . '</td>';
-                        echo '<td>' . $line['to'] . '</td>';
-                        echo '<td>' . $line['user'] . '</td>';
+                        echo '<td>' . $line['user_name'] . '</td>';
                         echo '<td>' . $line['date_in'] . '</td>';
                         echo '</tr>';
                     }
@@ -427,11 +417,16 @@ DisplayMessage($args ?? null);
     </form>
 </div>
 
-<?php if ($user['can_change_data']) {
+<?php
+// если пользователю разрешено редактировать данные таблиц warehouse, invoice, reserve, movements
+//  присвоение данного статуса требует повторной авторизации пользователя!!!
+if ($user['can_change_data']) {
     echo '<div id="isUserCanChangeData" class="hidden"></div>';
 }
+
+// FOOTER
 footer($page);
-/* SCRIPTS */
+// SCRIPTS
 ScriptContent($page);
 ?>
 <script>
@@ -465,11 +460,13 @@ ScriptContent($page);
             });
 
             // Добавляем атрибут id к таблице в активном табе
-            let targetTable = targetTab.querySelector('table');
-            let check_user = dom.e("#isUserCanChangeData");
-            if (targetTable) {
-                targetTable.setAttribute('id', 'items-table');
-                addListenerAfterIdChange();
+            if (tabId !== "tab4") {
+                let targetTable = targetTab.querySelector('table');
+                let check_user = dom.e("#isUserCanChangeData");
+                if (targetTable && check_user) {
+                    targetTable.setAttribute('id', 'items-table');
+                    addListenerAfterIdChange();
+                }
             }
         });
 
@@ -491,6 +488,7 @@ ScriptContent($page);
                     cells.forEach((cell, index) => {
                         const input = document.createElement('input');
                         input.type = 'hidden';
+                        // fixme найти решение что бы напрямую получать пост с именами полей
                         input.name = 'data[' + idx + '][' + index + ']';
                         input.value = cell.textContent;
                         form.appendChild(input);

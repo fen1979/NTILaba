@@ -629,12 +629,17 @@ class WareHouse
         $data = $_POST['data'];
         foreach ($data as $line) {
             if (count($line) > 0) {
-                $item_id = str_replace('line_id=', '', $line[0]);
+                $location = json_decode($line[0]);
+                if ($location) {
+                    $item_id = $location->id;
+                    $d = R::load($location->table, $item_id);
+                    var_dump($d);
+                }
             }
         }
         /* writing warehouse log */
         // Объединение данных в один массив
         $logData = [];//['item_data_before' => json_decode($itemDataBefore, true), 'item_data_after' => json_decode($itemDataAfter, true)];
-        return WareHouseLog::updatingSomeData($item_id, $logData, $user);
+        return [];// WareHouseLog::updatingSomeData($item_id??'', $logData, $user);
     }
 }
