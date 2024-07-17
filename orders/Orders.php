@@ -917,7 +917,7 @@ class Orders
             foreach ($bom as $item) {
                 //i Обновляем поле status для каждого ID в массиве
                 R::exec("UPDATE warehouse SET actual_qty = ? WHERE id = ?", [$item['sub'], $item['id']]);
-                WarehouseLog::registerMovement($item['id'], $item['from'], $storage_space, $item['sub'], $user);
+                WareHouseLog::registerMovement($item['id'], $item['from'], $storage_space, $item['sub'], $user);
             }
             // произвести списание только если все позиции находятся в наличии на складе и имеют какое то количество в наличии
             $i = 'The parts for the production of this order were successfully written off from the warehouse. 
@@ -1310,7 +1310,7 @@ class Orders
                 R::exec("UPDATE warehouse SET actual_qty = ? WHERE id = ?", [$qty - (int)$post['needed_amount'], $post['warehouse_id']]);
 
                 // пишем в лог перемещение детали и их количество
-                WarehouseLog::registerMovement($post['warehouse_id'], 'On Shelf', 'In P&P', $post['needed_amount'], $user);
+                WareHouseLog::registerMovement($post['warehouse_id'], 'On Shelf', 'In P&P', $post['needed_amount'], $user);
             }
 
             // обновляем статус фидера для машины (сбросить в 0 при возврате компонента на склад или изменении позиции)

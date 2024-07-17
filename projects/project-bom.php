@@ -157,9 +157,9 @@ DisplayMessage($args ?? null);
             </div>
 
             <div class="mb-2">
-                <label for="part_type" class="form-label">Part type <!--<b class="text-danger">*</b>--></label>
-                <input type="text" class="form-control" name="part_type" id="part_type"
-                       value="<?= set_value('part_type', $itFedit->part_type ?? '0'); ?>">
+                <label for="mounting_type" class="form-label">Part type <!--<b class="text-danger">*</b>--></label>
+                <input type="text" class="form-control" name="mounting_type" id="mounting_type"
+                       value="<?= set_value('mounting_type', $itFedit->mounting_type ?? '0'); ?>">
             </div>
 
             <div class="mb-2">
@@ -255,7 +255,7 @@ DisplayMessage($args ?? null);
                         <td class="item-btn" data-id="<?= $item['id']; ?>" data-num="<?= $item['sku']; ?>"><?= $item['sku']; ?></td>
                         <td><?= $item['part_name']; ?></td>
                         <td><?= $item['part_value']; ?></td>
-                        <td><?= $item['part_type']; ?></td>
+                        <td><?= $item['mounting_type']; ?></td>
                         <td><?= $item['footprint']; ?></td>
                         <td><?= $item['manufacturer']; ?></td>
                         <td><?= $item['manufacture_pn']; ?></td>

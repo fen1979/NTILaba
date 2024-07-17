@@ -257,7 +257,7 @@ function viewOrder($result, $user)
                 if ($settings) {
                     // creating table using user settings
                     foreach ($settings as $k => $item) {
-                        $click = ($k === 0 && (in_array($thisUser['user_name'], $workers) || isUserRole(ROLE_ADMIN))) ? ' onclick="getInfo(' . $order['id'] . ')"' : '';
+                        $click = ($k === 0 && (in_array($user['user_name'], $workers) || isUserRole(ROLE_ADMIN))) ? ' onclick="getInfo(' . $order['id'] . ')"' : '';
                         if ($item == 'status') {
                             // status colorise bg and play text
                             $color = L::STATUS($order[$item], 1);
@@ -328,7 +328,7 @@ function viewOrder($result, $user)
  * @param $result
  * @return void
  */
-function viewLogs($result)
+function viewLogs($result): void
 {
     foreach ($result as $log) {
         ?>
@@ -350,11 +350,11 @@ function viewLogs($result)
  * @param $user
  * @return void
  */
-function viewStorageItems($result, $searchString, $request, $user)
+function viewStorageItems($result, $searchString, $request, $user): void
 {
     if ($result) {
         // ВЫВОД ТАБЛИЦЫ ПРИ ПОИСКЕ НА ГЛАВНОЙ СТРАНИЦЕ СКЛАДА
-        if ($request == 'warehouse_nav') {
+        if ($request == 'wh_nav') {
             $settings = getUserSettings($user, WH_ITEMS);
             foreach ($result as $item) {
                 if (!empty($item['owner'])) {
@@ -379,7 +379,7 @@ function viewStorageItems($result, $searchString, $request, $user)
                     foreach ($settings as $set) {
                         if ($set == 'item_image') { ?>
                             <td>
-                                <?php $img_href = ($item['part_type'] == 'SMT') ? '/public/images/smt.webp' : '/public/images/pna_en.webp' ?>
+                                <?php $img_href = ($item['mounting_type'] == 'SMT') ? '/public/images/smt.webp' : '/public/images/pna_en.webp' ?>
                                 <img src="<?= $item['item_image'] ?? $img_href; ?>" alt="goods" width="100" height="auto">
                             </td>
                         <?php } elseif ($set == 'datasheet') {
@@ -426,9 +426,10 @@ function viewStorageItems($result, $searchString, $request, $user)
                 }
                 $infoData = json_encode([
                     // item table fields
+                    'item_id' => $item['id'],
                     'part_name' => $item['part_name'],
                     'part_value' => $item['part_value'],
-                    'part_type' => $item['part_type'],
+                    'mounting_type' => $item['mounting_type'],
                     'manufacture_part_number' => $item['manufacture_pn'],
                     'manufacturer' => $item['manufacturer'],
                     'footprint' => $item['footprint'],
@@ -477,6 +478,8 @@ function viewStorageItems($result, $searchString, $request, $user)
                 Do you want to create this Item?
             </a>
             <?php
+        } else {
+            echo "EMPTY";
         }
     }
 }
@@ -487,7 +490,7 @@ function viewStorageItems($result, $searchString, $request, $user)
  * @param $result
  * @return void
  */
-function viewPartsForProjectBOM($result)
+function viewPartsForProjectBOM($result): void
 {
     if ($result): foreach ($result as $item):
 
@@ -496,7 +499,7 @@ function viewPartsForProjectBOM($result)
             'partName' => $item['part_name'],
             'partValue' => $item['part_value'],
             'footprint' => $item['footprint'],
-            'partType' => $item['part_type'],
+            'mountingType' => $item['mounting_type'],
             'manufacturer' => $item['manufacturer'],
             'MFpartName' => $item['manufacture_pn'],
             'ownerPartName' => $item['owner_pn'],
@@ -509,7 +512,7 @@ function viewPartsForProjectBOM($result)
             <td><?= $item['id']; ?></td>
             <td><?= $item['part_name']; ?></td>
             <td><?= $item['part_value']; ?></td>
-            <td><?= $item['part_type']; ?></td>
+            <td><?= $item['mounting_type']; ?></td>
             <td><?= $item['footprint']; ?></td>
             <td><?= $item['manufacturer']; ?></td>
             <td><?= $item['manufacture_pn']; ?></td>
@@ -520,3 +523,43 @@ function viewPartsForProjectBOM($result)
         </tr>
     <?php endforeach; endif;
 }
+
+
+/**
+ * @param $itemImages
+ * @return void
+ */
+function itemImagesForChoose($itemImages): string
+{
+    // убираем одинаковые пути к файлам
+    $uniqueImages = [];
+    foreach ($itemImages as $path) {
+        if (!in_array($path, $uniqueImages)) {
+            $uniqueImages[] = $path;
+        }
+    }
+
+    // собираем все пути в таблицу по 3 штуки в ряду и возвращаем для вывода на страницу
+    // ширина изображения установлена в 200рх
+    $outRes = '<thead><tr><th colspan="3">Click on image for choose</th></tr></thead>';
+    $outRes .= '<tbody>';
+    $count = 0;
+    foreach ($uniqueImages as $path) {
+        if ($count % 3 === 0) {
+            if ($count > 0) {
+                $outRes .= '</tr>';
+            }
+            $outRes .= '<tr>';
+        }
+        $outRes .= '<td data-info="' . $path . '" class="image-path"><img src="' . $path . '" alt="image" style="width: 200px" data-info="' . $path . '"></td>';
+        $count++;
+    }
+    // Закрываем последний ряд, если он был открыт
+    if ($count % 3 !== 0) {
+        $outRes .= str_repeat('<td></td>', 3 - $count % 3);
+        $outRes .= '</tr>';
+    }
+    $outRes .= '</tbody>';
+    return $outRes;
+}
+

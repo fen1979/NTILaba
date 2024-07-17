@@ -71,7 +71,9 @@ function NavBarContent($page, $user = null, $pid = null, $l = ''): void
         <nav class="navbar navbar-expand-lg fixed-top navbar-scroll blury">
             <div class="container-fluid">
                 <!-- TITLE -->
-                <h3 class="navbar-brand"><?= (!in_array($page, NO_VIEW_PAGES)) ? 'Hi ' . $user['user_name'] : $user['title']; ?></h3>
+                <h3 class="navbar-brand">
+                    <?= (!in_array($page, NO_VIEW_PAGES) && !empty($user['user_name'])) ? 'Hi ' . $user['user_name'] : $user['title']; ?>
+                </h3>
                 <!-- GAMBURGER BUTTON -->
                 <button class="navbar-toggler" type="button" data-mdb-toggle="collapse"
                         data-mdb-target="#navBarContent" aria-controls="navBarContent" aria-expanded="false"
@@ -89,9 +91,9 @@ function NavBarContent($page, $user = null, $pid = null, $l = ''): void
                     $elem = 'searchForm';
                     $allowed = '';
                 }
-                if ($page == 'order') {
-                    ?>
-                    <div class="w-100 d-flex mainSearchForm" data-title="<?= FIND_T[$allowed ?? '']; ?>"
+                $w = ($page == 'view_item') ? 'w-25' : 'w-100';
+                if ($page == 'order') { ?>
+                    <div class="<?= $w ?> d-flex mainSearchForm" data-title="<?= FIND_T[$allowed ?? '']; ?>"
                          style="justify-content: space-evenly; align-items: center;">
 
                         <form action="" id="<?= $elem; ?>" class="form <?= $hideThis; ?>" style="width: 70%;">
@@ -105,7 +107,7 @@ function NavBarContent($page, $user = null, $pid = null, $l = ''): void
                         </form>
                     </div>
                 <?php } else { ?>
-                    <div class="w-100 ms-2 me-2 mainSearchForm" data-title="<?= FIND_T[$allowed ?? '']; ?>">
+                    <div class="<?= $w ?> ms-2 me-2 mainSearchForm" data-title="<?= FIND_T[$allowed ?? '']; ?>">
                         <form action="" id="<?= $elem; ?>" class="form <?= $hideThis; ?>">
                             <input type="search" role="searchbox" aria-label="Search" class="searchThis form-control"
                                    data-request="<?= $page; ?>_nav" autofocus placeholder="Search" required>
@@ -130,7 +132,9 @@ function NavBarContent($page, $user = null, $pid = null, $l = ''): void
                                 break;
                             case 'view_item':
                             case 'arrivals':
-                            case 'warehouse':
+                            case 'edit_item':
+                            case 'wh':
+                            case 'in_out_item':
                                 WAREHOUSE_PAGE_BUTTONS($l, $page, $pid);
                                 break;
                             default:
@@ -412,14 +416,20 @@ function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid): void
         if ($page == 'view_item' && $pid != null) {
             ?>
             <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-warning" value="arrivals?item_id=<?= $pid; ?>">
+                <button type="button" class="url btn btn-sm btn-outline-warning" value="edit-item?item_id=<?= $pid; ?>">
                     Edit Item <i class="bi bi-pen"></i>
                 </button>
             </li>
 
             <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-diliny" value="writeoff?item_id=<?= $pid; ?>">
-                    Write off Item manualy <i class="bi bi-plus"></i>
+                <button type="button" class="url btn btn-sm btn-outline-diliny" value="in-out-item?item_id=<?= $pid; ?>">
+                    WriteOff Item <i class="bi bi-scissors"></i>
+                </button>
+            </li>
+
+            <li class="nav-item">
+                <button type="button" class="url btn btn-sm btn-outline-diliny" value="in-out-item?item_id=<?= $pid; ?>">
+                    Arrival Item <i class="bi bi-airplane"></i>
                 </button>
             </li>
             <?php
@@ -438,7 +448,7 @@ function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid): void
         </li>
 
         <li class="nav-item">
-            <button type="button" class="url btn btn-sm btn-outline-diliny" value="import-csv">
+            <button type="button" class="url btn btn-sm btn-outline-diliny" value="import-csv" disabled>
                 Import Items From File <i class="bi bi-filetype-csv"></i>
             </button>
         </li>

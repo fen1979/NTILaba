@@ -215,21 +215,19 @@ class Management
         $user->user_name = _E($post['name'] ?? 'Jon Doe');
         $user->job_role = _E($post['jobrole'] ?? 'Camera Man');
         $user->app_role = _E($post['approle'] ?? 'worker');
+        $user->can_change_data = _E($post['can-change-data'] ?? 0);
         $user->date_in = _E($post['datein'] ?? date("Y-m-d h:i"));
 
         if (R::store($user)) {
             $log_details .= "<br>new stepsData: [$user->job_role, $user->app_role, $user->user_name]";
-            $res['info'] = "Changes Saved successfully!";
-            $res['color'] = 'success';
+            $res[] = ['info' => 'Changes Saved successfully!', 'color' => 'success'];
         } else {
-            $res['info'] = "Some things go wrong!";
-            $res['color'] = 'danger';
+            $res[] = ['info' => 'Something went wrong!', 'color' => 'danger'];
         }
 
         /* [     LOGS FOR THIS ACTION     ] */
         if (!logAction($user['user_name'], 'EDITING', OBJECT_TYPE[11], $log_details)) {
-            $res['info'] = 'The log not created.';
-            $res['color'] = 'danger';
+            $res[] = ['info' => 'The log not created.', 'color' => 'danger'];
         }
         return $res;
     }
@@ -239,8 +237,9 @@ class Management
         $name = _E($post['regUserName']);
         $pass = _E($post['regUserPassword']);
         $adminPass = _E($post['adminPassword']);
-        $role = _E($post['role']) ?? 'worker';
-        $jobrole = _E($post['regJobRole']) ?? 'worker';
+        $can_change_data = _E($post['can-change-data']) ?? 0;
+        $role = _E($post['role']) ?? ROLE_WORKER;
+        $jobrole = _E($post['regJobRole']) ?? ROLE[ROLE_WORKER];
 
         if (checkPassword($adminPass)) {
 
@@ -252,6 +251,7 @@ class Management
                 $user->date_in = date("Y-m-d h:i");
                 $user->job_role = $jobrole;
                 $user->app_role = $role;
+                $user->can_change_data = $can_change_data;
                 $user->filterby_status = '-1';
                 $user->filterby_user = 'all';
                 $user->filterby_client = '';

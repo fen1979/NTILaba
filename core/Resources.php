@@ -84,10 +84,11 @@ class L
         $title['project_part_list'] = 'Part List';
         $title['shared'] = 'Shared Project';
 
-        $title['warehouse'] = 'Warehouse';
+        $title['wh'] = 'Warehouse';
         $title['import_csv'] = 'Import File';
-        $title['warehouse-log'] = 'Goods Log';
+        $title['wh_log'] = 'Warehouse Log';
         $title['view_item'] = 'Item Information';
+        $title['edit_item'] = 'Edit Item Information';
         $title['arrivals'] = 'Add new Item';
 
         $title['admin-panel'] = 'Management';
@@ -182,7 +183,7 @@ class L
         $tableData['projectbom']['sku'] = 'SKU';  // sku makat
         $tableData['projectbom']['part_name'] = 'Part Name';  // part name
         $tableData['projectbom']['part_value'] = 'Value';  // part value
-        $tableData['projectbom']['part_type'] = 'Type';  // part type
+        $tableData['projectbom']['mounting_type'] = 'Mounting Type';  // part type
         $tableData['projectbom']['footprint'] = 'Footprint';  // footprint
         $tableData['projectbom']['manufacturer'] = 'Manufacturer';  // manufacturer
         $tableData['projectbom']['manufacture_pn'] = 'Manufacture P/N';  // manufacturer p/n
@@ -245,7 +246,7 @@ class L
         /* TABLES OF WAREHOUSE */
         $tableData['whitems']['part_name'] = 'Part Name';
         $tableData['whitems']['part_value'] = 'Part Value';
-        $tableData['whitems']['part_type'] = 'Part Type';
+        $tableData['whitems']['mounting_type'] = 'Mounting Type';
         $tableData['whitems']['footprint'] = 'Footprint';
         $tableData['whitems']['manufacture_pn'] = 'Manufacture P/N';
         $tableData['whitems']['manufacturer'] = 'Manufacturer';
@@ -302,8 +303,12 @@ const STORAGE_STATUS = ['smt' => 'In SMT Line', 'shelf' => 'On Shelf', 'work' =>
 /*
  *  USER ROLE CONSTANTS
  * */
+const ROLE_SUPERVISOR = 'supervisor'; // supervisor
+const ROLE_SUPERADMIN = 'super_admin'; // super admin
 const ROLE_ADMIN = 'admin'; // creator/editor
 const ROLE_WORKER = 'worker'; // reader only
+const ROLE = [ROLE_SUPERVISOR => 'Creator', ROLE_SUPERADMIN => 'Super Admin (All privileges)',
+    ROLE_ADMIN => 'Admin (Creator/Editor)', ROLE_WORKER => 'Worker (Reader only)'];
 
 /*
  *  CONSTANTS FOR PROJECT USE
@@ -341,7 +346,7 @@ const TOOLS = 'tools'; // tools table
 const ROUTE_ACTION = 'routeaction';
 const HISTORY = 'history';
 const ORDER_CHATS = 'orderchats';
-const USER_CHATS = 'userchats'; // TODO user global chats
+//const USER_CHATS = 'userchats'; // TODO user global chats
 const HASHES = 'hashdump';
 const SETTINGS = 'settings';
 const SMT_LINE = 'smtline';
@@ -415,11 +420,12 @@ const OBJECT_TYPE = ['ORDER', 'ORDER_BOM', 'ORDER_CHAT',
  * страницы которые не содержат строку поиска в навбаре.
  * Pages without search field in to navbar.
  */
-const NO_VIEW_PAGES = ['new_order', 'edit_order', 'order_bom',
+const NO_VIEW_PAGES = [
+    'new_order', 'edit_order', 'order_bom',
     'customers', 'docs',
     'admin-panel',
     'new_project', 'edit_project', 'edit_step', 'add_step',
-    'import_csv', 'view_item', 'arrivals'];
+    'import_csv', 'view_item', 'arrivals', 'edit_item'];
 
 /**
  *  Список игнорируемых путей и файлов
@@ -436,7 +442,7 @@ const IGNORE_LIST = [
 /**
  * СПИСОК ВАРИАНТОВ ВИДОВ ДЕТАЛЕЙ В БД
  */
-const ITEM_TYPES = ["SMT", "TH", "CM", "PM", "SOLDER", "CRIMP", "LM"];
+const MOUNTING_TYPE = ["SMT", "TH", "CM", "PM", "SOLDER", "CRIMP", "LM", "OTHER"];
 
 /**
  * СПИСОК НАЗВАНИЙ ПАРТ НОМЕРОВ ДЛЯ NTI

@@ -9,7 +9,13 @@
         .custom-table thead th,
         .custom-table tbody td {
             display: inline-flex;
-
+        }
+        tbody tr{
+            cursor: pointer;
+        }
+        tbody tr:hover {
+            color: #ffffff;
+            background: #0d6efd;
         }
     </style>
 </head>
@@ -41,9 +47,8 @@ DisplayMessage($args ?? null);
                 </thead>
 
                 <tbody id="data-container">
-                <?php $table = R::find(USERS);
-                foreach ($table as $row) {
-                    if ($row['id'] != 1 && $row['id'] != 2) { ?>
+                <?php foreach (R::find(USERS) as $row) {
+                    if ($row['app_role'] != ROLE_SUPERVISOR) { ?>
                         <tr class="align-middle">
                             <td class="border-end"><?= $row['user_name']; ?></td>
                             <td class="border-end"><?= $row['job_role']; ?></td>
@@ -85,23 +90,29 @@ DisplayMessage($args ?? null);
                 </div>
 
                 <div class="mb-3">
-                    <?php
-                    $a = ($user['app_role'] == 'worker') ? 'checked' : '';
-                    $b = ($user['app_role'] == 'admin') ? 'checked' : '';
-                    ?>
                     <label class="form-label">User`s Permissions</label>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="approle" id="userRole" value="worker" <?= $a; ?>>
-                        <label class="form-check-label" for="userRole">
-                            Worker (Reader only)
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="approle" id="adminRole" value="admin" <?= $b; ?>>
-                        <label class="form-check-label" for="adminRole">
-                            Admin (Creator/Editor)
-                        </label>
-                    </div>
+
+                    <?php
+                    foreach (ROLE as $role => $label) {
+                        if ($role != ROLE_SUPERVISOR) {
+                            ?>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="approle" id="<?= $role ?>"
+                                       value="<?= $role ?>" <?= ($user['app_role'] == $role) ? 'checked' : ''; ?>>
+                                <label class="form-check-label" for="<?= $role ?>">
+                                    <?= $label ?>
+                                </label>
+                            </div>
+                        <?php }
+                    } ?>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="1" id="can-change-data" name="can-change-data"
+                        <?= $user['can_change_data'] == 1 ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="can-change-data">
+                        Can Change Warehouse Data
+                    </label>
                 </div>
 
                 <div class="mb-3">
@@ -146,18 +157,27 @@ DisplayMessage($args ?? null);
 
                             <div class="mb-3">
                                 <label class="form-label">User`s Permissions</label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="role" id="userRole" value="worker" checked>
-                                    <label class="form-check-label" for="userRole">
-                                        Reader
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="role" id="adminRole" value="admin">
-                                    <label class="form-check-label" for="adminRole">
-                                        Creator/Editor
-                                    </label>
-                                </div>
+
+                                <?php
+                                foreach (ROLE as $role => $label) {
+                                    if ($role != ROLE_SUPERVISOR) {
+                                        ?>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="approle" id="<?= $role ?>"
+                                                   value="<?= $role ?>" <?= (ROLE_WORKER == $role) ? 'checked' : ''; ?>>
+                                            <label class="form-check-label" for="<?= $role ?>">
+                                                <?= $label ?>
+                                            </label>
+                                        </div>
+                                    <?php }
+                                } ?>
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input class="form-check-input" type="checkbox" value="1" id="can-change-data" name="can-change-data">
+                                <label class="form-check-label" for="can-change-data">
+                                    Can Change Warehouse Data
+                                </label>
                             </div>
 
                             <div class="text-center">

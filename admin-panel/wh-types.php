@@ -49,7 +49,7 @@
 <body>
 <?php
 /* NAVIGATION PANEL */
-$title = ['title' => 'Warehouse Types', 'btn-title' => 'route', 'app_role' => $user['app_role'], 'link' => $user['link']];
+$title = ['title' => 'Warehouse Types', 'btn-title' => 'type', 'app_role' => $user['app_role'], 'link' => $user['link']];
 NavBarContent($page, $title);
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);

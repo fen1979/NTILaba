@@ -1,27 +1,43 @@
 <?php
 EnsureUserIsAuthenticated($_SESSION, 'userBean', ROLE_ADMIN, 'wh');
+/**
+ * СПИСОК ВАРИАНТОВ ВИДОВ ДЕТАЛЕЙ В БД
+ */
+//const ITEM_TYPES = ["SMT", "TH", "CM", "PM", "SOLDER", "CRIMP", "LM"];
+//
+///**
+// * СПИСОК НАЗВАНИЙ ПАРТ НОМЕРОВ ДЛЯ NTI
+// */
+//const NTI_PN = ['NON' => 'Other', 'NCAP' => 'Capacitor', 'NRES' => 'Resistor', 'NDIO' => 'Diode', 'NIC' => 'Micro Chip', 'NTR' => 'Transistor',
+//    'NCR' => 'Oscilator', 'NFU' => 'Fuse', 'NFB' => 'Ferrite bead', 'NCON' => 'Connector', 'NIND' => 'Inductor', 'NPIN' => 'Pins',
+//    'NW' => 'Wires', 'NTUBE' => 'Shrink Tube'];
+//
+//for($i = 1; $i <= 86; $i++) {
+//    $pr = R::dispense('resources');
+//    $pr->resource_type = 'feeders';
+//    $pr->resource_num = 1;
+//    $pr->resource_state = 0;
+////$pr->resource_ = 0;
+//    //R::store($pr);
+//}
+
+
 require 'WareHouse.php';
 /* получение пользователя из сессии */
 $user = $_SESSION['userBean'];
-$page = 'arrivals';
+$page = 'edit_item';
+$pageMode = 'edit';
+$item = null;
+// EDITING ITEM DATA
+if (!empty($_GET['item_id'])) {
+    $item = R::load(WH_ITEMS, _E($_GET['item_id']));
+    $wh = R::findOne(WAREHOUSE, 'items_id = ?', [$item->id]);
+    $lot = R::findOne(WH_INVOICE, 'items_id = ?', [$item->id]);
+}
 
-// ДОБАВЛЕНИЕ НОВОЙ ЗАПЧАСТИ В БД
-if (isset($_POST['save-new-item'])) {
-    // ДОБАВЛЯЕМ ЗАПЧАСТЬ
-    $args = WareHouse::CreateNewWarehouseItem($_POST, $user);
-
-    // ЕСЛИ ДОБАВЛЕНИЕ ПРОИЗОШЛО ИЗ БОМА-ЗАКАЗА
-    if (isset($_GET['orid']) && isset($_GET['pid'])) {
-        header("Location: /check_bom?orid=" . _E($_GET['orid']) . "&pid=" . _E($_GET['pid']));
-        exit();
-    }
-
-    // переходим на страницу вывода информации о добавленной ITEM
-    if ($args && !empty($args['item_id'])) {
-        $_SESSION['info'] = $args;
-        header("Location: /wh/the_item?itemid=" . $args['item_id']);
-        exit();
-    }
+// редактирование запчасти в БД
+if (isset($_POST['save-edited-item']) && !empty($_POST['item_id'])) {
+    $args = WareHouse::UpdateNomenclatureItem($_POST, $user);
 }
 ?>
 <!doctype html>
@@ -102,12 +118,19 @@ if (isset($_POST['save-new-item'])) {
             background-repeat: no-repeat;
             background-position: center;
         }
+
+        .input-labels {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+        }
     </style>
 </head>
 <body>
 <!-- NAVIGATION BAR -->
 <?php
-$title = ['title' => 'Add New Part', 'app_role' => $user['app_role']];
+$title = ['title' => 'Edit Part Information', 'app_role' => $user['app_role']];
 NavBarContent($page, $title, null, Y['STOCK']);
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
@@ -117,36 +140,54 @@ DisplayMessage($args ?? null);
 
         <div class="col-5">
             <!-- part image -->
-            <div id="pasteArea" contenteditable="true" class="mb-4 border-bottom"></div>
+            <?php list($path, $hide) = !empty($item->item_image) ? [$item->item_image, ''] : ['/public/images/drop-here.png', 'hidden']; ?>
+            <img class="rounded add-img-style <?= $hide ?>" id="item-image-preview" alt="Item image"
+                 src="<?= $path ?>">
 
-            <img class="rounded add-img-style hidden" id="item-image-preview" alt="Item image"
-                 src="/public/images/drop-here.png">
+            <div id="pasteArea" contenteditable="true" class="mb-4 border-bottom"></div>
         </div>
 
         <div class="col-2 mt-2">
             <!-- other information -->
             <div class="mb-3">
-                <a role="button" id="search-item-goog" href="" class="btn btn-outline-gold input" target="_blank">
-                    <i class="bi bi-google" data-title="Search Item on Google"></i>
-                    &nbsp; Search Item on Google
-                </a>
-                <a role="button" id="search-item-octo" href="" class="btn btn-outline-gold input" target="_blank">
-                    <i class="bi bi-snapchat" data-title="Search Item on Octopart"></i>
-                    &nbsp; Search Item on Octopart
-                </a>
+                <?php
+                // Функция создания ссылок на новые парт номера
+                $mfn = explode(',', $item['manufacture_pn']);
+                if (!empty($mfn)) {
+                    foreach ($mfn as $l) { ?>
+                        <a role="button" href="https://www.google.com/search?q=<?= $l ?>&ie=UTF-8" class="btn btn-outline-gold input" target="_blank">
+                            <i class="bi bi-google" data-title="Search Item on Google"></i>
+                            &nbsp; Search Item on Google
+                        </a>
+                        <a role="button" href="https://octopart.com/search?q=<?= $l ?>&currency=USD&specs=0" class="btn btn-outline-gold input" target="_blank">
+                            <i class="bi bi-snapchat" data-title="Search Item on Octopart"></i>
+                            &nbsp; Search Item on Octopart
+                        </a>
+                        <?php
+                    }
+                }
+                ?>
             </div>
 
             <div class="mb-3">
                 <button type="button" id="item-image-btn" class="btn btn-outline-primary input">Upload Item Picture</button>
             </div>
+
             <div class="mb-3">
                 <button type="button" id="db-image-btn" class="btn btn-outline-info input" data-request="get-images">Choose Item Picture</button>
+            </div>
+
+            <!-- TODO дублирование записи на складе для одновременного хранения одной запчасти в разных местах или коробках или на разных складах -->
+
+            <div class="mb-3">
+                <button type="button" id="dublicate-btn" class="btn btn-outline-dark input">Dublicate Item Information</button>
             </div>
         </div>
         <div class="col-5">
             <form action="" method="post" enctype="multipart/form-data" autocomplete="off" id="item-form">
+                <!--             id for editing only -->
+                <input type="hidden" name="item_id" value="<?= $item->id ?? ''; ?>">
                 <!--             hidden data -->
-                <input type="hidden" id="item_id" value="">
                 <input type="hidden" name="imageData" id="imageData">
                 <input type="file" name="item-image" id="item-image-file" class="hidden">
                 <input type="hidden" name="image-path" id="item-image-path">
@@ -154,14 +195,14 @@ DisplayMessage($args ?? null);
                 <input type="hidden" name="supplier-id" id="supplier-id"/>
 
                 <!--             item data -->
-                <label for="part-name">Part Name</label>
+                <label for="part-name">Part Name <b class="text-danger">*</b></label>
                 <input type="text" placeholder="Part name"
                        name="part-name" id="part-name" class="input searchThis" data-request="warehouse"
-                       value="<?= set_value('part-name'); ?>"/>
-                <label for="part-value">Part Value</label>
+                       value="<?= $item->part_name ?? '' ?>"/>
+                <label for="part-value">Part Value <b class="text-danger">*</b></label>
                 <input type="text" placeholder="Part value"
                        name="part-value" id="part-value" class="input searchThis" data-request="warehouse"
-                       value="<?= set_value('part-value'); ?>" required/>
+                       value="<?= $item->part_value ?? '' ?>" required/>
 
                 <?php $t = 'SMT = Surface mount, TH = Through holes, CM = Cable Mount, PM = Panel Mount,
                                     SOLDER = Soldering to wires, CRIMP = Crimping technic, LM = In line mount.
@@ -169,46 +210,46 @@ DisplayMessage($args ?? null);
                 <label for="mounting-type">Mounting Type</label>
                 <select name="mounting-type" id="mounting-type" class="input" data-title="<?= $t ?>" required>
                     <?php foreach (MOUNTING_TYPE as $type): ?>
-                        <option value="<?= $type ?>"><?= $type ?></option>
+                        <option value="<?= $type ?>" <?= isset($item->mounting_type) && $ttem->mounting_type == $type ? 'selected' : '' ?>><?= $type ?></option>
                     <?php endforeach; ?>
                 </select>
-                <label for="manufacture-part-number">Manufacture P/N</label>
+                <label for="manufacture-part-number">Manufacture P/N <b class="text-danger">*</b></label>
                 <input type="text" placeholder="MF P/N"
                        name="manufacture-part-number" id="manufacture-part-number" class="input searchThis" data-request="warehouse"
-                       value="<?= set_value('manufacture-part-number'); ?>" required/>
+                       value="<?= $item->manufacture_pn ?? '' ?>" required/>
                 <label for="manufacturer">Manufacturer</label>
                 <input type="text" placeholder="MF"
                        name="manufacturer" id="manufacturer" class="input searchThis" data-request="manufacturer"
-                       value="<?= set_value('manufacturer'); ?>"/>
+                       value="<?= $item->manufacturer ?? '' ?>"/>
                 <label for="footprint">Footprint</label>
                 <input type="text" placeholder="F/P"
                        name="footprint" id="footprint" class="input"
-                       value="<?= set_value('footprint'); ?>"/>
-                <label for="minimun-quantity">Min QTY</label>
+                       value="<?= $item->footprint ?? '' ?>"/>
+                <label for="minimun-quantity">Min QTY <b class="text-danger">*</b></label>
                 <input type="number" placeholder="Min QTY"
                        name="minimun-quantity" id="minimun-quantity" class="input"
-                       value="<?= set_value('minimun-quantity'); ?>" required/>
+                       value="<?= $item->min_qty ?? '' ?>" required/>
                 <label for="description">Description</label>
                 <input type="text" placeholder="Desc"
                        name="description" id="description" class="input"
-                       value="<?= set_value('description'); ?>"/>
+                       value="<?= $item->description ?? '' ?>"/>
                 <label for="notes">Notes</label>
                 <input type="text" placeholder="Note"
                        name="notes" id="notes" class="input"
-                       value="<?= set_value('notes'); ?>"/>
+                       value="<?= $item->notes ?? '' ?>"/>
                 <label for="datasheet">Datasheet</label>
                 <input type="text" placeholder="DataSheet"
                        name="datasheet" id="datasheet" class="input"
-                       value="<?= set_value('datasheet'); ?>"/>
-                <label for="shelf-life">Shelf Life</label>
+                       value="<?= $item->datasheet ?? '' ?>"/>
+                <label for="shelf-life">Shelf Life <b class="text-danger">*</b></label>
                 <input type="text" placeholder="Shelf life"
                        name="shelf-life" id="shelf-life" class="input"
-                       value="<?= set_value('shelf-life'); ?>" required/>
-                <label for="storage-class">Storage Class</label>
+                       value="<?= $item->shelf_life ?? '' ?>" required/>
+                <label for="storage-class">Storage Class <b class="text-danger">*</b></label>
                 <input type="text" placeholder="Storage class"
                        name="storage-class" id="storage-class" class="input"
-                       value="<?= set_value('storage-class'); ?>" required/>
-                <label for="storage-state">Storage State</label>
+                       value="<?= $item->class_number ?? '' ?>" required/>
+                <label for="storage-state">Storage State <b class="text-danger">*</b></label>
                 <select name="storage-state" id="storage-state" class="input" data-title="<?= $t ?>" required>
                     <?php foreach (STORAGE_STATUS as $val => $name): ?>
                         <option value="<?= $val ?>" <?= $val == 'shelf' ? 'selected' : '' ?>><?= $name ?></option>
@@ -216,75 +257,83 @@ DisplayMessage($args ?? null);
                 </select>
 
                 <!--             warehouse data -->
-                <label for="owner">Owner</label>
+                <?php $owner = isset($wh->owner) ? json_decode($wh->owner)->name : ''; ?>
+                <label for="owner">Owner <b class="text-danger">*</b></label>
                 <input type="text" placeholder="Owner"
                        name="owner" id="owner" class="input searchThis" data-request="owner"
-                       value="<?= set_value('owner'); ?>" required/>
+                       value="<?= $owner ?>" required/>
 
                 <?php $t = 'Name of the spare part in the NTI company.
                             It is important to choose the appropriate name for the correct numbering of the incoming product/spare part.
                             If this number is not available or if the spare part/product belongs to another customer, select the Other option'; ?>
-                <label for="owner-part-key">NTI P/N</label>
+                <label for="owner-part-key">NTI P/N <b class="text-danger">*</b></label>
                 <select name="owner-part-key" id="owner-part-key" class="input" data-title="<?= $t ?>" required>
                     <?php foreach (NTI_PN as $val => $name): ?>
-                        <option value="<?= $val ?>"><?= $name ?></option>
+                        <option value="<?= $val ?>" <?= isset($wh->owner_pn) && $wh->owner_pn == $val ? 'selected' : '' ?>><?= $name ?></option>
                     <?php endforeach; ?>
                 </select>
 
                 <label for="owner-part-name">Owner P/N</label>
                 <input type="text" placeholder="Owner P/N"
                        name="owner-part-name" id="owner-part-name" class="input searchThis" data-request="warehouse"
-                       value="<?= set_value('owner-part-name'); ?>"/>
-                <label for="quantity">Quantity</label>
-                <input type="number" placeholder="QTY"
-                       name="quantity" id="quantity" class="input"
-                       value="<?= set_value('quantity'); ?>" required/>
-                <label for="storage-box">Storage Box</label>
+                       value="<?= $wh->owner_pn ?? '' ?>"/>
+
+                <?php if ($pageMode != 'edit') { ?>
+                    <label for="quantity">Quantity <b class="text-danger">*</b></label>
+                    <input type="number" placeholder="QTY"
+                           name="quantity" id="quantity" class="input"
+                           value="<?= $wh['quantity'] ?? 0 ?>" required/>
+                <?php } ?>
+                <label for="storage-box">Storage Box <b class="text-danger">*</b></label>
                 <input type="number" placeholder="Storage box"
                        name="storage-box" id="storage-box" class="input"
-                       value="<?= set_value('storage-box'); ?>" required/>
-                <label for="storage-shelf">Storage Shelf</label>
+                       value="<?= $wh->storage_box ?? '' ?>" required/>
+                <label for="storage-shelf">Storage Shelf <b class="text-danger">*</b></label>
                 <input type="text" placeholder="Storage shelf"
                        name="storage-shelf" id="storage-shelf" class="input"
-                       value="<?= set_value('storage-shelf'); ?>" required/>
+                       value="<?= $wh->storage_shelf ?? '' ?>" required/>
 
                 <!--             invoice - lot data -->
-                <label for="manufactured-date">Manufactured Date</label>
-                <input type="datetime-local" placeholder="MF date"
-                       name="manufactured-date" id="manufactured-date" class="input"
-                       value="<?= set_value('manufactured-date', date('Y-m-d H:i')); ?>" required/>
+                <?php if ($pageMode != 'edit') { ?>
+                    <label for="manufactured-date">Manufactured Date <b class="text-danger">*</b></label>
+                    <input type="datetime-local" placeholder="MF date"
+                           name="manufactured-date" id="manufactured-date" class="input"
+                           value="<?= $wh->manufacture_date ?? date('Y-m-d H:i') ?>" required/>
+                <?php } ?>
                 <label for="part-lot">Lot</label>
                 <input type="text" placeholder="Lot"
-                       name="part-lot" id="part-lot" value="<?= set_value('part-lot'); ?>" class="input"/>
+                       name="part-lot" id="part-lot" value="<?= $lot->lot ?? '' ?>" class="input"/>
 
-                <label for="invoice">Invoice</label>
-                <input type="text" placeholder="Invoice"
-                       name="invoice" id="invoice" value="<?= set_value('invoice', 'base flooding'); ?>" class="input" required/>
+                <?php if ($pageMode != 'edit') { ?>
+                    <label for="invoice">Invoice <b class="text-danger">*</b></label>
+                    <input type="text" placeholder="Invoice"
+                           name="invoice" id="invoice" value="<?= $lot['invoice'] ?>" class="input" required/>
+                <?php } ?>
 
                 <label for="supplier">Supplier</label>
+                <?php $supplier = isset($lot->supplier) ? json_decode($lot->supplier)->name : ''; ?>
                 <input type="text" placeholder="Supplier" class="input searchThis" data-request="supplier"
-                       name="supplier" id="supplier" value="<?= set_value('supplier'); ?>"/>
+                       name="supplier" id="supplier" value="<?= $supplier ?>"/>
 
                 <div class="mb-3">
                     <label for="warehouse-type">Warehouse Type <b class="text-danger">*</b></label>
                     <?php $t = 'Required warehouse type indicator: the default warehouse for the production line is defined!'; ?>
                     <select name="warehouse-type-id" id="warehouse-type" class="input" data-title="<?= $t ?>" required>
                         <?php foreach (R::findAll(WH_TYPES) as $type): ?>
-                            <option value="<?= $type['id'] ?>">
+                            <option value="<?= $type['id'] ?>" <?= isset($item->wh_types_id) && $item->wh_types_id == $type['id'] ? 'selected' : '' ?>>
                                 <?= $type['type_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
+
                 </div>
-                <button type="submit" name="save-new-item" id="save-btn" class="btn btn-outline-success input" disabled>Save new item</button>
+                <button type="submit" name="save-edited-item" class="btn btn-outline-warning input" id="save-btn" disabled>Save edited item</button>
             </form>
         </div>
     </div>
 </div>
 
 <?php
-footer($page);
-
 // MODAL DIALOG FOR VIEW RESPONCE FROM SERVER IF SEARCHED VALUE EXIST
 SearchResponceModalDialog($page, 'search-responce');
 
@@ -331,7 +380,6 @@ ScriptContent('arrivals');
                 // Извлекаем и парсим данные из атрибута data-info
                 let info = JSON.parse(this.parentElement.dataset.info);
                 // Устанавливаем полученные значения в поля ввода
-                dom.e("#item_id").value = info.item_id;
                 dom.e("#part-name").value = info.part_name;
                 dom.e("#part-value").value = info.part_value;
                 dom.e("#mounting-type").value = info.mounting_type;

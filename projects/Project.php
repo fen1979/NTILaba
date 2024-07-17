@@ -427,7 +427,7 @@ class Project
         $partList->sku = $post['sku'];  // sku makat
         $partList->part_name = $post['part_name'];  // part name
         $partList->part_value = $post['part_value'];  // part value
-        $partList->part_type = $post['part_type'];  // part type
+        $partList->mounting_type = $post['mounting_type'];  // part type
         $partList->footprint = $post['footprint'];  // footprint
         $partList->manufacturer = $post['manufacturer'];  // manufacturer
         $partList->manufacture_pn = $post['manufacture_pn'];  // manufacturer p/n
@@ -518,7 +518,7 @@ class Project
                             $goods->sku = (int)$rowData['sku'] ?? 0;
                             $goods->part_name = $rowData['part_name'] ?? '0';
                             $goods->part_value = $rowData['part_value'] ?? '0';
-                            $goods->part_type = $rowData['part_type'] ?? '0';
+                            $goods->mounting_type = $rowData['mounting_type'] ?? '0';
                             $goods->footprint = $rowData['footprint'] ?? '0';
                             $goods->manufacturer = $rowData['manufacturer'];
                             $goods->manufacture_pn = $rowData['manufacture_pn'];
@@ -585,7 +585,7 @@ class Project
         $item->sku = $post['sku'];  // sku makat
         $item->part_name = $post['part_name'];  // part name
         $item->part_value = $post['part_value'];  // part value
-        $item->part_type = $post['part_type'];  // part type
+        $item->mounting_type = $post['mounting_type'];  // part type
         $item->footprint = $post['footprint'];  // footprint
         $item->manufacturer = $post['manufacturer'];  // manufacturer
         $item->manufacture_pn = $post['manufacture_pn'];  // manufacturer p/n

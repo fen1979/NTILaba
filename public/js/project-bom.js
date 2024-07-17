@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
         $("#item_id").val(info.item_id); // Устанавливаем Item ID
         $("#pn").val(info.partName); // Устанавливаем Item Name
         $("#pv").val(info.partValue); // Устанавливаем Item Value
-        $("#part_type").val(info.partType); // Устанавливаем Item Type
+        $("#mounting_type").val(info.mountingType); // Устанавливаем Item Type
         $("#footprint").val(info.footprint); // Устанавливаем Footprint
         $("#mf").val(info.manufacturer); // Устанавливаем
         $("#mf_pn").val(info.MFpartName); // Устанавливаем

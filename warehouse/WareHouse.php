@@ -1,5 +1,5 @@
 <?php
-require 'WarehouseLog.php';
+require 'WareHouseLog.php';
 
 class WareHouse
 {
@@ -155,12 +155,13 @@ class WareHouse
 
         // ПРОВЕРЯЕМ БЕЗОПАСНОСТЬ ДАННЫЧ
         $post = self::checkPostDataAndConvertToArray($post);
-
         // СОЗДАЕМ ЗАПИСЬ В ТАБЛИЦЕ ТОВАРОВ
         $item = R::dispense(WH_ITEMS);
+
+        $item->wh_types_id = $post['warehouse-type-id']; // расположение склада физичеки
         $item->part_name = $post['part-name'];
         $item->part_value = $post['part-value'];
-        $item->part_type = $post['part-type'];
+        $item->mounting_type = $post['mounting-type'];
         $item->footprint = $post['footprint'] ?? '';
         $item->manufacturer = $post['manufacturer'] ?? 'Not Added Yet';
         $item->manufacture_pn = $post['manufacture-part-number'];
@@ -172,6 +173,7 @@ class WareHouse
         $item->description = $post['description'] ?? 'Not Added Yet';
         $item->notes = $post['notes'] ?? 'Not Added Yet';
         $item->date_in = date('Y-m-d H:i');
+
         // если фото было выбрано физически
         if (!empty($_FILES['item-image']['name'][0])) {
             $result = self::convertAndSaveImageForItem($_FILES['item-image'], $post['manufacture-part-number']); // return url path for image or null
@@ -184,6 +186,11 @@ class WareHouse
             $item->item_image = $result['file-path'] ?? null;
             $res = $result;
         }
+
+        //если фото было выбрано из существующих на сервере
+        if (!empty($post['image-path'])) {
+            $item->item_image = $post['image-path'];
+        }
         // store new item
         $item_id = R::store($item);
 
@@ -194,15 +201,17 @@ class WareHouse
         // создаем json обьект для дальнейшего использования
         $owner_data = '{"name":"' . $post['owner'] . '", "id":"' . ($post['owner-id'] ?? '') . '"}';
         $warehouse->owner = $owner_data; // this part owner
+
         $owner_pn = '';
         if (!empty($post['owner-part-name'])) {
             $owner_pn = $post['owner-part-name'];
         } else {
             $res = self::GetNtiPartNumberForItem($post['owner-part-key']);
             if (!empty($res))
-                $owner_pn = $res->key . ($res->number + 1);
+                $owner_pn = $res['key'] . ($res['number'] + 1);
         }
         $warehouse->owner_pn = $owner_pn;
+
         // полученное кол-во нового товара
         $warehouse->quantity = $post['quantity'];
         $warehouse->storage_box = $post['storage-box'];
@@ -230,7 +239,7 @@ class WareHouse
         $invoice_id = R::store($invoice);
 
         // ЗАПИСЫВАЕМ В ЛОГ ОПЕРАЦИЮ И ДАННЫЕ ТАБЛИЦ
-        return WarehouseLog::registerNewArrival($item->export(), $warehouse->export(), $invoice->export(), $user->export());
+        return WareHouseLog::registerNewArrival($item->export(), $warehouse->export(), $invoice->export(), $user);
     }
 
     /**
@@ -245,6 +254,7 @@ class WareHouse
         $needToDelete = $imageExist = false;
         $imageData = null;
         if (!empty($_POST['imageData']) && strpos($_POST['imageData'], 'data:image') === 0) {
+            //if (!empty($_POST['imageData']) && str_starts_with($_POST['imageData'], 'data:image')) { // PHP 8.0 >>
             $imageExist = true;
             $imageData = $post['imageData'];
         }
@@ -256,14 +266,16 @@ class WareHouse
         // берем путь к старому фото
         $oldPhotoPath = $item->item_image;
 
+        $item->wh_types_id = $post['warehouse-type-id']; // расположение склада физичеки
         $item->part_name = $post['part-name'];
         $item->part_value = $post['part-value'];
-        $item->part_type = $post['part-type'];
+        $item->mounting_type = $post['mounting-type'];
         $item->footprint = $post['footprint'] ?? '';
         $item->manufacturer = $post['manufacturer'] ?? 'Not Added Yet';
         $item->manufacture_pn = $post['manufacture-part-number'];
         // нужна для обозначения нехватки товара
-        $item->min_qty = !empty($post['minimun-quantity']) ? $post['minimun-quantity'] : floor((int)$post['quantity'] * 0.10);
+
+        $item->min_qty = !empty($post['minimun-quantity']) ? $post['minimun-quantity'] : 1;
         $sl_mo = $item->shelf_life = $post['shelf-life'] ?? 12;
         $item->class_number = $post['storage-class'] ?? 1;
         $item->datasheet = $post['datasheet'] ?? 'Not Added Yet';
@@ -285,8 +297,12 @@ class WareHouse
             $res = $result;
             $needToDelete = true;
         }
+        //если фото было выбрано из существующих на сервере
+        if (!empty($post['image-path'])) {
+            $item->item_image = $post['image-path'];
+        }
         // update item
-        R::store($item);
+        $item_id = R::store($item);
 
         // проверяем если ранее было добавлено фото и удаляем старое если оно есть/было
         if (!empty($oldPhotoPath) && is_file($oldPhotoPath) && $needToDelete) {
@@ -295,14 +311,12 @@ class WareHouse
 
         // Преобразование объекта в массив и в JSON-строку
         $itemDataAfter = json_encode($item->export(), JSON_UNESCAPED_UNICODE);
-        // store new item
-        $item_id = R::store($goods);
 
         /* writing warehouse log */
-        // пишем лог что поменялось и сохраняем две записи до и после изменений
-        $log_data['item_data_before'] = $itemDataBefore; // item full data for save in to log
-        $log_data['item_data_after'] = $itemDataAfter; // item full data for save in to log
-        return WarehouseLog::updatingSomeData($log_data, $user);
+        // Объединение данных в один массив
+        $logData = ['item_data_before' => json_decode($itemDataBefore, true),
+            'item_data_after' => json_decode($itemDataAfter, true)];
+        return WareHouseLog::updatingSomeData($item_id, $logData, $user);
     }
 
     /**
@@ -328,7 +342,7 @@ class WareHouse
         } else {
             $res = self::GetNtiPartNumberForItem($post['owner-part-key']);
             if (!empty($res))
-                $owner_pn = $res->key . ($res->number + 1);
+                $owner_pn = $res['key'] . ($res['number'] + 1);
         }
         $warehouse->owner_pn = $owner_pn;
         // полученное кол-во нового товара
@@ -357,7 +371,7 @@ class WareHouse
         $invoice_id = R::store($invoice);
 
         // ЗАПИСЫВАЕМ В ЛОГ ОПЕРАЦИЮ И ДАННЫЕ ТАБЛИЦ
-        return WarehouseLog::registerNewArrival($item->export(), $warehouse->export(), $invoice->export(), $user->export());
+        return WareHouseLog::registerNewArrival($item->export(), $warehouse->export(), $invoice->export(), $user->export());
     }
 
     /**
@@ -398,8 +412,8 @@ class WareHouse
 
         $stor_place = $goods->storage_shelf . '/' . $goods->storage_box;
         /* writing warehouse log */
-        //return WarehouseLog::registerWriteOff($log_data, $user);
-        return WarehouseLog::registerWriteOff($id, $post['new-amount'], $supplier, $stor_place, $supplier, $invoice, $lot, $user);
+        //return WareHouseLog::registerWriteOff($log_data, $user);
+        return WareHouseLog::registerWriteOff($id, $post['new-amount'], $supplier, $stor_place, $supplier, $invoice, $lot, $user);
 
     }
 
@@ -601,5 +615,26 @@ class WareHouse
         $x_day_date = date('Y-m-d H:i', $x_day);
         // Выполнение запроса и получение результата
         return R::findOne(WAREHOUSE, 'items_id = ? AND fifo > ? ORDER BY fifo ASC LIMIT 1', [$item['id'], $x_day_date]);
+    }
+
+    /**
+     * @param $post
+     * @param $user
+     * @return array
+     * @throws \RedBeanPHP\RedException\SQL
+     */
+    public static function updateRelatedTables($post, $user): array
+    {
+        $post = self::checkPostDataAndConvertToArray($post);
+        $data = $_POST['data'];
+        foreach ($data as $line) {
+            if (count($line) > 0) {
+                $item_id = str_replace('line_id=', '', $line[0]);
+            }
+        }
+        /* writing warehouse log */
+        // Объединение данных в один массив
+        $logData = [];//['item_data_before' => json_decode($itemDataBefore, true), 'item_data_after' => json_decode($itemDataAfter, true)];
+        return WareHouseLog::updatingSomeData($item_id, $logData, $user);
     }
 }

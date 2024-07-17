@@ -257,7 +257,7 @@ if (isset($_POST['importCsvFile'])) {
 //                            // Добавление $rowData в базу данных
 //                            $goods->part_name = $rowData['part_name'] ?? $pn;
 //                            $goods->part_value = $rowData['part_value'];
-//                            $goods->part_type = $rowData['part_type'] ?? '';
+//                            $goods->mounting_type = $rowData['mounting_type'] ?? '';
 //                            $goods->footprint = $rowData['footprint'] ?? '0000';
 //                            $goods->manufacturer = $rowData['manufacturer'] ?? 'Unknown';
 //                            $goods->manufacture_pn = $rowData['manufacture_pn'];
@@ -281,7 +281,7 @@ if (isset($_POST['importCsvFile'])) {
 /*
 'item_id', // 'part_name',
     'imageData', // 'part_value',
-    'item-image', // 'part_type',
+    'item-image', // 'mounting_type',
     'owner-id', // 'footprint',
     'supplier-id', // 'manufacture_pn',
     'part-name', // 'manufacturer',
@@ -310,7 +310,7 @@ if (isset($_POST['importCsvFile'])) {
 //                                // fixme только для наших запчастей (костыль решить что с этим делать)
 //                                $goods->part_name = $rowData['part_name'] ?? getNtiCustomNumberForItem($ourPN, $rowData); // optional
 //                                $goods->part_value = $rowData['part_value']; // required
-//                                $goods->part_type = $rowData['part_type'] ?? ''; // optional
+//                                $goods->mounting_type = $rowData['mounting_type'] ?? ''; // optional
 //                                $goods->footprint = $rowData['footprint'] ?? '0000'; // optional
 //                                $goods->manufacturer = $rowData['manufacturer'] ?? 'Unknown'; // optional
 //                                $goods->manufacture_pn = $rowData['manufacture_pn']; // required

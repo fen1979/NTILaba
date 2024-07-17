@@ -54,7 +54,8 @@ $r->addRout('/wh/the_item', 'warehouse/item-data.php');
 $r->addRout('/import-csv', 'warehouse/items-import.php');
 $r->addRout('/movement-log', 'warehouse/wh-log.php');
 $r->addRout('/arrivals', 'warehouse/arrivals.php');
-$r->addRout('/writeoff', 'warehouse/writeoff.php');
+$r->addRout('/edit-item', 'warehouse/edit-item.php');
+$r->addRout('/in-out-item', 'warehouse/in-out-items.php');
 
 // wiki storage page
 $r->addRout('/wiki', 'wiki.php');

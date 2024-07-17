@@ -101,7 +101,7 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
             }
             break;
 
-        case 'warehouse_nav':
+        case 'wh_nav':
         case 'warehouse':
             {
                 /* search for warehouse creation, updation, view page */
@@ -117,6 +117,13 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
             }
             break;
 
+        case 'get-images':
+            {
+                /* вывод всех существующих изображений записанных в БД в товарах */
+                $itemImages = R::getCol('SELECT item_image FROM ' . WH_ITEMS . ' WHERE item_image IS NOT NULL AND item_image != ""');
+                echo itemImagesForChoose($itemImages);
+            }
+            break;
         default:
             echo 'No Result by search';
             break;
@@ -157,11 +164,11 @@ function SearchWarehouseItems($searchTerm, $table_one, $table_two)
     $query = "
     SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf, wt.type_name
     FROM $table_one wn
-    LEFT JOIN whtypes wt ON wt.id = wn.warehouses_id
+    LEFT JOIN whtypes wt ON wt.id = wn.wh_types_id
     LEFT JOIN $table_two w ON wn.id = w.items_id
     WHERE wn.part_name LIKE ?
        OR wn.part_value LIKE ?
-       OR wn.part_type LIKE ?
+       OR wn.mounting_type LIKE ?
        OR wn.manufacture_pn LIKE ?
        OR w.owner LIKE ?
        OR w.owner_pn LIKE ?

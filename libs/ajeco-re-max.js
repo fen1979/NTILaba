@@ -621,21 +621,17 @@ dom.addEventListener("DOMContentLoaded", function () {
         // used on pages: project, order, warehouse
         let searchAnswer = dom.e("#searchAnswer");
         if (searchAnswer) {
-            //let elem = dom.e("#full_height");
-            //if (elem) {
             searchAnswer.innerHTML = result;
-            // } else {
-            //      searchAnswer.innerHTML = result;
-            //      searchAnswer.style.display = "block";
-            //  }
         }
 
         // вывод информации в модальное окно
         // used on pages: arrival, create-order, create-project
         let modalTable = dom.e("#searchModal");
-        if (modalTable) {
+        if (modalTable && result !== 'EMPTY') {
             dom.e("#search-responce").innerHTML = result;
             dom.show("#searchModal", "fast", true);
+        }else{
+            dom.hide("#searchModal");
         }
 
         // вывод информации на странице заполнения BOM проекта

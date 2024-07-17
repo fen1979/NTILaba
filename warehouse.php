@@ -3,7 +3,8 @@ EnsureUserIsAuthenticated($_SESSION, 'userBean', ROLE_ADMIN, 'order');
 require 'warehouse/WareHouse.php';
 /* получение пользователя из сессии */
 $thisUser = $_SESSION['userBean'];
-$page = 'warehouse';
+//$page = 'warehouse';
+$page = 'wh';
 
 // SQL-запрос для получения всех записей из nomenclature (whitems) с прикрепленными записями из warehouse
 $items = WH_ITEMS;
@@ -15,28 +16,13 @@ $conditions = [];
 // фильтрация по складам
 if (isset($_GET['wh-type'])) {
     $wh_type = _E($_GET['wh-type']);
-    $type_query = ' WHERE wn.warehouses_id = ' . $wh_type;
-    $conditions = ['query' => 'warehouses_id = ?', 'data' => $wh_type];
+    $type_query = ' WHERE wn.wh_types_id = ' . $wh_type;
+    $conditions = ['query' => 'wh_types_id = ?', 'data' => $wh_type];
 }
 
 // Параметры пагинации
 list($pagination, $paginationButtons) = PaginationForPages($_GET, $page, WH_ITEMS, 50, $conditions);
 
-//$query = "
-//    SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf
-//    FROM $items wn
-//    LEFT JOIN $warehouse w ON w.items_id = wn.id
-//    AND w.fifo > DATE_SUB(NOW(), INTERVAL wn.shelf_life MONTH)
-//    AND w.fifo = (
-//        SELECT MIN(w2.fifo)
-//        FROM $warehouse w2
-//        WHERE w2.items_id = wn.id
-//        AND w2.fifo > DATE_SUB(NOW(), INTERVAL wn.shelf_life MONTH)
-//    )
-//    $type_query
-//    ORDER BY wn.id ASC
-//    $pagination
-//";
 $query = "
     SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf, wt.type_name
     FROM $items wn
@@ -48,7 +34,7 @@ $query = "
         WHERE w2.items_id = wn.id
         AND w2.fifo > DATE_SUB(NOW(), INTERVAL wn.shelf_life MONTH)
     )
-    LEFT JOIN $whtypes wt ON wt.id = wn.warehouses_id
+    LEFT JOIN $whtypes wt ON wt.id = wn.wh_types_id
     $type_query
     ORDER BY wn.id ASC
     $pagination
@@ -165,7 +151,7 @@ DisplayMessage($args ?? null);
                     foreach ($settings as $key => $set) {
                         if ($set == 'item_image') { ?>
                             <td>
-                                <?php $img_href = ($item['part_type'] == 'SMT') ? '/public/images/smt.webp' : '/public/images/pna_en.webp' ?>
+                                <?php $img_href = ($item['mounting_type'] == 'SMT') ? '/public/images/smt.webp' : '/public/images/pna_en.webp' ?>
                                 <img src="<?= $item['item_image'] ?? $img_href; ?>" alt="goods" width="100" height="auto">
                             </td>
                         <?php } elseif ($set == 'datasheet') {

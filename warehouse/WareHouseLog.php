@@ -1,5 +1,16 @@
 <?php
-class WarehouseLog
+//    Пример записи в лог:
+//
+//    Тип операции: Поступление
+//    Дата и время: 2024-03-16 14:30
+//    Идентификаторы товара: SKU12345, "Ноутбук Model X"
+//    Количество: Принято 10 шт., на складе после операции 50 шт.
+//    Источник: Поставщик "Техника+".
+//    Пользователь: Складской менеджер Иванов И.И.
+//    Документы: Накладная № 45678 от 16.03.2024.
+//    Дополнительные замечания: Товар требует дополнительной проверки качества.
+/* получение пользователя из сессии */
+class WareHouseLog
 {
     /**
      * Регистрация поступления товара на склад.
@@ -12,7 +23,7 @@ class WarehouseLog
     public static function registerNewArrival($itemData, $warehouseData, $invoiceData, $user): array
     {
         // $itemData
-        //  ["id"], ["part_name"], ["part_value"], ["part_type"], ["footprint"], ["manufacturer"], ["manufacture_pn"],
+        //  ["id"], ["part_name"], ["part_value"], ["mounting_type"], ["footprint"], ["manufacturer"], ["manufacture_pn"],
         // ["min_qty"], ["shelf_life"], ["class_number"], ["datasheet"], ["description"], ["notes"], ["date_in"]
         // $warehouseData
         //  ["id"], ["items_id"], ["owner"]->"{"name":"NTI", "id":""}", ["owner_pn"], ["quantity"], ["storage_box"],
@@ -36,12 +47,12 @@ class WarehouseLog
 
         // invoice
         $log->invoice_id = $invoiceData['id']; // идентификатор документа (invoice).
-        $log->invoice_data = json_encode($invoiceData['invoice'], JSON_UNESCAPED_UNICODE);
+        $log->invoice_data = json_encode($invoiceData, JSON_UNESCAPED_UNICODE);
 
         $log->user_id = $user['id']; // идентификатор пользователя
-        $log->user = $user['user_name'];
+        $log->user_name = $user['user_name'] ?? '';
         R::store($log);
-        return ['info' => 'Part was added successfully', 'color' => 'success'];
+        return ['info' => 'Part was added successfully', 'color' => 'success', 'item_id' => $itemData['id']];
     }
 
     /**
@@ -64,7 +75,7 @@ class WarehouseLog
      * @return string[]  значение для возврата
      * @throws \\RedBeanPHP\RedException\SQL  ошибка для БД
      */
-    public static function registerWriteOff($log_data, $user): array
+    public static function registerWriteOff($logData, $user): array
     {
         // Должна записывать в лог:
         $operation_type = (strpos($quantity, '-') !== false) ? 'WRITEOFF' : 'RECEIVING'; // тип операции
@@ -115,13 +126,37 @@ class WarehouseLog
 
     }
 
-    public static function updatingSomeData($log_data, $user): array
+    /**
+     * @param $item_id
+     * @param $log_data
+     * @param $user
+     * @return string[]
+     * @throws \RedBeanPHP\RedException\SQL
+     */
+    public static function updatingSomeData($item_id, $logData, $user): array
     {
-        // тут будем регистрировать и логровать разные операции
-        // обновление данных товара
-        //
-        //$log_data['item_data_before'];
-        //$log_data['item_data_after'];
-        return [null];
+        // Должна записать в лог:
+        $log = R::dispense(WAREHOUSE_LOGS);
+        $log->action = 'ITEM_UPDATED'; // тип операции
+        $log->date_in = date('Y-m-d H:i'); // дату и время
+        $log->user_id = $user['id']; // идентификатор пользователя
+        $log->user_name = $user['user_name']; // идентификатор пользователя
+        $log->items_id = $item_id; // идентификатор товара
+        // Преобразование объединенного массива в JSON-строку
+        $log->items_data = json_encode($logData, JSON_UNESCAPED_UNICODE);
+
+        R::store($log);
+        return ['info' => 'Item was changed successfully', 'color' => 'success'];
+        /*
+         * вывод массива из БД yf cnhfybwe
+         *
+         * // Преобразование JSON-строки обратно в массив
+         * $logData = json_decode($log->items_data, true);
+         *
+         * // Доступ к данным до изменений
+         * $itemDataBefore = $logData['item_data_before'];
+         * // Доступ к данным после изменений
+         * $itemDataAfter = $logData['item_data_after'];
+         * */
     }
 }

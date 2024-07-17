@@ -224,7 +224,7 @@ function smtAssemblyProjectType($order, $amount, $projectBom): void
                             <p><strong>Part Name:</strong> <span><?= $item['part_name']; ?></span></p>
                         <?php } ?>
                         <p><strong>Part Value:</strong> <span><?= $item['part_value']; ?></span></p>
-                        <p><strong>Part Type:</strong> <span><?= $item['part_type'] ?? ''; ?></span></p>
+                        <p><strong>Mounting Type:</strong> <span><?= $item['mounting_type'] ?? ''; ?></span></p>
                         <p><strong>Footprint:</strong> <span><?= $item['footprint']; ?></span></p>
                         <p><strong>Note:</strong> <span><?= $item['notes']; ?></span></p>
                         <?php
