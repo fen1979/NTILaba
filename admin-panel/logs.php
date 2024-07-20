@@ -1,9 +1,12 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean', ROLE_ADMIN);
+EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR]);
 $page = 'logs';
 /* получение пользователя из сессии */
 $thisUser = $_SESSION['userBean'];
 $orderid = $settings = null;
+
+// Параметры пагинации
+list($pagination, $paginationButtons) = PaginationForPages($_GET, 'logs', LOGS, 50);
 ?>
 <!doctype html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
@@ -80,7 +83,7 @@ DisplayMessage($args ?? null);
         <tbody id="searchAnswer">
 
         <?php
-        $logs = R::findAll(LOGS, 'ORDER BY date DESC');
+        $logs = R::findAll(LOGS, 'ORDER BY date DESC ' . $pagination);
         foreach ($logs as $log) {
             ?>
             <tr class="item-list">
@@ -94,8 +97,12 @@ DisplayMessage($args ?? null);
         </tbody>
     </table>
 
-    <!-- Футер -->
-    <?php footer($page); ?>
+    <?php
+    /* pagination */
+    echo $paginationButtons;
+    /* Футер */
+    footer($page);
+    ?>
 </main>
 
 <?php

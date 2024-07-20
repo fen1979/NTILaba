@@ -158,7 +158,6 @@ class WareHouse
         // СОЗДАЕМ ЗАПИСЬ В ТАБЛИЦЕ ТОВАРОВ
         $item = R::dispense(WH_ITEMS);
 
-        $item->wh_types_id = $post['warehouse-type-id']; // расположение склада физичеки
         $item->part_name = $post['part-name'];
         $item->part_value = $post['part-value'];
         $item->mounting_type = $post['mounting-type'];
@@ -197,6 +196,7 @@ class WareHouse
 
         // СОЗДАЕМ ЗАПИСЬ В ТАБЛИЦУ СКЛАД
         $warehouse = R::dispense(WAREHOUSE);
+        $warehouse->wh_types_id = $post['warehouse-type-id']; // расположение склада физичеки
         $warehouse->items_id = $item_id;
         // создаем json обьект для дальнейшего использования
         $owner_data = '{"name":"' . $post['owner'] . '", "id":"' . ($post['owner-id'] ?? '') . '"}';
@@ -251,6 +251,7 @@ class WareHouse
      */
     public static function UpdateNomenclatureItem($post, $user): array
     {
+        // fixme доработать данную функцию на предмет сохранения изменений в других таблицах!
         $needToDelete = $imageExist = false;
         $imageData = null;
         if (!empty($_POST['imageData']) && strpos($_POST['imageData'], 'data:image') === 0) {
@@ -266,7 +267,6 @@ class WareHouse
         // берем путь к старому фото
         $oldPhotoPath = $item->item_image;
 
-        $item->wh_types_id = $post['warehouse-type-id']; // расположение склада физичеки
         $item->part_name = $post['part-name'];
         $item->part_value = $post['part-value'];
         $item->mounting_type = $post['mounting-type'];
@@ -304,6 +304,9 @@ class WareHouse
         // update item
         $item_id = R::store($item);
 
+        //$warehouse = R::load(WAREHOUSE, );
+        //$warehouse->wh_types_id = $post['warehouse-type-id']; // расположение склада физичеки
+
         // проверяем если ранее было добавлено фото и удаляем старое если оно есть/было
         if (!empty($oldPhotoPath) && is_file($oldPhotoPath) && $needToDelete) {
             unlink($oldPhotoPath);
@@ -334,6 +337,7 @@ class WareHouse
         // СОЗДАЕМ ЗАПИСЬ В ТАБЛИЦУ СКЛАД
         $warehouse = R::dispense(WAREHOUSE);
         $warehouse->items_id = $item_id;
+        $warehouse->wh_types_id = $post['warehouse-type-id']; // расположение склада физичеки
         // создаем json обьект для дальнейшего использования
         $owner_data = '{"name":"' . $post['owner'] . '", "id":"' . ($post['owner-id'] ?? '') . '"}';
         $warehouse->owner = $owner_data; // this part owner

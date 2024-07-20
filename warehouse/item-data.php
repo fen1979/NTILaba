@@ -1,5 +1,5 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean', ROLE_ADMIN);
+EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR]);
 require 'warehouse/WareHouse.php';
 /* получение пользователя из сессии */
 $user = $_SESSION['userBean'];
@@ -41,7 +41,7 @@ function getDataForTable($itemId, $orderId, $projectId, $clientId, $reservedQty)
             o.date_in, o.date_out, o.order_amount, o.prioritet, o.id,
             p.projectname, p.revision,
             c.name, c.priority,
-            w.storage_shelf, w.storage_box, w.quantity, w.owner_pn, w.storage_state
+            w.storage_shelf, w.storage_box, w.quantity, w.owner_pn, w.storage_state, w.wh_types_id
         FROM orders o
         JOIN projects p 
         JOIN customers c 
@@ -198,8 +198,6 @@ DisplayMessage($args ?? null);
             <p>Storage Class: <b><?= $item['class_number'] ?></b></p>
             <!--            <p>Storage State: <b>--><?php //= $item['storage_state'] ?><!--</b></p>-->
             <p>Footprint: <b><?= $item['footprint'] ?></b></p>
-            <p>Warehouse Type: <b><?= R::load(WH_TYPES, $item['wh_types_id'])->type_name; ?></b></p>
-
         </div>
 
         <div class="col-4 border-end">
@@ -338,6 +336,7 @@ DisplayMessage($args ?? null);
                 <tr>
                     <th>Owner P/N</th>
                     <th>Owner</th>
+                    <th>Warehouse Type</th>
                     <th>Shelf</th>
                     <th>Box</th>
                     <th>Storage State</th>
@@ -360,6 +359,7 @@ DisplayMessage($args ?? null);
 
                             <td data-name="owner_pn"><?= $line['owner_pn']; ?></td>
                             <td><?= json_decode($line['owner'])->name; ?></td>
+                            <td><?= R::load(WH_TYPES, $line['wh_types_id'])->type_name; ?></td>
                             <td data-name="storage_shelf"><?= $line['storage_shelf']; ?></td>
                             <td data-name="storage_box"><?= $line['storage_box']; ?></td>
                             <td data-name="storage_state"><?= $line['storage_state']; ?></td>

@@ -14,7 +14,7 @@
  * Parameters:
  * @param array $valueForCheck The array to check for the specified value.
  * @param string $valueName The key name of the value to check in the array.
- * @param string $role The key name of users role in application.
+ * @param array $role The key name of users role in application.
  * @param string $redirection The page to redirect to if the value is not present (default is '').
  *
  * Example:
@@ -26,10 +26,10 @@
  *
  * @return void
  */
-function EnsureUserIsAuthenticated(array $valueForCheck, string $valueName, string $role = '', string $redirection = ''): void
+function EnsureUserIsAuthenticated(array $valueForCheck, string $valueName, array $role = null, string $redirection = ''): void
 {
     if (!empty($role)) {
-        if (!isset($valueForCheck[$valueName]) && !isUserRole($role)) {
+        if (!isUserRole($role) && !isset($valueForCheck[$valueName])) {
             header("Location: /$redirection") and exit();
         }
     } else {
@@ -74,14 +74,18 @@ function set_value($name, string $val = ''): string
 
 /**
  * this function is check what is role of user and return bool
- * @param string $role
+ * @param array $role
  * @return bool
  */
-function isUserRole(string $role): bool
+function isUserRole(array $role): bool
 {
-    if (!empty($_SESSION['userBean'])) {
-        if ($role == $_SESSION['userBean']['app_role']) {
-            return true;
+    if (!empty($role)) {
+        foreach ($role as $v) {
+            if (!empty($_SESSION['userBean'])) {
+                if ($v == $_SESSION['userBean']['app_role']) {
+                    return true;
+                }
+            }
         }
     }
     return false;

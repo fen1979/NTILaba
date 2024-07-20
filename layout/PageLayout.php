@@ -218,7 +218,7 @@ function ALL_PAGES_BUTTONS($page, $l): void
         </button>
     </li>
 
-    <?php if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) {
+    <?php if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) {
     $text = ($page == 'edit_order') ? 'Edit' : 'New'; ?>
 
     <li class="nav-item">
@@ -267,7 +267,7 @@ function ALL_PAGES_BUTTONS($page, $l): void
  */
 function ADMIN_PANEL_BUTTONS($btn_title, $page): void
 {
-    if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) {
+    if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) {
         if (!in_array($page, [1, 7, 8])) { ?>
             <li class="nav-item" style="white-space: nowrap">
                 <button type="button" id="create-btn" class="btn btn-sm btn-outline-danger" style="margin: .3rem">
@@ -324,7 +324,7 @@ function ADMIN_PANEL_BUTTONS($btn_title, $page): void
  */
 function EDIT_PROJECT_PAGE_BUTTONS($pid): void
 {
-    if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) {
+    if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) {
         // сделать чтоб открывалось в новой вкладке
         ?>
         <li class="nav-item" style="white-space: nowrap">
@@ -386,7 +386,7 @@ function EDIT_PROJECT_PAGE_BUTTONS($pid): void
     <li class="nav-item">
         <button type="button" class="url btn btn-sm btn-outline-secondary" value="order">Orders</button>
     </li>
-    <?php if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) { ?>
+    <?php if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
     <li class="nav-item">
         <button type="button" class="url btn btn-sm btn-outline-secondary" value="wh">Warehouse</button>
     </li>
@@ -434,7 +434,7 @@ function EDIT_AND_ADD_STEP_BUTTONS($pid): void
  */
 function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid, $page_tab = ''): void
 {
-    if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) {
+    if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) {
         $pt = !empty($page_tab) ? "?page=$page_tab&#row-$pid" : '';
         if ($page !== 'wh' && $page !== 'arrivals') { ?>
             <li class="nav-item">
@@ -468,7 +468,8 @@ function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid, $page_tab = ''): void
         }
 
         // выбор количества строк на странице
-        if ($page != 'arrivals' && $page != 'view_item') {
+        $hide = ['edit_item', 'arrivals', 'view_item', 'in_out_item'];
+        if (!in_array($page, $hide)) {
             NUMBERS_OF_ROW($page);
         }
         ?>

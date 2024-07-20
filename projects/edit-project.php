@@ -110,7 +110,7 @@ DisplayMessage($args);
                         <div class="watermark">ONLY FOR EDITING</div>
                     </div>
                     <!-- video -->
-                    <?php if (isUserRole(ROLE_WORKER) && $videoPath != 'none') { ?>
+                    <?php if (isUserRole([ROLE_WORKER]) && $videoPath != 'none') { ?>
                         <div class="image-container">
                             <video controls class="video-preview" width="640" height="480" src="<?= $videoPath; ?>" style="display: none">
                                 Your browser isn't support video!
@@ -124,13 +124,13 @@ DisplayMessage($args);
                         <h3 class="card-text"><?= $description; ?></h3>
 
                         <div class="d-flex justify-content-between align-items-center">
-                            <?php if (isUserRole(ROLE_WORKER) && $videoPath != 'none') { ?>
+                            <?php if (isUserRole([ROLE_WORKER]) && $videoPath != 'none') { ?>
                                 <button type="button" class="btn btn-outline-info ms-1 video-button" title="Preview Video">
                                     <i class="bi bi-camera-reels-fill"></i>
                                 </button>
                             <?php } ?>
 
-                            <?php if (isUserRole(ROLE_ADMIN)) { ?>
+                            <?php if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
                                 <div class="btn-group">
                                     <a class="btn btn-outline-warning" title="Edit Step" href="<?= $ref; ?>">
                                         <i class="bi bi-pencil"></i>

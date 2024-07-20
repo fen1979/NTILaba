@@ -1,5 +1,5 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean', ROLE_ADMIN, 'order');
+EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'order');
 require 'warehouse/WareHouse.php';
 /* получение пользователя из сессии */
 $thisUser = $_SESSION['userBean'];
@@ -16,8 +16,8 @@ $conditions = [];
 // фильтрация по складам
 if (isset($_GET['wh-type'])) {
     $wh_type = _E($_GET['wh-type']);
-    $type_query = ' WHERE wn.wh_types_id = ' . $wh_type;
-    $conditions = ['query' => 'wh_types_id = ?', 'data' => $wh_type];
+    $type_query = ' WHERE w.wh_types_id = ' . $wh_type;
+    $conditions = ['query' => 'w.wh_types_id = ?', 'data' => $wh_type];
 }
 
 // Параметры пагинации
@@ -34,15 +34,15 @@ $query = "
         WHERE w2.items_id = wn.id
         AND w2.fifo > DATE_SUB(NOW(), INTERVAL wn.shelf_life MONTH)
     )
-    LEFT JOIN $whtypes wt ON wt.id = wn.wh_types_id
+    LEFT JOIN $whtypes wt ON wt.id = w.wh_types_id
     $type_query
     ORDER BY wn.id ASC
     $pagination
 ";
 
-
 // Выполнение запроса и получение результатов
 $goods = R::getAll($query);
+
 
 
 // get user settings for preview table

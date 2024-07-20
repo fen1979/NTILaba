@@ -169,11 +169,24 @@ function dynamicSearch($tableName, $columns, $searchString)
 function SearchWarehouseItems($searchTerm, $table_one, $table_two)
 {
     // SQL-запрос для поиска в двух таблицах и объединения результатов
+//    $query = "
+//    SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf, wt.type_name
+//    FROM $table_one wn
+//    LEFT JOIN whtypes wt ON wt.id = wn.wh_types_id
+//    LEFT JOIN $table_two w ON wn.id = w.items_id
+//    WHERE wn.part_name LIKE ?
+//       OR wn.part_value LIKE ?
+//       OR wn.mounting_type LIKE ?
+//       OR wn.manufacture_pn LIKE ?
+//       OR w.owner LIKE ?
+//       OR w.owner_pn LIKE ?
+//    ORDER BY w.fifo ASC
+//";
     $query = "
     SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf, wt.type_name
-    FROM $table_one wn
-    LEFT JOIN whtypes wt ON wt.id = wn.wh_types_id
-    LEFT JOIN $table_two w ON wn.id = w.items_id
+    FROM whitems wn
+    LEFT JOIN warehouse w ON wn.id = w.items_id
+    LEFT JOIN whtypes wt ON wt.id = w.wh_types_id
     WHERE wn.part_name LIKE ?
        OR wn.part_value LIKE ?
        OR wn.mounting_type LIKE ?
@@ -182,6 +195,7 @@ function SearchWarehouseItems($searchTerm, $table_one, $table_two)
        OR w.owner_pn LIKE ?
     ORDER BY w.fifo ASC
 ";
+
     $q = '%' . $searchTerm . '%';
     $params = [$q, $q, $q, $q, $q, $q];
     // Возвращение результатов в виде массива

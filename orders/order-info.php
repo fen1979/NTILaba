@@ -13,7 +13,7 @@ function getOrderInformationHTML($orderid, $order, $customer, $project, $project
         </div>
 
         <!--  изменение статуса заказа -->
-        <?php  if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) { ?>
+        <?php  if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
             <div class="col-2">
                 <form action="" method="POST" class="form" id="setStatus">
                     <input type="hidden" name="set-order-status" readonly>
@@ -57,7 +57,7 @@ function getOrderInformationHTML($orderid, $order, $customer, $project, $project
         <?php } ?>
 
         <!--  установка работника для проекта -->
-        <?php  if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) { ?>
+        <?php  if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
             <div class="col-2">
                 <form action="" method="POST" class="form">
                     <input type="hidden" name="set-order-user">
@@ -130,7 +130,7 @@ function getOrderInformationHTML($orderid, $order, $customer, $project, $project
             <?php } ?>
 
             <!--  BUTTONS FOR DOWNLOAD BOM AND PRINT ROUTECARD -->
-            <?php if (isUserRole(ROLE_ADMIN)) { ?>
+            <?php if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
                 <div class="mt-3">
 
                     <?php
@@ -160,7 +160,7 @@ function getOrderInformationHTML($orderid, $order, $customer, $project, $project
 
         <?php
         // information about order for admins use only all statuses MIDDLE SIDE
-        if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) { ?>
+        if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
             <div class="col-3 border-start sunset">
                 <!-- Customer Information -->
                 <div class="mb-3">
@@ -261,7 +261,7 @@ function getOrderInformationHTML($orderid, $order, $customer, $project, $project
                     If the order was only partially placed but allowed for assembly despite not having a complete set of spare parts,
                     indicate this in the order's BOM.
                 </h4>
-                <?php  if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) { ?>
+                <?php  if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
                     <a href="<?= $url; ?>" role="button" class="btn btn-outline-dark">Edit BOM for this Order</a>
                     <?php
                 }

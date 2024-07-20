@@ -2,7 +2,7 @@
 require 'core/Routing.php';
 function backupWarehouse()
 {
-    isset($_SESSION['userBean']) && isUserRole(ROLE_ADMIN) or header("Location: /order") and exit();
+    isset($_SESSION['userBean']) && isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR]) or header("Location: /order") and exit();
     isset($_SESSION['userBean']) or header("Location: /order") and exit();
     require 'warehouse/WareHouse.php';
 

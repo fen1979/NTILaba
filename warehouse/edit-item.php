@@ -1,5 +1,5 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean', ROLE_ADMIN, 'wh');
+EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
 /**
  * СПИСОК ВАРИАНТОВ ВИДОВ ДЕТАЛЕЙ В БД
  */
@@ -326,7 +326,7 @@ DisplayMessage($args ?? null);
                     <?php $t = 'Required warehouse type indicator: the default warehouse for the production line is defined!'; ?>
                     <select name="warehouse-type-id" id="warehouse-type" class="input" data-title="<?= $t ?>" required>
                         <?php foreach (R::findAll(WH_TYPES) as $type): ?>
-                            <option value="<?= $type['id'] ?>" <?= isset($item->wh_types_id) && $item->wh_types_id == $type['id'] ? 'selected' : '' ?>>
+                            <option value="<?= $type['id'] ?>" <?= isset($wh->wh_types_id) && $wh->wh_types_id == $type['id'] ? 'selected' : '' ?>>
                                 <?= $type['type_name'] ?>
                             </option>
                         <?php endforeach; ?>

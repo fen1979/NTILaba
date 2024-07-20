@@ -1,5 +1,5 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean', ROLE_ADMIN, 'wh');
+EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
 require 'WareHouse.php';
 /* получение пользователя из сессии */
 $user = $_SESSION['userBean'];

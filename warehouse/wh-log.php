@@ -1,5 +1,5 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean', ROLE_ADMIN, 'wh');
+EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
 require 'WareHouseLog.php';
 $user = $_SESSION['userBean'];
 $page = 'wh_log';
@@ -11,20 +11,7 @@ list($pagination, $paginationButtons) = PaginationForPages($_GET, 'movement-log'
 $logs = R::find(WH_LOGS, 'ORDER BY date_in ASC ' . $pagination);
 
 // get user settings for preview table
-$settings = getUserSettings($user, WH_LOGS);
-
-/**
- * Проверяет, является ли строка валидным JSON.
- *
- * @param string $string Строка для проверки.
- * @return bool Возвращает true, если строка валидный JSON, иначе false.
- */
-function isValidJson(string $data): bool
-{
-    json_decode($data);
-    return (json_last_error() === JSON_ERROR_NONE);
-}
-
+//$settings = getUserSettings($user, WH_LOGS);
 ?>
 <!doctype html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
@@ -116,87 +103,106 @@ DisplayMessage($args ?? null);
         </tr>
         </thead>
         <tbody id="searchAnswer">
-        <?php foreach ($logs as $log) { ?>
-            <tr class="item-list accordion-toggle">
-                <td><?= $log['action'] ?></td>
-                <td><?= $log['user_name'] ?></td>
-                <td><?= $log['items_id'] ?></td>
-                <td><?= $log['date_in'] ?></td>
-            </tr>
-            <tr class="accordion-content">
-                <?php
-                // если данные существуют
-                $invoiceData = false;
-                if ($log['warehouse_data'] && $log['invoice_data']) {
-                    $wh_data = json_decode($log['warehouse_data']);
-                    if (isValidJson($log['invoice_data'])) {
-                        $invoiceData = json_decode($log['invoice_data']);
-                    }
-                }
+        <?php
+        /**
+         * Отображение логов склада
+         * @param array $result
+         * @return void
+         */
+        function viewWarehouseLogs(array $result): void
+        {
+            /**
+             * Проверяет, является ли строка валидным JSON
+             * @param string $data
+             * @return bool
+             */
+            $isValidJson = function (string $data): bool {
+                json_decode($data);
+                return (json_last_error() === JSON_ERROR_NONE);
+            };
 
-                if ($log['items_data']) {
-                    // Преобразование JSON-строки обратно в массив
-                    $item = json_decode($log['items_data'], true);
+            if ($result) {
+                foreach ($result as $log) { ?>
+                    <tr class="item-list accordion-toggle">
+                        <td><?= $log['action'] ?></td>
+                        <td><?= $log['user_name'] ?></td>
+                        <td><?= $log['items_id'] ?></td>
+                        <td><?= $log['date_in'] ?></td>
+                    </tr>
 
-                    if (!empty($item['item_data_before']) && !empty($item['item_data_after'])) {
-                        // Доступ к данным до изменений
-                        $itemDataBefore = $item['item_data_before'];
-                        // Доступ к данным после изменений
-                        $itemDataAfter = $item['item_data_after'];
-                    }
-                }
+                    <tr class="accordion-content">
+                        <?php
+                        // Инициализация переменных
+                        $wh_data = $invoiceData = $itemDataBefore = $itemDataAfter = [];
 
-                // item data column
-                if (!empty($item)) {
-                    if (!empty($itemDataBefore) || !empty($itemDataAfter)) {
-                        //если есть item до и после
-                        echo '<td><p>Item Data Before Change</p>';
-                        foreach ($itemDataBefore as $key => $wh) {
-                            echo "<p>$key --> $wh</p>";
+                        // Проверка наличия данных
+                        if (!empty($log['warehouse_data']) && !empty($log['invoice_data']) && $isValidJson($log['invoice_data'])) {
+                            $wh_data = json_decode($log['warehouse_data'], true);
+                            $invoiceData = json_decode($log['invoice_data'], true);
+                        }
+
+                        if (!empty($log['items_data'])) {
+                            // Преобразование JSON-строки обратно в массив
+                            $item = json_decode($log['items_data'], true);
+
+                            if (!empty($item['item_data_before']) && !empty($item['item_data_after'])) {
+                                // Доступ к данным до и после изменений
+                                $itemDataBefore = $item['item_data_before'];
+                                $itemDataAfter = $item['item_data_after'];
+                            }
+                        }
+
+                        // Отображение данных до и после изменений
+                        if (!empty($itemDataBefore) || !empty($itemDataAfter)) {
+                            echo '<td><p>Item Data Before Change</p>';
+                            foreach ($itemDataBefore as $key => $value) {
+                                echo "<p>$key --> $value</p>";
+                            }
+                            echo '</td>';
+
+                            echo '<td><p>Item Data After Change</p>';
+                            foreach ($itemDataAfter as $key => $value) {
+                                echo "<p>$key --> $value</p>";
+                            }
+                            echo '</td>';
+                        } elseif (!empty($item)) {
+                            echo '<td colspan="2">';
+                            foreach ($item as $key => $value) {
+                                echo "<p>$key --> $value</p>";
+                            }
+                            echo '</td>';
+                        }
+
+                        // Отображение данных инвойса
+                        echo '<td><p>Invoice Table Data</p>';
+                        if (!empty($invoiceData)) {
+                            foreach ($invoiceData as $key => $value) {
+                                echo "<p>$key --> $value</p>";
+                            }
+                        } else {
+                            echo '<p>Invoice: ' . $log['invoice_data'] . '</p>';
                         }
                         echo '</td>';
 
-                        echo '<td><p>Item Data After Change</p>';
-                        foreach ($itemDataAfter as $key => $wh) {
-                            echo "<p>$key --> $wh</p>";
+                        // Отображение данных склада
+                        echo '<td><p>Warehouse Table Data</p>';
+                        if (!empty($wh_data)) {
+                            foreach ($wh_data as $key => $value) {
+                                echo "<p>$key --> $value</p>";
+                            }
                         }
                         echo '</td>';
-                    } else {
+                        ?>
+                    </tr>
+                <?php }
+            } else {
+                echo '<h2>Unable to find data by search!</h2>';
+            }
+        }
 
-                        // если есть только item
-                        echo '<td colspan="2">';
-                        foreach ($item as $key => $wh) {
-                            echo "<p>$key --> $wh</p>";
-                        }
-                        echo '</td>';
-                    }
-                }
-
-                // invoice table data
-                echo '<td><p>Invoice Table Data</p>';
-                if ($invoiceData) {
-                    foreach ($invoiceData as $key => $wh) {
-                        echo "<p>$key --> $wh</p>";
-                    }
-                } else {
-                    echo '<p>Invoice: ' . $log['invoice_data'] . '</p>';
-                }
-                echo '</td>';
-                // END invoice table data
-                ?>
-
-                <td>
-                    <p>Warehouse Table Data</p>
-                    <?php
-                    // warehouse data column
-                    if (!empty($wh_data)) {
-                        foreach ($wh_data as $key => $wh) {
-                            echo "<p>$key --> $wh</p>";
-                        }
-                    } ?>
-                </td>
-            </tr>
-        <?php } ?>
+        // cal the logs
+        viewWarehouseLogs($logs);
+        ?>
         </tbody>
     </table>
     <!-- pagination buttons -->

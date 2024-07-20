@@ -164,7 +164,7 @@ DisplayMessage($args ?? null);
                     <i class="bi bi-filter"></i>
                 </button>
 
-                <?php if (isUserRole(ROLE_ADMIN)) { ?>
+                <?php if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
                     <!-- вывод таблицы данных xlsx для приорити по фильтрам -->
                     <button class="btn btn-outline-secondary" type="button" id="priority-out-data">
                         Priority
@@ -241,7 +241,8 @@ DisplayMessage($args ?? null);
                             if ($settings) {
                                 // creating table using user settings
                                 foreach ($settings as $k => $item) {
-                                    $click = ($k === 0 && (in_array($thisUser['user_name'], $workers) || isUserRole(ROLE_ADMIN))) ? ' onclick="getInfo(' . $order['id'] . ')"' : '';
+                                    $click = ($k === 0 && (in_array($thisUser['user_name'], $workers) ||
+                                            isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR]))) ? ' onclick="getInfo(' . $order['id'] . ')"' : '';
                                     if ($item == 'status') {
                                         // status colorise bg and play text
                                         $color = L::STATUS($order[$item], 1);
@@ -264,7 +265,7 @@ DisplayMessage($args ?? null);
                             }
 
                             // i buttons for some actions like delete, edite, & edit BOM
-                            if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) { ?>
+                            if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
                                 <td>
                                     <?php
                                     if ($order['status'] == 'st-111' || $order['status'] == 'st-222') {
