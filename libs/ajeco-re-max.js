@@ -568,6 +568,50 @@ dom.addEventListener("DOMContentLoaded", function () {
         });
     };
 
+    /**
+     * Checks if all required fields in a form are filled and enables/disables the submit button accordingly.
+     *
+     * @param {string} form_id - The ID of the form to check.
+     * @param {string} button_id - The ID of the submit button to enable/disable.
+     *
+     * This function ensures that all required fields (input, select, textarea) in the form are filled.
+     * If all required fields are filled, the submit button is enabled. Otherwise, it is disabled.
+     * The check is performed both on form load and on any input/change event within the form.
+     *
+     * Example usage:
+     * dom.checkForm('myForm', 'submitBtn');
+     */
+    dom.checkForm = function (form_id, button_id) {
+        // Get the form and the submit button elements by their IDs
+        const form = document.getElementById(form_id);
+        const saveBtn = document.getElementById(button_id);
+
+        // Function to check if all required fields are filled
+        function checkForm() {
+            // Select all required input, select, and textarea elements within the form
+            const requiredElements = form.querySelectorAll('input[required], select[required], textarea[required]');
+            let allFilled = true;
+
+            // Iterate over each required element to check if it's filled
+            requiredElements.forEach(element => {
+                if (!element.value.trim()) {
+                    allFilled = false;
+                }
+            });
+
+            // Enable or disable the submit button based on whether all required fields are filled
+            saveBtn.disabled = !allFilled;
+        }
+
+        // Add event listeners to check the form on input and change events
+        form.addEventListener('input', checkForm);
+        form.addEventListener('change', checkForm);
+
+        // Initial check when the page loads
+        checkForm();
+    };
+
+
     /* ===================================================================================================================== */
     /* ========================= Инициализация всех глобальных функций применяемых на всех страницах ======================= */
 
@@ -606,6 +650,7 @@ dom.addEventListener("DOMContentLoaded", function () {
     // поисковая функция , подключена на всех страницах где есть поле для поиска
     const args = {method: "POST", url: BASE_URL + "searching/getData.php", headers: null};
     dom.makeRequest(".searchThis", "keyup", "data-request", args, function (error, result, _) {
+        //console.log(result);
         if (error) {
             console.error('Error during fetch:', error);
             return;
@@ -630,7 +675,7 @@ dom.addEventListener("DOMContentLoaded", function () {
         if (modalTable && result !== 'EMPTY') {
             dom.e("#search-responce").innerHTML = result;
             dom.show("#searchModal", "fast", true);
-        }else{
+        } else {
             dom.hide("#searchModal");
         }
 

@@ -1,5 +1,16 @@
 <?php
 /** @noinspection ALL */
+/**
+ * страницы которые не содержат строку поиска в навбаре.
+ * Pages without search field in to navbar.
+ */
+const NO_VIEW_PAGES = [
+    'new_order', 'edit_order', 'order_bom',
+    'customers', 'docs',
+    'admin-panel',
+    'new_project', 'edit_project', 'edit_step', 'add_step',
+    'import_csv', 'view_item', 'arrivals', 'edit_item', 'in_out_item'];
+
 /* ICON, TITLE, STYLES AND META TAGS */
 function HeadContent($page)
 { ?>
@@ -91,7 +102,7 @@ function NavBarContent($page, $user = null, $pid = null, $l = ''): void
                     $elem = 'searchForm';
                     $allowed = '';
                 }
-                $w = ($page == 'view_item') ? 'w-25' : 'w-100';
+                $w = 'w-100';
                 if ($page == 'order') { ?>
                     <div class="<?= $w ?> d-flex mainSearchForm" data-title="<?= FIND_T[$allowed ?? '']; ?>"
                          style="justify-content: space-evenly; align-items: center;">
@@ -287,12 +298,9 @@ function ADMIN_PANEL_BUTTONS($user, $page): void
 
     <li class="divider-vertical"></li>
 
-    <li class="nav-item">
-        <button type="button" class="url btn btn-sm btn-outline-secondary" value="<?= $user['link']; ?>">
-            <?= L::TITLES($user['link'] ?? 'Home') ?>
-        </button>
-    </li>
     <?php
+    // site map buttons burger buttons
+    DROPDOWN_BUTTONS($_SESSION['userBean']);
 }
 
 /**
@@ -422,13 +430,13 @@ function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid): void
             </li>
 
             <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-diliny" value="in-out-item?item_id=<?= $pid; ?>">
+                <button type="button" class="url btn btn-sm btn-outline-diliny" value="in-out-item?writeoff&item_id=<?= $pid; ?>">
                     WriteOff Item <i class="bi bi-scissors"></i>
                 </button>
             </li>
 
             <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-diliny" value="in-out-item?item_id=<?= $pid; ?>">
+                <button type="button" class="url btn btn-sm btn-outline-diliny" value="in-out-item?arrival&item_id=<?= $pid; ?>">
                     Arrival Item <i class="bi bi-airplane"></i>
                 </button>
             </li>
@@ -460,27 +468,9 @@ function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid): void
 
         <li class="divider-vertical"></li>
 
-        <li class="nav-item">
-            <button type="button" class="url btn btn-sm btn-outline-<?= ($l == Y['ORDER']) ? 'gold' : 'secondary'; ?>"
-                    value="order">Orders
-            </button>
-        </li>
-        <li class="nav-item">
-            <button type="button" class="url btn btn-sm btn-outline-<?= ($l == Y['PROJECT']) ? 'gold' : 'secondary'; ?>"
-                    value="project">Projects
-            </button>
-        </li>
-        <li class="nav-item">
-            <button type="button" class="url btn btn-sm btn-outline-<?= ($l == Y['CLIENT']) ? 'gold' : 'secondary'; ?>"
-                    value="create_client">Customers
-            </button>
-        </li>
-        <li class="nav-item">
-            <button type="button" class="url btn btn-sm btn-outline-<?= ($l == Y['STOCK']) ? 'gold' : 'secondary'; ?>"
-                    value="wh">Warehouse
-            </button>
-        </li>
         <?php
+        // site map buttons burger buttons
+        DROPDOWN_BUTTONS($_SESSION['userBean']);
     }
 }
 
@@ -527,6 +517,49 @@ function LANGUAGE_BUTTONS(): void
             </button>
         </li>
     </ul>
+    <?php
+}
+
+/**
+ * dropdown list site map buttons
+ * in use on warehouse, admin-panel pages
+ * @param $user
+ * @return void
+ */
+function DROPDOWN_BUTTONS($user)
+{ ?>
+    <div class="btn-group nav-item">
+        <button class="url btn btn-outline-secondary btn-sm" type="button" value="<?= $user['link'] ?>">
+            <?= L::TITLES($user['link']) ?>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-dark dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false"
+                style="margin: .3rem .3rem .3rem -.2rem">
+            <span class="visually-hidden">Site Pages</span>
+        </button>
+        <ul class="dropdown-menu">
+            <li class="nav-item">
+                <a href="/order" class="dropdown-item">Orders</a>
+            </li>
+            <li class="nav-item">
+                <a href="/project" class="dropdown-item">Projects</a>
+            </li>
+            <li class="nav-item">
+                <a href="/create_client" class="dropdown-item">Customers</a>
+            </li>
+            <li class="nav-item">
+                <a href="/wh" class="dropdown-item">Warehouse</a>
+            </li>
+            <li class="nav-item">
+                <a href="/setup?route-page=1" target="_blank" class="dropdown-item">Settings</a>
+            </li>
+            <li class="nav-item">
+                <a href="/wiki" target="_blank" class="dropdown-item">Wiki</a>
+            </li>
+            <li class="nav-item">
+                <a href="/logs" class="dropdown-item">Logs</a>
+            </li>
+        </ul>
+    </div>
     <?php
 }
 

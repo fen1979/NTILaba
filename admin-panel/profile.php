@@ -43,6 +43,7 @@ $title = ['title' => 'Settings', 'app_role' => $user['app_role'], 'link' => $use
 NavBarContent($page, $title);
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
+const START_PAGE = ['order' => 'Orders', 'project' => 'Projects', 'wh' => 'Warehouse', 'wiki' => 'Wiki'];
 ?>
 
 <div class="main-container">
@@ -63,10 +64,9 @@ DisplayMessage($args ?? null);
                         <div class="mb-3">
                             <label for="landingPageSelect" class="form-label">Start Page</label>
                             <select class="form-select" id="landingPageSelect" name="link-pages">
-                                <option value="order" <?= ($user['link'] == 'order') ? 'selected' : ''; ?>>Orders</option>
-                                <option value="project" <?= ($user['link'] == 'project') ? 'selected' : ''; ?>>Projects</option>
-                                <option value="wh" <?= ($user['link'] == 'warehouse') ? 'selected' : ''; ?>>Warehouse</option>
-                                <option value="wiki" <?= ($user['link'] == 'wiki') ? 'selected' : ''; ?>>Wiki</option>
+                                <?php foreach (START_PAGE as $key => $text): ?>
+                                    <option value="<?= $key ?>" <?= ($user['link'] == $key) ? 'selected' : ''; ?>><?= $text ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
@@ -101,7 +101,7 @@ DisplayMessage($args ?? null);
 
                         <!-- form buttons -->
                         <div class="mb-3">
-                            <button type="button" class="btn btn-secondary">
+                            <button type="button" id="btn-take-image" class="btn btn-secondary">
                                 <i class="bi bi-camera"></i>
                                 Выбрать фото
                             </button>
@@ -161,7 +161,7 @@ ScriptContent($page);
     document.addEventListener("DOMContentLoaded", function () {
 
         // кнопки выбора фото пользователя и Обработчик обновления превью
-        document.doClick(".btn-secondary", "#file-input");
+        document.doClick("#btn-take-image", "#file-input");
         document.doPreviewFile("file-input", "profile-img");
 
         // делаем видимой форму смены пароля

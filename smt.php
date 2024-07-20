@@ -66,7 +66,7 @@ include 'core/Routing.php';
 //    $it = R::dispense(WH_ITEMS);
 //    $it->part_name = $value['part_name'];
 //    $it->part_value = $value['part_value'];
-//    $it->part_type = $value['part_type'];
+//    $it->mounting_type = $value['mounting_type'];
 //    $it->footprint = $value['footprint'];
 //    $it->manufacturer = !empty($value['manufacturer']) ? $value['manufacturer'] : 'Not Added Yet';
 //    $it->manufacture_pn = $value['manufacture_pn'];
@@ -180,7 +180,7 @@ function searchInventory($searchTerm, $tables, $mainTable, $fieldsTable, $sort)
 
 // Пример использования функции поиска
 $tables = [
-    'whitems' => ['manufacture_pn', 'part_name', 'part_value', 'part_type'],
+    'whitems' => ['manufacture_pn', 'part_name', 'part_value', 'mounting_type'],
     'warehouse' => ['owner', 'owner_pn']
 ];
 $mainTable = 'whitems';
@@ -199,7 +199,7 @@ function SearchWarehouseItems($searchTerm)
     LEFT JOIN warehouse w ON wn.id = w.items_id
     WHERE wn.part_name LIKE ? 
        OR wn.part_value LIKE ?
-       OR wn.part_type LIKE ?
+       OR wn.mounting_type LIKE ?
        OR wn.manufacture_pn LIKE ?
        OR w.owner LIKE ?
        OR w.owner_pn LIKE ?
@@ -373,7 +373,7 @@ echo $b->item_in_work;
                         'partName' => $item['part_name'],
                         'partValue' => $item['part_value'],
                         'footprint' => $item['footprint'],
-                        'part-type' => $item['part_type'],
+                        'mounting-type' => $item['mounting_type'],
                         'MFpartName' => $item['manufacture_pn'],
                         'manufacturer' => $item['manufacturer'],
                         'ownerPartName' => $item['owner_pn'],
@@ -424,7 +424,7 @@ echo $b->item_in_work;
                                 if ($set == 'item_image') {
                                     ?>
                                     <td>
-                                        <?php $img_href = ($item['part_type'] == 'SMT') ? '/public/images/smt.webp' : '/public/images/pna_en.webp' ?>
+                                        <?php $img_href = ($item['mounting_type'] == 'SMT') ? '/public/images/smt.webp' : '/public/images/pna_en.webp' ?>
                                         <img src="<?= $item['item_image'] ?? $img_href; ?>" alt="goods" width="100" height="auto">
                                     </td>
                                 <?php } elseif ($set == 'datasheet') {

@@ -135,6 +135,42 @@ if (isset($_POST['data'])) {
         .link-box {
             display: grid;
         }
+
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -305,7 +341,6 @@ DisplayMessage($args ?? null);
                     <th>Expaire Date</th>
                     <th>Arrival QTY</th>
                     <th>Date In</th>
-                    <!--                    <th>SKU</th>-->
                 </tr>
                 </thead>
                 <!-- table -->
@@ -415,6 +450,19 @@ DisplayMessage($args ?? null);
     <form id="hiddenForm" style="display: none;" action="" method="post">
         <!-- the fields was added automaticaly -->
     </form>
+</div>
+
+<!-- Модальное окно -->
+<div id="blocked-w" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p>For this site to function correctly, please allow multiple tabs to be opened in your browser.
+            The first time you click the button, a browser warning will appear and you will need to select Allow.
+            <br>
+            If there was no notification or you were redirected to an open page!
+            Look at the icons in the address bar on the right in the corner there should be a crossed out screen,
+            click on it and check the "Allow" option.</p>
+    </div>
 </div>
 
 <?php
@@ -530,7 +578,29 @@ ScriptContent($page);
                 }
             });
         }
+
+        // Проверка localStorage для определения, было ли показано модальное окно
+        if (!localStorage.getItem('popupDisplayed')) {
+            showModal();
+        }
     });
+
+    // Функция для отображения модального окна при первом посещении
+    function showModal() {
+        const modal = dom.e("#blocked-w");
+        const span = dom.e(".close");
+        modal.style.display = "block";
+        span.onclick = function () {
+            modal.style.display = "none";
+            localStorage.setItem('popupDisplayed', 'true'); // Сохранение состояния в localStorage
+        }
+        window.onclick = function (event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+                localStorage.setItem('popupDisplayed', 'true'); // Сохранение состояния в localStorage
+            }
+        }
+    }
 </script>
 </body>
 </html>

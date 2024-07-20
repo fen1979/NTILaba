@@ -90,6 +90,7 @@ class L
         $title['view_item'] = 'Item Information';
         $title['edit_item'] = 'Edit Item Information';
         $title['arrivals'] = 'Add new Item';
+        $title['in_out_item'] = 'The Actions';
 
         $title['admin-panel'] = 'Management';
         $title['customers'] = 'Clients';
@@ -361,7 +362,7 @@ const FIND_T = [
     "project" => "Searching by: Project Name, Customer Name, Date Creation",
     "admin-panel" => "Searching by: Any",
     "logs" => "Searching by: User, Object Type, Action, Object ID, Date Creation",
-    "warehouse" => "Searching by: Part Name, Manufacture P/N, Client P/N, Our P/N, Date Creation",
+    "wh" => "Searching by: Part Name, Manufacture P/N, Client P/N, Our P/N, Date Creation",
     "wiki" => "Searching by: file name",
     "" => "Searching by:"
 ];
@@ -417,17 +418,6 @@ const OBJECT_TYPE = ['ORDER', 'ORDER_BOM', 'ORDER_CHAT',
     'TOOLS', 'COLUMNS', 'USER', 'ADMINKA'];
 
 /**
- * страницы которые не содержат строку поиска в навбаре.
- * Pages without search field in to navbar.
- */
-const NO_VIEW_PAGES = [
-    'new_order', 'edit_order', 'order_bom',
-    'customers', 'docs',
-    'admin-panel',
-    'new_project', 'edit_project', 'edit_step', 'add_step',
-    'import_csv', 'view_item', 'arrivals', 'edit_item'];
-
-/**
  *  Список игнорируемых путей и файлов
  */
 const IGNORE_LIST = [
@@ -440,7 +430,7 @@ const IGNORE_LIST = [
 ];
 
 /**
- * СПИСОК ВАРИАНТОВ ВИДОВ ДЕТАЛЕЙ В БД
+ * СПИСОК ВАРИАНТОВ ВИДОВ УСТАНОВКИ ДЕТАЛЕЙ
  */
 const MOUNTING_TYPE = ["SMT", "TH", "CM", "PM", "SOLDER", "CRIMP", "LM", "OTHER"];
 

@@ -146,7 +146,7 @@ function backupWarehouse()
                         foreach ($settings as $key => $set) {
                             if ($set == 'item_image') { ?>
                                 <td>
-                                    <?php $img_href = ($item['part_type'] == 'SMT') ? '/public/images/smt.webp' : '/public/images/pna_en.webp' ?>
+                                    <?php $img_href = ($item['mounting_type'] == 'SMT') ? '/public/images/smt.webp' : '/public/images/pna_en.webp' ?>
                                     <img src="<?= $item['item_image'] ?? $img_href; ?>" alt="goods" width="100" height="auto">
                                 </td>
                             <?php } elseif ($set == 'datasheet') {
@@ -333,8 +333,8 @@ function backupFillItem()
                          No Case sensitive!!!'; ?>
                                 <i class="bi bi-info-circle text-primary" data-title="<?= $t; ?>"></i> Part Type <b class="text-danger">*</b>
                             </label>
-                            <input type="text" class="form-control" id="part-type" name="part-type" required
-                                   value="<?= set_value('part-type', $item['part_type'] ?? ''); ?>" placeholder="SMT, TH, CM, PM...">
+                            <input type="text" class="form-control" id="mounting-type" name="mounting-type" required
+                                   value="<?= set_value('mounting-type', $item['mounting_type'] ?? ''); ?>" placeholder="SMT, TH, CM, PM...">
                         </div>
                         <div class="col">
                             <label for="part-value" class="form-label"><i class="bi bi-search"></i> Part Value <b class="text-danger">*</b></label>
@@ -767,8 +767,8 @@ function backupItemView()
                     <div class="col-auto">
                         <?php $t = 'SMT = Surface mount, TH = Through holes, CM = Cable Mount, PM = Panel Mount, 
                         SOLDER = Soldering to wires, CRIMP = Crimping technic, LM = In line mount.'; ?>
-                        <span class="form-label"><i class="bi bi-info-circle text-primary" data-title="<?= $t; ?>"></i> Part Type</span>
-                        <p class="form-control"><?= $item['part_type'] ?? 'N'; ?></p>
+                        <span class="form-label"><i class="bi bi-info-circle text-primary" data-title="<?= $t; ?>"></i> Mounting Type</span>
+                        <p class="form-control"><?= $item['mounting_type'] ?? 'N'; ?></p>
                     </div>
                     <div class="col">
                         <span class="form-label">Part Value</span>
@@ -1112,7 +1112,7 @@ function backupItemView()
         <?php foreach (R::findAll(WH_ITEMS) as $item) { ?>
             <tr class="clickable">
                 <td><?= $item['item_image'] ?></td>
-                <td><?= "{$item['part_name']}, {$item['part_value']}, {$item['part_type']}, {$item['footprint']}" ?></td>
+                <td><?= "{$item['part_name']}, {$item['part_value']}, {$item['mounting_type']}, {$item['footprint']}" ?></td>
                 <td><?= $item['description'] ?></td>
             </tr>
         <?php } ?>
@@ -1137,7 +1137,7 @@ function backupItemView()
                 <td><?= $item['date_in'] ?></td>
                 <td><?= $item['part_name'] ?></td>
                 <td><?= $item['part_value'] ?></td>
-                <td><?= $item['part_type'] ?></td>
+                <td><?= $item['mounting_type'] ?></td>
                 <td><?= $item['footprint'] ?></td>
                 <td><?= $item['description'] ?></td>
             </tr>

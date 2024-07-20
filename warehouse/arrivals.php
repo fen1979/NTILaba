@@ -52,7 +52,6 @@ if (isset($_POST['save-new-item'])) {
             border-radius: .25rem;
             transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
             margin: .3em;
-
         }
 
         /* СТИЛИ ДЛЯ ВЫВОДА ТАБЛИЦ */
@@ -209,6 +208,7 @@ DisplayMessage($args ?? null);
                        name="storage-class" id="storage-class" class="input"
                        value="<?= set_value('storage-class'); ?>" required/>
                 <label for="storage-state">Storage State</label>
+                <?php $t = 'Indicator of the working location of this part-device.'; ?>
                 <select name="storage-state" id="storage-state" class="input" data-title="<?= $t ?>" required>
                     <?php foreach (STORAGE_STATUS as $val => $name): ?>
                         <option value="<?= $val ?>" <?= $val == 'shelf' ? 'selected' : '' ?>><?= $name ?></option>
@@ -441,32 +441,8 @@ ScriptContent('arrivals');
             });
         }
 
-        // Проверка localStorage для определения, было ли показано модальное окно
-        if (!localStorage.getItem('popupDisplayed')) {
-            showModal();
-        }
-
-        // проверка полей формы на заполенение
-        const form = document.getElementById('item-form');
-        const saveBtn = document.getElementById('save-btn');
-
-        function checkForm() {
-            const inputs = form.querySelectorAll('input[required], select[required]');
-            let allFilled = true;
-
-            inputs.forEach(input => {
-                if (!input.value.trim()) {
-                    allFilled = false;
-                }
-            });
-
-            saveBtn.disabled = !allFilled;
-        }
-
-        form.addEventListener('input', checkForm);
-        form.addEventListener('change', checkForm);
-
-        checkForm(); // Проверить форму при загрузке страницы
+        // обработка заполнения формы на странице
+        dom.checkForm("item-form", "save-btn");
     });
 
     // Функция создания ссылок на новые парт номера
@@ -485,23 +461,6 @@ ScriptContent('arrivals');
             const url = searchUrl + encodeURIComponent(partNumber) + extUrl;
             window.open(url, '_blank');
         });
-    }
-
-    // Функция для отображения модального окна при первом посещении
-    function showModal() {
-        const modal = dom.e("#blocked-w");
-        const span = dom.e(".close");
-        modal.style.display = "block";
-        span.onclick = function () {
-            modal.style.display = "none";
-            localStorage.setItem('popupDisplayed', 'true'); // Сохранение состояния в localStorage
-        }
-        window.onclick = function (event) {
-            if (event.target === modal) {
-                modal.style.display = "none";
-                localStorage.setItem('popupDisplayed', 'true'); // Сохранение состояния в localStorage
-            }
-        }
     }
 </script>
 </body>
