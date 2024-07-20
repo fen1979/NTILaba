@@ -1,5 +1,5 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION,'userBean');
+EnsureUserIsAuthenticated($_SESSION, 'userBean');
 require_once 'projects/Project.php';
 /* страница редактирования одного шага в проекте */
 $page = 'edit_step';
@@ -41,9 +41,12 @@ if (isset($_GET['pid']) && isset($_GET['sid'])) {
 </head>
 <body>
 <?php
-/* NAVIGATION BAR */
-$title = ['title' => '<b class="text-primary"> Project: ' . $projectName . '</b>', 'app_role' => $user['app_role'], 'link' => $user['link']];
-NavBarContent($page, $title, $_GET['pid']);
+// NAVIGATION BAR
+$navBarData['title'] = '<b class="text-primary"> Project: ' . $projectName . '</b>';
+$navBarData['record_id'] = $_GET['pid'] ?? null;
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+NavBarContent($navBarData);
 
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args);

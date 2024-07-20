@@ -4,7 +4,6 @@ require 'warehouse/WareHouse.php';
 /* получение пользователя из сессии */
 $user = $_SESSION['userBean'];
 $page = 'view_item';
-$pageMode = 'View Item';
 $data = [];
 $item = null;
 // tab by default
@@ -66,7 +65,7 @@ function getDataForTable($itemId, $orderId, $projectId, $clientId, $reservedQty)
 }
 
 // updating information in to table warehouse, invoice, reserve, movement
-if (isset($_POST['data'])) {
+if (isset($_POST['item_id']) && isset($_POST['table-name'])) {
     $args = WareHouse::updateRelatedTables($_POST, $user);
 }
 ?>
@@ -174,10 +173,16 @@ if (isset($_POST['data'])) {
     </style>
 </head>
 <body>
-<!-- NAVIGATION BAR -->
 <?php
-$title = ['title' => $pageMode, 'app_role' => $user['app_role']];
-NavBarContent($page, $title, $item->id ?? null, Y['STOCK']);
+// NAVIGATION BAR
+$navBarData['title'] = 'View Item ID: ' . $item->id;
+$navBarData['active_btn'] = Y['STOCK'];
+$navBarData['page_tab'] = $_GET['page'] ?? null;
+$navBarData['record_id'] = $item->id;
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>
@@ -302,22 +307,21 @@ DisplayMessage($args ?? null);
                 <tbody>
                 <?php foreach ($data as $row) { ?>
                     <tr class='item-list'>
-                        <td class="hidden">{"id":<?= $line['id']; ?>,"table":"whreserv"}</td>
-
-                        <td><?= $row['id'] ?></td>
-                        <td><?= $row['order_amount'] ?></td>
-                        <td><?= $row['date_in'] ?></td>
-                        <td><?= $row['date_out'] ?></td>
-                        <td><?= $row['prioritet'] ?></td>
-                        <td><?= $row['projectname'] ?></td>
-                        <td><?= $row['revision'] ?></td>
-                        <td><?= $row['name'] ?></td>
-                        <td><?= $row['priority'] ?></td>
-                        <td><?= $row['storage_shelf'] ?></td>
-                        <td><?= $row['storage_box'] ?></td>
-                        <td><?= $row['quantity'] ?></td>
-                        <td><?= $row['owner_pn'] ?></td>
-                        <td><?= $row['reserved_qty'] ?></td>
+                        <td data-name="table-name" class="hidden"><?= WH_RESERV ?></td>
+                        <td data-name="item_id"><?= $row['id'] ?></td>
+                        <td data-name="order-amount"><?= $row['order_amount'] ?></td>
+                        <td data-name="date_in"><?= $row['date_in'] ?></td>
+                        <td data-name="date_out"><?= $row['date_out'] ?></td>
+                        <td data-name="prioritet"><?= $row['prioritet'] ?></td>
+                        <td data-name="projectname"><?= $row['projectname'] ?></td>
+                        <td data-name="revision"><?= $row['revision'] ?></td>
+                        <td data-name="name"><?= $row['name'] ?></td>
+                        <td data-name="priority"><?= $row['priority'] ?></td>
+                        <td data-name="storage_shelf"><?= $row['storage_shelf'] ?></td>
+                        <td data-name="storage_box"><?= $row['storage_box'] ?></td>
+                        <td data-name="quantity"><?= $row['quantity'] ?></td>
+                        <td data-name="owner_pn"><?= $row['owner_pn'] ?></td>
+                        <td data-name="reserved_qty"><?= $row['reserved_qty'] ?></td>
                     </tr>
                 <?php } ?>
                 </tbody>
@@ -350,17 +354,19 @@ DisplayMessage($args ?? null);
                 if (!empty($wh)) {
                     foreach ($wh as $line) { ?>
                         <tr class="item-list">
-                            <td class="hidden">{"id":<?= $line['id']; ?>,"table":"warehouse"}</td>
+                            <td data-name="table-name" class="hidden"><?= WAREHOUSE ?></td>
+                            <td data-name="item_id" class="hidden"><?= $line['id']; ?></td>
+                            <td data-name="owner_id" class="hidden"><?= json_decode($line['owner'])->id; ?></td>
 
-                            <td><?= $line['owner_pn']; ?></td>
+                            <td data-name="owner_pn"><?= $line['owner_pn']; ?></td>
                             <td><?= json_decode($line['owner'])->name; ?></td>
-                            <td><?= $line['storage_shelf']; ?></td>
-                            <td><?= $line['storage_box']; ?></td>
-                            <td><?= $line['storage_state']; ?></td>
-                            <td><?= $line['manufacture_date']; ?></td>
-                            <td><?= $line['fifo']; ?></td>
-                            <td><?= $line['quantity']; ?></td>
-                            <td><?= $line['date_in']; ?></td>
+                            <td data-name="storage_shelf"><?= $line['storage_shelf']; ?></td>
+                            <td data-name="storage_box"><?= $line['storage_box']; ?></td>
+                            <td data-name="storage_state"><?= $line['storage_state']; ?></td>
+                            <td data-name="manufacture_date"><?= $line['manufacture_date']; ?></td>
+                            <td data-name="fifo"><?= $line['fifo']; ?></td>
+                            <td data-name="quantity"><?= $line['quantity']; ?></td>
+                            <td data-name="date_in"><?= $line['date_in']; ?></td>
                         </tr>
                         <?php
                     }
@@ -392,14 +398,17 @@ DisplayMessage($args ?? null);
                 if (!empty($lots)) {
                     foreach ($lots as $line) { ?>
                         <tr class="item-list">
-                            <td class="hidden">{"id":<?= $line['id']; ?>,"table":"whinvoice"}</td>
+                            <td data-name="table-name" class="hidden"><?= WH_INVOICE ?></td>
+                            <td data-name="item_id" class="hidden"><?= $line['id']; ?></td>
+                            <td data-name="supplier_id" class="hidden"><?= json_decode($line['supplier'])->id; ?></td>
+                            <td data-name="owner_id" class="hidden"><?= json_decode($line['owner'])->id; ?></td>
 
-                            <td><?= $line['lot']; ?></td>
-                            <td><?= $line['invoice']; ?></td>
-                            <td><?= json_decode($line['supplier'])->name; ?></td>
-                            <td><?= json_decode($line['owner'])->name; ?></td>
-                            <td><?= $line['quantity']; ?></td>
-                            <td><?= $line['date_in']; ?></td>
+                            <td data-name="lot"><?= $line['lot']; ?></td>
+                            <td data-name="invoice"><?= $line['invoice']; ?></td>
+                            <td data-name="supplier"><?= json_decode($line['supplier'])->name; ?></td>
+                            <td data-name="owner"><?= json_decode($line['owner'])->name; ?></td>
+                            <td data-name="quantity"><?= $line['quantity']; ?></td>
+                            <td data-name="date_in"><?= $line['date_in']; ?></td>
                         </tr>
                         <?php
                     }
@@ -411,7 +420,7 @@ DisplayMessage($args ?? null);
         </div>
         <!-- end tab 3 -->
 
-        <!-- Контент Таба 4 -->
+        <!-- Контент Таба 4 no changes table data -->
         <div class="tab-pane fade show <?= ($A_T == 'tab4') ? 'active' : '' ?>" id="tab4" role="tabpanel" aria-labelledby="tab4-tab">
             <table class="p-3">
                 <!-- header -->
@@ -469,7 +478,7 @@ DisplayMessage($args ?? null);
 // если пользователю разрешено редактировать данные таблиц warehouse, invoice, reserve, movements
 //  присвоение данного статуса требует повторной авторизации пользователя!!!
 if ($user['can_change_data']) {
-    echo '<div id="isUserCanChangeData" class="hidden"></div>';
+    echo '<div id="isUserCanChangeData" class="hidden">approved</div>';
 }
 
 // FOOTER
@@ -508,11 +517,12 @@ ScriptContent($page);
             });
 
             // Добавляем атрибут id к таблице в активном табе
-            if (tabId !== "tab4") {
+            if (tabId !== "#tab4") {
                 let targetTable = targetTab.querySelector('table');
                 let check_user = dom.e("#isUserCanChangeData");
                 if (targetTable && check_user) {
                     targetTable.setAttribute('id', 'items-table');
+                    // Вызываем функцию для добавления слушателя событий
                     addListenerAfterIdChange();
                 }
             }
@@ -521,7 +531,7 @@ ScriptContent($page);
         // добавляем событие клик на кнопку сохранить данные при изменениях в таблицах
         // сохраняет данные в таблицах табов
         document.getElementById('saveChanges').addEventListener('click', function () {
-            const confirmation = confirm("Вы уверены, что хотите изменить данные? Изменения могут повлечь необратимые последствия и привести к проблемам.");
+            const confirmation = confirm("Are you sure you want to change the data? Changes can have irreversible consequences and lead to problems.");
 
             if (confirmation) {
                 const rows = document.querySelectorAll('#items-table tr');
@@ -533,13 +543,15 @@ ScriptContent($page);
                 rows.forEach((row, idx) => {
                     if (idx === 0) return; // Пропускаем заголовок
                     const cells = row.querySelectorAll('td');
-                    cells.forEach((cell, index) => {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        // fixme найти решение что бы напрямую получать пост с именами полей
-                        input.name = 'data[' + idx + '][' + index + ']';
-                        input.value = cell.textContent;
-                        form.appendChild(input);
+                    cells.forEach((cell) => {
+                        const dataName = cell.getAttribute('data-name');
+                        if (dataName) {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = dataName;
+                            input.value = cell.textContent;
+                            form.appendChild(input);
+                        }
                     });
                 });
 
@@ -547,7 +559,7 @@ ScriptContent($page);
                 form.submit();
             } else {
                 // Пользователь нажал отмена, форма не отправляется
-                alert("Изменения не будут сохранены!");
+                alert("Changes will not be saved!");
                 dom.hide("#saveChanges");
             }
         });

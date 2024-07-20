@@ -611,7 +611,26 @@ dom.addEventListener("DOMContentLoaded", function () {
         checkForm();
     };
 
+    // Функция для установки обработчиков событий на аккордеоны
+    dom.setAccordionListeners = function (mainSelector, accSelector, eventType) {
+        const toggles = document.querySelectorAll(mainSelector);
 
+        toggles.forEach(toggle => {
+            toggle.addEventListener(eventType, function () {
+                const content = this.nextElementSibling;
+
+                // Close all open accordions except the one clicked
+                document.querySelectorAll(accSelector).forEach(acc => {
+                    if (acc !== content) {
+                        acc.style.display = 'none';
+                    }
+                });
+
+                // Toggle the clicked accordion
+                content.style.display = content.style.display === 'table-row' ? 'none' : 'table-row';
+            });
+        });
+    }
     /* ===================================================================================================================== */
     /* ========================= Инициализация всех глобальных функций применяемых на всех страницах ======================= */
 
@@ -650,7 +669,7 @@ dom.addEventListener("DOMContentLoaded", function () {
     // поисковая функция , подключена на всех страницах где есть поле для поиска
     const args = {method: "POST", url: BASE_URL + "searching/getData.php", headers: null};
     dom.makeRequest(".searchThis", "keyup", "data-request", args, function (error, result, _) {
-        //console.log(result);
+        // console.log(result);
         if (error) {
             console.error('Error during fetch:', error);
             return;
@@ -663,10 +682,14 @@ dom.addEventListener("DOMContentLoaded", function () {
         }
 
         // вывод информации на разных страницах
-        // used on pages: project, order, warehouse
+        // used on pages: project, order, warehouse, logs, wh_logs
         let searchAnswer = dom.e("#searchAnswer");
         if (searchAnswer) {
             searchAnswer.innerHTML = result;
+
+            // обновление слушателей для страницы
+            if (dom.e("#wh_logs"))
+                dom.setAccordionListeners(".accordion-toggle", ".accordion-content", "click");
         }
 
         // вывод информации в модальное окно

@@ -38,9 +38,12 @@
 </head>
 <body>
 <?php
-/* NAVIGATION PANEL */
-$title = ['title' => 'Settings', 'app_role' => $user['app_role'], 'link' => $user['link']];
-NavBarContent($page, $title);
+// NAVIGATION BAR
+$navBarData['title'] = 'Profile Settings';
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 const START_PAGE = ['order' => 'Orders', 'project' => 'Projects', 'wh' => 'Warehouse', 'wiki' => 'Wiki'];

@@ -43,8 +43,15 @@ $result = R::findAll(PROJECTS, 'ORDER BY id DESC ' . $pagination);
 </head>
 <body>
 <?php
-/* NAVIGATION BAR */
-NavBarContent($page, $user, null, Y['PROJECT']);
+// NAVIGATION BAR
+//$navBarData['title'] = '';
+$navBarData['active_btn'] = Y['PROJECT'];
+//$navBarData['page_tab'] = $_GET['page'] ?? null;
+//$navBarData['record_id'] = $item->id ?? null;
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>

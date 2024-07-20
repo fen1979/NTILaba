@@ -20,9 +20,13 @@
 </head>
 <body>
 <?php
-/* NAVIGATION PANEL */
-$title = ['title' => 'NTI Tools', 'btn-title' => 'tool', 'app_role' => $user['app_role'], 'link' => $user['link']];
-NavBarContent($page, $title);
+// NAVIGATION BAR
+$navBarData['title'] = 'NTI Tools';
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+$navBarData['btn_title'] = 'tool';
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>

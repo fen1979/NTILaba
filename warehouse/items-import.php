@@ -1,5 +1,5 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION,'userBean');
+EnsureUserIsAuthenticated($_SESSION, 'userBean');
 require 'WareHouse.php';
 /* получение пользователя из сессии */
 $thisUser = $_SESSION['userBean'];
@@ -172,10 +172,16 @@ if (isset($_POST['importCsvFile'])) {
         </style>
     </head>
     <body>
-    <!-- NAVIGATION BAR -->
     <?php
-    $title = ['title' => 'Import an CSV file', 'app_role' => $thisUser['app_role']];
-    NavBarContent($page, $title, null, Y['STOCK']);
+    // NAVIGATION BAR
+    $navBarData['title'] = 'Import an CSV file';
+    $navBarData['active_btn'] = Y['STOCK'];
+    $navBarData['page_tab'] = $_GET['page'] ?? null;
+    $navBarData['record_id'] = $item->id ?? null;
+    $navBarData['user'] = $user;
+    $navBarData['page_name'] = $page;
+    NavBarContent($navBarData);
+
     /* DISPLAY MESSAGES FROM SYSTEM */
     DisplayMessage($args ?? null);
     $t = 'Press the [+] button to add new item in storage, or CSV button to import file';

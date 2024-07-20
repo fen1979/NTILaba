@@ -119,7 +119,15 @@ if (isset($_GET['dir']) && isset($_GET['mode']) && $_GET['mode'] == 'add-project
 </head>
 <body>
 <?php
-NavBarContent($page, $user, null, Y['WIKI']);
+// NAVIGATION BAR
+//$navBarData['title'] = '';
+$navBarData['active_btn'] = Y['WIKI'];
+//$navBarData['page_tab'] = $_GET['page'] ?? null;
+//$navBarData['record_id'] = $item->id ?? null;
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args);
 ?>

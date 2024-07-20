@@ -18,54 +18,11 @@ if (isset($_GET['arrival']) && isset($_GET['item_id'])) {
 
 // save new arrival data to DB
 if (isset($_POST['save-new-arrival']) && !empty($_POST['item_id'])) {
-    $item_id = _E($_POST['item_id']);
-    $item = R::load(WH_ITEMS, $item_id);
-
-    // СОЗДАЕМ ЗАПИСЬ В ТАБЛИЦУ СКЛАД
-    $warehouse = R::dispense(WAREHOUSE);
-    $warehouse->items_id = $item_id;
-    // создаем json обьект для дальнейшего использования
-    $owner_data = '{"name":"' . $post['owner'] . '", "id":"' . ($post['owner-id'] ?? '') . '"}';
-    $warehouse->owner = $owner_data; // this part owner
-
-    $owner_pn = '';
-    if (!empty($post['owner-part-name'])) {
-        $owner_pn = $post['owner-part-name'];
-    } else {
-        $res = self::GetNtiPartNumberForItem($post['owner-part-key']);
-        if (!empty($res))
-            $owner_pn = $res['key'] . ($res['number'] + 1);
+    $args = WareHouse::ReplenishInventory($_POST, $user);
+    if (!empty($args['action']) && $args['action'] == 'success') {
+        header('Location: wh/the_item?item_id=' . $_POST['item_id']);
+        exit($args);
     }
-    $warehouse->owner_pn = $owner_pn;
-
-    // полученное кол-во нового товара
-    $warehouse->quantity = $post['quantity'];
-    $warehouse->storage_box = $post['storage-box'];
-    $warehouse->storage_shelf = $post['storage-shelf'];
-    $warehouse->storage_state = $post['storage-state'];
-    $mf_date = $warehouse->manufacture_date = str_replace('T', ' ', $post['manufactured-date']);
-    // Создание срока годности для товара
-    $datetime = new DateTime($mf_date);
-    $datetime->add(new DateInterval("P{$sl_mo}M"));
-    $warehouse->fifo = $datetime->format('Y-m-d H:i');
-    $warehouse->date_in = date('Y-m-d H:i');
-    $warehouse_id = R::store($warehouse);
-
-
-    // СОЗДАЕМ ЗАПИСЬ В ТАБЛИЦУ ИНВОЙСОВ
-    $invoice = R::dispense(WH_INVOICE);
-    $invoice->items_id = $item_id;
-    $invoice->quantity = $post['quantity']; // полученное кол-во товара в этой накладной
-    $invoice->warehouses_id = $warehouse_id;
-    $lot = $invoice->lot = !empty($post['part-lot']) ? $post['part-lot'] : 'N:' . date('m/Y') . ':TI~' . $item_id;
-    $invoice->invoice = $post['invoice']; // this airrval invoice
-    $invoice->supplier = '{"name":"' . ($post['supplier'] ?? '') . '","id":"' . ($post['supplier-id'] ?? '') . '"}'; // this airrval suplplier
-    $invoice->owner = $owner_data; // this part owner
-    $invoice->date_in = date('Y-m-d H:i');
-    $invoice_id = R::store($invoice);
-
-    // ЗАПИСЫВАЕМ В ЛОГ ОПЕРАЦИЮ И ДАННЫЕ ТАБЛИЦ
-    return WareHouseLog::registerNewArrival($item->export(), $warehouse->export(), $invoice->export(), $user);
 }
 ?>
 <!doctype html>
@@ -132,10 +89,15 @@ if (isset($_POST['save-new-arrival']) && !empty($_POST['item_id'])) {
     </style>
 </head>
 <body>
-<!-- NAVIGATION BAR -->
 <?php
-$title = ['title' => $pageMode, 'app_role' => $user['app_role']];
-NavBarContent($page, $title, $item->id ?? null, Y['STOCK']);
+// NAVIGATION BAR
+$navBarData['title'] = $pageMode;
+$navBarData['page_tab'] = $_GET['page'] ?? null;
+$navBarData['record_id'] = $item->id ?? null;
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>
@@ -286,7 +248,8 @@ ScriptContent($page);
         });
 
         // обработка заполнения формы на странице
-        dom.checkForm("item-form", "save-btn");
+        if (dom.e("#item-form"))
+            dom.checkForm("item-form", "save-btn");
     });
 </script>
 </body>

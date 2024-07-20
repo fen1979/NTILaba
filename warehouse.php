@@ -98,7 +98,11 @@ $settings = getUserSettings($thisUser, WH_ITEMS);
 <body>
 <?php
 // NAVIGATION BAR
-NavBarContent($page, $thisUser, null, Y['STOCK']);
+$navBarData['active_btn'] = Y['STOCK'];
+$navBarData['user'] = $thisUser;
+$navBarData['page_name'] = $page;
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>
@@ -144,7 +148,7 @@ DisplayMessage($args ?? null);
                         $color = 'warning';
                     } ?>
 
-                    <tr class="<?= $color; ?>" data-id="<?= $item['id']; ?>" id="row-<?= $item['id']; ?>">
+                    <tr class="<?= $color; ?>" data-id="<?= $item['id']; ?>" data-page="<?= $_GET['page'] ?? null; ?>" id="row-<?= $item['id']; ?>">
                     <td><?= $item['type_name']; ?></td>
                     <?php
                     // выводим таблицу согласно настройкам пользователя
@@ -218,8 +222,13 @@ ScriptContent($page);
             if (row && row.dataset.id) {
                 // Получаем значение data-id
                 const dataId = row.dataset.id;
+                const dataPage = row.dataset.page;
                 let btn = dom.e("#routing-btn");
-                btn.value = "wh/the_item?itemid=" + dataId
+                if (dataPage) {
+                    btn.value = "wh/the_item?itemid=" + dataId + "&page=" + dataPage;
+                } else {
+                    btn.value = "wh/the_item?itemid=" + dataId;
+                }
                 btn.click();
             }
         });

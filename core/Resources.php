@@ -363,6 +363,7 @@ const FIND_T = [
     "admin-panel" => "Searching by: Any",
     "logs" => "Searching by: User, Object Type, Action, Object ID, Date Creation",
     "wh" => "Searching by: Part Name, Manufacture P/N, Client P/N, Our P/N, Date Creation",
+    "wh_log" => "Searching by: id, name, date, action",
     "wiki" => "Searching by: file name",
     "" => "Searching by:"
 ];

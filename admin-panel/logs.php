@@ -53,8 +53,15 @@ $orderid = $settings = null;
 <body>
 
 <?php
-//NAVIGATION BAR
-NavBarContent($page, $thisUser, null, Y['LOG']);
+// NAVIGATION BAR
+$navBarData['title'] = 'Actions Information';
+$navBarData['active_btn'] = Y['LOG'];
+//$navBarData['page_tab'] = $_GET['page'] ?? null;
+//$navBarData['record_id'] = null;
+$navBarData['user'] = $thisUser;
+$navBarData['page_name'] = $page;
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>

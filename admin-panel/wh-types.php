@@ -48,9 +48,13 @@
 </head>
 <body>
 <?php
-/* NAVIGATION PANEL */
-$title = ['title' => 'Warehouse Types', 'btn-title' => 'type', 'app_role' => $user['app_role'], 'link' => $user['link']];
-NavBarContent($page, $title);
+// NAVIGATION BAR
+$navBarData['title'] = 'Warehouse Types';
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+$navBarData['btn_title'] = 'type';
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>

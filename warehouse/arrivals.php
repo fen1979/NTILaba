@@ -104,10 +104,16 @@ if (isset($_POST['save-new-item'])) {
     </style>
 </head>
 <body>
-<!-- NAVIGATION BAR -->
 <?php
-$title = ['title' => 'Add New Part', 'app_role' => $user['app_role']];
-NavBarContent($page, $title, null, Y['STOCK']);
+// NAVIGATION BAR
+$navBarData['title'] ='Add New Part';
+$navBarData['active_btn'] = Y['STOCK'];
+$navBarData['page_tab'] = $_GET['page'] ?? null;
+$navBarData['record_id'] = $item->id ?? null;
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>

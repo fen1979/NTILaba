@@ -16,9 +16,13 @@
 </head>
 <body>
 <?php
-/* NAVIGATION PANEL */
-$title = ['title' => 'Orders', 'btn-title' => 'order', 'app_role' => $user['app_role'], 'link' => $user['link']];
-NavBarContent($page, $title);
+// NAVIGATION BAR
+$navBarData['title'] = 'Orders';
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+$navBarData['btn_title'] = 'order';
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>

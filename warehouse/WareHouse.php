@@ -323,19 +323,21 @@ class WareHouse
      * ADD NEW ARRIVALS FOR ONE ITEM EXISTED IN NOMENCLATURE TABLE
      * @param $post
      * @param $user
-     * @return null[]
+     * @return array
      */
     public static function ReplenishInventory($post, $user): array
     {
         $post = self::checkPostDataAndConvertToArray($post);
-        $item = R::load(WH_ITEMS, $post['item_id']);
+        $item_id = $post['item_id'];
+        $item = R::load(WH_ITEMS, $item_id);
 
         // СОЗДАЕМ ЗАПИСЬ В ТАБЛИЦУ СКЛАД
         $warehouse = R::dispense(WAREHOUSE);
-        $warehouse->items_id = $item->id;
+        $warehouse->items_id = $item_id;
         // создаем json обьект для дальнейшего использования
         $owner_data = '{"name":"' . $post['owner'] . '", "id":"' . ($post['owner-id'] ?? '') . '"}';
         $warehouse->owner = $owner_data; // this part owner
+
         $owner_pn = '';
         if (!empty($post['owner-part-name'])) {
             $owner_pn = $post['owner-part-name'];
@@ -345,6 +347,7 @@ class WareHouse
                 $owner_pn = $res['key'] . ($res['number'] + 1);
         }
         $warehouse->owner_pn = $owner_pn;
+
         // полученное кол-во нового товара
         $warehouse->quantity = $post['quantity'];
         $warehouse->storage_box = $post['storage-box'];
@@ -353,103 +356,101 @@ class WareHouse
         $mf_date = $warehouse->manufacture_date = str_replace('T', ' ', $post['manufactured-date']);
         // Создание срока годности для товара
         $datetime = new DateTime($mf_date);
-        $datetime->add(new DateInterval("P{$item->shelf_life}M"));
+        $datetime->add(new DateInterval("P{$sl_mo}M"));
         $warehouse->fifo = $datetime->format('Y-m-d H:i');
         $warehouse->date_in = date('Y-m-d H:i');
         $warehouse_id = R::store($warehouse);
 
+
         // СОЗДАЕМ ЗАПИСЬ В ТАБЛИЦУ ИНВОЙСОВ
         $invoice = R::dispense(WH_INVOICE);
-        $invoice->items_id = $item->id;
+        $invoice->items_id = $item_id;
         $invoice->quantity = $post['quantity']; // полученное кол-во товара в этой накладной
         $invoice->warehouses_id = $warehouse_id;
         $lot = $invoice->lot = !empty($post['part-lot']) ? $post['part-lot'] : 'N:' . date('m/Y') . ':TI~' . $item_id;
         $invoice->invoice = $post['invoice']; // this airrval invoice
         $invoice->supplier = '{"name":"' . ($post['supplier'] ?? '') . '","id":"' . ($post['supplier-id'] ?? '') . '"}'; // this airrval suplplier
         $invoice->owner = $owner_data; // this part owner
-        $invoice->date_in = $item->date_in;
+        $invoice->date_in = date('Y-m-d H:i');
         $invoice_id = R::store($invoice);
 
         // ЗАПИСЫВАЕМ В ЛОГ ОПЕРАЦИЮ И ДАННЫЕ ТАБЛИЦ
-        return WareHouseLog::registerNewArrival($item->export(), $warehouse->export(), $invoice->export(), $user->export());
+        return WareHouseLog::registerNewArrival($item->export(), $warehouse->export(), $invoice->export(), $user);
     }
 
+
     /**
-     * RESERVE ITEM FOR ORDER DECREACE ITEM QTY AND CHANGE STORAGE PLACE
-     * @param $post
-     * @param $user
-     * @return null[]
+     * Updates related tables by comparing the provided data with existing data in the database.
+     * If the data differs, it updates the database with the new values.
+     *
+     * @param array $post Data from the POST request, containing table name, item ID, and fields to update.
+     * @param array $user Information about the current user making the request.
+     * @return array An array with the result of the update operation.
      */
-    public static function reserveItemForOrder($post, $user): array
+    public static function updateRelatedTables($post, $user): array
     {
+        // Convert POST data to array if necessary
         $post = self::checkPostDataAndConvertToArray($post);
-        $goods = R::load(WH_ITEMS, $post['save-item']);
-        $stored_qty = $goods->actual_qty;
-        // если кол-во отличается от сохраненного и имеет знак минус то отнимаем
-        if (strpos($post['amount'], '-') !== false)
-            $goods->actual_qty = $stored_qty - (int)str_replace('-', '', $post['amount']);
-        elseif ($post['amount'] != $stored_qty)
-            $goods->actual_qty = $stored_qty + $post['amount'];
-        // использовать это значение для расчета частичной сборки тоже
-        $goods->min_qty = $post['minQTY'];
 
-        $goods->storage_box = $post['storBox'];
-        $goods->storage_shelf = $post['storShelf'];
+        // Extract table name and item ID from the POST data
+        $tableName = $post['table-name'];
+        $itemId = $post['item_id'];
 
-        $goods->manufacture_date = str_replace('T', ' ', $post['manufacturedDate']);
-        $goods->exp_date = str_replace('T', ' ', $post['expDate']);
-        $goods->date_in = date('Y-m-d H:i');
-        // мысль такая списание для заказа производить тут
-        // брать самую первую или ближайшую деталь к дате просрочки
-        // и из нее рать нужное кол-во если таая есть
-        // если деталь одна то просто брать кол-во нужное
-        // возвращаем массив с данными для заказа
-        // какая полка, какой лот и прочее нужное для работы
-        // отнимаем кол-во под заказ из кол-ва в лоте к которому привязываем заказ
-        // отнимаем от общего кол-ва тоже сумму для заказа
-        // проследить частичное выполнение заказа !!!!
-        // пишем лог о перемещении детали в заказ и сохраняем нужную инфу
+        // Load the existing record from the database
+        $item = R::load($tableName, $itemId);
 
-        $stor_place = $goods->storage_shelf . '/' . $goods->storage_box;
-        /* writing warehouse log */
-        //return WareHouseLog::registerWriteOff($log_data, $user);
-        return WareHouseLog::registerWriteOff($id, $post['new-amount'], $supplier, $stor_place, $supplier, $invoice, $lot, $user);
+        // Array to hold log data for before and after changes
+        $logData = ['item_data_before' => [], 'item_data_after' => []];
 
-    }
+        // Iterate over POST data to compare and update fields
+        foreach ($post as $name => $value) {
+            if (in_array($name, ['table-name', 'item_id'])) {
+                continue; // Skip table name and item ID fields
+            }
 
-    /**
-     * DELETE WAREHOUSE ITEM FROM DB
-     * @param $itemId
-     * @param $user
-     * @return array
-     */
-    public static function putItemToArchive($itemId, $user): array
-    {
-        if (checkPassword($_POST['password'])) {
-//            $g = R::load(STORAGE, $itemId);
-//
-//            $res[] = ['color' => 'success', 'info' => 'Item was deleted successfully!'];
-//            $bomid = Undo::StoreDeletedRecord(STORAGE, $itemId);
-//            $url = '<a href="/wh?undo=true&bomid=' . $bomid . '" class="btn btn-outline-dark fs-5">Undo Delete Item</a>';
-//            $res[] = ['info' => $url, 'color' => 'dark'];
-            $res[] = ['info' => 'TODO Archivation or deletion!!' . $itemId . $user['id'], 'color' => 'danger'];
+            if ($name == 'supplier' || $name == 'owner') {
+                $existingValue = json_decode($item->$name, true);
+                $existingId = $existingValue['id'] ?? '';
+                $existingName = $existingValue['name'] ?? '';
+                $newId = $post["{$name}_id"] ?? '';
+                $newName = $post[$name] ?? '';
 
-//            R::trash($g);
+                if ($existingId !== $newId || $existingName !== $newName) {
+                    // Update field in the database record
+                    $item->$name = json_encode(['name' => $newName, 'id' => $newId]);
 
-//            $log_details = "Item was archived to warehouse archive";
-//            /* [     LOGS FOR THIS ACTION     ] */
-//            if (!logAction($user['user_name'], 'ITEM_ARCHIVED', OBJECT_TYPE[6], $log_details)) {
-//                $res['info'] = 'The log not created all actions be canceled.';
-//                $res['color'] = 'danger';
-//            }
-        } else {
-            $res['color'] = 'danger';
-            $res['info'] = 'Password wrong! try again.';
+                    // Log the changes
+                    $logData['item_data_before'][$name] = $existingValue;
+                    $logData['item_data_after'][$name] = ['name' => $newName, 'id' => $newId];
+                }
+            } else {
+                // Normalize strings by removing non-alphanumeric characters
+                $existingValue = preg_replace('/[^a-zA-Z0-9]/', '', $item->$name);
+                $newValue = preg_replace('/[^a-zA-Z0-9]/', '', $value);
+
+                // Compare existing value with new value
+                if ($existingValue !== $newValue) {
+                    // Log the changes
+                    $logData['item_data_before'][$name] = $item->$name;
+                    $logData['item_data_after'][$name] = $value;
+
+                    // Update field in the database record
+                    $item->$name = $value;
+                }
+            }
         }
-        return $res;
+
+        // Save the updated record to the database if there were any changes
+        if (!empty($logData['item_data_after'])) {
+            R::store($item);
+        }
+
+        // Return the log data for further processing or auditing
+        return WareHouseLog::updatingSomeData($itemId, $logData, $user);
     }
 
-    /* ============================ FOR ORDER MATERIALS ACTIONS =============================== */
+
+    /*i ============================ FOR ORDER MATERIALS ACTIONS =============================== */
     /**
      * ADD ITEM QTY TO STORAGE ITEM FROM ORDER-BOM
      * @param $postData
@@ -457,6 +458,7 @@ class WareHouse
      * @return array
      * @throws /\RedBeanPHP\RedException\SQL
      */
+    // fixme ПЕРЕДЕЛАТЬ ЗАПОЛНЕНИЕ БОМА ДЛЯ ЗАКАЗА
     public static function updateQuantityForItem($postData, $user): array
     {
         // что то сделать для правильной работы кейса
@@ -497,33 +499,50 @@ class WareHouse
     }
 
     /**
-     * получение актуального количества одной запчасти на складе
-     * @param $owner_id
-     * @param $item_id
-     * @return array|float|mixed|true
+     * Получает фактическое количество для указанного товара и владельца.
+     *
+     * Эта функция проверяет наличие записей в таблице склада, которые соответствуют указанным `owner_id` и `item_id`.
+     * Затем она суммирует все значения поля `quantity`, которые не равны нулю. Если записи найдены, но все значения
+     * поля `quantity` равны нулю, функция возвращает 0. Если записи не найдены, функция возвращает `null`.
+     *
+     * @param int $owner_id Идентификатор владельца.
+     * @param int $item_id Идентификатор товара.
+     * @return float|null Суммарное количество товара или `null`, если записи не найдены.
      */
     public static function GetActualQtyForItem($owner_id, $item_id)
     {
-        // Проверяем, что $owner_id не пуст
+        // Проверяем, что $owner_id и $item_id не пусты
         $ownerId = (!empty($owner_id)) ? trim($owner_id) : null;
         $itemId = (!empty($item_id)) ? trim($item_id) : null;
 
-        // Проводим запрос в БД только если $search не пуст
+        // Проводим запрос в БД только если $ownerId и $itemId не пусты
         if ($ownerId !== null && $itemId !== null) {
-            $wh = R::findOne(WAREHOUSE, 'owner LIKE ? AND items_id = ? LIMIT 1', ['%"' . $ownerId . '"%', $itemId]);
+            $query = 'SELECT quantity FROM ' . WAREHOUSE . ' WHERE owner LIKE ? AND items_id = ?';
+            $results = R::getAll($query, ['%"' . $ownerId . '"%', $itemId]);
 
-            // Проверяем, что результат запроса действительно существует
-            if ($wh) {
-                return $wh->quantity ?? 0.0;
+            // Если записи найдены, суммируем количество
+            if ($results) {
+                $totalQuantity = 0;
+                foreach ($results as $row) {
+                    $totalQuantity += $row['quantity'];
+                }
+
+                // Если все количества равны нулю, вернуть 0
+                if ($totalQuantity == 0) {
+                    return 0.0;
+                }
+
+                return $totalQuantity;
             } else {
                 // Если ничего не найдено
                 return null;
             }
         } else {
-            // Если $search пуст, не выполняем запрос
+            // Если $ownerId или $itemId пусты, не выполняем запрос
             return null;
         }
     }
+
 
     /**
      * SEARCH AND RETURN ONE ITEM FOR PROJECT BOM TAB
@@ -607,7 +626,7 @@ class WareHouse
 
     // функция возвращает данные из таблицы склада warehouse
     //$wh_item = findClosestShelfLifeItem($item);
-    public static function findClosestShelfLifeItem($item): ?\RedBeanPHP\OODBBean
+    public static function findClosestShelfLifeItem($item): mixed
     {
         // Вычисление даты, от которой мы будем искать записи
         $x_day = strtotime("-{$item['shelf_life']} months");
@@ -618,28 +637,80 @@ class WareHouse
     }
 
     /**
+     * RESERVE ITEM FOR ORDER DECREACE ITEM QTY AND CHANGE STORAGE PLACE
      * @param $post
      * @param $user
-     * @return array
-     * @throws \RedBeanPHP\RedException\SQL
+     * @return null[]
      */
-    public static function updateRelatedTables($post, $user): array
+    public static function reserveItemForOrder($post, $user): array
     {
         $post = self::checkPostDataAndConvertToArray($post);
-        $data = $_POST['data'];
-        foreach ($data as $line) {
-            if (count($line) > 0) {
-                $location = json_decode($line[0]);
-                if ($location) {
-                    $item_id = $location->id;
-                    $d = R::load($location->table, $item_id);
-                    var_dump($d);
-                }
-            }
-        }
+        $goods = R::load(WH_ITEMS, $post['save-item']);
+        $stored_qty = $goods->actual_qty;
+        // если кол-во отличается от сохраненного и имеет знак минус то отнимаем
+        if (strpos($post['amount'], '-') !== false)
+            $goods->actual_qty = $stored_qty - (int)str_replace('-', '', $post['amount']);
+        elseif ($post['amount'] != $stored_qty)
+            $goods->actual_qty = $stored_qty + $post['amount'];
+        // использовать это значение для расчета частичной сборки тоже
+        $goods->min_qty = $post['minQTY'];
+
+        $goods->storage_box = $post['storBox'];
+        $goods->storage_shelf = $post['storShelf'];
+
+        $goods->manufacture_date = str_replace('T', ' ', $post['manufacturedDate']);
+        $goods->exp_date = str_replace('T', ' ', $post['expDate']);
+        $goods->date_in = date('Y-m-d H:i');
+        // мысль такая списание для заказа производить тут
+        // брать самую первую или ближайшую деталь к дате просрочки
+        // и из нее рать нужное кол-во если таая есть
+        // если деталь одна то просто брать кол-во нужное
+        // возвращаем массив с данными для заказа
+        // какая полка, какой лот и прочее нужное для работы
+        // отнимаем кол-во под заказ из кол-ва в лоте к которому привязываем заказ
+        // отнимаем от общего кол-ва тоже сумму для заказа
+        // проследить частичное выполнение заказа !!!!
+        // пишем лог о перемещении детали в заказ и сохраняем нужную инфу
+
+        $stor_place = $goods->storage_shelf . '/' . $goods->storage_box;
         /* writing warehouse log */
-        // Объединение данных в один массив
-        $logData = [];//['item_data_before' => json_decode($itemDataBefore, true), 'item_data_after' => json_decode($itemDataAfter, true)];
-        return [];// WareHouseLog::updatingSomeData($item_id??'', $logData, $user);
+        //return WareHouseLog::registerWriteOff($log_data, $user);
+        return WareHouseLog::registerWriteOff($id, $post['new-amount'], $supplier, $stor_place, $supplier, $invoice, $lot, $user);
+
     }
+
+//i================================================= staff code ==================
+
+    /**
+     * DELETE WAREHOUSE ITEM FROM DB
+     * @param $itemId
+     * @param $user
+     * @return array
+     */
+    public static function putItemToArchive($itemId, $user): array
+    {
+        if (checkPassword($_POST['password'])) {
+//            $g = R::load(STORAGE, $itemId);
+//
+//            $res[] = ['color' => 'success', 'info' => 'Item was deleted successfully!'];
+//            $bomid = Undo::StoreDeletedRecord(STORAGE, $itemId);
+//            $url = '<a href="/wh?undo=true&bomid=' . $bomid . '" class="btn btn-outline-dark fs-5">Undo Delete Item</a>';
+//            $res[] = ['info' => $url, 'color' => 'dark'];
+            $res[] = ['info' => 'TODO Archivation or deletion!!' . $itemId . $user['id'], 'color' => 'danger'];
+
+//            R::trash($g);
+
+//            $log_details = "Item was archived to warehouse archive";
+//            /* [     LOGS FOR THIS ACTION     ] */
+//            if (!logAction($user['user_name'], 'ITEM_ARCHIVED', OBJECT_TYPE[6], $log_details)) {
+//                $res['info'] = 'The log not created all actions be canceled.';
+//                $res['color'] = 'danger';
+//            }
+        } else {
+            $res['color'] = 'danger';
+            $res['info'] = 'Password wrong! try again.';
+        }
+        return $res;
+    }
+
 }

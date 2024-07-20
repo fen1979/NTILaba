@@ -61,18 +61,32 @@ function HeadContent($page)
 }
 
 /**
+ *
  * NAVIGATION BAR
- * @param $page
- * @param $name
- * @param $pid
- * @param $l // активная кнопка на страницах
+ * //$navBarData['title'] = 'Warehouse Information';
+ * //$navBarData['active_btn'] = Y['LOG'];
+ * //$navBarData['page_tab'] = $_GET['page'] ?? null;
+ * //$navBarData['record_id'] = null;
+ * //$navBarData['user'] = $user;
+ * //$navBarData['page_name'] = $page;
+ *
+ * @param $navBarData
  * @return void
  */
-
-// $navBarData = ['active_tab'=>$l, 'some_id'=>$pid, 'title'=>'some title'];
-function NavBarContent($page, $user = null, $pid = null, $l = ''): void
+function NavBarContent($navBarData): void
 {
-    $role = $user['app_role']; ?>
+    // формируем данные для работы в нав баре
+    $role = $navBarData['user']['app_role'];
+    $name = $navBarData['user']['user_name'];
+    $link = $navBarData['user']['link'];
+    $title = $navBarData['title'] ?? null;
+    $page = $navBarData['page_name'];
+    $l = $navBarData['active_btn'] ?? null;
+    $page_tab = $navBarData['page_tab'] ?? null;
+    $pid = $navBarData['record_id'] ?? null;
+    // admin panel
+    $btn_title = $navBarData['btn_title'] ?? null;
+    ?>
     <!-- google translate tag -->
     <div id="google_translate_element"></div>
 
@@ -83,7 +97,7 @@ function NavBarContent($page, $user = null, $pid = null, $l = ''): void
             <div class="container-fluid">
                 <!-- TITLE -->
                 <h3 class="navbar-brand">
-                    <?= (!in_array($page, NO_VIEW_PAGES) && !empty($user['user_name'])) ? 'Hi ' . $user['user_name'] : $user['title']; ?>
+                    <?= (!in_array($page, NO_VIEW_PAGES) && !empty($name)) ? 'Hi ' . $name : $title; ?>
                 </h3>
                 <!-- GAMBURGER BUTTON -->
                 <button class="navbar-toggler" type="button" data-mdb-toggle="collapse"
@@ -132,7 +146,7 @@ function NavBarContent($page, $user = null, $pid = null, $l = ''): void
 
                         <?php switch ($page) {
                             case 'admin-panel':
-                                ADMIN_PANEL_BUTTONS($user, $_GET['route-page']);
+                                ADMIN_PANEL_BUTTONS($btn_title, $_GET['route-page']);
                                 break;
                             case 'add_step':
                             case 'edit_step':
@@ -146,7 +160,7 @@ function NavBarContent($page, $user = null, $pid = null, $l = ''): void
                             case 'edit_item':
                             case 'wh':
                             case 'in_out_item':
-                                WAREHOUSE_PAGE_BUTTONS($l, $page, $pid);
+                                WAREHOUSE_PAGE_BUTTONS($l, $page, $pid, $page_tab);
                                 break;
                             default:
                                 ALL_PAGES_BUTTONS($page, $l);
@@ -251,13 +265,13 @@ function ALL_PAGES_BUTTONS($page, $l): void
  * @param $user
  * @return void
  */
-function ADMIN_PANEL_BUTTONS($user, $page): void
+function ADMIN_PANEL_BUTTONS($btn_title, $page): void
 {
     if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) {
         if (!in_array($page, [1, 7, 8])) { ?>
             <li class="nav-item" style="white-space: nowrap">
                 <button type="button" id="create-btn" class="btn btn-sm btn-outline-danger" style="margin: .3rem">
-                    <i class="bi bi-plus"></i> Create new <?= $user['btn-title'] ?>
+                    <i class="bi bi-plus"></i> Create new <?= $btn_title ?>
                 </button>
             </li>
         <?php } ?>
@@ -418,25 +432,35 @@ function EDIT_AND_ADD_STEP_BUTTONS($pid): void
  * @param $l
  * @return void
  */
-function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid): void
+function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid, $page_tab = ''): void
 {
     if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) {
+        $pt = !empty($page_tab) ? "?page=$page_tab&#row-$pid" : '';
+        if ($page !== 'wh' && $page !== 'arrivals') { ?>
+            <li class="nav-item">
+                <button type="button" class="url btn btn-sm btn-outline-danger" value="wh<?= $pt; ?>">
+                    Back To List
+                </button>
+            </li>
+            <?php
+        }
+
         if ($page == 'view_item' && $pid != null) {
             ?>
             <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-warning" value="edit-item?item_id=<?= $pid; ?>">
+                <button type="button" class="url btn btn-sm btn-outline-warning" value="edit-item?page=<?= $page_tab ?>&item_id=<?= $pid; ?>">
                     Edit Item <i class="bi bi-pen"></i>
                 </button>
             </li>
 
             <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-diliny" value="in-out-item?writeoff&item_id=<?= $pid; ?>">
+                <button type="button" class="url btn btn-sm btn-outline-diliny" value="in-out-item?writeoff&page=<?= $page_tab ?>&item_id=<?= $pid; ?>">
                     WriteOff Item <i class="bi bi-scissors"></i>
                 </button>
             </li>
 
             <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-diliny" value="in-out-item?arrival&item_id=<?= $pid; ?>">
+                <button type="button" class="url btn btn-sm btn-outline-diliny" value="in-out-item?arrival&page=<?= $page_tab ?>&item_id=<?= $pid; ?>">
                     Arrival Item <i class="bi bi-airplane"></i>
                 </button>
             </li>

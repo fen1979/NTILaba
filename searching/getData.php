@@ -117,6 +117,14 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
             }
             break;
 
+        case 'wh_log_nav':
+            {
+                /* search for logs view page */
+                $col = ['items_id', 'user_name', 'action', 'date_in'];
+                viewWarehouseLogs(dynamicSearch(WH_LOGS, $col, $mySearchString));
+            }
+            break;
+
         case 'get-images':
             {
                 /* вывод всех существующих изображений записанных в БД в товарах */

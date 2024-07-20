@@ -1,5 +1,5 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION,'userBean');
+EnsureUserIsAuthenticated($_SESSION, 'userBean');
 require_once 'projects/Project.php';
 $page = 'edit_project';
 $user = $_SESSION['userBean'];
@@ -65,9 +65,13 @@ if (isset($_GET['pid']) || isset($_SESSION['projectid'])) {
 <body>
 
 <?php
-/* NAVIGATION PANEL */
-$title = ['title' => '<b class="text-primary"> Project: ' . $projectForView['projectname'] . '</b>', 'app_role' => $user['app_role'], 'link' => $user['link']];
-NavBarContent($page, $title, $projectID);
+// NAVIGATION BAR
+$navBarData['title'] = '<b class="text-primary"> Project: ' . $projectForView['projectname'] . '</b>';
+$navBarData['record_id'] = $projectID ?? null;
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args);
 ?>

@@ -10,9 +10,11 @@
         .custom-table tbody td {
             display: inline-flex;
         }
-        tbody tr{
+
+        tbody tr {
             cursor: pointer;
         }
+
         tbody tr:hover {
             color: #ffffff;
             background: #0d6efd;
@@ -21,9 +23,13 @@
 </head>
 <body>
 <?php
-/* NAVIGATION PANEL */
-$title = ['title' => 'Users', 'btn-title' => 'worker', 'app_role' => $user['app_role'], 'link' => $user['link']];
-NavBarContent($page, $title);
+// NAVIGATION BAR
+$navBarData['title'] = 'Users';
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+$navBarData['btn_title'] = 'worker';
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>

@@ -84,9 +84,6 @@ if (isset($_POST['updateOrder']) && !empty($_POST['order-id'])) {
     header("Location: /edit-order?edit-order&orid={$_GET['orid']}&pid={$result['pid']}");
     exit();
 }
-
-// title for navbar
-$title = ['title' => $titleText, 'app_role' => $user['app_role']];
 ?>
 <!DOCTYPE html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
@@ -141,11 +138,18 @@ $title = ['title' => $titleText, 'app_role' => $user['app_role']];
 <body>
 
 <?php
+// NAVIGATION BAR
+$navBarData['title'] = $titleText;
+$navBarData['active_btn'] = Y['N_ORDER'];
+//$navBarData['page_tab'] = $_GET['page'] ?? null;
+//$navBarData['record_id'] = null;
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($result ?? null);
 ?>
-<!-- NAVIGATION BAR -->
-<?php NavBarContent($page, $title, null, Y['N_ORDER']); ?>
 
 <div class="container mt-4 px-3 py-3 rounded" style="background: aliceblue;">
     <div class="row">

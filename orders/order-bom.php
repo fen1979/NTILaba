@@ -145,8 +145,15 @@ if (isset($_POST['import_qty']) && isset($_POST['item_id'])) {
 </head>
 <body>
 <?php
-//NAVIGATION BAR
-NavBarContent($page, $user);
+// NAVIGATION BAR
+//$navBarData['title'] = 'Warehouse Information';
+//$navBarData['active_btn'] = Y['LOG'];
+//$navBarData['page_tab'] = $_GET['page'] ?? null;
+//$navBarData['record_id'] = null;
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>

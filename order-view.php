@@ -1,5 +1,5 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION,'userBean');
+EnsureUserIsAuthenticated($_SESSION, 'userBean');
 include_once 'orders/Orders.php';
 $page = 'order';
 $orderid = null;
@@ -38,8 +38,15 @@ $orderData = Orders::getOrdersByFilters($thisUser['filterby_status'], $thisUser[
 </head>
 <body>
 <?php
-/* NAVIGATION BAR  */
-NavBarContent($page, $thisUser, null, Y['ORDER']);
+// NAVIGATION BAR
+//$navBarData['title'] = '';
+$navBarData['active_btn'] = Y['ORDER'];
+//$navBarData['page_tab'] = $_GET['page'] ?? null;
+//$navBarData['record_id'] = $item->id ?? null;
+$navBarData['user'] = $thisUser;
+$navBarData['page_name'] = $page;
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>
@@ -257,7 +264,7 @@ DisplayMessage($args ?? null);
                             }
 
                             // i buttons for some actions like delete, edite, & edit BOM
-                            if (isUserRole(ROLE_ADMIN)) { ?>
+                            if (isUserRole(ROLE_ADMIN) || isUserRole(ROLE_SUPERADMIN) || isUserRole(ROLE_SUPERVISOR)) { ?>
                                 <td>
                                     <?php
                                     if ($order['status'] == 'st-111' || $order['status'] == 'st-222') {

@@ -128,10 +128,15 @@ if (isset($_POST['save-edited-item']) && !empty($_POST['item_id'])) {
     </style>
 </head>
 <body>
-<!-- NAVIGATION BAR -->
 <?php
-$title = ['title' => 'Edit Part Information', 'app_role' => $user['app_role']];
-NavBarContent($page, $title, null, Y['STOCK']);
+// NAVIGATION BAR
+$navBarData['title'] = 'Edit Part Information';
+$navBarData['page_tab'] = $_GET['page'] ?? null;
+$navBarData['record_id'] = $item->id;
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>
@@ -192,7 +197,8 @@ DisplayMessage($args ?? null);
                 <input type="file" name="item-image" id="item-image-file" class="hidden">
                 <input type="hidden" name="image-path" id="item-image-path">
                 <input type="hidden" name="owner-id" id="owner-id"/>
-                <input type="hidden" name="supplier-id" id="supplier-id"/>
+                <?php $supplier_id = isset($lot->supplier) ? json_decode($lot->supplier)->id : ''; ?>
+                <input type="hidden" name="supplier-id" id="supplier-id" value="<?= $supplier_id ?>"/>
 
                 <!--             item data -->
                 <label for="part-name">Part Name <b class="text-danger">*</b></label>
@@ -210,7 +216,7 @@ DisplayMessage($args ?? null);
                 <label for="mounting-type">Mounting Type</label>
                 <select name="mounting-type" id="mounting-type" class="input" data-title="<?= $t ?>" required>
                     <?php foreach (MOUNTING_TYPE as $type): ?>
-                        <option value="<?= $type ?>" <?= isset($item->mounting_type) && $ttem->mounting_type == $type ? 'selected' : '' ?>><?= $type ?></option>
+                        <option value="<?= $type ?>" <?= isset($item->mounting_type) && $item->mounting_type == $type ? 'selected' : '' ?>><?= $type ?></option>
                     <?php endforeach; ?>
                 </select>
                 <label for="manufacture-part-number">Manufacture P/N <b class="text-danger">*</b></label>
@@ -401,7 +407,8 @@ ScriptContent('arrivals');
                 // dom.e("#manufactured-date").value = info.manufactured_date.replace(" ", "T");
                 // dom.e("#part-lot").value = info.part_lot;
                 // dom.e("#invoice").value = info.invoice;
-                // dom.e("#supplier").value = info.supplier;
+                dom.e("#supplier").value = info.supplier_name;
+                dom.e("#supplier-id").value = info.supplier_id;
                 // Очищаем результаты поиска
                 dom.hide("#searchModal");
                 createSearchLinks(info.MFpartName);

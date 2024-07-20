@@ -140,9 +140,15 @@ if (isset($_GET["pid"]) && isset($_GET['mode']) && $_GET['mode'] == "editmode" &
 <body>
 <?php
 if ($backButton == '/') {
-    /* NAVIGATION PANEL */
-    $title = ['title' => 'Project Creations', 'app_role' => $user['app_role']];
-    NavBarContent($page, $title, null, Y['N_PROJECT']);
+    // NAVIGATION BAR
+    $navBarData['title'] = 'Project Creation';
+    $navBarData['active_btn'] = Y['N_PROJECT'];
+    //$navBarData['page_tab'] = $_GET['page'] ?? null;
+    //$navBarData['record_id'] = $item->id ?? null;
+    $navBarData['user'] = $user;
+    $navBarData['page_name'] = $page;
+    NavBarContent($navBarData);
+
 } else {
     //back button to edit-project or home
     ?>

@@ -107,8 +107,13 @@ if ($user) {
 </head>
 <body>
 <?php
-$title = ['title' => 'Customers', 'app_role' => $user['app_role']];
-NavBarContent($page, $title, null, Y['CLIENT']);
+// NAVIGATION BAR
+$navBarData['title'] = 'Customers';
+$navBarData['active_btn'] = Y['CLIENT'];
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+NavBarContent($navBarData);
+
 
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);

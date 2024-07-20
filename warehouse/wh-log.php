@@ -75,6 +75,7 @@ function isValidJson(string $data): bool
             color: #ffffff;
         }
 
+        /* ACCORDION CONTENT STYLES */
         .accordion-content {
             display: none;
             background-color: #f9f9f9;
@@ -91,14 +92,20 @@ function isValidJson(string $data): bool
     </style>
 </head>
 <body>
-<!-- NAVIGATION BAR -->
 <?php
-$title = ['title' => 'Warehouse Information', 'app_role' => $user['app_role']];
-NavBarContent($page, $title, null, Y['LOG']);
+// NAVIGATION BAR
+$navBarData['title'] = 'Warehouse Information';
+$navBarData['active_btn'] = Y['LOG'];
+$navBarData['page_tab'] = $_GET['page'] ?? null;
+$navBarData['record_id'] = null;
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>
-<div class="container-fluid border-top">
+<div class="container-fluid border-top" id="wh_logs">
     <table>
         <thead>
         <tr>
@@ -108,7 +115,7 @@ DisplayMessage($args ?? null);
             <th>Date In</th>
         </tr>
         </thead>
-        <tbody>
+        <tbody id="searchAnswer">
         <?php foreach ($logs as $log) { ?>
             <tr class="item-list accordion-toggle">
                 <td><?= $log['action'] ?></td>
@@ -198,32 +205,13 @@ DisplayMessage($args ?? null);
 
 <?php
 footer($page);
-
-// MODAL DIALOG FOR VIEW RESPONCE FROM SERVER IF SEARCHED VALUE EXIST
-SearchResponceModalDialog($page, 'search-responce');
-
 /* SCRIPTS */
 ScriptContent('arrivals');
 ?>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const toggles = document.querySelectorAll('.accordion-toggle');
-
-        toggles.forEach(toggle => {
-            toggle.addEventListener('click', function () {
-                const content = this.nextElementSibling;
-
-                // Close all open accordions except the one clicked
-                document.querySelectorAll('.accordion-content').forEach(acc => {
-                    if (acc !== content) {
-                        acc.style.display = 'none';
-                    }
-                });
-
-                // Toggle the clicked accordion
-                content.style.display = content.style.display === 'table-row' ? 'none' : 'table-row';
-            });
-        });
+        // Инициализация обработчиков событий при загрузке страницы
+        dom.setAccordionListeners(".accordion-toggle", ".accordion-content", "click");
     });
 </script>
 </body>

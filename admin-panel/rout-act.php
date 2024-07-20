@@ -48,9 +48,13 @@
 </head>
 <body>
 <?php
-/* NAVIGATION PANEL */
-$title = ['title' => 'Route Actions', 'btn-title' => 'route', 'app_role' => $user['app_role'], 'link' => $user['link']];
-NavBarContent($page, $title);
+// NAVIGATION BAR
+$navBarData['title'] = 'Route Actions';
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+$navBarData['btn_title'] = 'route';
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>

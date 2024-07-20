@@ -1,5 +1,5 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION,'userBean');
+EnsureUserIsAuthenticated($_SESSION, 'userBean');
 require_once 'projects/Project.php';
 $page = 'add_step';
 $user = $_SESSION['userBean'];
@@ -32,9 +32,13 @@ $nextStepNumber = R::count(PROJECT_STEPS, 'projects_id = ?', [$project->id]) + 1
 </head>
 <body>
 <?php
-/* NAVIGATION BAR */
-$title = ['title' => '<b class="text-primary"> Project: ' . $projectName . '</b>', 'app_role' => $user['app_role'], 'link' => $user['link']];
-NavBarContent($page, $title, $_GET['pid']);
+// NAVIGATION BAR
+$navBarData['title'] = '<b class="text-primary"> Project: ' . $projectName . '</b>';
+$navBarData['record_id'] = $_GET['pid'] ?? null;
+$navBarData['user'] = $user;
+$navBarData['page_name'] = $page;
+NavBarContent($navBarData);
+
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args);
 ?>
@@ -149,7 +153,7 @@ DisplayMessage($args);
 <?php ScriptContent($page); ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        
+
 
         // кнопки выбора фото/ видео от пользователя
         document.doClick("#takePic", "#photo");
