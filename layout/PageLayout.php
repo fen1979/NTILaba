@@ -201,10 +201,8 @@ function ALL_PAGES_BUTTONS($page, $l): void
         </li>
     <?php endif;
 
-    if ($page != 'arrivals' && $page != 'view_item') {
-        // выбор количества строк на странице
-        NUMBERS_OF_ROW($page);
-    }
+    // выбор количества строк на странице
+    NUMBERS_OF_ROW($page);
     ?>
 
     <li class="nav-item">
@@ -378,19 +376,10 @@ function EDIT_PROJECT_PAGE_BUTTONS($pid): void
     </li>
 
     <li class="divider-vertical"></li>
+    <?php
 
-    <li class="nav-item">
-        <button type="button" class="url btn btn-sm btn-outline-secondary" value="project">Projects</button>
-    </li>
-
-    <li class="nav-item">
-        <button type="button" class="url btn btn-sm btn-outline-secondary" value="order">Orders</button>
-    </li>
-    <?php if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
-    <li class="nav-item">
-        <button type="button" class="url btn btn-sm btn-outline-secondary" value="wh">Warehouse</button>
-    </li>
-<?php }
+    // site map buttons burger buttons
+    DROPDOWN_BUTTONS($_SESSION['userBean']);
 }
 
 /**
@@ -468,10 +457,7 @@ function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid, $page_tab = ''): void
         }
 
         // выбор количества строк на странице
-        $hide = ['edit_item', 'arrivals', 'view_item', 'in_out_item'];
-        if (!in_array($page, $hide)) {
-            NUMBERS_OF_ROW($page);
-        }
+        NUMBERS_OF_ROW($page);
         ?>
 
         <li class="nav-item">
@@ -503,19 +489,22 @@ function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid, $page_tab = ''): void
  * numbers of row for preview on pages
  */
 function NUMBERS_OF_ROW($page)
-{ ?>
-    <li class="nav-item dropdown">
-        <button class="m-03 btn btn-outline-diliny btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Numbers of row
-        </button>
-        <ul class="dropdown-menu dropdown-menu" aria-labelledby="items-view-limit">
-            <li><a class="dropdown-item" href="<?= $page ?>?limit=50">50</a></li>
-            <li><a class="dropdown-item" href="<?= $page ?>?limit=100">100</a></li>
-            <li><a class="dropdown-item" href="<?= $page ?>?limit=500">500</a></li>
-            <li><a class="dropdown-item" href="<?= $page ?>?limit=0">All</a></li>
-        </ul>
-    </li>
-    <?php
+{
+    if (!in_array($page, NO_VIEW_PAGES)) {
+        ?>
+        <li class="nav-item dropdown">
+            <button class="m-03 btn btn-outline-diliny btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Numbers of row
+            </button>
+            <ul class="dropdown-menu dropdown-menu" aria-labelledby="items-view-limit">
+                <li><a class="dropdown-item" href="<?= $page ?>?limit=50">50</a></li>
+                <li><a class="dropdown-item" href="<?= $page ?>?limit=100">100</a></li>
+                <li><a class="dropdown-item" href="<?= $page ?>?limit=500">500</a></li>
+                <li><a class="dropdown-item" href="<?= $page ?>?limit=0">All</a></li>
+            </ul>
+        </li>
+        <?php
+    }
 }
 
 /**
@@ -553,12 +542,11 @@ function LANGUAGE_BUTTONS(): void
  */
 function DROPDOWN_BUTTONS($user)
 { ?>
-    <div class="btn-group nav-item">
+    <div class="btn-group nav-item" style="align-items: center;">
         <button class="url btn btn-outline-secondary btn-sm" type="button" value="<?= $user['link'] ?>">
             <?= L::TITLES($user['link']) ?>
         </button>
-        <button type="button" class="btn btn-sm btn-outline-dark dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false"
-                style="margin: .3rem .3rem .3rem -.2rem">
+        <button type="button" class="btn btn-sm btn-outline-dark dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
             <span class="visually-hidden">Site Pages</span>
         </button>
         <ul class="dropdown-menu">
@@ -569,20 +557,22 @@ function DROPDOWN_BUTTONS($user)
                 <a href="/project" class="dropdown-item">Projects</a>
             </li>
             <li class="nav-item">
-                <a href="/create_client" class="dropdown-item">Customers</a>
-            </li>
-            <li class="nav-item">
-                <a href="/wh" class="dropdown-item">Warehouse</a>
-            </li>
-            <li class="nav-item">
-                <a href="/setup?route-page=1" target="_blank" class="dropdown-item">Settings</a>
-            </li>
-            <li class="nav-item">
                 <a href="/wiki" target="_blank" class="dropdown-item">Wiki</a>
             </li>
-            <li class="nav-item">
-                <a href="/logs" class="dropdown-item">Logs</a>
-            </li>
+            <?php if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
+                <li class="nav-item">
+                    <a href="/create_client" class="dropdown-item">Customers</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/wh" class="dropdown-item">Warehouse</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/setup?route-page=1" target="_blank" class="dropdown-item">Settings</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/logs" class="dropdown-item">Logs</a>
+                </li>
+            <?php } ?>
         </ul>
     </div>
     <?php
