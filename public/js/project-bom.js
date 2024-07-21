@@ -3,9 +3,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     // выбор файла для загрузки
     dom.doClick("#import_csv", "#csv_input");
-    // $(document).on("click", "#import_csv", function () {
-    //     $("#csv_input").click();
-    // });
 
     $('#csv_input').on('change', function () {
         // Если файл выбран

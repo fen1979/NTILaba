@@ -28,16 +28,17 @@ $user = $_SESSION['userBean'];
 $page = 'edit_item';
 $pageMode = 'edit';
 $item = null;
+
+// редактирование запчасти в БД
+if (isset($_POST['save-edited-item']) && !empty($_POST['item_id'])) {
+    $args = WareHouse::UpdateNomenclatureItem($_POST, $user);
+}
+
 // EDITING ITEM DATA
 if (!empty($_GET['item_id'])) {
     $item = R::load(WH_ITEMS, _E($_GET['item_id']));
     $wh = R::findOne(WAREHOUSE, 'items_id = ?', [$item->id]);
     $lot = R::findOne(WH_INVOICE, 'items_id = ?', [$item->id]);
-}
-
-// редактирование запчасти в БД
-if (isset($_POST['save-edited-item']) && !empty($_POST['item_id'])) {
-    $args = WareHouse::UpdateNomenclatureItem($_POST, $user);
 }
 ?>
 <!doctype html>

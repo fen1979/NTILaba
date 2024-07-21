@@ -267,7 +267,7 @@ function ADMIN_PANEL_BUTTONS($btn_title, $page): void
 {
     if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) {
         if (!in_array($page, [1, 7, 8])) { ?>
-            <li class="nav-item" style="white-space: nowrap">
+            <li class="nav-item">
                 <button type="button" id="create-btn" class="btn btn-sm btn-outline-danger" style="margin: .3rem">
                     <i class="bi bi-plus"></i> Create new <?= $btn_title ?>
                 </button>
@@ -325,13 +325,13 @@ function EDIT_PROJECT_PAGE_BUTTONS($pid): void
     if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) {
         // сделать чтоб открывалось в новой вкладке
         ?>
-        <li class="nav-item" style="white-space: nowrap">
+        <li class="nav-item">
             <button type="button" title="Delete" class="btn btn-sm btn-outline-danger deleteProjectButton" data-projectid="<?= $pid; ?>">
                 <i class="bi bi-trash3-fill"></i>
                 Delete Project
             </button>
         </li>
-        <li class="nav-item" style="white-space: nowrap">
+        <li class="nav-item">
             <button type="button" title="Archive" class="btn btn-sm btn-outline-diliny archive" data-projectid="<?= $pid; ?>">
                 <i class="bi bi-archive-fill"></i>
                 Archive Project
@@ -443,13 +443,7 @@ function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid, $page_tab = ''): void
             </li>
 
             <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-diliny" value="in-out-item?writeoff&page=<?= $page_tab ?>&item_id=<?= $pid; ?>">
-                    WriteOff Item <i class="bi bi-scissors"></i>
-                </button>
-            </li>
-
-            <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-diliny" value="in-out-item?arrival&page=<?= $page_tab ?>&item_id=<?= $pid; ?>">
+                <button type="button" class="url btn btn-sm btn-outline-diliny" value="in-out-item?page=<?= $page_tab ?>&item_id=<?= $pid; ?>">
                     Arrival Item <i class="bi bi-airplane"></i>
                 </button>
             </li>

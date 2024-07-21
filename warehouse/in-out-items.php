@@ -5,16 +5,6 @@ require 'warehouse/WareHouse.php';
 $user = $_SESSION['userBean'];
 $page = 'in_out_item';
 $item = null;
-if (isset($_GET['writeoff']) && isset($_GET['item_id'])) {
-    $pageMode = 'Write-Off';
-    $item = R::load(WH_ITEMS, _E($_GET['item_id']));
-    $wh = R::findAll(WAREHOUSE, 'quantity > 0 AND items_id = ?', [$item->id]);
-}
-
-if (isset($_GET['arrival']) && isset($_GET['item_id'])) {
-    $pageMode = 'Arrival';
-    $item = R::load(WH_ITEMS, _E($_GET['item_id']));
-}
 
 // save new arrival data to DB
 if (isset($_POST['save-new-arrival']) && !empty($_POST['item_id'])) {
@@ -23,6 +13,10 @@ if (isset($_POST['save-new-arrival']) && !empty($_POST['item_id'])) {
         header('Location: wh/the_item?item_id=' . $_POST['item_id']);
         exit($args);
     }
+}
+
+if (isset($_GET['arrival']) && isset($_GET['item_id'])) {
+    $item = R::load(WH_ITEMS, _E($_GET['item_id']));
 }
 ?>
 <!doctype html>
@@ -103,52 +97,11 @@ DisplayMessage($args ?? null);
 ?>
 
 <div class="container-fluid">
-    <?php if ($pageMode == 'Write-Off') { ?>
-        <table class="p-3" id="write-off-data">
-            <!-- header -->
-            <thead>
-            <tr>
-                <th>Owner P/N</th>
-                <th>Owner</th>
-                <th>Shelf</th>
-                <th>Box</th>
-                <th>Storage State</th>
-                <th>Mnf. Date</th>
-                <th>Expaire Date</th>
-                <th>Arrival QTY</th>
-                <th>Date In</th>
-            </tr>
-            </thead>
-            <!-- table -->
-            <tbody>
-            <?php
-            // сделать переход при клике на строку в просмотр запчасти но с данными только по этому инвойсу
-            if (!empty($wh)) {
-                foreach ($wh as $line) { ?>
-                    <tr class="item-list" data-line="<?= $line ?>">
-                        <td class="hidden" data-name="item-id"><?= $line['id']; ?></td>
-                        <td data-name="owner_pn"><?= $line['owner_pn']; ?></td>
-                        <td><?= json_decode($line['owner'])->name; ?></td>
-                        <td data-name="storage_shelf"><?= $line['storage_shelf']; ?></td>
-                        <td data-name="storage_box"><?= $line['storage_box']; ?></td>
-                        <td data-name="storage_state"><?= $line['storage_state']; ?></td>
-                        <td data-name="manufacture_date"><?= $line['manufacture_date']; ?></td>
-                        <td data-name="fifo"><?= $line['fifo']; ?></td>
-                        <td data-name="quantity"><?= $line['quantity']; ?></td>
-                        <td data-name="date_in"><?= $line['date_in']; ?></td>
-                    </tr>
-                    <?php
-                }
-            }
-            ?>
-            </tbody>
-        </table>
-    <?php }
-
+    <?php
     // ADD NEW ARRIVAL FOR ITEM IN TO DB
-    if ($pageMode == 'Arrival') { ?>
+    if ($item) { ?>
         <form action="" method="post" autocomplete="off" id="item-form">
-            <input type="hidden" id="item_id" value="<?= $_GET['item_id'] ?>">
+            <input type="hidden" name="item_id" value="<?= $item->item_id ?>">
             <input type="hidden" name="supplier-id" id="supplier-id"/>
             <input type="hidden" name="owner-id" id="owner-id"/>
 
@@ -156,6 +109,15 @@ DisplayMessage($args ?? null);
             <input type="text" placeholder="Owner"
                    name="owner" id="owner" class="input searchThis" data-request="owner"
                    value="<?= set_value('owner'); ?>" required/>
+            <?php $t = 'Name of the spare part in the NTI company.
+                            It is important to choose the appropriate name for the correct numbering of the incoming product/spare part.
+                            If this number is not available or if the spare part/product belongs to another customer, select the Other option'; ?>
+            <label for="owner-part-key">NTI P/N</label>
+            <select name="owner-part-key" id="owner-part-key" class="input" data-title="<?= $t ?>" required>
+                <?php foreach (NTI_PN as $val => $name): ?>
+                    <option value="<?= $val ?>"><?= $name ?></option>
+                <?php endforeach; ?>
+            </select>
             <label for="owner-part-name">Owner P/N</label>
             <input type="text" placeholder="Owner P/N"
                    name="owner-part-name" id="owner-part-name" class="input" data-request="warehouse searchThis"
@@ -209,7 +171,7 @@ DisplayMessage($args ?? null);
     <?php } ?>
 </div>
 <?php
-
+// MODAL FOR SEARCH RESPONCE ANSWER
 SearchResponceModalDialog($page, 'search-responce');
 // FOOTER
 footer($page);

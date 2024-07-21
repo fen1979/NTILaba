@@ -98,27 +98,25 @@ class Project
      */
     private static function isDigits($qty): float
     {
-        // Удаляем все, что явно не относится к числам и разделителям
+        // Удаляем все символы, кроме цифр, точек, запятых и пробелов
         $filtered = preg_replace('/[^0-9.,\s]/', '', $qty);
 
-        // Ищем последовательности цифр, возможно разделённые пробелами и символами
-        preg_match('/(\d[\d\s,.]*\d)/', $filtered, $matches);
+        // Ищем первую последовательность цифр и разделителей (точек, запятых)
+        if (preg_match('/\d+([.,]\d+)?/', $filtered, $matches)) {
+            // Получаем строку, содержащую только числа и разделители
+            $numbersAndSeparators = $matches[0];
 
-        if (empty($matches)) {
-            return 1; // Если цифр нет, возвращаем 1
+            // Заменяем все запятые на точки для унификации
+            $standardizedNumber = str_replace(',', '.', $numbersAndSeparators);
+
+            // Преобразуем строку в число с плавающей запятой
+            return (float)$standardizedNumber;
         }
 
-        // Получаем строку, содержащую только числа и разделители
-        $numbersAndSeparators = preg_replace('/\s+/', '', $matches[0]); // Удаляем все пробелы
-
-        // Заменяем первый разделитель на точку, если он есть
-        $firstPart = preg_replace('/[.,]/', '.', $numbersAndSeparators, 1);
-
-        // Удаляем все последующие разделители после первой точки
-        $finalNumber = preg_replace('/[.,].*/', '', $firstPart) . strstr($firstPart, '.');
-
-        return (float)$finalNumber;
+        // Если цифр нет, возвращаем 1
+        return 1.0;
     }
+
 
     /**
      * CHANGE FOLDER NAMES AND PATHS IN TO DB
@@ -598,7 +596,7 @@ class Project
         R::store($item);
 
         $res['args'] = true;
-        $res[] = ['info' => 'Item Updated successfully', 'color' => 'success'];
+        $res[] = ['info' => 'Item Updated successfully L', 'color' => 'success'];
         /* [ LOG WRITING ACTION ] */
         $details = 'Item SKU=' . $post['sku'] . ',  for project ID= ' . $project_id . ', Updated in BOM';
         if (!logAction($user['user_name'], 'UPDATING', OBJECT_TYPE[5], $details)) {

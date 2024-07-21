@@ -169,6 +169,7 @@ function dynamicSearch($tableName, $columns, $searchString)
 function SearchWarehouseItems($searchTerm, $table_one, $table_two)
 {
     // SQL-запрос для поиска в двух таблицах и объединения результатов
+    // старый запрос в котором тип склада был в item
 //    $query = "
 //    SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf, wt.type_name
 //    FROM $table_one wn

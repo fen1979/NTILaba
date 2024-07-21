@@ -213,6 +213,7 @@ class Management
         $log_details = "User id №:$user->id was edited, old stepsData:[$user->job_role, $user->app_role, $user->user_name]";
 
         $user->user_name = _E($post['name'] ?? 'Jon Doe');
+        $user->email = _E($post['regEmail'] ?? 'Jon@Doe.com');
         $user->job_role = _E($post['jobrole'] ?? 'Camera Man');
         $user->app_role = _E($post['approle'] ?? 'worker');
         $user->can_change_data = _E($post['can-change-data'] ?? 0);
@@ -235,10 +236,11 @@ class Management
     public static function addNewWorker($post, $thisUser): array
     {
         $name = _E($post['regUserName']);
+        $email = _E($post['regEmail']);
         $pass = _E($post['regUserPassword']);
         $adminPass = _E($post['adminPassword']);
-        $can_change_data = _E($post['can-change-data']) ?? 0;
-        $role = _E($post['role']) ?? ROLE_WORKER;
+        $can_change_data = isset($post['can-change-data']) ? _E($post['can-change-data']) : 0;
+        $role = _E($post['approle']) ?? ROLE_WORKER;
         $jobrole = _E($post['regJobRole']) ?? ROLE[ROLE_WORKER];
 
         if (checkPassword($adminPass)) {
@@ -248,6 +250,7 @@ class Management
             if (empty($user['user_hash']) && !password_verify($pass, $user['user_hash'])) {
                 $hash = password_hash($pass, PASSWORD_DEFAULT);
                 $user->user_hash = $hash;
+                $user->email = $email;
                 $user->date_in = date("Y-m-d h:i");
                 $user->job_role = $jobrole;
                 $user->app_role = $role;
@@ -260,7 +263,7 @@ class Management
                 $user->view_mode = 'light';
 
                 /* creation admin-panel for view tables */
-                // TODO цикл в котором заполнятся первичные настройки для вывода информации пользователю
+                // fixme цикл в котором заполнятся первичные настройки для вывода информации пользователю
                 $settings = R::dispense(SETTINGS);
                 $settings->table_name = DEFAULT_SETTINGS['table_name'];
                 $settings->setup = DEFAULT_SETTINGS['setup'];
@@ -309,6 +312,7 @@ class Management
         }
 
         $tool->toolname = _E($post['toolname'] ?? '');
+        $tool->service_manager = _E($post['service_manager']) ?? ''; // Ответственный за обслуживание
         $tool->specifications = _E($post['specifications'] ?? '');
         $tool->esd = _E($post['esd-sertificate'] ?? 'ESD');
         $tool->exp_date = _E($post['date-qc'] ?? 'EOL');
@@ -435,6 +439,8 @@ class Management
                 $hash = password_hash($pass_1, PASSWORD_DEFAULT);
             }
             $user->user_hash = $hash;
+            // if email exist in query
+            $user->email = !empty($post["email"]) ? $post["email"] : null;
             R::store($user);
 
             $res[] = ['info' => 'Password updated successfully', 'color' => 'success'];
@@ -446,7 +452,7 @@ class Management
                 $body .= '<p style="color: red; font-size: 1.1em;">Please keep your password secure and do not share it with anyone.</p>';
                 $body .= '<p style="color: red; font-size: 1.1em;">Sharing your password can lead to unauthorized access to your personal information.</p>';
                 $body .= '<a style="border: solid 1px black; padding: 10px; background: #8cff79; border-radius: 7px;"' .
-                    ' href="https://nti.icu" target="_blank">Log In to System</a>';
+                    ' href="https://nti.icu" target="_blank">Login to System</a>';
                 $a = '<a href="https://nti.co.il" target="_blank">support</a>';
                 $body .= '<p>If you did not request this account, please ignore this email or contact our ' . $a . ' if you have any concerns.</p>';
                 $body .= '<p style="color: red; font-size: 1.1em;">Remember, keeping your password safe is your responsibility!</p>';

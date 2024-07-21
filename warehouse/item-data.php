@@ -9,6 +9,12 @@ $item = null;
 // tab by default
 $A_T = $_GET['tab'] ?? 'tab1'; // Active Tab
 
+// updating information in to table warehouse, invoice, reserve, movement
+if (isset($_POST['item_id']) && isset($_POST['table-name'])) {
+    $args = WareHouse::updateRelatedTables($_POST, $user);
+}
+
+// формируем данные для вывода на страницу
 if (isset($_GET['itemid'])) {
     // получаем товар
     $item = R::load(WH_ITEMS, _E($_GET['itemid']));
@@ -62,11 +68,6 @@ function getDataForTable($itemId, $orderId, $projectId, $clientId, $reservedQty)
     }
 
     return $results;
-}
-
-// updating information in to table warehouse, invoice, reserve, movement
-if (isset($_POST['item_id']) && isset($_POST['table-name'])) {
-    $args = WareHouse::updateRelatedTables($_POST, $user);
 }
 ?>
 <!doctype html>
@@ -342,7 +343,7 @@ DisplayMessage($args ?? null);
                     <th>Storage State</th>
                     <th>Mnf. Date</th>
                     <th>Expaire Date</th>
-                    <th>Arrival QTY</th>
+                    <th>Actual QTY</th>
                     <th>Date In</th>
                 </tr>
                 </thead>

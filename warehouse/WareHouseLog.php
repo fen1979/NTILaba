@@ -10,6 +10,7 @@
 //    Документы: Накладная № 45678 от 16.03.2024.
 //    Дополнительные замечания: Товар требует дополнительной проверки качества.
 /* получение пользователя из сессии */
+
 class WareHouseLog
 {
     /**
@@ -20,7 +21,7 @@ class WareHouseLog
      * @param $user
      * @return string[]
      */
-    public static function registerNewArrival($itemData, $warehouseData, $invoiceData, $user): array
+    public static function registerNewArrival($itemData, $warehouseData, $invoiceData, $user, $action = null): array
     {
         // $itemData
         //  ["id"], ["part_name"], ["part_value"], ["mounting_type"], ["footprint"], ["manufacturer"], ["manufacture_pn"],
@@ -35,7 +36,7 @@ class WareHouseLog
 
         // Должна записывать в лог:
         $log = R::dispense(WH_LOGS);
-        $log->action = 'NEW ITEM CREATION'; // тип операции
+        $log->action = $action ?? 'NEW ITEM CREATION'; // тип операции
         $log->date_in = date('Y-m-d H:i');
         // item
         $log->items_id = $itemData['id']; // идентификатор товара

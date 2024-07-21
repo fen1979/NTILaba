@@ -331,6 +331,7 @@ class WareHouse
     public static function ReplenishInventory($post, $user): array
     {
         $post = self::checkPostDataAndConvertToArray($post);
+
         $item_id = $post['item_id'];
         $item = R::load(WH_ITEMS, $item_id);
 
@@ -350,7 +351,7 @@ class WareHouse
             if (!empty($res))
                 $owner_pn = $res['key'] . ($res['number'] + 1);
         }
-        $warehouse->owner_pn = $owner_pn;
+        $warehouse->owner_pn = $owner_pn ?? '';
 
         // полученное кол-во нового товара
         $warehouse->quantity = $post['quantity'];
@@ -358,9 +359,10 @@ class WareHouse
         $warehouse->storage_shelf = $post['storage-shelf'];
         $warehouse->storage_state = $post['storage-state'];
         $mf_date = $warehouse->manufacture_date = str_replace('T', ' ', $post['manufactured-date']);
+
         // Создание срока годности для товара
         $datetime = new DateTime($mf_date);
-        $datetime->add(new DateInterval("P{$sl_mo}M"));
+        $datetime->add(new DateInterval("P{$item->shelf_life}M"));
         $warehouse->fifo = $datetime->format('Y-m-d H:i');
         $warehouse->date_in = date('Y-m-d H:i');
         $warehouse_id = R::store($warehouse);
@@ -379,7 +381,9 @@ class WareHouse
         $invoice_id = R::store($invoice);
 
         // ЗАПИСЫВАЕМ В ЛОГ ОПЕРАЦИЮ И ДАННЫЕ ТАБЛИЦ
-        return WareHouseLog::registerNewArrival($item->export(), $warehouse->export(), $invoice->export(), $user);
+        $args = WareHouseLog::registerNewArrival($item->export(), $warehouse->export(), $invoice->export(), $user, 'NEW ITEM ARRIVAL');
+        $args['action'] = 'success';
+        return $args;
     }
 
 

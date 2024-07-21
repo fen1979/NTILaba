@@ -45,6 +45,7 @@ DisplayMessage($args ?? null);
                 <thead class="bg-light">
                 <tr>
                     <th scope="col">Name</th>
+                    <th scope="col">Email</th>
                     <th scope="col">Job Role</th>
                     <th scope="col">App Role</th>
                     <th scope="col">Date In</th>
@@ -57,6 +58,7 @@ DisplayMessage($args ?? null);
                     if ($row['app_role'] != ROLE_SUPERVISOR) { ?>
                         <tr class="align-middle">
                             <td class="border-end"><?= $row['user_name']; ?></td>
+                            <td class="border-end"><?= $row['email']; ?></td>
                             <td class="border-end"><?= $row['job_role']; ?></td>
                             <td class="border-end"><?= $row['app_role']; ?></td>
                             <td class="border-end"><?= $row['date_in']; ?></td>
@@ -88,6 +90,11 @@ DisplayMessage($args ?? null);
                 <div class="mb-3">
                     <label for="name" class="form-label">Name</label>
                     <input type="text" class="form-control" id="name" name="name" value="<?= $user['user_name']; ?>" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="text" class="form-control" id="email" name="regEmail" required>
                 </div>
 
                 <div class="mb-3">
@@ -142,6 +149,11 @@ DisplayMessage($args ?? null);
                             <div class="mb-3">
                                 <label for="regUsername" class="form-label">Name</label>
                                 <input type="text" class="form-control" id="regUsername" name="regUserName" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="regEmail" class="form-label">Email</label>
+                                <input type="text" class="form-control" id="regEmail" name="regEmail" required>
                             </div>
 
                             <div class="mb-3">

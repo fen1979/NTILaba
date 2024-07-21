@@ -60,6 +60,7 @@
 include 'core/Routing.php';
 // разборка таблицы которая была в самом начале на 3 подтаблицы
 //$st = R::findAll('whnomenclature');
+//$st = R::findAll('whnomenclature');
 //foreach ($st as $value) {
 //    $date_in = $value['manufacture_date'];
 ////    создаем и заполняем номенклатуру

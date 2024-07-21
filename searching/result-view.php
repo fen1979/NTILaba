@@ -475,6 +475,7 @@ function viewPartsForProjectBOM($result): void
             'ownerPartName' => $item['owner_pn'],
             'notes' => !empty($item['notes']) ? $item['notes'] : ' ',
             'description' => !empty($item['description']) ? $item['description'] : ' '
+
         ]);
 
         ?>
@@ -486,10 +487,10 @@ function viewPartsForProjectBOM($result): void
             <td><?= $item['footprint']; ?></td>
             <td><?= $item['manufacturer']; ?></td>
             <td><?= $item['manufacture_pn']; ?></td>
-            <td><?= $item['owner_pn']; ?></td>
-            <td><?= !empty($item['description']) ? $item['description'] : 'N'; ?></td>
-            <td><?= !empty($item['notes']) ? $item['notes'] : 'N'; ?></td>
-            <td><?= $item['actual_qty']; ?></td>
+            <td><?= $item['owner_pn'] ?? ''; ?></td>
+            <td><?= !empty($item['description']) ? $item['description'] : 'not filled in'; ?></td>
+            <td><?= !empty($item['notes']) ? $item['notes'] : 'not filled in'; ?></td>
+            <td><?= $item['quantity']; ?></td>
         </tr>
     <?php endforeach; endif;
 }

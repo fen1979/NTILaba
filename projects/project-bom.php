@@ -262,7 +262,7 @@ DisplayMessage($args ?? null);
                         <td><?= $item['owner_pn']; ?></td>
                         <td><?= $item['description']; ?></td>
                         <td><?= $item['notes']; ?></td>
-                        <td><?= $item['amount']; ?></td>
+                        <td><?= $item['amount']; ?></td><!-- fixme to quantity ?????-->
                     </tr>
                 <?php endforeach; endif; ?>
                 </tbody>

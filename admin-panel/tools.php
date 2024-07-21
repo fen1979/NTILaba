@@ -100,7 +100,7 @@ DisplayMessage($args ?? null);
 
                 <div class="mb-3">
                     <label for="file" class="form-label">View <b class="text-danger">*</b></label>
-                    <input type="file" class="form-control" id="files" name="imageFile" required>
+                    <input type="file" class="form-control" id="files" name="imageFile">
                 </div>
 
                 <div class="mb-3">
@@ -120,6 +120,20 @@ DisplayMessage($args ?? null);
                     <input type="text" class="form-control" id="qc" name="date-qc" value="<?= $tool['exp_date'] ?? ''; ?>"
                            placeholder="Does not require verification = EOL" required>
                 </div>
+
+                <div class="mb-3">
+                    <label for="ruf" class="form-label">Service Manager <b class="text-danger">*</b></label>
+                    <select name="service_manager" id="ruf" class="form-control">
+                        <?php
+                        foreach (R::findAll(USERS) as $u) {
+                            $v = json_encode(['name' => $u['user_name'], 'email' => $u['email']]);
+                            $escapedValue = htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+                            ?>
+                            <option value="<?= $escapedValue ?>"><?= $u['user_name'] ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+
 
                 <button type="submit" class="btn btn-success form-control" value="<?= $tool['id'] ?? ''; ?>" name="<?= $action; ?>">Save</button>
             </form>

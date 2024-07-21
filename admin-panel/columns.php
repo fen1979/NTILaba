@@ -62,6 +62,7 @@ The information will be displayed based on the order of the fields when saving.'
 
 
         <?php
+        // fixme добавить в склад колонки таблицу инвойса тоже
         if (isset($_POST['sel_tab'])) {
             // check if table exist in DB
             $tableExists = R::getAll("SHOW TABLES LIKE '" . _E($_POST["sel_tab"]) . "'");

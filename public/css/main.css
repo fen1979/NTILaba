@@ -16,6 +16,10 @@ form input[required], form select[required], form textarea[required] {
     box-shadow: red 0 0 2px;
 }
 
+button {
+    white-space: nowrap;
+}
+
 /*i
  * вывод информации о каком либо действии
  * или ошибке в левый верхний угол экрана
@@ -33,10 +37,6 @@ form input[required], form select[required], form textarea[required] {
 }
 
 /* i==== ЦВЕТА КНОПОК ДЛЯ ВСЕХ СТРАНИЦ ==== */
-.btn {
-    /*margin: .3rem;*/
-}
-
 .btn-outline-success {
     color: #fff;
     background-color: #31e491;
@@ -464,11 +464,10 @@ form input[required], form select[required], form textarea[required] {
     font-weight: 500;
 }
 
-/*.navbar-scroll .navbar-brand,*/
-/*.navbar-scroll .nav-link,*/
-/*.navbar-scroll .fa-bars {*/
-/*    color: #fff;*/
-/*}*/
+.navbar-toggler {
+    background: #9ac2c3;
+    border: solid 1px black;
+}
 
 .navbar-scroll {
     box-shadow: none;
@@ -496,10 +495,6 @@ form input[required], form select[required], form textarea[required] {
 .lang {
     background: transparent;
     border: none;
-}
-
-button.url.btn {
-    width: max-content;
 }
 
 .display-1 {
