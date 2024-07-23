@@ -106,7 +106,7 @@ if (isset($_POST['save-new-item'])) {
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] ='Add New Part';
+$navBarData['title'] = 'Add New Part';
 $navBarData['active_btn'] = Y['STOCK'];
 $navBarData['page_tab'] = $_GET['page'] ?? null;
 $navBarData['record_id'] = $item->id ?? null;
@@ -283,6 +283,8 @@ DisplayMessage($args ?? null);
                     </select>
                 </div>
                 <button type="submit" name="save-new-item" id="save-btn" class="btn btn-outline-success input" disabled>Save new item</button>
+
+                <input type="hidden" id="page_data" value="<?= $user['user_name'] . ',' . $user['id']; ?>">
             </form>
         </div>
     </div>
@@ -329,7 +331,9 @@ ScriptContent('arrivals');
 
         // кнопки выбора фото пользователя и Обработчик обновления превью
         dom.doClick("#item-image-btn", "#item-image-file");
-        dom.doPreviewFile("#item-image-file", "#item-image-preview");
+        dom.doPreviewFile("#item-image-file", "#item-image-preview", function () {
+            dom.hide("#pasteArea");
+        });
 
         // Обработка клика по результату поиска запчасти
         dom.in("click", "#search-responce tr.part", function () {
@@ -449,6 +453,43 @@ ScriptContent('arrivals');
 
         // обработка заполнения формы на странице
         dom.checkForm("item-form", "save-btn");
+
+        // обработчик добавления поставщика/производителя в БД
+        dom.requestOnFly("submit", "#supplier_form", function (response, error, _) {
+            dom.hide("#loading");
+            if (error) {
+                console.error('Some Error:', error);
+                return;
+            }
+            // if was added supplier
+            if (response.request === "supplier") {
+                dom.e("#supplier-id").value = response.supplier_id;
+                dom.e("#supplier-name").value = response.supplier_name;
+            }
+            // if was added manufacturer
+            if (response.request === "manufacturer") {
+                dom.e("#manufacturer").value = response.supplier_name;
+            }
+            dom.hide("#searchModal");
+            console.log(response);
+        });
+
+        // Получаем элемент page_data
+        const pageDataElem = dom.e('#page_data');
+        // Проверяем, что элемент page_data существует на странице
+        if (pageDataElem) {
+            // Добавляем обработчик события keyup ко всему документу
+            document.addEventListener('keyup', function () {
+                // Проверяем, существует ли элемент user_data
+                const userDataElem = dom.e('#user_data');
+                const modalBtn = dom.e('#modal-btn-succes');
+                if (userDataElem) {
+                    // Копируем значение из page_data в user_data
+                    userDataElem.value = pageDataElem.value;
+                    modalBtn.disabled = false;
+                }
+            });
+        }
     });
 
     // Функция создания ссылок на новые парт номера

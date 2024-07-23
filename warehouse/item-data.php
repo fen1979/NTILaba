@@ -489,6 +489,8 @@ ScriptContent($page);
 ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        const changedRows = new Set();
+
         // script для переключения табов
         dom.in("click", ".nav-link", function () {
             // Получаем ID целевого таба
@@ -530,19 +532,16 @@ ScriptContent($page);
         });
 
         // добавляем событие клик на кнопку сохранить данные при изменениях в таблицах
-        // сохраняет данные в таблицах табов
         document.getElementById('saveChanges').addEventListener('click', function () {
             const confirmation = confirm("Are you sure you want to change the data? Changes can have irreversible consequences and lead to problems.");
 
             if (confirmation) {
-                const rows = document.querySelectorAll('#items-table tr');
                 let form = document.getElementById('hiddenForm');
 
                 // Очистка предыдущих полей формы
                 form.innerHTML = '';
 
-                rows.forEach((row, idx) => {
-                    if (idx === 0) return; // Пропускаем заголовок
+                changedRows.forEach(row => {
                     const cells = row.querySelectorAll('td');
                     cells.forEach((cell) => {
                         const dataName = cell.getAttribute('data-name');
@@ -573,12 +572,13 @@ ScriptContent($page);
                 const target = e.target;
                 if (target.tagName === 'TD') {
                     const input = document.createElement('input');
-                    input.type = 'text';
+                    input.type = 'hidden';
                     input.value = target.textContent;
                     input.style.width = target.clientWidth + 'px'; // Размер как у ячейки
                     input.addEventListener('blur', function () {
                         target.textContent = this.value;
                         dom.show("#saveChanges"); // Активировать кнопку при изменении
+                        changedRows.add(target.closest('tr')); // Добавляем строку в набор изменённых строк
                     });
                     input.addEventListener('keypress', function (e) {
                         if (e.key === 'Enter') {
@@ -615,5 +615,6 @@ ScriptContent($page);
         }
     }
 </script>
+
 </body>
 </html>

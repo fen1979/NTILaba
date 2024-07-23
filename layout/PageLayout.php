@@ -9,7 +9,7 @@ const NO_VIEW_PAGES = [
     'customers', 'docs',
     'admin-panel',
     'new_project', 'edit_project', 'edit_step', 'add_step',
-    'import_csv', 'view_item', 'arrivals', 'edit_item', 'in_out_item'];
+    'import_csv', 'view_item', 'arrivals', 'edit_item', 'replenishment'];
 
 /* ICON, TITLE, STYLES AND META TAGS */
 function HeadContent($page)
@@ -159,7 +159,7 @@ function NavBarContent($navBarData): void
                             case 'arrivals':
                             case 'edit_item':
                             case 'wh':
-                            case 'in_out_item':
+                            case 'replenishment':
                                 WAREHOUSE_PAGE_BUTTONS($l, $page, $pid, $page_tab);
                                 break;
                             default:
@@ -285,9 +285,11 @@ function ADMIN_PANEL_BUTTONS($btn_title, $page): void
         <li class="nav-item">
             <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-primary" value="3">Tools</button>
         </li>
-        <li class="nav-item">
-            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-primary" value="4">Users</button>
-        </li>
+        <?php if (isUserRole([ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
+            <li class="nav-item">
+                <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-primary" value="4">Users</button>
+            </li>
+        <?php } ?>
         <li class="nav-item">
             <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-primary" value="5">Projects</button>
         </li>
@@ -424,10 +426,10 @@ function EDIT_AND_ADD_STEP_BUTTONS($pid): void
 function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid, $page_tab = ''): void
 {
     if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) {
-        $pt = !empty($page_tab) ? "?page=$page_tab&#row-$pid" : '';
-        if ($page !== 'wh' && $page !== 'arrivals') { ?>
+        $pt = !empty($page_tab) ? "?page=$page_tab&#row-$pid" : null;
+        if ($page !== 'wh' && $page !== 'arrivals' && !empty($pt)) { ?>
             <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-danger" value="wh<?= $pt; ?>">
+                <button type="button" class="url btn btn-sm btn-outline-danger" value="wh<?= $pt ?? ''; ?>">
                     Back To List
                 </button>
             </li>
@@ -437,14 +439,14 @@ function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid, $page_tab = ''): void
         if ($page == 'view_item' && $pid != null) {
             ?>
             <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-warning" value="edit-item?page=<?= $page_tab ?>&item_id=<?= $pid; ?>">
+                <button type="button" class="url btn btn-sm btn-outline-warning" value="edit-item<?= !empty($pt) ? "$pt&" : '?'; ?>item_id=<?= $pid; ?>">
                     Edit Item <i class="bi bi-pen"></i>
                 </button>
             </li>
 
             <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-diliny" value="in-out-item?page=<?= $page_tab ?>&item_id=<?= $pid; ?>">
-                    Arrival Item <i class="bi bi-airplane"></i>
+                <button type="button" class="url btn btn-sm btn-outline-info" value="replenishment<?= !empty($pt) ? "$pt&" : '?'; ?>item_id=<?= $pid; ?>">
+                    Replenishment <i class="bi bi-airplane"></i>
                 </button>
             </li>
             <?php

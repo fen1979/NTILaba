@@ -46,7 +46,7 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
         case 'manufacturer':
             {
                 /* search for suppliers and manufactirers */
-                viewSupplier(dynamicSearch(SUPPLIERS, ['name'], $mySearchString), $request);
+                viewSupplier(dynamicSearch(SUPPLIERS, ['name'], $mySearchString), $request, $mySearchString);
             }
             break;
 

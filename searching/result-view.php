@@ -6,38 +6,42 @@
  * функция вывода поиска на странице добавления клиента
  */
 function viewCustomer($result, $col)
-{ ?>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Priority</th>
-        <th>Contact</th>
-        <th>Info</th>
-    </tr>
-    </thead>
-    <tbody>
-    <?php foreach ($result as $item) {
-        // Подготавливаем данные для атрибута data-info
-        $infoData = json_encode([
-            'name' => $item[$col[0]],
-            'contact' => $item[$col[1]],
-            'info' => $item[$col[2]],
-            'priority' => $item[$col[3]],
-            'clientID' => $item['id'],
-            'headpay' => $item['head_pay']
-        ]); ?>
-
-        <tr class="customer item-list" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
-            <td><?= $item['id']; ?></td>
-            <td><?= $item[$col[0]]; ?></td>
-            <td><?= $item[$col[3]]; ?></td>
-            <td><?= $item[$col[1]]; ?></td>
-            <td><?= $item[$col[2]]; ?></td>
+{
+    if ($result) { ?>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Priority</th>
+            <th>Contact</th>
+            <th>Info</th>
         </tr>
-    <?php } ?>
-    </tbody>
-    <?php
+        </thead>
+        <tbody>
+        <?php foreach ($result as $item) {
+            // Подготавливаем данные для атрибута data-info
+            $infoData = json_encode([
+                'name' => $item[$col[0]],
+                'contact' => $item[$col[1]],
+                'info' => $item[$col[2]],
+                'priority' => $item[$col[3]],
+                'clientID' => $item['id'],
+                'headpay' => $item['head_pay']
+            ]); ?>
+
+            <tr class="customer item-list" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
+                <td><?= $item['id']; ?></td>
+                <td><?= $item[$col[0]]; ?></td>
+                <td><?= $item[$col[3]]; ?></td>
+                <td><?= $item[$col[1]]; ?></td>
+                <td><?= $item[$col[2]]; ?></td>
+            </tr>
+        <?php } ?>
+        </tbody>
+        <?php
+    } else {
+        echo 'EMPTY';
+    }
 }
 
 /**
@@ -46,32 +50,82 @@ function viewCustomer($result, $col)
  * @param $request
  * @return void
  */
-function viewSupplier($result, $request)
-{ ?>
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Who</th>
-        <th>Info</th>
-        <th>Rating</th>
-    </tr>
-    </thead>
-    <tbody>
-    <?php foreach ($result as $sup) {
-        $infoData = json_encode([
-            'is_request' => $request,
-            'supplier_id' => $sup['id'],
-            'supplier_name' => $sup['name']
-        ]); ?>
-        <tr class="supplier item-list" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
-            <td><?= $sup['name']; ?></td>
-            <td><?= $sup['sup_type']; ?></td>
-            <td><?= $sup['description']; ?></td>
-            <td><?= $sup['rating']; ?></td>
+function viewSupplier($result, $request, $mySearchString)
+{
+    if ($result) { ?>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Who</th>
+            <th>Info</th>
+            <th>Rating</th>
         </tr>
-    <?php } ?>
-    </tbody>
-    <?php
+        </thead>
+        <tbody>
+        <?php foreach ($result as $sup) {
+            $infoData = json_encode([
+                'is_request' => $request,
+                'supplier_id' => $sup['id'],
+                'supplier_name' => $sup['name']
+            ]); ?>
+            <tr class="supplier item-list" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
+                <td><?= $sup['name']; ?></td>
+                <td><?= $sup['sup_type']; ?></td>
+                <td><?= $sup['description']; ?></td>
+                <td><?= $sup['rating']; ?></td>
+            </tr>
+        <?php } ?>
+        </tbody>
+        <?php
+    } else {
+        // ДОБАВЛЕНИЕ НА ЛЕТУ ПОСТАВЩИКА-ПРОИЗВОДИТЕЛЯ
+        ?>
+        <thead>
+        <tr>
+            <th><h2>Form adding a new supplier/manufacturer</h2></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <form action="/profiles/suppliers.php" method="post" id="supplier_form">
+                    <input type="hidden" name="user-data" value="" id="user_data">
+                    <input type="hidden" name="request" value="<?= $request ?>">
+
+                    <div class="mb-2">
+                        <label for="supplier-name">Supplier/Manufacturer Name <b class="text-danger">*</b></label>
+                        <input type="text" placeholder="Supplier Name" name="supplier-name" id="supplier-name" class="input"
+                               value="<?= set_value('supplier-name', $mySearchString); ?>" required/>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-8">
+                            <label for="sup_type">Choose Supplier Type <b class="text-danger">*</b></label>
+                            <select name="sup_type" id="sup_type" class="input" required>
+                                <option value="Manufacturer">Manufacturer</option>
+                                <option value="Distributors">Distributors</option>
+                            </select>
+                        </div>
+
+                        <div class="col-4">
+                            <label for="rating">Rating <b class="text-danger">*</b></label>
+                            <input type="number" placeholder="Rating" class="input" name="rating" id="rating"
+                                   value="<?= set_value('rating', 0); ?>" required/>
+                        </div>
+                    </div>
+
+                    <label for="description">Description <b class="text-danger">*</b></label>
+                    <textarea placeholder="Description" name="description" id="description" class="input" required><?= set_value('description'); ?></textarea>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-success input" id="modal-btn-succes" disabled>Save Changes</button>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+        <?php
+    }
 }
 
 /**

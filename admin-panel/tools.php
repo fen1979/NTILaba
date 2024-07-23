@@ -126,11 +126,13 @@ DisplayMessage($args ?? null);
                     <select name="service_manager" id="ruf" class="form-control">
                         <?php
                         foreach (R::findAll(USERS) as $u) {
-                            $v = json_encode(['name' => $u['user_name'], 'email' => $u['email']]);
-                            $escapedValue = htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
-                            ?>
-                            <option value="<?= $escapedValue ?>"><?= $u['user_name'] ?></option>
-                        <?php } ?>
+                            if ($u['id'] != 1) {
+                                $v = json_encode(['name' => $u['user_name'], 'email' => $u['email']]);
+                                $escapedValue = htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+                                ?>
+                                <option value="<?= $escapedValue ?>"><?= $u['user_name'] ?></option>
+                            <?php }
+                        } ?>
                     </select>
                 </div>
 

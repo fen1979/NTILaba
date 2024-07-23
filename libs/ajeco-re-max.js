@@ -321,8 +321,16 @@ dom.addEventListener("DOMContentLoaded", function () {
             if (this.files && this.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
-                    // Показываем элемент, если он был скрыт
-                    targetElement.style.display = 'block';
+                    // проверяем класслист элемента
+                    if (targetElement.classList && targetElement.classList.contains('hidden')) {
+                        // Элемент содержит класс 'hidden' удаляем класс для показа элемента
+                        targetElement.classList.remove("hidden");
+                    } else {
+                        // Элемент не содержит класс 'hidden'
+                        // Показываем элемент, если он был скрыт
+                        targetElement.style.display = 'block';
+                    }
+
                     // Устанавливаем в качестве источника изображения результат чтения файла
                     targetElement.src = e.target.result;
 
@@ -610,6 +618,70 @@ dom.addEventListener("DOMContentLoaded", function () {
         // Initial check when the page loads
         checkForm();
     };
+
+    /**
+     * Функция dom.requestOnFly предназначена для асинхронной отправки данных формы на сервер с использованием fetch API. Она предотвращает перезагрузку страницы при отправке формы и вызывает callback-функцию с ответом сервера или ошибкой.
+     *
+     * Параметры:
+     * @param event (string): Тип события, который будет отслеживаться (например, 'submit').
+     * @param target (string): CSS селектор формы, для которой будет установлен обработчик события.
+     * @param callback (function): Функция обратного вызова, которая будет вызвана с ответом сервера или ошибкой.
+     * @param serverUrl (string, optional): URL, на который будет отправлен запрос. Если не указан, будет использован URL из атрибута action формы.
+     * Описание:
+     * Событие: Функция обрабатывает указанный тип события (например, 'submit') для указанного CSS селектора формы.
+     * Предотвращение перезагрузки: Предотвращает стандартное поведение формы, которое приводит к перезагрузке страницы.
+     * Сбор данных: Собирает данные из формы, используя объект FormData.
+     * Настройка запроса: Настраивает параметры для fetch-запроса, включая метод 'POST' и тело запроса с данными формы.
+     * Отправка данных: Отправляет данные на сервер по указанному URL или URL из атрибута action формы.
+     * Обработка ответа: Обрабатывает ответ сервера, предполагая, что сервер возвращает JSON. Вызывает callback-функцию с ответом сервера или ошибкой.
+     *
+     * // Пример вызова функции для отправки формы с id "form_id"
+     * dom.requestOnFly("submit", "#form_id", function (response, error, event) {
+     *     if (error) {
+     *         console.error('Произошла ошибка:', error);
+     *         return;
+     *     }
+     *     let someDataFromServer = response;
+     *     dom.e("#someId").innerText = someDataFromServer.someData;
+     * }, "https://example.com/submit");
+     */
+    dom.requestOnFly = function (event, target, callback, serverUrl = null) {
+        // Обработчик события отправки формы
+        document.addEventListener(event, function (e) {
+            // Проверяем, что событие произошло на целевой форме
+            if (e.target && e.target.matches(target)) {
+                e.preventDefault(); // Предотвращаем перезагрузку страницы
+
+                // Сбор данных из формы
+                const form = e.target;
+                const formData = new FormData(form);
+                console.log(formData);
+
+                // Настройки для fetch-запроса
+                const requestOptions = {
+                    method: 'POST',
+                    body: formData
+                };
+
+                // URL для отправки запроса
+                const url = serverUrl || form.action;
+
+                // Отправка данных на сервер
+                fetch(url, requestOptions)
+                    .then(response => response.json()) // Предполагаем, что сервер возвращает JSON
+                    //.then(response => response) // Предполагаем, что сервер возвращает JSON
+                    .then(data => {
+                        // Вызываем callback с ответом сервера
+                        callback(data, null, e);
+                    })
+                    .catch(error => {
+                        console.error('Ошибка:', error);
+                        // Вызываем callback с ошибкой
+                        callback(null, error, e);
+                    });
+            }
+        });
+    }
 
     // Функция для установки обработчиков событий на аккордеоны
     dom.setAccordionListeners = function (mainSelector, accSelector, eventType) {
