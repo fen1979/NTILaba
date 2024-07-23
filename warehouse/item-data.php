@@ -69,6 +69,7 @@ function getDataForTable($itemId, $orderId, $projectId, $clientId, $reservedQty)
 
     return $results;
 }
+
 ?>
 <!doctype html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
@@ -253,13 +254,13 @@ DisplayMessage($args ?? null);
         <!-- Таб 1 -->
         <li class="nav-item" role="presentation">
             <button class="nav-link <?= ($A_T == 'tab1') ? 'active' : '' ?>"
-                    data-bs-target="#tab1" id="nav-link-1" type="button" role="tab">Reserved item information
+                    data-bs-target="#tab1" id="nav-link-1" type="button" role="tab">Warehouse Information
             </button>
         </li>
         <!-- Таб 2 -->
         <li class="nav-item" role="presentation">
             <button class="nav-link <?= ($A_T == 'tab2') ? 'active' : '' ?>"
-                    data-bs-target="#tab2" id="nav-link-2" type="button" role="tab">Warehouse Information
+                    data-bs-target="#tab2" id="nav-link-2" type="button" role="tab">Reserved item information
             </button>
         </li>
         <!-- Таб 3 -->
@@ -281,6 +282,55 @@ DisplayMessage($args ?? null);
 
         <!--  Контент Таба 1 -->
         <div class="tab-pane fade show <?= ($A_T == 'tab1') ? 'active' : '' ?>" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
+            <table class="p-3">
+                <!-- header -->
+                <thead>
+                <tr>
+                    <th>Owner P/N</th>
+                    <th>Owner</th>
+                    <th>Warehouse Type</th>
+                    <th>Shelf</th>
+                    <th>Box</th>
+                    <th>Storage State</th>
+                    <th>Mnf. Date</th>
+                    <th>Expaire Date</th>
+                    <th>Actual QTY</th>
+                    <th>Date In</th>
+                </tr>
+                </thead>
+                <!-- table -->
+                <tbody>
+                <?php
+                // сделать переход при клике на строку в просмотр запчасти но с данными только по этому инвойсу
+                if (!empty($wh)) {
+                    foreach ($wh as $line) { ?>
+                        <tr class="item-list">
+                            <td data-name="table-name" class="hidden"><?= WAREHOUSE ?></td>
+                            <td data-name="item_id" class="hidden"><?= $line['id']; ?></td>
+                            <td data-name="owner_id" class="hidden"><?= json_decode($line['owner'])->id; ?></td>
+
+                            <td data-name="owner_pn"><?= $line['owner_pn']; ?></td>
+                            <td class="text-primary"><?= json_decode($line['owner'])->name; ?></td>
+                            <td class="text-primary"><?= R::load(WH_TYPES, $line['wh_types_id'])->type_name; ?></td>
+                            <td data-name="storage_shelf"><?= $line['storage_shelf']; ?></td>
+                            <td data-name="storage_box"><?= $line['storage_box']; ?></td>
+                            <td data-name="storage_state"><?= $line['storage_state']; ?></td>
+                            <td data-name="manufacture_date"><?= $line['manufacture_date']; ?></td>
+                            <td data-name="fifo"><?= $line['fifo']; ?></td>
+                            <td data-name="quantity"><?= $line['quantity']; ?></td>
+                            <td data-name="date_in"><?= $line['date_in']; ?></td>
+                        </tr>
+                        <?php
+                    }
+                }
+                ?>
+                </tbody>
+            </table>
+        </div>
+        <!-- end tab 1 -->
+
+        <!--  Контент Таба 2 -->
+        <div class="tab-pane fade show <?= ($A_T == 'tab2') ? 'active' : '' ?>" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
             <table>
                 <thead>
                 <tr>
@@ -323,56 +373,6 @@ DisplayMessage($args ?? null);
                         <td data-name="reserved_qty"><?= $row['reserved_qty'] ?></td>
                     </tr>
                 <?php } ?>
-                </tbody>
-            </table>
-
-        </div>
-        <!-- end tab 1 -->
-
-        <!--  Контент Таба 2 -->
-        <div class="tab-pane fade show <?= ($A_T == 'tab2') ? 'active' : '' ?>" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
-            <table class="p-3">
-                <!-- header -->
-                <thead>
-                <tr>
-                    <th>Owner P/N</th>
-                    <th>Owner</th>
-                    <th>Warehouse Type</th>
-                    <th>Shelf</th>
-                    <th>Box</th>
-                    <th>Storage State</th>
-                    <th>Mnf. Date</th>
-                    <th>Expaire Date</th>
-                    <th>Actual QTY</th>
-                    <th>Date In</th>
-                </tr>
-                </thead>
-                <!-- table -->
-                <tbody>
-                <?php
-                // сделать переход при клике на строку в просмотр запчасти но с данными только по этому инвойсу
-                if (!empty($wh)) {
-                    foreach ($wh as $line) { ?>
-                        <tr class="item-list">
-                            <td data-name="table-name" class="hidden"><?= WAREHOUSE ?></td>
-                            <td data-name="item_id" class="hidden"><?= $line['id']; ?></td>
-                            <td data-name="owner_id" class="hidden"><?= json_decode($line['owner'])->id; ?></td>
-
-                            <td data-name="owner_pn"><?= $line['owner_pn']; ?></td>
-                            <td><?= json_decode($line['owner'])->name; ?></td>
-                            <td><?= R::load(WH_TYPES, $line['wh_types_id'])->type_name; ?></td>
-                            <td data-name="storage_shelf"><?= $line['storage_shelf']; ?></td>
-                            <td data-name="storage_box"><?= $line['storage_box']; ?></td>
-                            <td data-name="storage_state"><?= $line['storage_state']; ?></td>
-                            <td data-name="manufacture_date"><?= $line['manufacture_date']; ?></td>
-                            <td data-name="fifo"><?= $line['fifo']; ?></td>
-                            <td data-name="quantity"><?= $line['quantity']; ?></td>
-                            <td data-name="date_in"><?= $line['date_in']; ?></td>
-                        </tr>
-                        <?php
-                    }
-                }
-                ?>
                 </tbody>
             </table>
         </div>
@@ -438,8 +438,8 @@ DisplayMessage($args ?? null);
                 <?php
                 // fixme сделать переход при клике на строку в просмотр запчасти но с данными только по этому инвойсу
                 if (!empty($logs)) {
-                    foreach ($logs as $line) {
-                        echo '<tr>';
+                    foreach ($logs as $n => $line) {
+                        echo '<tr  class="text-primary">';
                         echo '<td>' . $line['items_id'] . '</td>';
                         echo '<td>' . $line['action'] . '</td>';
                         echo '<td>' . $line['user_name'] . '</td>';
@@ -532,11 +532,11 @@ ScriptContent($page);
         });
 
         // добавляем событие клик на кнопку сохранить данные при изменениях в таблицах
-        document.getElementById('saveChanges').addEventListener('click', function () {
+        dom.in("click", "#saveChanges", function () {
             const confirmation = confirm("Are you sure you want to change the data? Changes can have irreversible consequences and lead to problems.");
 
             if (confirmation) {
-                let form = document.getElementById('hiddenForm');
+                let form = dom.e('#hiddenForm');
 
                 // Очистка предыдущих полей формы
                 form.innerHTML = '';
@@ -556,7 +556,7 @@ ScriptContent($page);
                 });
 
                 // Отправка формы
-                form.submit();
+                //form.submit();
             } else {
                 // Пользователь нажал отмена, форма не отправляется
                 alert("Changes will not be saved!");
@@ -572,7 +572,7 @@ ScriptContent($page);
                 const target = e.target;
                 if (target.tagName === 'TD') {
                     const input = document.createElement('input');
-                    input.type = 'hidden';
+                    input.type = 'text';
                     input.value = target.textContent;
                     input.style.width = target.clientWidth + 'px'; // Размер как у ячейки
                     input.addEventListener('blur', function () {
