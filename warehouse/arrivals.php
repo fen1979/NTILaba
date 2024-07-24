@@ -234,7 +234,7 @@ DisplayMessage($args ?? null);
                 $query = "SELECT DISTINCT REGEXP_REPLACE(owner_pn, '[0-9]+$', '') AS unique_part_name FROM warehouse";
                 ?>
                 <label for="owner-part-key">Owner P/N</label>
-                <div class="input-group" id="select-pn-box">
+                <div class="input-group">
                     <select name="owner-pn-list" id="owner-pn-list" class="form-select" data-title="<?= $t ?>" required>
                         <?php foreach (NTI_PN as $val => $name): ?>
                             <?php //foreach (R::getCol($query) as $name): ?>

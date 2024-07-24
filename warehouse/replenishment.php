@@ -117,19 +117,27 @@ DisplayMessage($args ?? null);
                     <input type="text" placeholder="Owner"
                            name="owner" id="owner" class="input searchThis" data-request="owner"
                            value="<?= set_value('owner'); ?>" required/>
-                    <?php $t = 'Name of the spare part in the NTI company.
+
+                    <?php $t = 'Name of the spare part in the NTI company or custom owner name.
                             It is important to choose the appropriate name for the correct numbering of the incoming product/spare part.
-                            If this number is not available or if the spare part/product belongs to another customer, select the Other option'; ?>
-                    <label for="owner-part-key">NTI P/N</label>
-                    <select name="owner-part-key" id="owner-part-key" class="input" data-title="<?= $t ?>" required>
-                        <?php foreach (NTI_PN as $val => $name): ?>
-                            <option value="<?= $val ?>"><?= $name ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <label for="owner-part-name">Owner P/N</label>
-                    <input type="text" placeholder="Owner P/N"
-                           name="owner-part-name" id="owner-part-name" class="input" data-request="warehouse searchThis"
-                           value="<?= set_value('owner-part-name'); ?>"/>
+                            If this number is not available or if the spare part/product belongs to another customer, 
+                            select the custom option and write new name by upper letters!!!';
+                    $query = "SELECT DISTINCT REGEXP_REPLACE(owner_pn, '[0-9]+$', '') AS unique_part_name FROM warehouse";
+                    ?>
+                    <label for="owner-part-key">Owner P/N</label>
+                    <div class="input-group">
+                        <select name="owner-pn-list" id="owner-pn-list" class="form-select" data-title="<?= $t ?>" required>
+                            <?php foreach (NTI_PN as $val => $name): ?>
+                                <?php //foreach (R::getCol($query) as $name): ?>
+                                <option value="<?= $val ?>"><?= $name ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="hidden mt-2 input-group" id="custom-pn-box">
+                            <label for="owner-pn-input" class="text-primary">Write custom P/N</label>
+                            <input type="text" name="owner-pn-input" id="owner-pn-input" class="input" placeholder="Enter custom P/N"/>
+                        </div>
+                    </div>
+
                     <label for="quantity">Quantity</label>
                     <input type="number" placeholder="QTY"
                            name="quantity" id="quantity" class="input"
