@@ -137,10 +137,18 @@ dom.addEventListener("DOMContentLoaded", function () {
 
                     setTimeout(() => {
                         element.style.opacity = "1";
-                    }, 10); // Небольшая задержка, чтобы стили применились
+                    }, 50); // Небольшая задержка, чтобы стили применились
                 } else {
-                    element.style.display = 'block';
-                    element.style.opacity = "1";
+                    // проверяем класслист элемента
+                    if (element.classList && element.classList.contains('hidden')) {
+                        element.classList.remove("hidden");
+                    } else {
+                        // Элемент не содержит класс 'hidden'
+                        // Показываем элемент, если он был скрыт
+                        element.style.display = 'block';
+                        element.style.opacity = "1";
+                    }
+
                     if (blur) element.classList.add("modal-blur");
                 }
 

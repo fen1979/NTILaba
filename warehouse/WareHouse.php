@@ -203,13 +203,17 @@ class WareHouse
         $warehouse->owner = $owner_data; // this part owner
 
         $owner_pn = '';
-        if (!empty($post['owner-part-name'])) {
-            $owner_pn = $post['owner-part-name'];
-        } else {
+        // если был выбран один из списка
+        if (!empty($post['owner-pn-list']) && $post['owner-pn-list'] != 'custom') {
             $res = self::GetNtiPartNumberForItem($post['owner-part-key']);
             if (!empty($res))
                 $owner_pn = $res['key'] . ($res['number'] + 1);
+        } else {
+            // если был внесен новый или клиентский номер
+            $owner_pn = $post['owner-pn-input'];
+
         }
+        // сохраняем имя детали в БД
         $warehouse->owner_pn = $owner_pn;
 
         // полученное кол-во нового товара

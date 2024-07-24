@@ -438,6 +438,6 @@ const MOUNTING_TYPE = ["SMT", "TH", "CM", "PM", "SOLDER", "CRIMP", "LM", "OTHER"
 /**
  * СПИСОК НАЗВАНИЙ ПАРТ НОМЕРОВ ДЛЯ NTI
  */
-const NTI_PN = ['NON' => 'Other', 'NCAP' => 'Capacitor', 'NRES' => 'Resistor', 'NDIO' => 'Diode', 'NIC' => 'Micro Chip', 'NTR' => 'Transistor',
+const NTI_PN = ['NCAP' => 'Capacitor', 'NRES' => 'Resistor', 'NDIO' => 'Diode', 'NIC' => 'Micro Chip', 'NTR' => 'Transistor',
     'NCR' => 'Oscilator', 'NFU' => 'Fuse', 'NFB' => 'Ferrite bead', 'NCON' => 'Connector', 'NIND' => 'Inductor', 'NPIN' => 'Pins',
-    'NW' => 'Wires', 'NTUBE' => 'Shrink Tube'];
+    'NW' => 'Wires', 'NTUBE' => 'Shrink Tube', 'custom' => 'Custom'];

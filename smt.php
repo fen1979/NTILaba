@@ -233,8 +233,10 @@ function GetNtiPartNumberForItem($key)
     $maxNumber = R::getCell($sql, [':key' => $key, ':keyPattern' => $key . '%']);
 
 // Вывод результата
-    if (!empty($maxNumber))
-        print_r(["key" => $key, "maxNumber" => $maxNumber]);
+    if (!empty($maxNumber)) {
+        $l = ["key" => $key, "maxNumber" => $maxNumber];
+        echo $l['key'];
+    }
 }
 
 function checkDuplicates($data): array

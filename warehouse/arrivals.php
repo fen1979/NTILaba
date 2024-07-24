@@ -128,7 +128,7 @@ DisplayMessage($args ?? null);
                  src="/public/images/drop-here.png">
         </div>
 
-        <div class="col-2 mt-2">
+        <div class="col-2 mt-2 pe-3">
             <!-- other information -->
             <div class="mb-3">
                 <a role="button" id="search-item-goog" href="" class="btn btn-outline-gold input" target="_blank">
@@ -227,20 +227,26 @@ DisplayMessage($args ?? null);
                        name="owner" id="owner" class="input searchThis" data-request="owner"
                        value="<?= set_value('owner'); ?>" required/>
 
-                <?php $t = 'Name of the spare part in the NTI company.
+                <?php $t = 'Name of the spare part in the NTI company or custom owner name.
                             It is important to choose the appropriate name for the correct numbering of the incoming product/spare part.
-                            If this number is not available or if the spare part/product belongs to another customer, select the Other option'; ?>
-                <label for="owner-part-key">NTI P/N</label>
-                <select name="owner-part-key" id="owner-part-key" class="input" data-title="<?= $t ?>" required>
-                    <?php foreach (NTI_PN as $val => $name): ?>
-                        <option value="<?= $val ?>"><?= $name ?></option>
-                    <?php endforeach; ?>
-                </select>
+                            If this number is not available or if the spare part/product belongs to another customer, 
+                            select the custom option and write new name by upper letters!!!';
+                $query = "SELECT DISTINCT REGEXP_REPLACE(owner_pn, '[0-9]+$', '') AS unique_part_name FROM warehouse";
+                ?>
+                <label for="owner-part-key">Owner P/N</label>
+                <div class="input-group" id="select-pn-box">
+                    <select name="owner-pn-list" id="owner-pn-list" class="form-select" data-title="<?= $t ?>" required>
+                        <?php foreach (NTI_PN as $val => $name): ?>
+                            <?php //foreach (R::getCol($query) as $name): ?>
+                            <option value="<?= $val ?>"><?= $name ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="hidden mt-2 input-group" id="custom-pn-box">
+                        <label for="owner-pn-input" class="text-primary">Write custom P/N</label>
+                        <input type="text" name="owner-pn-input" id="owner-pn-input" class="input" placeholder="Enter custom P/N"/>
+                    </div>
+                </div>
 
-                <label for="owner-part-name">Owner P/N</label>
-                <input type="text" placeholder="Owner P/N"
-                       name="owner-part-name" id="owner-part-name" class="input searchThis" data-request="warehouse"
-                       value="<?= set_value('owner-part-name'); ?>"/>
                 <label for="quantity">Quantity</label>
                 <input type="number" placeholder="QTY"
                        name="quantity" id="quantity" class="input"
@@ -301,6 +307,23 @@ ScriptContent('arrivals');
 ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // Получаем элемент page_data
+        const pageDataElem = dom.e('#page_data');
+        // Проверяем, что элемент page_data существует на странице
+        if (pageDataElem) {
+            // Добавляем обработчик события keyup ко всему документу
+            document.addEventListener('keyup', function () {
+                // Проверяем, существует ли элемент user_data
+                const userDataElem = dom.e('#user_data');
+                const modalBtn = dom.e('#modal-btn-succes');
+                if (userDataElem) {
+                    // Копируем значение из page_data в user_data
+                    userDataElem.value = pageDataElem.value;
+                    modalBtn.disabled = false;
+                }
+            });
+        }
+
         /* код вставки изображений скопированных на сайтах */
         document.getElementById('pasteArea').addEventListener('paste', function (e) {
             e.preventDefault();
@@ -474,22 +497,17 @@ ScriptContent('arrivals');
             console.log(response);
         });
 
-        // Получаем элемент page_data
-        const pageDataElem = dom.e('#page_data');
-        // Проверяем, что элемент page_data существует на странице
-        if (pageDataElem) {
-            // Добавляем обработчик события keyup ко всему документу
-            document.addEventListener('keyup', function () {
-                // Проверяем, существует ли элемент user_data
-                const userDataElem = dom.e('#user_data');
-                const modalBtn = dom.e('#modal-btn-succes');
-                if (userDataElem) {
-                    // Копируем значение из page_data в user_data
-                    userDataElem.value = pageDataElem.value;
-                    modalBtn.disabled = false;
-                }
-            });
-        }
+        // выбор произвольного имени для номера запчасти
+        // например имя которое дал клиент
+        dom.in("change", "#owner-pn-list", function () {
+            if (this.value === 'custom') {
+                dom.show('#custom-pn-box');
+                dom.e('#owner-pn-input').required = true;
+            } else {
+                dom.hide('#custom-pn-box');
+                dom.e('#owner-pn-input').required = false;
+            }
+        });
     });
 
     // Функция создания ссылок на новые парт номера
