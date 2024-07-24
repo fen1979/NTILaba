@@ -99,7 +99,7 @@ function viewSupplier($result, $request, $mySearchString)
                     </div>
 
                     <div class="row mb-2">
-                        <div class="col-8">
+                        <div class="col-8 pe-3">
                             <label for="sup_type">Choose Supplier Type <b class="text-danger">*</b></label>
                             <select name="sup_type" id="sup_type" class="input" required>
                                 <option value="Manufacturer">Manufacturer</option>
@@ -110,7 +110,7 @@ function viewSupplier($result, $request, $mySearchString)
                         <div class="col-4">
                             <label for="rating">Rating <b class="text-danger">*</b></label>
                             <input type="number" placeholder="Rating" class="input" name="rating" id="rating"
-                                   value="<?= set_value('rating', 0); ?>" required/>
+                                   value="<?= set_value('rating'); ?>" required/>
                         </div>
                     </div>
 

@@ -187,7 +187,7 @@ DisplayMessage($args ?? null);
                 </form>
             <?php } ?>
         </div>
-        <div class="col-2">
+        <div class="col-2 p-5">
             <p>Part name: <b><?= $item['part_name'] ?></b></p>
             <p>Part Value: <b><?= $item['part_value'] ?></b></p>
             <p>Mounting Type: <b><?= $item['mounting_type'] ?></b></p>
@@ -221,6 +221,23 @@ ScriptContent($page);
 ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // Получаем элемент page_data
+        const pageDataElem = dom.e('#page_data');
+        // Проверяем, что элемент page_data существует на странице
+        if (pageDataElem) {
+            // Добавляем обработчик события keyup ко всему документу
+            document.addEventListener('keyup', function () {
+                // Проверяем, существует ли элемент user_data
+                const userDataElem = dom.e('#user_data');
+                const modalBtn = dom.e('#modal-btn-succes');
+                if (userDataElem) {
+                    // Копируем значение из page_data в user_data
+                    userDataElem.value = pageDataElem.value;
+                    modalBtn.disabled = false;
+                }
+            });
+        }
+
         // Обработка клика по результату поиска supplier/manufacturer
         dom.in("click", "#search-responce tr.supplier", function () {
             if (this.parentElement.dataset.info) {
@@ -274,22 +291,17 @@ ScriptContent($page);
             console.log(response);
         });
 
-        // Получаем элемент page_data
-        const pageDataElem = dom.e('#page_data');
-        // Проверяем, что элемент page_data существует на странице
-        if (pageDataElem) {
-            // Добавляем обработчик события keyup ко всему документу
-            document.addEventListener('keyup', function () {
-                // Проверяем, существует ли элемент user_data
-                const userDataElem = dom.e('#user_data');
-                const modalBtn = dom.e('#modal-btn-succes');
-                if (userDataElem) {
-                    // Копируем значение из page_data в user_data
-                    userDataElem.value = pageDataElem.value;
-                    modalBtn.disabled = false;
-                }
-            });
-        }
+        // выбор произвольного имени для номера запчасти
+        // например имя которое дал клиент
+        dom.in("change", "#owner-pn-list", function () {
+            if (this.value === 'custom') {
+                dom.show('#custom-pn-box');
+                dom.e('#owner-pn-input').required = true;
+            } else {
+                dom.hide('#custom-pn-box');
+                dom.e('#owner-pn-input').required = false;
+            }
+        });
     });
 </script>
 </body>
