@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-
     // click on upload files for project button
     dom.doClick("#projects_files_btn", "#projects_files");
     // click on upload PDF files for project
@@ -65,51 +64,72 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Включаем кнопку "Создать проект" при заполнении обязательных полей и выборе минимум 3 чекбоксов
-    $('#createProjectForm input[required], #createProjectForm textarea[required], #createProjectForm input[type="checkbox"]')
-        .on('input change', function () {
-            let checkedCount = $('#createProjectForm input[type="checkbox"]:checked').length;
-            let requiredFieldsFilled = true;
-            let projectNameValid = true; // По умолчанию предполагаем, что имя проекта валидно
+    const form = dom.e('#createProjectForm');
 
-            // Проверяем, заполнены ли все обязательные поля
-            $('#createProjectForm input[required], #createProjectForm textarea[required]').each(function () {
-                if ($(this).val() === '') {
-                    requiredFieldsFilled = false;
-                    return false; // Выходим из цикла each
-                }
-            });
+    function enableSubmitButton(enable) {
+        dom.e('#createProjectBtn').disabled = !enable;
+    }
 
-            // Только если все обязательные поля заполнены, проверяем уникальность имени
-            if (requiredFieldsFilled) {
-                let mode = $("#pn").data("mode");
-                let projectName = $("#pn").val().trim();
-                if (projectName.length >= 5 && mode !== "editmode") {
-                    // запрос на проверку уникальности имени проекта
-                    $.post('/searching/getData.php', {project_name: projectName, verification: true}, function (data) {
+    function checkForm() {
+        let checkedCount = form.querySelectorAll('input[type="checkbox"]:checked').length;
+        let requiredFieldsFilled = true;
+        let projectNameValid = true; // По умолчанию предполагаем, что имя проекта валидно
+
+        // Проверяем, заполнены ли все обязательные поля
+        form.querySelectorAll('input[required], textarea[required]').forEach(function (field) {
+            if (field.value.trim() === '') {
+                requiredFieldsFilled = false;
+            }
+        });
+
+        // Только если все обязательные поля заполнены, проверяем уникальность имени
+        if (requiredFieldsFilled) {
+            let mode = dom.e("#pn").dataset.mode;
+            let projectName = dom.e("#pn").value.trim();
+            if (projectName.length >= 5 && mode !== "editmode") {
+
+                // запрос на проверку уникальности имени проекта
+                fetch("get_data", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `project_name=${encodeURIComponent(projectName)}&verification=true`
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // console.log(data); // выводим ответ сервера в консоль для отладки
                         projectNameValid = !data.exists;
                         if (data.exists) {
-                            $('#pn').addClass('danger').removeClass('success');
-                            $("#pn_label").html("Project Name <b class='danger blinking p-2'>This name is exist!</b>");
-                            //$("#folderAdding").attr("href", "").addClass("disabled");
+                            dom.addClass('#pn', 'danger');
+                            dom.removeClass('#pn', 'success');
+                            dom.e("#pn_label").innerHTML = "Project Name <b class='danger blinking p-2'>This name is exist!</b>";
                         } else {
-                            $('#pn').addClass('success').removeClass('danger');
-                            $("#pn_label").html("Project Name");
-                            // $("#folderAdding").attr("href", "/wiki?dir=" + projectName + "&mode=add-project").removeClass("disabled");
+                            dom.addClass('#pn', 'success');
+                            dom.removeClass('#pn', 'danger');
+                            dom.e("#pn_label").textContent = "Project Name";
                         }
                         // Проверка минимума чекбоксов и активация кнопки
                         enableSubmitButton(requiredFieldsFilled && projectNameValid && checkedCount >= 3);
-                    }, 'json');
-                } else {
-                    // активация кнопки когда все поля заполнены, имя уникально и чекбоксы выбраны
-                    enableSubmitButton(requiredFieldsFilled && projectNameValid && checkedCount >= 3);
-                }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
             } else {
-                // деактивация кнопки
-                enableSubmitButton(false);
+                // активация кнопки когда все поля заполнены, имя уникально и чекбоксы выбраны
+                enableSubmitButton(requiredFieldsFilled && projectNameValid && checkedCount >= 3);
             }
-        });
-});
+        } else {
+            // деактивация кнопки
+            enableSubmitButton(false);
+        }
+    }
 
-function enableSubmitButton(enable) {
-    dom.e("#createProjectBtn").disabled = !enable;
-}
+    form.querySelectorAll('input[required], textarea[required], input[type="checkbox"]').forEach(function (element) {
+        element.addEventListener('input', checkForm);
+        element.addEventListener('change', checkForm);
+    });
+
+    // Проверка формы при загрузке страницы
+    checkForm();
+});

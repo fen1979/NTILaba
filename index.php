@@ -59,12 +59,25 @@ $r->addRout('/replenishment', 'warehouse/replenishment.php');
 
 // wiki storage page
 $r->addRout('/wiki', 'wiki.php');
+
+// системные операции для внутренних нужд сайта //
+// переход к документации о сайте
 $r->addRout('/docs', 'public/docs/docs.php');
+// вывод сборочной документации в ПДФ для проекта
 $r->addRout('/assy_flow_pdf', 'pdfOut/assyStepFlow.php');
+// вывод рут карты в ПДФ для заказа
 $r->addRout('/route_card', 'pdfOut/routes.php');
+// создание БОМ файла на скачивание для проекта/заказа
+$r->addRout('/create_bom', 'orders/order-details.php');
+// Data Base changes listeners use for: Order, Chat
+$r->addRout('/is_change', 'core/listeners.php');
 
 // shared project view page
 $r->addRout('/shared-project', 'public/shared.php');
+// cron file for cron requests from server
+$r->addRout('/6fef03d1aac6981d6c6eaa35fc9b46d1311b4b5425a305fc7da1b00c2', 'core/cron.php');
+// запрос на поиск данных в БД
+$r->addRout('/get_data', 'searching/getData.php');
 
 // call the routing function to view page
 $r->route($r->getUrl());

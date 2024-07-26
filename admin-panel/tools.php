@@ -41,36 +41,59 @@ DisplayMessage($args ?? null);
             <table class="table">
                 <thead class="bg-light">
                 <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">View</th>
-                    <th scope="col">Specification</th>
-                    <th scope="col">ESD</th>
-                    <th scope="col">Date To QC</th>
-                    <th scope="col">E/C/D</th>
-
+                    <th>N</th>
+                    <th>Manufacturer name</th>
+                    <th>Model</th>
+                    <th>Device type</th>
+                    <th>Device location</th>
+                    <th>Calibration/No calibration required</th>
+                    <th>Serial No</th>
+                    <th>Calibration date</th>
+                    <th>Next calibration</th>
+                    <th>Work Life</th>
+                    <th>The responsible person for the device</th>
+                    <th>Remarks</th>
+                    <th>Image Path</th>
+                    <th>Date in</th>
                 </tr>
                 </thead>
 
                 <tbody id="data-container">
                 <?php $table = R::find(TOOLS);
-                foreach ($table as $row) { ?>
-                    <tr class="align-middle">
-                        <td class="border-end"><?= $row['toolname']; ?></td>
-                        <td class="border-end"><img src="<?= $row['image']; ?>" alt="Tool Image Preview" width="100px" height="100px"></td>
-                        <td class="border-end"><?= $row['specifications']; ?></td>
-                        <td class="border-end"><?= $row['esd']; ?></td>
-                        <td class="border-end"><?= $row['exp_date']; ?></td>
-                        <td>
-                            <form method="post" style="margin:0;">
-                                <button type="submit" name="edit" class="btn btn-warning btn-sm mb-1 mt-1" value="<?= $row['id']; ?>">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button type="button" class="btn btn-danger btn-sm mb-1 mt-1 del-but" data-id="tools-<?= $row['id']; ?> ">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
-                        </td>
+                foreach ($table as $tool) { ?>
+                    <tr>
+                        <td><?= $tool['id'] ?></td>
+                        <td><?= $tool['manufacturer_name'] ?></td>
+                        <td><?= $tool['device_model'] ?></td>
+                        <td><?= $tool['device_type'] ?></td>
+                        <td><?= $tool['device_location'] ?></td>
+                        <td><?= $tool['calibration'] ?></td>
+                        <td><?= $tool['serial_num'] ?></td>
+                        <td><?= $tool['date_of_inspection'] ?></td>
+                        <td><?= $tool['next_inspection_date'] ?></td>
+                        <td><?= $tool['work_life'] ?></td>
+                        <td><?= $tool['responsible'] ?></td>
+                        <td><?= $tool['remarks'] ?></td>
+                        <td><?= $tool['image'] ?></td>
+                        <td><?= $tool['date_in'] ?></td>
                     </tr>
+                    <!--                    <tr class="align-middle">-->
+                    <!--                        <td class="border-end">--><?php //= $row['toolname']; ?><!--</td>-->
+                    <!--                        <td class="border-end"><img src="--><?php //= $row['image']; ?><!--" alt="Tool Image Preview" width="100px" height="100px"></td>-->
+                    <!--                        <td class="border-end">--><?php //= $row['specifications']; ?><!--</td>-->
+                    <!--                        <td class="border-end">--><?php //= $row['esd']; ?><!--</td>-->
+                    <!--                        <td class="border-end">--><?php //= $row['exp_date']; ?><!--</td>-->
+                    <!--                        <td>-->
+                    <!--                            <form method="post" style="margin:0;">-->
+                    <!--                                <button type="submit" name="edit" class="btn btn-warning btn-sm mb-1 mt-1" value="--><?php //= $row['id']; ?><!--">-->
+                    <!--                                    <i class="bi bi-pencil"></i>-->
+                    <!--                                </button>-->
+                    <!--                                <button type="button" class="btn btn-danger btn-sm mb-1 mt-1 del-but" data-id="tools---><?php //= $row['id']; ?><!-- ">-->
+                    <!--                                    <i class="bi bi-trash"></i>-->
+                    <!--                                </button>-->
+                    <!--                            </form>-->
+                    <!--                        </td>-->
+                    <!--                    </tr>-->
                     <?php
                 }
                 ?>
@@ -163,3 +186,29 @@ ScriptContent($page);
 </script>
 </body>
 </html>
+
+<?php
+
+//$t = R::findAll(TOOLS);
+//foreach ($t as $tool) {
+//    $nt = R::dispense('devices');
+//    $nt->manufacturer_name = $tool['toolname']; // имя инструмента от производителя
+//    $nt->device_model = $tool['device_model']; // модель инструмента
+//    $nt->device_type = $tool['device_type']; // тип инструмента
+//    $nt->device_location = $tool['device_location']; // рабочее местонахождение инструмента
+//    $nt->calibration = $tool['calibration']; // NONC = no need calibration, NEC = need calibration
+//    $nt->serial_num = $tool['serial_num']; // сирийный номер инструмента после калибровки
+//    $nt->date_of_inspection = $tool['date_of_inspection']; // дата последней калибровки - обслуживания инструмента
+//    $nt->next_inspection_date = $tool['exp_date']; // следующая дата калибровки - обслуживания инструмента !!!
+//    $nt->work_life = $tool['work_life']; // интервал обслуживания/калибровки (месяцев)
+//    $nt->responsible = $tool['service_manager']; // ответственный за инструмент
+//    $nt->remarks = $tool['specifications']; // заметки на полях
+//    $nt->image = $tool['image']; // путь к фото инструмента или ПДФ
+//    $nt->date_in = $tool['date_in']; // дата внесения в БД
+//
+//    R::store($nt);
+//    //$nt->colored = $tool['colored']; // надо уточнить
+//
+//}
+
+?>

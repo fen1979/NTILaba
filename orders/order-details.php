@@ -6,7 +6,7 @@ if (isset($_POST['suggest'])) {
 }
 
 // rest page functions and includes
-EnsureUserIsAuthenticated($_SESSION,'userBean','order');
+EnsureUserIsAuthenticated($_SESSION, 'userBean', null, 'order');
 include_once 'orders/Orders.php';
 
 /* получение пользователя из сессии */

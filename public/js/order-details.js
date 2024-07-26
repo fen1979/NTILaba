@@ -40,8 +40,8 @@ document.addEventListener("DOMContentLoaded", function () {
         dom.hide("#chatModalDialog", "slow");
     });
 
-    // ROOT_DIR in resources file need to be here some how ???
-    const args = {method: "POST", url: BASE_URL + "orders/order-details.php", headers: null};
+    // запрос на создание файла БОМ для заказа/проекта
+    const args = {method: "POST", url: BASE_URL + "create_bom", headers: null};
     dom.makeRequest("#download_bom", "click", null, args, function (error, result, _) {
         console.log(result)
         if (error) {
@@ -60,7 +60,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Дополнительно можно отслеживать нажатия на клавиши в текстовых полях
     dom.inAll("keypress", 'input[type="text"], textarea', setDirty);
-
 
     // script для переключения табов
     dom.in("click", ".nav-link", function () {

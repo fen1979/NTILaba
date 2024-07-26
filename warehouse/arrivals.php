@@ -379,14 +379,28 @@ ScriptContent('arrivals');
                 dom.e("#storage-class").value = info.storage_class;
                 dom.e("#storage-state").value = info.storage_state;
                 dom.e("#owner").value = info.owner;
-                dom.e("#owner-part-name").value = info.owner_part_name;
+                if (info.owner_part_name && info.owner_part_name.trim() !== '') {
+                    // Получаем список опций
+                    const options = dom.e("#owner-pn-list");
+                    // Оставляем только буквы для сравнения
+                    const searchText = info.owner_part_name.replace(/[^a-zA-Z]/g, '');
+                    // Проходим по всем опциям в списке
+                    for (let i = 0; i < options.length; i++) {
+                        // Оставляем только буквы для сравнения в значении опции
+                        const optionValue = options[i].value;
+
+                        // Проверяем, начинается ли значение опции с нужного текста
+                        if (optionValue.startsWith(searchText)) {
+                            // Устанавливаем опцию как выбранную и выходим из цикла
+                            options[i].selected = true;
+                            break;
+                        }
+                    }
+                }
                 dom.e("#quantity").value = info.quantity;
                 dom.e("#storage-box").value = info.storage_box;
                 dom.e("#storage-shelf").value = info.storage_shelf;
-                // dom.e("#manufactured-date").value = info.manufactured_date.replace(" ", "T");
-                // dom.e("#part-lot").value = info.part_lot;
-                // dom.e("#invoice").value = info.invoice;
-                // dom.e("#supplier").value = info.supplier;
+
                 // Очищаем результаты поиска
                 dom.hide("#searchModal");
                 createSearchLinks(info.MFpartName);
@@ -423,7 +437,7 @@ ScriptContent('arrivals');
         });
 
         // выборка фоток из БД которые существуют
-        const args = {method: "POST", url: "searching/getData.php", headers: null};
+        const args = {method: "POST", url: "get_data", headers: null};
         dom.makeRequest("#db-image-btn", "click", "data-request", args, function (error, result, _) {
             if (error) {
                 console.error('Error during fetch:', error);

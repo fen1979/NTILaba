@@ -450,9 +450,7 @@ class Orders
      */
     public static function makeXLSXfileAndSave($order_id, $pathToSave): bool
     {
-        $anonimus = true;
-        require '../core/Routing.php';
-        include_once '../libs/xlsxgen.php';
+        include_once 'libs/xlsxgen.php';
 
         $titles = L::TABLES(PROJECT_BOM, null); // 12 titles
         $order = R::load(ORDERS, $order_id);
@@ -472,7 +470,7 @@ class Orders
         }
 
         $project_name = $order->project_name;
-        $pathToSave = ($pathToSave != null) ? $pathToSave : '../storage/projects/' . $project_name . '/docs/order_bom_for_' . $project_name . '_.xlsx';
+        $pathToSave = ($pathToSave != null) ? $pathToSave : 'storage/projects/' . $project_name . '/docs/order_bom_for_' . $project_name . '_.xlsx';
         $path = (strpos($pathToSave, '.xlsx') === false) ? $pathToSave . '.xlsx' : $pathToSave;
         $xlsx = XLSXGen::fromArray($orderBOM);
         return $xlsx->saveAs($path);

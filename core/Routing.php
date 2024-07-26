@@ -20,12 +20,10 @@ define("VIEW_MODE", $mode);
 /* ==================== SITE PUBLIC RESOURCES ================== */
 require_once 'Resources.php';
 require_once 'Utility.php';
-if (empty($anonimus)) {
-    require_once 'layout/PageLayout.php';
-    require_once 'libs/Converter.php';
-    include_once 'libs/Mailer.php';
-    require_once 'Undo.php';
-}
+require_once 'layout/PageLayout.php';
+require_once 'libs/Converter.php';
+include_once 'libs/Mailer.php';
+require_once 'Undo.php';
 
 /* route class */
 

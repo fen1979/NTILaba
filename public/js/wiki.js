@@ -1,6 +1,5 @@
 dom.addEventListener('DOMContentLoaded', function () {
     /* drag and drop file to move from page to folder */
-
     let draggedItem = null;
 
     // Обработка событий перетаскиваемых файлов
@@ -38,20 +37,23 @@ dom.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // набор текста в поле для поиска
-    $(".searchThis").on("keyup", function () {
-        let value = $(this).val().toLowerCase();
-        $("#search_here .col-md-2").filter(function () {
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    // Набор текста в поле для поиска
+    dom.in("keyup", ".searchThis", function () {
+        let value = this.value.toLowerCase();
+
+        dom.e("#search_here .col-md-2", function () {
+            let text = this.textContent.toLowerCase();
+            this.style.display = text.indexOf(value) > -1 ? "" : "none";
         });
     });
 
-    $(document).on("click", "#add-files", function () {
-        $("#addimg-form").toggle("hidden");
+    // open - close btn add files
+    dom.in("click", "#add-files", function () {
+        dom.toggleClass("#addimg-form", "hidden");
     });
 
     // Обработчик события изменения для инпута с файлами
-    $("#some_file, #some_folder").on("change", function () {
+    dom.in("change", "#some_file, #some_folder", function () {
         // Получаем количество выбранных файлов
         let fileCount = this.files.length;
         // Базовый текст для лейбла в зависимости от инпута
@@ -59,64 +61,53 @@ dom.addEventListener('DOMContentLoaded', function () {
 
         if (fileCount > 0) {
             // Если выбраны файлы, обновляем текст лейбла, добавляя количество
-            $(this).next('label').text(`${labelBaseText} - ${fileCount}pcs`);
+            this.nextElementSibling.textContent = `${labelBaseText} - ${fileCount}pcs`;
         } else {
             // Если файлы не выбраны, возвращаем базовый текст лейбла
-            $(this).next('label').text(labelBaseText);
+            this.nextElementSibling.textContent = labelBaseText;
         }
     });
 
     // отслеживание изменений в инпуте для взятия папок
-    $("#some_folder").on("change", function () {
+    dom.in("change", "#some_folder", function () {
         if (this.files.length > 0) {
-            $("#file_label").hide();
+            dom.hide("#file_label");
         }
         checkFolderName();
     });
 
     // отслеживание для инпута взятия файлов
-    $("#some_file").on("change", function () {
+    dom.in("change", "#some_file", function () {
         if (this.files.length > 0) {
-            $("#folder_label").hide();
+            dom.hide("#folder_label");
         }
         checkFolderName();
     });
 
     // меняем лейбля для кнопок при изменениях
-    $("#folder_name").on("input", function () {
+    dom.in("input", "#folder_name", function () {
         // Если поле с именем папки изменено или очищено
-        if ($(this).val() === '') {
+        if (this.value === '') {
             // Сбрасываем выбранные файлы/папки
-            $("#some_file, #some_folder").val('');
+            dom.e("#some_file").value = '';
+            dom.e("#some_folder").value = '';
 
             // Возвращаем видимость обоим лейблам
             let labelBaseText = ["Pick a File", "Pick a Folder"];
-            $("#file_label").text(labelBaseText[0]);
-            $("#folder_label").text(labelBaseText[1]);
-            $("#file_label, #folder_label").show();
+            dom.e("#file_label").textContent = labelBaseText[0];
+            dom.e("#folder_label").textContent = labelBaseText[1];
+            dom.show("#file_label");
+            dom.show("#folder_label");
         }
     });
 
     // Активируем кнопку отправки, если введено имя папки
-    $("#folder_name").on("input", function () {
-        if ($(this).val() !== '' && $(this).val().length >= 3) {
-            $("#submit-btn").prop("disabled", false);
-        } else {
-            $("#submit-btn").prop("disabled", true);
-        }
-    });
-
-    // Отображаем элемент загрузки при клике на кнопку отправки
-    $("#submit-btn").click(function () {
-        $("#loading").css("display", "flex");
+    dom.in("input", "#folder_name", function () {
+        dom.e("#submit-btn").disabled = !(this.value !== '' && this.value.length >= 3);
     });
 });
 
 function checkFolderName() {
-    let f_name = $("#folder_name");
-    if (f_name.val() !== '' && f_name.val().length >= 3) {
-        $("#submit-btn").prop("disabled", false);
-    } else {
-        $("#submit-btn").prop("disabled", true);
-    }
+    let f_name = dom.e("#folder_name");
+    dom.e("#submit-btn").disabled = !(f_name.value !== '' && f_name.value.length >= 3);
 }

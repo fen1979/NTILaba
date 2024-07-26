@@ -1,5 +1,5 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION,'userBean');
+EnsureUserIsAuthenticated($_SESSION, 'userBean');
 include_once 'projects/Project.php';
 
 $page = 'project_part_list';
@@ -288,7 +288,7 @@ DisplayMessage($args ?? null);
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
                         <input type="password" class="form-control" id="password" name="password" required autofocus>
-                        <input type="hidden" id="item_id" name="itemId">
+                        <input type="hidden" id="item_id_for_delete" name="itemId" value="">
                     </div>
                     <button type="submit" class="btn btn-danger" name="delete-item">Delete Item</button>
                 </form>

@@ -635,7 +635,7 @@ function backupFillItem()
 
                 // Выполняем AJAX-запрос только если поле поиска не пустое
                 $.post({
-                    url: BASE_URL + "searching/getData.php",
+                    url: BASE_URL + "get_data",
                     data: {"suggest": search, "request": req},
                     beforeSend: function (xhr) {
                         xhr.overrideMimeType("text/plain; charset=utf-8");

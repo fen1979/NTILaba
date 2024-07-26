@@ -1,5 +1,5 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION,'userBean');
+EnsureUserIsAuthenticated($_SESSION, 'userBean');
 require 'projects/Project.php';
 $page = 'new_project';
 $user = $_SESSION['userBean'];
@@ -186,34 +186,34 @@ DisplayMessage($args ?? null);
 
 <div class="container mt-5 px-3 py-3 rounded" style="background: beige;">
     <div class="row">
-        <div class="col-8"><h3><?= (!$id) ? 'Create Project' : 'Edit Project'; ?></h3></div>
+        <div class="p-1 col-8"><h3><?= (!$id) ? 'Create Project' : 'Edit Project'; ?></h3></div>
         <?php $lastId = R::getCol("SELECT MAX(id) FROM projects"); ?>
-        <div class="col-4"><h3>Project ID: &nbsp; <?= !$id ? $lastId[0] + 1 : $id; ?></h3></div>
+        <div class="p-1 col-4"><h3>Project ID: &nbsp; <?= !$id ? $lastId[0] + 1 : $id; ?></h3></div>
     </div>
 
     <form id="createProjectForm" action="" method="post" enctype="multipart/form-data" autocomplete="off">
         <!--i CUSTOMER NAME ID -->
         <div class="mb-3">
             <div class="row">
-                <div class="col-6">
+                <div class="p-1 col-6">
                     <label for="customerName" class="form-label">Customer Name <b class="text-danger">*</b> <i class="bi bi-search"></i></label>
                 </div>
-                <div class="col-3">
+                <div class="p-1 col-3">
                     <label for="customerId" class="form-label">Customer ID</label>
                 </div>
-                <div class="col-3"></div>
+                <div class="p-1 col-3"></div>
             </div>
             <div class="row">
-                <div class="col-6">
+                <div class="p-1 col-6">
                     <input type="text" class="form-control searchThis" id="customerName" name="customerName"
                            value="<?= (!empty($project['customername'])) ? $project['customername'] : set_value('customerName'); ?>"
                            data-request="customer" required>
                 </div>
-                <div class="col-3">
+                <div class="p-1 col-3">
                     <input type="text" class="form-control" id="customerId" name="customerId" readonly
                            value="<?= (!empty($project['customerid'])) ? $project['customerid'] : set_value('customerId'); ?>">
                 </div>
-                <div class="col-3">
+                <div class="p-1 col-3">
                     <?php $href = "/create_client?routed-from=create-project"; ?>
                     <a role="button" class="btn btn-outline-diliny form-control" id="createCustomer" href="<?= $href ?>">
                         Add New Customer
@@ -224,19 +224,19 @@ DisplayMessage($args ?? null);
         <!--i CUSTOMER PRIORITY AND HEAD PAY -->
         <div class="mb-3">
             <div class="row">
-                <div class="col-6">
+                <div class="p-1 col-6">
                     <label for="priorityMakat" class="form-label">Priority makat <!--<b class="text-danger">*</b>--></label>
                 </div>
-                <div class="col-6">
+                <div class="p-1 col-6">
                     <label for="headPay" class="form-label">Head Pay <!--<b class="text-danger">*</b>--></label>
                 </div>
             </div>
             <div class="row">
-                <div class="col-6">
+                <div class="p-1 col-6">
                     <input type="text" name="priorityMakat" value="<?= (!empty($project['priority'])) ? $project['priority'] : set_value('priorityMakat'); ?>"
                            class="form-control" id="priorityMakat">
                 </div>
-                <div class="col-6">
+                <div class="p-1 col-6">
                     <input type="text" name="headPay" value="<?= (!empty($project['headpay'])) ? $project['headpay'] : set_value('headPay'); ?>"
                            id="headPay" class="form-control">
                 </div>
@@ -245,27 +245,27 @@ DisplayMessage($args ?? null);
         <!--i PROJECT NAME, INCOMING DATE, REVISION -->
         <div class="mb-3">
             <div class="row">
-                <div class="col-7">
+                <div class="p-1 col-7">
                     <label for="pn" class="form-label" id="pn_label">Project Name <b class="text-danger">*</b></label>
                 </div>
-                <div class="col-3">
+                <div class="p-1 col-3">
                     <label for="pr" class="form-label">Project Version <b class="text-danger">*</b></label>
                 </div>
-                <div class="col-2">
+                <div class="p-1 col-2">
                     <label for="date_in" class="form-label">Project start Date <b class="text-danger">*</b></label>
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-7">
+                <div class="p-1 col-7">
                     <input type="text" name="projectName" value="<?= (!empty($project['projectname'])) ? $project['projectname'] : set_value('projectName'); ?>"
                            class="form-control" id="pn" data-mode="<?= !empty($_GET['pid']) ? $_GET['pid'] : '0'; ?>" required>
                 </div>
-                <div class="col-3">
+                <div class="p-1 col-3">
                     <input type="text" class="form-control" id="pr" name="projectRevision" required
                            value="<?= (!empty($project['revision'])) ? $project['revision'] : set_value('projectRevision'); ?>">
                 </div>
-                <div class="col-2">
+                <div class="p-1 col-2">
                     <input type="datetime-local" class="form-control" id="date_in" name="date_in"
                            value="<?= (!empty($project->date_in)) ? $project->date_in : date('Y-m-d H:i'); ?>" required>
                 </div>
@@ -275,12 +275,12 @@ DisplayMessage($args ?? null);
 
         <div class="mb-4">
             <div class="row">
-                <div class="col-6">
+                <div class="p-1 col-6">
                     <label for="en" class="form-label">Executor Name <b class="text-danger">*</b></label>
                     <input type="text" class="form-control" id="en" name="executorName" required
                            value="<?= (!empty($project['executor'])) ? $project['executor'] : set_value('executorName', 'NTI'); ?>">
                 </div>
-                <div class="col-6">
+                <div class="p-1 col-6">
                     <label for="rcn" class="form-label">Route Card Name <b class="text-danger">*</b></label>
                     <select id="rcn" name="route_card_name" class="form-select" aria-label="Route Card Name">
                         <option selected>Choose Route Card Name for this Project</option>
@@ -298,7 +298,7 @@ DisplayMessage($args ?? null);
 
         <!--i PROJECT FILES -->
         <div class="row mb-3">
-            <div class="col">
+            <div class="p-1 col">
                 <button type="button" class="btn btn-outline-primary form-control" id="pickFile"
                         data-who="file">Upload Project Documentation (PDF Only)
                 </button>
@@ -308,7 +308,7 @@ DisplayMessage($args ?? null);
             <?php
             // если файл пдф был загружен (для редактирования)
             if (!empty($project['projectdocs']) && strpos($project['projectdocs'], '.pdf') !== false) { ?>
-                <div class="col">
+                <div class="p-1 col">
                     <a type="button" target="_blank" class="btn btn-outline-info form-control" href="<?= $project['projectdocs'] ?? ''; ?>">
                         View or Download Document
                     </a>
@@ -320,14 +320,14 @@ DisplayMessage($args ?? null);
             if (!empty($project->docsdir) && isDirEmpty($project->docsdir)) {
                 $href = "/wiki?pr_dir=$project->docsdir";
                 ?>
-                <div class="col">
+                <div class="p-1 col">
                     <a type="button" target="_blank" class="btn btn-outline-info form-control" href="<?= $href; ?>">
                         View or Download Project Files
                     </a>
                 </div>
             <?php } ?>
 
-            <div class="col">
+            <div class="p-1 col">
                 <!--i добавления файлов к проекту -->
                 <button type="button" class="btn btn-outline-primary form-control " id="projects_files_btn">
                     <?php $t = 'Warning! All files must be outside the folders, 
@@ -345,7 +345,7 @@ DisplayMessage($args ?? null);
         <!--i FOR SUB ASSEMBLY PROJECT ROUTECARD -->
         <div class="checkbox mb-3">
             <div class="row">
-                <div class="col-9 border-end">
+                <div class="p-1 col-9 border-end">
                     <?php $sub_assy = (!empty($project['sub_assembly']) && $project['sub_assembly'] == 1) ? 'checked' : ''; ?>
                     <div class="form-check form-switch fs-3">
                         <input class="form-check-input track-change" type="checkbox" id="sub_assembly" name="sub_assembly"
@@ -357,7 +357,7 @@ DisplayMessage($args ?? null);
                         </label>
                     </div>
                 </div>
-                <div class="col-3 border-start">
+                <div class="p-1 col-3 border-start">
                     <?php $project_type = (!empty($project['project_type']) && $project['project_type'] == 1) ? 'checked' : ''; ?>
                     <div class="form-check form-switch fs-3">
                         <input class="form-check-input track-change" type="checkbox" id="project_type" name="project_type"
@@ -380,15 +380,15 @@ DisplayMessage($args ?? null);
 
         <!--i CHOOSE TOOL TO PROJECT AND CREATE PROJECT BUTTONS -->
         <div class="row mt-5">
-            <div class="col-8">
+            <div class="p-1 col-8">
                 <button class="btn btn-outline-dark form-control dropdown-toggle" type="button" id="dropdownMenuTools" data-bs-toggle="dropdown" aria-expanded="false">
                     Choose Tools to Project
                 </button>
                 <div class="dropdown-menu w-50" aria-labelledby="dropdownMenuTools">
                     <!-- список инструментов на производстве, выбирается при создании проекта -->
                     <div class="dropdown-item border-bottom tools-row">
-                        <div class="col-1 border-end">Check</div>
-                        <div class="col-4 border-end">Preview</div>
+                        <div class="p-1 col-1 border-end">Check</div>
+                        <div class="p-1 col-4 border-end">Preview</div>
                         <div class="col">Tool Name</div>
                     </div>
 
@@ -403,10 +403,10 @@ DisplayMessage($args ?? null);
                             }
                             ?>
                             <div class="dropdown-item border-bottom tools-row">
-                                <div class="col-1 tool-name">
+                                <div class="p-1 col-1 tool-name">
                                     <input class="form-check-input" type="checkbox" name="selected-tools[]" <?= 'value="' . $row->id . '" ' . $on; ?>>
                                 </div>
-                                <div class="col-4">
+                                <div class="p-1 col-4">
                                     <img src="<?= $row->image; ?>" alt="Tools" style="width: 250px; height: auto;">
                                 </div>
                                 <div class="col tool-name"><?= $row->toolname; ?></div>
@@ -415,7 +415,7 @@ DisplayMessage($args ?? null);
                     </div>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="p-1 col-4">
                 <button type="submit" class="btn btn-outline-success form-control" id="createProjectBtn" <?= $disabled; ?>>
                     <?= $buttonSave; ?>
                 </button>

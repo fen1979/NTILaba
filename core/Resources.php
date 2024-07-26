@@ -342,6 +342,7 @@ const WH_LOGS = 'whlogs'; // логи склада
 const WH_RESERV = 'whreserv'; // созданный резерв запчастей для заказов
 const WH_SLOTS = 'whslots'; // места для хранения товара
 const WH_TYPES = 'whtypes'; // СПИСОК ИМЕН И ТИПОВ СКЛАДОВ
+const WH_ORDERED_ITEMS = 'whordereditems'; // СПИСОК ЗАКАЗАННЫХ ЗАПЧАСТЕЙ
 const ASSY_PROGRESS = 'assyprogress';
 const TOOLS = 'tools'; // tools table
 const ROUTE_ACTION = 'routeaction';
@@ -355,6 +356,7 @@ const LOGS = 'logs';
 const UNDO_TABLE = 'deletedrecords';
 
 /**
+ * fixme придумать что делать с данным кодом
  * MAIN NAVBAR SEARCH placeholders ARRAY
  */
 const FIND_T = [
@@ -369,6 +371,7 @@ const FIND_T = [
 ];
 
 /**
+ * fixme перенести в БД и сделать инерфейс для КРУД действий в админке
  * константа для вывода чекбоксов на странице заказа при его взятии в работу
  */
 const CHECK_BOX = [
@@ -412,6 +415,7 @@ const CHECK_BOX = [
  * USER - 11
  *
  * ADMINKA - 12
+ * fixme расширить и продумат как перенести в БД
  */
 const OBJECT_TYPE = ['ORDER', 'ORDER_BOM', 'ORDER_CHAT',
     'PROJECT', 'PROJECT_STEP', 'PROJECT_BOM',
@@ -420,10 +424,15 @@ const OBJECT_TYPE = ['ORDER', 'ORDER_BOM', 'ORDER_CHAT',
 
 /**
  *  Список игнорируемых путей и файлов
+ * требуется для правильного возврата пользователя после логина
  */
 const IGNORE_LIST = [
     ['type' => 'exact', 'value' => '/'],
     ['type' => 'exact', 'value' => '/sign-out'],
+    ['type' => 'exact', 'value' => '/get_data'],
+    ['type' => 'exact', 'value' => '/create_bom'],
+    ['type' => 'exact', 'value' => '/is_change'],
+    ['type' => 'exact', 'value' => '/6fef03d1aac6981d6c6eaa35fc9b46d1311b4b5425a305fc7da1b00c2'],
     ['type' => 'contains', 'value' => '.ico'],
     ['type' => 'contains', 'value' => '.css'],
     ['type' => 'contains', 'value' => 'storage/projects/']
@@ -431,11 +440,13 @@ const IGNORE_LIST = [
 ];
 
 /**
+ * fixme перенести в БД сделать пополняемой
  * СПИСОК ВАРИАНТОВ ВИДОВ УСТАНОВКИ ДЕТАЛЕЙ
  */
 const MOUNTING_TYPE = ["SMT", "TH", "CM", "PM", "SOLDER", "CRIMP", "LM", "OTHER"];
 
 /**
+ * fixme перенести в БД и сделать расширяемым обьектом
  * СПИСОК НАЗВАНИЙ ПАРТ НОМЕРОВ ДЛЯ NTI
  */
 const NTI_PN = ['NCAP' => 'Capacitor', 'NRES' => 'Resistor', 'NDIO' => 'Diode', 'NIC' => 'Micro Chip', 'NTR' => 'Transistor',

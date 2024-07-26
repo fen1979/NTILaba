@@ -25,25 +25,52 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    dom.in("click", ".video-button", function () {
-        // Находим ближайшие элементы изображения и видео относительно кнопки
-        let image = $(this).closest('.card').find('.image-preview');
-        let video = $(this).closest('.card').find('.video-preview');
-        let btn = $(this).closest('.card').find('.video-button i');
+    // dom.in("click", ".video-button", function () {
+    //     // Находим ближайшие элементы изображения и видео относительно кнопки
+    //     let image = $(this).closest('.card').find('.image-preview');
+    //     let video = $(this).closest('.card').find('.video-preview');
+    //     let btn = $(this).closest('.card').find('.video-button i');
+    //
+    //     // Переключаем видимость
+    //     if (image.is(':visible')) {
+    //         image.hide();
+    //         video.show();
+    //         btn.removeClass("bi bi-camera-reels-fill").addClass("bi bi-camera-fill");
+    //         btn.title('Preview Image');
+    //     } else {
+    //         video.hide();
+    //         image.show();
+    //         btn.removeClass("bi bi-camera-fill").addClass("bi bi-camera-reels-fill");
+    //         btn.title('Preview Video');
+    //     }
+    // });
+    document.addEventListener('click', function(event) {
+        // Проверяем, что клик произошел по элементу с классом .video-button
+        if (event.target.closest('.video-button')) {
+            let button = event.target.closest('.video-button');
+            // Находим ближайший элемент .card относительно кнопки
+            let card = button.closest('.card');
+            let image = card.querySelector('.image-preview');
+            let video = card.querySelector('.video-preview');
+            let btn = card.querySelector('.video-button i');
 
-        // Переключаем видимость
-        if (image.is(':visible')) {
-            image.hide();
-            video.show();
-            btn.removeClass("bi bi-camera-reels-fill").addClass("bi bi-camera-fill");
-            btn.title('Preview Image');
-        } else {
-            video.hide();
-            image.show();
-            btn.removeClass("bi bi-camera-fill").addClass("bi bi-camera-reels-fill");
-            btn.title('Preview Video');
+            // Переключаем видимость
+            if (image.style.display !== 'none') {
+                image.style.display = 'none';
+                video.style.display = 'block';
+                btn.classList.remove("bi", "bi-camera-reels-fill");
+                btn.classList.add("bi", "bi-camera-fill");
+                btn.title = 'Preview Image';
+            } else {
+                video.style.display = 'none';
+                image.style.display = 'block';
+                btn.classList.remove("bi", "bi-camera-fill");
+                btn.classList.add("bi", "bi-camera-reels-fill");
+                btn.title = 'Preview Video';
+            }
         }
     });
+
 
     /* действиe архивировать проект  */
     dom.in("click", ".archive", function () {
@@ -68,17 +95,3 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 }); // End document.ready
-
-
-/* при вводе в поле номер шага скрыть все елементы кроме этого поля */
-// $('#actStepInput').keyup(function () {
-//     $("#saveBtn").removeClass("btn-danger").addClass("btn-success");
-//     $("#errors").text("");
-//
-//     $(".version-box").addClass("hidden");
-//     $(".image-picker").addClass("hidden");
-//     $(".video-picker").addClass("hidden");
-//     $(".checkbox").addClass("hidden");
-//     $(".desc-box").addClass("hidden");
-//     $(".prev-box").addClass("hidden");
-// });

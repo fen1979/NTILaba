@@ -70,6 +70,7 @@ dom.doSubmit = function (triggerSelector, formSelector) {
  * DOMContentLoaded required functions
  */
 dom.addEventListener("DOMContentLoaded", function () {
+
     /**
      * Возвращает первый элемент DOM, соответствующий указанному селектору, и опционально выполняет коллбэк с этим элементом.
      * @param {string} selector - CSS-селектор для поиска элемента.
@@ -535,6 +536,41 @@ dom.addEventListener("DOMContentLoaded", function () {
         });
     };
 
+    /**
+     * Добавляет обработчик событий к родительскому элементу, который реагирует на события, возникающие на потомках,
+     * соответствующих указанному селектору.
+     *
+     * Пример использования
+     * dom.inMulty('input,change', 'input[required], textarea[required], input[type="checkbox"]', function (event) {
+     *     console.log(`Событие ${event.type} на элементе ${this.tagName} с селектором ${event.target}`);
+     * });
+     *
+     * @param {string} types - Типы событий, которые должен обрабатывать обработчик, разделённые запятой (например, 'click,change').
+     * @param {string} selectors - Селекторы потомков, для которых должен срабатывать обработчик, разделённые запятой.
+     * @param {function} callback - Функция обратного вызова, вызываемая при срабатывании события.
+     * @param {string} [parentSelector='body'] - Селектор родительского элемента, к которому привязывается обработчик.
+     */
+    dom.inMulty = function (types, selectors, callback, parentSelector) {
+        // Если родитель не задан, используем 'body' по умолчанию
+        const parent = dom.querySelector(parentSelector || 'body');
+
+        // Разделяем типы событий и селекторы
+        const eventTypes = types.split(',');
+        const selectorList = selectors.split(',');
+
+        eventTypes.forEach(type => {
+            parent.addEventListener(type.trim(), function (event) {
+                // Проверяем каждый селектор в списке селекторов
+                selectorList.forEach(selector => {
+                    if (event.target.closest(selector.trim())) {
+                        if (typeof callback === 'function') {
+                            callback.call(event.target, event); // Устанавливаем контекст this в callback
+                        }
+                    }
+                });
+            });
+        });
+    };
 
     /**
      * searching function set requests to some server and back responce for preview to page
@@ -634,7 +670,7 @@ dom.addEventListener("DOMContentLoaded", function () {
      * @param event (string): Тип события, который будет отслеживаться (например, 'submit').
      * @param target (string): CSS селектор формы, для которой будет установлен обработчик события.
      * @param callback (function): Функция обратного вызова, которая будет вызвана с ответом сервера или ошибкой.
-     * @param serverUrl (string, optional): URL, на который будет отправлен запрос. Если не указан, будет использован URL из атрибута action формы.
+     * @param routing (string, optional): URL, на который будет отправлен запрос. Если не указан, будет использован URL из атрибута action формы.
      * Описание:
      * Событие: Функция обрабатывает указанный тип события (например, 'submit') для указанного CSS селектора формы.
      * Предотвращение перезагрузки: Предотвращает стандартное поведение формы, которое приводит к перезагрузке страницы.
@@ -651,9 +687,9 @@ dom.addEventListener("DOMContentLoaded", function () {
      *     }
      *     let someDataFromServer = response;
      *     dom.e("#someId").innerText = someDataFromServer.someData;
-     * }, "https://example.com/submit");
+     * }, "request_page"); or some url like "example.php"
      */
-    dom.requestOnFly = function (event, target, callback, serverUrl = null) {
+    dom.requestOnFly = function (event, target, callback, routing = null) {
         // Обработчик события отправки формы
         document.addEventListener(event, function (e) {
             // Проверяем, что событие произошло на целевой форме
@@ -672,7 +708,7 @@ dom.addEventListener("DOMContentLoaded", function () {
                 };
 
                 // URL для отправки запроса
-                const url = serverUrl || form.action;
+                const url = routing || form.action;
 
                 // Отправка данных на сервер
                 fetch(url, requestOptions)
@@ -711,6 +747,10 @@ dom.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
+
+    /* ===================================================================================================================== */
+    /* ===================================================================================================================== */
+    /* ===================================================================================================================== */
     /* ===================================================================================================================== */
     /* ========================= Инициализация всех глобальных функций применяемых на всех страницах ======================= */
 
@@ -747,7 +787,7 @@ dom.addEventListener("DOMContentLoaded", function () {
     win.scrollController(".navbar", "blury");
 
     // поисковая функция , подключена на всех страницах где есть поле для поиска
-    const args = {method: "POST", url: BASE_URL + "searching/getData.php", headers: null};
+    const args = {method: "POST", url: BASE_URL + "get_data", headers: null};
     dom.makeRequest(".searchThis", "keyup", "data-request", args, function (error, result, _) {
         // console.log(result);
         if (error) {
@@ -805,18 +845,16 @@ dom.addEventListener("DOMContentLoaded", function () {
         // Function to check for changes in the database
         function checkForChanges() {
             // Perform a fetch request to your PHP listener
-            fetch('core/listeners.php', {
+            fetch('is_change', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: 'uid=' + id.value
             })
                 .then(response => response.text())  // Assuming the response is text
                 .then(text => {
                     console.log(text);
                     // Check if the response indicates changes
-                    if (text === 'has_changes') {
+                    if (text === '1') {
                         // If changes are detected, submit the hidden form
                         dom.e('#has_changes').submit();
                     }

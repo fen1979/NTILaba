@@ -1,36 +1,16 @@
 // noinspection JSUnusedGlobalSymbols
-
 document.addEventListener("DOMContentLoaded", function () {
-    // выбор файла для загрузки
-    dom.doClick("#import_csv", "#csv_input");
-
-    $('#csv_input').on('change', function () {
-        // Если файл выбран
-        if ($(this).val()) {
-            // Убираем атрибут 'required' со всех полей
-            $('#uploadForm input[required]').removeAttr('required');
-
-            // Очищаем значения всех полей, кроме текущего (поля с файлом)
-            $('#uploadForm input').not(this).val('');
-        } else {
-            // Возвращаем атрибут 'required', если файл не выбран
-            $('#uploadForm input[class="form-control"]').attr('required', 'required');
-        }
-    });
-
     // some keys commands listeners
     const div = document.querySelectorAll('.item-btn');
     let ctrlPressed = false;
-
     // Detect when the CTRL or COMMAND key is pressed down
-    document.addEventListener('keydown', function (event) {
+    dom.addEventListener('keydown', function (event) {
         if (event.ctrlKey || event.metaKey) {
             ctrlPressed = true;
         }
     });
-
     // Detect when the CTRL or COMMAND key is released
-    document.addEventListener('keyup', function (event) {
+    dom.addEventListener('keyup', function (event) {
         if (!event.ctrlKey && !event.metaKey) {
             ctrlPressed = false;
         }
@@ -57,30 +37,56 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // выборка запчасти в поля для заполнения без поля количество!
-    $(document).on("click", "#tbody-responce tr.item-list", function () {
-        // Извлекаем и парсим данные из атрибута data-info
-        let info = JSON.parse($(this).attr('data-info'));
-        // Устанавливаем полученные значения в поля ввода
-        $("#item_id").val(info.item_id); // Устанавливаем Item ID
-        $("#pn").val(info.partName); // Устанавливаем Item Name
-        $("#pv").val(info.partValue); // Устанавливаем Item Value
-        $("#mounting_type").val(info.mountingType); // Устанавливаем Item Type
-        $("#footprint").val(info.footprint); // Устанавливаем Footprint
-        $("#mf").val(info.manufacturer); // Устанавливаем
-        $("#mf_pn").val(info.MFpartName); // Устанавливаем
-        $("#owner_pn").val(info.ownerPartName); // Устанавливаем
-        $("#desc").val(info.description); // Устанавливаем
-        $("#nt").val(info.notes); // Устанавливаем
+    // выбор файла для загрузки
+    dom.doClick("#import_csv", "#csv_input");
 
+    // удаление атрибута required в полях формы при импорте из файла
+    dom.in("change", "#csv_input", function () {
+        if (this.value) {
+            // Получаем форму
+            dom.e("#uploadForm").querySelectorAll("input")
+                // Обходим все инпуты внутри формы
+                .forEach(input => {
+                    // Убираем атрибут 'required'
+                    input.removeAttribute('required');
+                    // Очищаем значение инпута, если это не текущий инпут (инпут файла)
+                    if (input !== this) {
+                        input.value = '';
+                    }
+                });
+
+            // Обновляем текст кнопки с именем файла
+            const fileName = this.files[0].name;
+            dom.e("#import_csv").textContent = `Picked File: ${fileName}`;
+        }
+    });
+
+    // выборка запчасти в поля для заполнения без поля количество!
+    dom.in("click", "#tbody-responce tr.item-list", function () {
+        if (this.parentElement.dataset.info) {
+            // Извлекаем и парсим данные из атрибута data-info
+            let info = JSON.parse(this.parentElement.dataset.info);
+
+            // Устанавливаем полученные значения в поля ввода
+            dom.e("#item_id").value = info.item_id; // Устанавливаем Item ID
+            dom.e("#pn").value = info.partName; // Устанавливаем Item Name
+            dom.e("#pv").value = info.partValue; // Устанавливаем Item Value
+            dom.e("#mounting_type").value = info.mountingType; // Устанавливаем Item Type
+            dom.e("#footprint").value = info.footprint; // Устанавливаем Footprint
+            dom.e("#mf").value = info.manufacturer; // Устанавливаем
+            dom.e("#mf_pn").value = info.MFpartName; // Устанавливаем
+            dom.e("#owner_pn").value = info.ownerPartName; // Устанавливаем
+            dom.e("#desc").value = info.description; // Устанавливаем
+            dom.e("#nt").value = info.notes; // Устанавливаем
+        }
     });
 });
 
 function deleteItem(id, num) {
-    $("#deleteItem").modal('show');
-    $("#item_id").val(id);
-    $("#item-number").text(num);
-    $("#password").focus();
+    dom.e("#item_id_for_delete").value = id;
+    dom.e("#item-number").textContent = num;
+    dom.e("#password").focus();
+    dom.show("#deleteItem");
 }
 
 function editItem(id) {

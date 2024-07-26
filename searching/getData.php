@@ -1,20 +1,9 @@
 <?php
-// подключение Базы Данных МаринаДБ
-require_once "../core/rb-mysql.php";
-
-// database name = !!!-> nti_production <-!!!
-R::setup('mysql:host=localhost;dbname=nti_production', 'root', '8CwG24YwZG');
-// R::freeze( true ); /* тут выключение режима заморозки */
-if (!R::testConnection()) {
-    exit ('No database connection');
-}
-session_start();
-
-require_once '../core/Resources.php';
-require_once '../core/Utility.php';
+EnsureUserIsAuthenticated($_SESSION, 'userBean');
+// подключение страницы вывода данных
 require_once 'result-view.php';
 
-// search if project name exist in DB
+// поиск совпадений имен проектов в БД
 if (isset($_POST['project_name']) && isset($_POST['verification'])) {
     $res = json_encode(['exists' => false]);
     $projectName = _E($_POST['project_name']);
@@ -23,19 +12,21 @@ if (isset($_POST['project_name']) && isset($_POST['verification'])) {
     if ($project) {
         $res = json_encode(['exists' => true]);
     }
-    //echo $res;
     exit($res);
 }
 
-
+// условие для поиска данных по запросу из поля поиска в нав баре
+// так же обработка запроса поиска по БД из полей форм на страницах
 if (isset($_POST['suggest']) && isset($_POST['request'])) {
     $request = _E($_POST['request']);
     $mySearchString = _E($_POST['suggest']);
 
     switch ($request) {
+
         case 'owner':
         case 'customer':
             {
+                // поиск по клиенту
                 /* search for order creation page */
                 $col = ['name', 'contact', 'information', 'priority'];
                 viewCustomer(dynamicSearch(CLIENTS, $col, $mySearchString), $col);
@@ -45,13 +36,14 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
         case 'supplier':
         case 'manufacturer':
             {
-                /* search for suppliers and manufactirers */
+                // поиск по поставщикам - производителям
                 viewSupplier(dynamicSearch(SUPPLIERS, ['name'], $mySearchString), $request, $mySearchString);
             }
             break;
 
         case 'priority':
             {
+                // поиск в таблице клиенты по полю приорити
                 /* search for order creation page */
                 $colForSearch = ['priority'];
                 $col = ['name', 'contact', 'information', 'priority'];
@@ -133,7 +125,7 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
             }
             break;
         default:
-            echo 'No Result by search';
+            echo '<h3 data-info="text from search engine">No results were found for your search query.</h3>';
             break;
     }
     exit();
@@ -169,22 +161,8 @@ function dynamicSearch($tableName, $columns, $searchString)
 function SearchWarehouseItems($searchTerm, $table_one, $table_two)
 {
     // SQL-запрос для поиска в двух таблицах и объединения результатов
-    // старый запрос в котором тип склада был в item
-//    $query = "
-//    SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf, wt.type_name
-//    FROM $table_one wn
-//    LEFT JOIN whtypes wt ON wt.id = wn.wh_types_id
-//    LEFT JOIN $table_two w ON wn.id = w.items_id
-//    WHERE wn.part_name LIKE ?
-//       OR wn.part_value LIKE ?
-//       OR wn.mounting_type LIKE ?
-//       OR wn.manufacture_pn LIKE ?
-//       OR w.owner LIKE ?
-//       OR w.owner_pn LIKE ?
-//    ORDER BY w.fifo ASC
-//";
     $query = "
-    SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf, wt.type_name
+    SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf, w.fifo, wt.type_name
     FROM whitems wn
     LEFT JOIN warehouse w ON wn.id = w.items_id
     LEFT JOIN whtypes wt ON wt.id = w.wh_types_id
@@ -194,8 +172,7 @@ function SearchWarehouseItems($searchTerm, $table_one, $table_two)
        OR wn.manufacture_pn LIKE ?
        OR w.owner LIKE ?
        OR w.owner_pn LIKE ?
-    ORDER BY w.fifo ASC
-";
+    ORDER BY w.fifo ASC";
 
     $q = '%' . $searchTerm . '%';
     $params = [$q, $q, $q, $q, $q, $q];

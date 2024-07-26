@@ -24,6 +24,8 @@ if (isset($_GET['itemid'])) {
     $wh = R::findAll(WAREHOUSE, 'items_id = ?', [$item->id]);
     // получаем весь резерв на данный товар
     $wh_reserv = R::findAll(WH_RESERV, 'WHERE items_id = ?', [$item->id]);
+    // получаем записи о заказанных запчастях если они есть
+    $itemOrders = R::findAll(WH_ORDERED_ITEMS, 'tems_id = ?', [$item->id]);
     // получаем логирование по данному товару
     $logs = R::findAll(WH_LOGS, 'WHERE items_id = ?', [$item->id]);
 
@@ -272,7 +274,13 @@ DisplayMessage($args ?? null);
         <!-- Таб 4 -->
         <li class="nav-item" role="presentation">
             <button class="nav-link <?= ($A_T == 'tab4') ? 'active' : '' ?>"
-                    data-bs-target="#tab4" id="nav-link-4" type="button" role="tab">Item Movements information
+                    data-bs-target="#tab4" id="nav-link-4" type="button" role="tab">Item Orders Information
+            </button>
+        </li>
+        <!-- Таб 5 -->
+        <li class="nav-item" role="presentation">
+            <button class="nav-link <?= ($A_T == 'tab5') ? 'active' : '' ?>"
+                    data-bs-target="#tab5" id="nav-link-5" type="button" role="tab">Item Movements information
             </button>
         </li>
     </ul>
@@ -427,6 +435,43 @@ DisplayMessage($args ?? null);
                 <!-- header -->
                 <thead>
                 <tr>
+                    <th>Order Id</th>
+                    <th>Supplier</th>
+                    <th>Ordered by</th>
+                    <th>Delivery date</th>
+                    <th>Amount</th>
+                    <th>Invoice</th>
+                    <th>Created on</th>
+                </tr>
+                </thead>
+                <!-- table -->
+                <tbody>
+                <?php
+                if (!empty($itemOrders)) {
+                    foreach ($itemOrders as $line) {
+                        echo '<tr  class="text-primary">';
+                        echo '<td>' . $line['order_id'] . '</td>';
+                        echo '<td>' . $line['supplier'] . '</td>';
+                        echo '<td>' . $line['ordered_by'] . '</td>';
+                        echo '<td>' . $line['delivery_date'] . '</td>';
+                        echo '<td>' . $line['quantity'] . '</td>';
+                        echo '<td>' . $line['invoice'] . '</td>';
+                        echo '<td>' . $line['date_in'] . '</td>';
+                        echo '</tr>';
+                    }
+                }
+                ?>
+                </tbody>
+            </table>
+        </div>
+        <!-- end tab 4 -->
+
+        <!-- Контент Таба 5 no changes table data -->
+        <div class="tab-pane fade show <?= ($A_T == 'tab5') ? 'active' : '' ?>" id="tab5" role="tabpanel" aria-labelledby="tab5-tab">
+            <table class="p-3">
+                <!-- header -->
+                <thead>
+                <tr>
                     <th>Item Id</th>
                     <th>Action</th>
                     <th>User</th>
@@ -451,7 +496,7 @@ DisplayMessage($args ?? null);
                 </tbody>
             </table>
         </div>
-        <!-- end tab 4 -->
+        <!-- end tab 5 -->
     </div>
 
     <button id="saveChanges" type="button" class="btn btn-success mt-5" style="display: none">Save Changes</button>
@@ -520,7 +565,7 @@ ScriptContent($page);
             });
 
             // Добавляем атрибут id к таблице в активном табе
-            if (tabId !== "#tab4") {
+            if (tabId !== "#tab4" && tabId !== "#tab5") {
                 let targetTable = targetTab.querySelector('table');
                 let check_user = dom.e("#isUserCanChangeData");
                 if (targetTable && check_user) {

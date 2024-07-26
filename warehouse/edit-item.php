@@ -146,10 +146,9 @@ DisplayMessage($args ?? null);
 
         <div class="col-5">
             <!-- part image -->
-            <?php list($path, $hide) = !empty($item->item_image) ? [$item->item_image, ''] : ['/public/images/drop-here.png', 'hidden']; ?>
+            <?php $hide = !empty($item->item_image) ? '' : 'hidden' ?>
             <img class="rounded add-img-style <?= $hide ?>" id="item-image-preview" alt="Item image"
-                 src="<?= $path ?>">
-
+                 src="<?= $item->item_image ?? '' ?>">
             <div id="pasteArea" contenteditable="true" class="mb-4 border-bottom"></div>
         </div>
 
@@ -292,10 +291,10 @@ DisplayMessage($args ?? null);
 
                 <?php if ($pageMode != 'edit') { ?>
                     <label for="quantity">Quantity <b class="text-danger">*</b></label>
-                    <input type="number" placeholder="QTY"
-                           name="quantity" id="quantity" class="input"
+                    <input type="number" placeholder="QTY" name="quantity" id="quantity" class="input"
                            value="<?= $wh['quantity'] ?? 0 ?>" required/>
                 <?php } ?>
+
                 <label for="storage-box">Storage Box <b class="text-danger">*</b></label>
                 <input type="number" placeholder="Storage box"
                        name="storage-box" id="storage-box" class="input"
@@ -410,6 +409,7 @@ ScriptContent('arrivals');
             if (this.parentElement.dataset.info) {
                 // Извлекаем и парсим данные из атрибута data-info
                 let info = JSON.parse(this.parentElement.dataset.info);
+
                 // Устанавливаем полученные значения в поля ввода
                 dom.e("#part-name").value = info.part_name;
                 dom.e("#part-value").value = info.part_value;
@@ -425,8 +425,35 @@ ScriptContent('arrivals');
                 dom.e("#storage-class").value = info.storage_class;
                 dom.e("#storage-state").value = info.storage_state;
                 dom.e("#owner").value = info.owner;
-                dom.e("#owner-part-name").value = info.owner_part_name;
-                dom.e("#quantity").value = info.quantity;
+
+                if (info.owner_part_name && info.owner_part_name.trim() !== '') {
+                    // Устанавливаем значение и показываем блок
+                    dom.e("#owner-pn-input").value = info.owner_part_name;
+                    dom.show("#custom-pn-box");
+
+                    // Получаем список опций
+                    const options = dom.e("#owner-pn-list");
+
+                    // Оставляем только буквы для сравнения
+                    const searchText = info.owner_part_name.replace(/[^a-zA-Z]/g, '');
+
+                    // Проходим по всем опциям в списке
+                    for (let i = 0; i < options.length; i++) {
+                        // Оставляем только буквы для сравнения в значении опции
+                        const optionValue = options[i].value;
+
+                        // Проверяем, начинается ли значение опции с нужного текста
+                        if (optionValue.startsWith(searchText)) {
+                            // Устанавливаем опцию как выбранную и выходим из цикла
+                            options[i].selected = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (dom.e("#quantity"))
+                    dom.e("#quantity").value = info.quantity;
+
                 dom.e("#storage-box").value = info.storage_box;
                 dom.e("#storage-shelf").value = info.storage_shelf;
                 // dom.e("#manufactured-date").value = info.manufactured_date.replace(" ", "T");
@@ -470,7 +497,7 @@ ScriptContent('arrivals');
         });
 
         // выборка фоток из БД которые существуют
-        const args = {method: "POST", url: "searching/getData.php", headers: null};
+        const args = {method: "POST", url: "get_data", headers: null};
         dom.makeRequest("#db-image-btn", "click", "data-request", args, function (error, result, _) {
             if (error) {
                 console.error('Error during fetch:', error);

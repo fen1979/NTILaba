@@ -15,7 +15,7 @@ if (isset($_POST['uid'])) {
         if ($logs->object_type == 'PROJECT' || $logs->object_type == 'ORDER' || $logs->object_type == 'ORDER_CHAT') {
             $hd->uid = $logs->id;
             R::store($hd);
-            echo 'has_changes';
+            echo '1';
         }
     }
 }

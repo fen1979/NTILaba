@@ -244,9 +244,9 @@ if (isset($_POST['importCsvFile'])) {
     ScriptContent($page);
     ?>
     <script>
-        $(document).ready(function () {
-            $(document).on("change", "#file_csv", function () {
-                $("#btn").removeAttr("disabled");
+        document.addEventListener("DOMContentLoaded", function () {
+            dom.in("change", "#file_csv", function () {
+                dom.e("#btn").disabled = false;
             });
         });
     </script>

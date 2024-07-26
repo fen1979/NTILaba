@@ -1,15 +1,4 @@
 <?php
-// подключение Базы Данных МаринаДБ
-require_once "rb-mysql.php";
-require_once 'Resources.php';
-require_once '../libs/Mailer.php';
-
-// database name = !!!-> nti_production <-!!!
-R::setup('mysql:host=localhost;dbname=nti_production', 'root', '8CwG24YwZG');
-// R::freeze( true ); /* тут выключение режима заморозки */
-if (!R::testConnection()) {
-    exit ('No database connection');
-}
 
 function checkToolsNextCheckDate()
 {
@@ -29,6 +18,7 @@ function checkToolsNextCheckDate()
             $body .= '<p>After receiving the certificate and the date of the next survey, you should go to the tools menu and renew your licenses for use!</p>';
             $body .= '<p>This letter will be sent once a day until the license is renewed!</p>';
             $body .= '<p>Best regards,<br>NTI Group Company</p>';
+            $subject = 'NTI Tools Notification Service';
         }
 
         // if time before 1 month to maintenance date send mail once per day
@@ -39,10 +29,11 @@ function checkToolsNextCheckDate()
             $body .= '<p>After performing the required technical work on the tool, update the information about the next service date in the program!</p>';
             $body .= '<p>You will receive this letter every day for the next 2 weeks or until the information in the system is updated!</p>';
             $body .= '<p>Best regards,<br>NTI Group Company</p>';
+            $subject = 'NTI Tools Maintenance Service';
         }
 
         if (!empty($body)) {
-            $answer = Mailer::SendEmailNotification($mail, $name, 'Tools Maintenance', $body);
+            echo $answer = Mailer::SendEmailNotification($mail, $name, $subject, $body);
             writeLogs($logdata);
         }
     }
@@ -56,7 +47,7 @@ function checkToolsNextCheckDate()
  * @param int $days Диапазон в днях (положительное значение для будущих дат, отрицательное для прошлых).
  * @return bool Возвращает true, если дата в диапазоне, иначе false.
  */
-function isDateInRange($dateFromDb, $days)
+function isDateInRange(string $dateFromDb, int $days): bool
 {
     $currentDate = new DateTime();
     $targetDate = new DateTime($dateFromDb);
@@ -76,7 +67,8 @@ function isDateInRange($dateFromDb, $days)
 
 function writeLogs($logdata)
 {
-    $log = R::dispense(LOGS);
+    //$log = R::dispense(LOGS);
 
 }
 
+checkToolsNextCheckDate();

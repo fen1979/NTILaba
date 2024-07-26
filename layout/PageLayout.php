@@ -446,7 +446,13 @@ function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid, $page_tab = ''): void
 
             <li class="nav-item">
                 <button type="button" class="url btn btn-sm btn-outline-info" value="replenishment<?= !empty($pt) ? "$pt&" : '?'; ?>item_id=<?= $pid; ?>">
-                    Replenishment <i class="bi bi-airplane"></i>
+                    Replenishment
+                </button>
+            </li>
+
+            <li class="nav-item">
+                <button type="button" class="url btn btn-sm btn-outline-primary" value="ordered-info<?= !empty($pt) ? "$pt&" : '?'; ?>item_id=<?= $pid; ?>">
+                    Add Orders info <i class="bi bi-list"></i>
                 </button>
             </li>
             <?php

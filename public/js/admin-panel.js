@@ -1,5 +1,4 @@
 dom.addEventListener("DOMContentLoaded", function () {
-
     // кнопки выбора фото/ видео от пользователя
     document.doPreviewFile("#files", "#preview");
     // Обработка кликов на чекбоксы
@@ -19,6 +18,7 @@ dom.addEventListener("DOMContentLoaded", function () {
         dom.e("#password").focus();
     });
     // searching some data on page in DB
+    // fixme change to 'get_data_ap' soon
     let args = {url: BASE_URL + "admin-panel/searching.php", method: "POST", headers: null}
     dom.makeRequest("#searchThis", "keyup", "", args, function (error, result, _) {
         if (error) {
