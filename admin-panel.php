@@ -20,12 +20,8 @@ if (isset($_POST['wh-action-saving']) || isset($_POST['wh-action-editing'])) {
     $args = Management::createUpdateWarehouseType($_POST, $user);
 }
 /* USERS ACTIONS CODE --------------------------------------------------------- */
-if (isset($_POST['user-data-editing'])) {
-    $args = Management::editUserData($_POST);
-}
-/* ADD USER ACTIONS CODE ------------------------------------------ */
-if (isset($_POST['add-new-user'])) {
-    $args = Management::addNewWorker($_POST, $user);
+if (isset($_POST['update-user-data']) || isset($_POST['add-new-user'])) {
+    $args = Management::addOrUpdateUsersData($_POST, $user);
 }
 /* TOOLS ACTIONS CODE --------------------------------------------------------- */
 if (isset($_POST['tools-saving']) || isset($_POST['tools-editing'])) {
@@ -49,7 +45,7 @@ if (isset($_POST['update-user-password'])) {
     $timer = '<meta http-equiv="refresh" content="6;url=/sign-out">';
     $args[] = ['info' => 'The password has been changed! Re-authorization required! You will be redirected to the login page. Wait!', 'color' => 'danger'];
 }
-function deleteModalRouteForm($route = 1, $createFormAction = '')
+function deleteModalRouteForm($createFormAction = '')
 { ?>
     <!--  модальное окно форма для удаления  -->
     <div class="modal" id="deleteModal" style="backdrop-filter: blur(15px);">
@@ -64,7 +60,7 @@ function deleteModalRouteForm($route = 1, $createFormAction = '')
 
                 <!-- Содержимое модального окна -->
                 <div class="modal-body">
-                    <form action="/setup" method="post">
+                    <form action="" method="post">
                         <div class="mb-3">
                             <label for="password" class="form-label text-danger">Administrator password required!</label>
                             <input type="password" class="form-control" id="password" name="password" required autofocus>
@@ -76,12 +72,6 @@ function deleteModalRouteForm($route = 1, $createFormAction = '')
             </div>
         </div>
     </div>
-
-    <!-- вспомогательный элемент для подсветки кнопок в меню -->
-    <form action="" method="get" hidden>
-        <span id="page" hidden><?= $route; ?></span>
-        <button type="submit" name="route-page" value="1" id="route-form"></button>
-    </form>
 
     <!-- вспомогательный элемент для создания новой записи в таблицах  -->
     <form method="post" action="<?= $createFormAction ?>" hidden id="create-form">
@@ -105,7 +95,7 @@ switch ($_GET['route-page'] ?? 1) {
         break;
     case 4:
         /* страница вывода информации о пользователях и редактирование */
-        include_once 'profiles/users.php';
+        include_once 'counterparties/users.php';
         break;
     case 5:
         /* старница вывода информации о проектах TODO */

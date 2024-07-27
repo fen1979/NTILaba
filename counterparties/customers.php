@@ -1,6 +1,6 @@
 <?php
 EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require 'Profiler.php';
+require 'CPController.php';
 $user = $_SESSION['userBean'];
 $page = 'customers';
 $client = null;
@@ -15,10 +15,10 @@ if (isset($_GET['routed-from']) || isset($_GET['search'])) {
 if (isset($_POST['createCstomer'])) {
     // if customer was edited
     if (isset($_POST['cuid'])) {
-        $args = Profiler::updateCustomerData($_POST, $user);
+        $args = CPController::updateCustomerData($_POST, $user);
     } else {
         // if customer was created
-        $args = Profiler::createCustomer($_GET, $_POST, $user);
+        $args = CPController::createCustomer($_GET, $_POST, $user);
     }
     if (!empty($args['location'])) {
         $_SESSION['info'] = $args;

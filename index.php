@@ -44,8 +44,8 @@ $r->addRout('/check_part_list', 'projects/project-bom.php');
 
 // admin-panel pages
 $r->addRout('/setup', 'admin-panel.php');
-$r->addRout('/create_client', 'profiles/customers.php');
-$r->addRout('/create_supplier', 'profiles/suppliers.php');
+$r->addRout('/create_client', 'counterparties/customers.php');
+$r->addRout('/create_supplier', 'counterparties/suppliers.php');
 $r->addRout('/logs', 'admin-panel/logs.php');
 
 // warehouse pages

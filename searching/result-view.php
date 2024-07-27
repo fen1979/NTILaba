@@ -91,7 +91,7 @@ function viewSupplier($result, $request, $mySearchString): void
         <tbody>
         <tr>
             <td>
-                <form action="/profiles/suppliers.php" method="post" id="supplier_form">
+                <form action="/counterparties/suppliers.php" method="post" id="supplier_form">
                     <input type="hidden" name="user-data" value="" id="user_data">
                     <input type="hidden" name="request" value="<?= $request ?>">
 

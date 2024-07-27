@@ -247,7 +247,7 @@ DisplayMessage($args ?? null);
                             </button>
 
                             <?php if (isset($_POST['edit'])) { ?>
-                                <button type="button" class="btn btn-danger form-control" id="delete_tool" data-id="tools-<?= $tool['id'] ?? ''; ?>">
+                                <button type="button" class="btn btn-danger form-control" id="delete_btn" data-id="tools-<?= $tool['id'] ?? ''; ?>">
                                     Delete Tool [password required!!!]
                                 </button>
                             <?php } ?>
@@ -272,7 +272,7 @@ DisplayMessage($args ?? null);
 </form>
 <?php
 // MODAL WINDOW WITH ROUTE FORM
-deleteModalRouteForm($_GET['route-page'] ?? 1);
+deleteModalRouteForm();
 
 // MODAL DIALOG FOR VIEW RESPONCE FROM SERVER IF SEARCHED VALUE EXIST
 SearchResponceModalDialog($page, 'search-responce');
@@ -281,124 +281,5 @@ footer($page);
 // SCRIPTS
 ScriptContent($page);
 ?>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // take picture for tool
-        dom.doClick("#take_a_pic", "#image");
-
-        // preview image taken by user
-        dom.doPreviewFile("#image", "#preview", function () {
-            dom.e("#take_a_pic").textContent = dom.e("#image").files[0].name;
-        });
-        // some sotr of routing when user press the create new tool btn
-        dom.doSubmit('#create-btn', '#create-form');
-
-        // Выбираем таблицу с id searchAnswer
-        const tBody = dom.e("#data-container");
-
-        if (tBody) {
-            // Добавляем делегированный обработчик событий на таблицу
-            tBody.addEventListener('click', function (event) {
-                // // Проверяем, был ли клик по ссылке
-                // fixme если будет ссылка на даташит в будущем
-                // if (event.target.tagName.toLowerCase() === 'a') {
-                //     return; // Прекращаем выполнение функции, если клик был по ссылке
-                // }
-
-                // Находим родительский <tr> элемент
-                let row = event.target;
-                while (row && row.tagName.toLowerCase() !== 'tr') {
-                    row = row.parentElement;
-                }
-
-                // Если <tr> элемент найден и у него есть data-id
-                if (row && row.dataset.id) {
-                    // Получаем значение data-id
-                    const id = row.dataset.id;
-
-                    // Создаем скрытую форму
-                    const form = document.createElement('form');
-                    form.method = 'post';
-
-                    // Создаем скрытый инпут
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'edit';
-                    input.value = id;
-
-                    // Добавляем инпут в форму
-                    form.appendChild(input);
-
-                    // Добавляем форму на страницу
-                    document.body.appendChild(form);
-
-                    // Отправляем форму
-                    form.submit();
-                }
-            });
-        }
-
-        // при изменени списка ответственного за инструмент открываем кнопку сохранить/изменить инструмент
-        dom.in("change", "#responsible", function () {
-            dom.e("#save-btn").disabled = false;
-        });
-
-        // delete one item from database modal open
-        dom.in("click", "#delete_tool", function () {
-            if (this.dataset.id) {
-                dom.e("#idForUse").value = this.dataset.id;
-                dom.show("#deleteModal");
-                dom.e("#password").focus();
-            } else {
-                console.log("do id in dataset");
-            }
-        });
-
-        // событие клик на выбор файла для импорта инструментов из файла
-        dom.doClick("#import-from-file", "#import-file-input", function (elem) {
-            if (elem.files[0]) {
-                const file = elem.files[0];
-                const fileExtension = file.name.split('.').pop().toLowerCase();
-
-                if (fileExtension !== 'csv') {
-                    alert('Invalid file type. Please select a CSV file.');
-                    elem.value = ''; // Clear the selected file
-                } else {
-                    dom.e("#import-file-form").submit();
-                }
-            }
-        });
-
-        // выборка фоток из БД которые существуют
-        const args = {method: "POST", url: "get_data", headers: null};
-        dom.makeRequest("#db-image-btn", "click", "data-request", args, function (error, result, _) {
-            if (error) {
-                console.error('Error during fetch:', error);
-                return;
-            }
-
-            // вывод информации в модальное окно
-            let modalTable = dom.e("#searchModal");
-            if (modalTable) {
-                dom.e("#search-responce").innerHTML = result;
-                dom.show("#searchModal", "fast", true);
-            }
-        });
-
-        // установка результата выбора фото из БД
-        dom.in("click", "#search-responce td.image-path", function () {
-            console.log(this.dataset)
-            if (this.dataset.info) {
-                // Извлекаем и парсим данные из атрибута data-info
-                let info = this.dataset.info;
-                dom.e("#preview").src = info;
-                dom.e("#db-image").value = info;
-            }
-            // Очищаем результаты поиска
-            dom.hide("#searchModal");
-        });
-    });
-</script>
 </body>
 </html>

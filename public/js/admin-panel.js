@@ -1,36 +1,90 @@
 dom.addEventListener("DOMContentLoaded", function () {
-    // кнопки выбора фото/ видео от пользователя
-    document.doPreviewFile("#files", "#preview");
-    // Обработка кликов на чекбоксы
-    dom.in('click', 'tbody input[type="checkbox"]', updateRowOrder);
+    /*=================== ОБЩИЙ ФУНКЦИОНАЛ СТРАНИЦ АДМИН ПАНЕЛИ =================================*/
     // routing for admin-panel pages flow
     dom.in("click", "#navBarContent .swb", function () {
-        let el = this.value;
-        dom.e("#route-form", function () {
-            // noinspection JSPotentiallyInvalidUsageOfThis
-            this.value = el;
-        }).click();
-    });
-    // действиe удалить строку из таблицы
-    dom.in("click", ".del-but", function () {
-        dom.e("#idForUse").value = this.getAttribute("data-id");
-        dom.show("#deleteModal", "modal");
-        dom.e("#password").focus();
-    });
-    // searching some data on page in DB
-    // fixme change to 'get_data_ap' soon
-    let args = {url: BASE_URL + "admin-panel/searching.php", method: "POST", headers: null}
-    dom.makeRequest("#searchThis", "keyup", "", args, function (error, result, _) {
-        if (error) {
-            console.error('Error during fetch:', error);
-            return;
+        const value = this.value;
+        const currentUrl = new URL(window.location.href);
+        // Check if the 'route-page' parameter exists in the URL
+        if (currentUrl.searchParams.has('route-page')) {
+            // If it exists, update its value
+            currentUrl.searchParams.set('route-page', value);
+        } else {
+            // If it doesn't exist, add it with the clicked button's value
+            currentUrl.searchParams.append('route-page', value);
         }
-        dom.e("#searchAnswer").innerHTML = result;
+        // Navigate to the updated URL
+        window.location.href = currentUrl.toString();
     });
-    // переключение записей в рут картах между языками
-    dom.in("click", "#lang-switch", function () {
-        dom.toggleClass(".eng", 'hidden');
-        dom.toggleClass(".noeng", 'hidden');
+
+    // colorising button of nav bar when roted on page
+    setActiveColorToNavLinkBtnList(".swb");
+
+    // some sotr of routing when user press the create new tool btn
+    dom.doSubmit('#create-btn', '#create-form');
+
+    // delete one item from database modal open
+    dom.in("click", "#delete_btn", function () {
+        if (this.dataset.id) {
+            dom.e("#idForUse").value = this.dataset.id;
+            dom.show("#deleteModal");
+            dom.e("#password").focus();
+        } else {
+            console.log("do id in dataset");
+        }
+    });
+
+    // Обработка кликов на чекбоксы
+    dom.in('click', 'tbody input[type="checkbox"]', updateRowOrder);
+
+    // Добавляем делегированный обработчик событий click на таблицу
+    const tBody = dom.e("#data-container");
+
+    if (tBody) {
+        // Добавляем делегированный обработчик событий на таблицу
+        tBody.addEventListener('click', function (event) {
+            // // Проверяем, был ли клик по ссылке
+            // fixme если будет ссылка на даташит в будущем
+            // if (event.target.tagName.toLowerCase() === 'a') {
+            //     return; // Прекращаем выполнение функции, если клик был по ссылке
+            // }
+
+            // Находим родительский <tr> элемент
+            let row = event.target;
+            while (row && row.tagName.toLowerCase() !== 'tr') {
+                row = row.parentElement;
+            }
+
+            // Если <tr> элемент найден и у него есть data-id
+            if (row && row.dataset.id) {
+                // Получаем значение data-id
+                const id = row.dataset.id;
+
+                // Создаем скрытую форму
+                const form = document.createElement('form');
+                form.method = 'post';
+
+                // Создаем скрытый инпут
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'edit';
+                input.value = id;
+
+                // Добавляем инпут в форму
+                form.appendChild(input);
+
+                // Добавляем форму на страницу
+                document.body.appendChild(form);
+
+                // Отправляем форму
+                form.submit();
+            }
+        });
+    }
+    /*=================== ФУНКЦИОНАЛ ДЛЯ СТРАНИЦЫ  COLUMNS.PHP ===============================*/
+    dom.in("click", ".dob", function () {
+        dom.e("#table-name").value = this.textContent;
+        dom.e("#table-selector").value = this.value;
+        dom.e("#select-form").submit();
     });
 
     /* скрипты для настройки вывода таблиц */
@@ -59,30 +113,130 @@ dom.addEventListener("DOMContentLoaded", function () {
         }, 'table');
     }
 
-    /* установка цвета на кнопки в навигационной панели */
-    // fixme not work because of changes on maitenance (admin-panel.php)
-    let currentPage = $('#page').text();
-    $('button[name="sw_bt"]').each(function () {
-        if ($(this).val() === currentPage) {
-            $(this).removeClass('btn-outline-primary').addClass('btn-primary');
+    function setActiveColorToNavLinkBtnList($listId) {
+        // Получаем текущий URL
+        const url = new URL(window.location.href);
+        // Извлекаем значение параметра route-page
+        const routePage = url.searchParams.get('route-page');
+        // Get all the buttons in the navigation bar
+        const navButtons = document.querySelectorAll($listId);
+        // Loop through the buttons and check their value
+        navButtons.forEach(function (button) {
+            if (button.value === routePage) {
+                // Add the active class to the button with the matching value
+                button.classList.remove('btn-outline-secondary');
+                button.classList.add('btn-outline-primary');
+            } else {
+                // Remove the active class from all other buttons
+                button.classList.remove('btn-outline-primary');
+                button.classList.add('btn-outline-secondary');
+            }
+        });
+    }
+
+    /*=================== ФУНКЦИОНАЛ ДЛЯ СТРАНИЦЫ  ROUTES.PHP ================================*/
+    /*=================== ФУНКЦИОНАЛ ДЛЯ СТРАНИЦЫ  TOOLS.PHP =================================*/
+    // take picture for tool
+    dom.doClick("#take_a_pic", "#image");
+
+    // preview image taken by user
+    dom.doPreviewFile("#image", "#preview", function () {
+        dom.e("#take_a_pic").textContent = dom.e("#image").files[0].name;
+    });
+
+    // при изменени списка ответственного за инструмент открываем кнопку сохранить/изменить инструмент
+    dom.in("change", "#responsible", function () {
+        dom.e("#save-btn").disabled = false;
+    });
+
+
+    // событие клик на выбор файла для импорта инструментов из файла
+    dom.doClick("#import-from-file", "#import-file-input", function (elem) {
+        if (elem.files[0]) {
+            const file = elem.files[0];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+
+            if (fileExtension !== 'csv') {
+                alert('Invalid file type. Please select a CSV file.');
+                elem.value = ''; // Clear the selected file
+            } else {
+                dom.e("#import-file-form").submit();
+            }
         }
     });
 
-    /* установка фона ряда для таблиц */
-    $('tr').click(function () {
-        $('tr').removeClass('bg-light');
-        $(this).addClass('bg-light');
+    // выборка фоток из БД которые существуют
+    const tools = {method: "POST", url: "get_data", headers: null};
+    dom.makeRequest("#db-image-btn", "click", "data-request", tools, function (error, result, _) {
+        if (error) {
+            console.error('Error during fetch:', error);
+            return;
+        }
+
+        // вывод информации в модальное окно
+        let modalTable = dom.e("#searchModal");
+        if (modalTable) {
+            dom.e("#search-responce").innerHTML = result;
+            dom.show("#searchModal", "fast", true);
+        }
     });
 
-    /* действиe удалить строку из таблицы orders */
-    // TODO in maintenence
-    /* $(".trash-order").on("click", function (event) {
-         event.stopPropagation();
-         $("#idForUse").val($(this).val());
-         /!* Откройте модальное окно *!/
-         $("#deleteModal").modal('show');
-         $("#password").focus();
-     });*/
+    // установка результата выбора фото из БД
+    dom.in("click", "#search-responce td.image-path", function () {
+        console.log(this.dataset)
+        if (this.dataset.info) {
+            // Извлекаем и парсим данные из атрибута data-info
+            let info = this.dataset.info;
+            dom.e("#preview").src = info;
+            dom.e("#db-image").value = info;
+        }
+        // Очищаем результаты поиска
+        dom.hide("#searchModal");
+    });
+
+    /*=================== ФУНКЦИОНАЛ ДЛЯ СТРАНИЦЫ  USERS.PHP =================================*/
+    /*=================== ФУНКЦИОНАЛ ДЛЯ СТРАНИЦЫ  PROJECT.PHP ===============================*/
+    /*=================== ФУНКЦИОНАЛ ДЛЯ СТРАНИЦЫ  ORDER.PHP =================================*/
+    /*=================== ФУНКЦИОНАЛ ДЛЯ СТРАНИЦЫ  WAREHOUSE.PHP =============================*/
+    /*=================== ФУНКЦИОНАЛ ДЛЯ СТРАНИЦЫ  PROFILE.PHP ===============================*/
+    // кнопки выбора фото пользователя и Обработчик обновления превью
+    dom.doClick("#btn-take-image", "#file-input");
+    dom.doPreviewFile("file-input", "profile-img");
+
+    // делаем видимой форму смены пароля
+    dom.in("click", "#change-password", function () {
+        if (this) {
+            dom.removeClass("#password-form", "hidden");
+        }
+    });
+
+    // проверка валидности формы смены пароля
+    dom.inAll("input", "input", function () {
+        const pass_1 = dom.e('#password_1');
+        const pass_2 = dom.e('#password_2');
+        // Проверка совпадения паролей
+        const passwordsMatch = pass_1.value === pass_2.value && pass_1.value !== '';
+        // Проверка валидности имейла
+        const emailValid = dom.e('#email').checkValidity(); // возвращает true, если поле валидно
+        // Проверка состояния чекбокса
+        const checkboxChecked = dom.e('#check').checked;
+        // Управление атрибутом required для имейла
+        dom.e('#email').required = checkboxChecked;
+        // Управление доступностью кнопки
+        dom.e("#pass-btn").disabled = !(passwordsMatch && (!checkboxChecked || (checkboxChecked && emailValid)));
+    });
+
+    /*=================== ФУНКЦИОНАЛ ДЛЯ СТРАНИЦЫ  SEARCHING.PHP =============================*/
+    // searching some data on page in DB
+    // fixme change to 'get_data_ap' soon
+    let args = {url: BASE_URL + "admin-panel/searching.php", method: "POST", headers: null}
+    dom.makeRequest("#searchThis", "keyup", "", args, function (error, result, _) {
+        if (error) {
+            console.error('Error during fetch:', error);
+            return;
+        }
+        dom.e("#searchAnswer").innerHTML = result;
+    });
 });
 
 // Функция для обновления порядка строк

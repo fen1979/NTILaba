@@ -1,6 +1,6 @@
 <?php
 
-class Profiler
+class CPController
 {
     private static function checkPostDataAndConvertToArray($post): array
     {

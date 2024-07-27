@@ -48,8 +48,14 @@
 </head>
 <body>
 <?php
+list($action, $title, $saveBtnText) = ['wh-action-saving', 'creation', 'Create Route Action'];
+if (isset($_POST['edit'])) {
+    $warehouseType = R::load(WH_TYPES, $_POST['edit']);
+    list($action, $title, $saveBtnText) = ['wh-action-editing', 'editing', 'Update This Route Information'];
+}
+
 // NAVIGATION BAR
-$navBarData['title'] = 'Warehouse Types';
+$navBarData['title'] = 'Warehouse Types '. $title;
 $navBarData['user'] = $user;
 $navBarData['page_name'] = $page;
 $navBarData['btn_title'] = 'type';
@@ -65,42 +71,21 @@ DisplayMessage($args ?? null);
             <tr>
                 <th>Warehouse Type</th>
                 <th>Description</th>
-                <th>Editing</th>
             </tr>
             </thead>
 
             <tbody id="data-container">
             <?php foreach (R::find(WH_TYPES) as $row) { ?>
-                <tr class="item-list">
+                <tr class="item-list" data-id="<?= $row['id'] ?>">
                     <td class="wrap"><?= $row['type_name']; ?></td>
                     <td class="wrap"><?= $row['description']; ?></td>
-                    <td>
-                        <form method="post" style="margin:0;">
-                            <button type="submit" name="edit" class="btn btn-warning btn-sm mb-1 mt-1" value="<?= $row['id']; ?>">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button type="button" class="btn btn-danger btn-sm mb-1 mt-1 del-but" data-id="rout-<?= $row['id']; ?> ">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
-                    </td>
                 </tr>
             <?php } ?>
             </tbody>
         </table>
         <?php
     }
-    if (isset($_POST['edit']) || isset($_POST['create'])) {
-        if (isset($_POST['edit'])) {
-            echo '<h2>Edit Warehouse Type</h2>';
-            $warehouseType = R::load(WH_TYPES, $_POST['edit']);
-            $action = 'wh-action-editing';
-        }
-        if (isset($_POST['create'])) {
-            echo '<h2>Create Warehouse</h2>';
-            $action = 'wh-action-saving';
-        }
-        ?>
+    if (isset($_POST['edit']) || isset($_POST['create'])) { ?>
         <form method="post" class="mb-5 mt-3">
             <div class="mb-3">
                 <label for="type_name" class="form-label">Type Name <b class="text-danger">*</b></label>
@@ -113,23 +98,28 @@ DisplayMessage($args ?? null);
                           placeholder="Optional"><?= $warehouseType['description'] ?? ''; ?></textarea>
             </div>
 
-            <button type="submit" class="btn btn-success form-control" name="<?= $action; ?>" value="<?= $warehouseType['id'] ?? ''; ?>">Save</button>
+            <div class="mb-2 text-center">
+                <button type="submit" class="btn btn-success" name="<?= $action; ?>" value="<?= $warehouseType['id'] ?? ''; ?>">
+                    <?= $saveBtnText ?>
+                </button>
+
+                <?php if (isset($_POST['edit'])) { ?>
+                    <button type="button" class="btn btn-danger" id="delete_btn" data-id="whtype-<?= $warehouseType['id'] ?? ''; ?>">
+                        Delete Route Act [password required!!!]
+                    </button>
+                <?php } ?>
+            </div>
         </form>
     <?php } ?>
 </div>
 
 <?php
 // MODAL WINDOW WITH ROUTE FORM
-deleteModalRouteForm($_GET['route-page'] ?? 1);
+deleteModalRouteForm();
 // Футер
 footer($page);
 // SCRIPTS
 ScriptContent($page);
 ?>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        dom.doSubmit('#create-btn', '#create-form');
-    });
-</script>
 </body>
 </html>

@@ -34,7 +34,7 @@ DisplayMessage($args ?? null);
 </div>
 <?php
 // MODAL WINDOW WITH ROUTE FORM AND CREATION FORM
-deleteModalRouteForm($_GET['route-page'] ?? 1, '/new_order');
+deleteModalRouteForm('/new_order');
 // Футер
 footer($page);
 // SCRIPTS

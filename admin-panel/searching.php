@@ -49,7 +49,7 @@ if (isset($_POST['suggest'])) {
                                 <button type="submit" name="edit" class="btn btn-warning btn-sm mb-1 mt-1" value="<?= $row['id']; ?>">
                                     <i class="bi bi-pencil"></i>
                                 </button>
-                                <button type="button" class="btn btn-danger btn-sm mb-1 mt-1 del-but" data-id="user-<?= $row['id']; ?> ">
+                                <button type="button" class="btn btn-danger btn-sm mb-1 mt-1" id="delete_btn" data-id="user-<?= $row['id']; ?> ">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </form>
@@ -88,7 +88,7 @@ if (isset($_POST['suggest'])) {
                             <button type="submit" name="edit" class="btn btn-warning btn-sm mb-1 mt-1" value="<?= $row['id']; ?>">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button type="button" class="btn btn-danger btn-sm mb-1 mt-1 del-but" data-id="tools-<?= $row['id']; ?> ">
+                            <button type="button" class="btn btn-danger btn-sm mb-1 mt-1" id="delete_btn" data-id="tools-<?= $row['id']; ?> ">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>
@@ -126,7 +126,7 @@ if (isset($_POST['suggest'])) {
                             <button type="submit" name="edit" class="btn btn-warning btn-sm mb-1 mt-1" value="<?= $row['id']; ?>">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button type="button" class="btn btn-danger btn-sm mb-1 mt-1 del-but" data-id="rout-<?= $row['id']; ?> ">
+                            <button type="button" class="btn btn-danger btn-sm mb-1 mt-1" id="delete_btn" data-id="rout-<?= $row['id']; ?> ">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>
@@ -187,7 +187,7 @@ DisplayMessage($args ?? null);
 </div>
 <?php
 // MODAL WINDOW WITH ROUTE FORM
-deleteModalRouteForm($_GET['route-page'] ?? 1);
+deleteModalRouteForm();
 // Футер
 footer($page);
 // SCRIPTS

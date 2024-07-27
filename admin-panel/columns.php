@@ -9,7 +9,6 @@
         .custom-table thead th,
         .custom-table tbody td {
             display: inline-flex;
-
         }
     </style>
 </head>
@@ -163,7 +162,7 @@ The information will be displayed based on the order of the fields when saving.'
 
 <?php
 // MODAL WINDOW WITH ROUTE FORM
-deleteModalRouteForm($_GET['route-page'] ?? 1);
+deleteModalRouteForm();
 // Футер
 footer($page);
 // SCRIPTS
@@ -172,11 +171,7 @@ ScriptContent($page);
 <!-- JS for buttons to choose and view table name -->
 <script>
     dom.addEventListener('DOMContentLoaded', function () {
-        dom.in("click", ".dob", function () {
-            dom.e("#table-name").value = this.textContent;
-            dom.e("#table-selector").value = this.value;
-            dom.e("#select-form").submit();
-        });
+
     });
 </script>
 </body>

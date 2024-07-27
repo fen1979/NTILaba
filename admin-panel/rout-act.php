@@ -48,8 +48,16 @@
 </head>
 <body>
 <?php
+list($action, $title, $saveBtnText) = ['rout-action-saving', 'creation', 'Create Route Action'];
+// last number plus one
+$routAction['sku'] = R::count(ROUTE_ACTION) + 1;
+if (isset($_POST['edit'])) {
+    $routAction = R::load(ROUTE_ACTION, $_POST['edit']);
+    list($action, $title, $saveBtnText) = ['rout-action-editing', 'editing', 'Update This Route Information'];
+    $routAction['sku'] = null;
+}
 // NAVIGATION BAR
-$navBarData['title'] = 'Route Actions';
+$navBarData['title'] = 'Route Actions ' . $title;
 $navBarData['user'] = $user;
 $navBarData['page_name'] = $page;
 $navBarData['btn_title'] = 'route';
@@ -68,47 +76,26 @@ DisplayMessage($args ?? null);
                 <th>Actions</th>
                 <th>Description</th>
                 <th>Specification</th>
-                <th>Editing</th>
             </tr>
             </thead>
 
             <tbody id="data-container">
             <?php $table = R::find(ROUTE_ACTION);
             foreach ($table as $row) { ?>
-                <tr class="item-list">
+                <tr class="item-list" data-id="<?= $row['id'] ?>">
                     <td><?= $row['sku']; ?></td>
                     <td class="wrap"><?= $row['actions']; ?></td>
                     <td class="wrap"><?= $row['description']; ?></td>
                     <td><?= $row['specifications']; ?></td>
-                    <td>
-                        <form method="post" style="margin:0;">
-                            <button type="submit" name="edit" class="btn btn-warning btn-sm mb-1 mt-1" value="<?= $row['id']; ?>">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button type="button" class="btn btn-danger btn-sm mb-1 mt-1 del-but" data-id="rout-<?= $row['id']; ?> ">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
-                    </td>
                 </tr>
             <?php } ?>
             </tbody>
         </table>
         <?php
     }
-    if (isset($_POST['edit']) || isset($_POST['create'])) {
-        if (isset($_POST['edit'])) {
-            echo '<h2>Edit Rout Action</h2>';
-            $routAction = R::load(ROUTE_ACTION, $_POST['edit']);
-            $action = 'rout-action-editing';
-        }
-        if (isset($_POST['create'])) {
-            echo '<h2>Create Rout Action</h2>';
-            $action = 'rout-action-saving';
-            // last number plus one
-            $routAction['sku'] = R::count(ROUTE_ACTION) + 1;
-        }
-        ?>
+
+    // создание или обновление рут карты
+    if (isset($_POST['edit']) || isset($_POST['create'])) { ?>
         <form method="post" class="mb-5 mt-3">
             <div class="mb-3">
                 <?php $t = 'Part Number, Каталожный номер, מפקת קטלוגית, Stock Keeping Unit'; ?>
@@ -132,23 +119,28 @@ DisplayMessage($args ?? null);
                 <input class="form-control" id="specifications" name="specifications" value="<?= $routAction['specifications'] ?? ''; ?>">
             </div>
 
-            <button type="submit" class="btn btn-success form-control" name="<?= $action; ?>" value="<?= $routAction['id'] ?? ''; ?>">Save</button>
+            <div class="mb-2 text-center">
+                <button type="submit" class="btn btn-success" name="<?= $action; ?>" value="<?= $routAction['id'] ?? ''; ?>">
+                    <?= $saveBtnText ?>
+                </button>
+
+                <?php if (isset($_POST['edit'])) { ?>
+                    <button type="button" class="btn btn-danger" id="delete_btn" data-id="rout-<?= $routAction['id'] ?? ''; ?>">
+                        Delete Route Act [password required!!!]
+                    </button>
+                <?php } ?>
+            </div>
         </form>
     <?php } ?>
 </div>
 
 <?php
 // MODAL WINDOW WITH ROUTE FORM
-deleteModalRouteForm($_GET['route-page'] ?? 1);
+deleteModalRouteForm();
 // Футер
 footer($page);
 // SCRIPTS
 ScriptContent($page);
 ?>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        dom.doSubmit('#create-btn', '#create-form');
-    });
-</script>
 </body>
 </html>

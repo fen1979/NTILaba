@@ -274,7 +274,7 @@ DisplayMessage($args ?? null);
         <!-- Таб 4 -->
         <li class="nav-item" role="presentation">
             <button class="nav-link <?= ($A_T == 'tab4') ? 'active' : '' ?>"
-                    data-bs-target="#tab4" id="nav-link-4" type="button" role="tab">Item Orders Information
+                    data-bs-target="#tab4" id="nav-link-4" type="button" role="tab">Information about orders
             </button>
         </li>
         <!-- Таб 5 -->

@@ -3,6 +3,24 @@
 class Management
 {
     /**
+     * CHECKING POST DATA FOR AN SCAM DATA
+     * @param $post
+     * @return array
+     */
+    private static function checkPostDataAndConvertToArray($post): array
+    {
+        $postDataArray = [];
+        foreach ($post as $key => $item) {
+            if (is_array($item)) {
+                $postDataArray[$key] = self::checkPostDataAndConvertToArray($item);
+            } else {
+                $postDataArray[$key] = _E($item);
+            }
+        }
+        return $postDataArray;
+    }
+
+    /**
      * МЕТОДЫ ОБЩЕГО ПОЛЬЗОВАНИЯ
      * @param $files
      * @param $imagePath
@@ -99,27 +117,48 @@ class Management
                     break;
                 case 'tools':
                     {
-                        /* удаление tools и все его данные включая фотографии */
+                        /* удаление tools и все его данные включая фотографии и размещения по БД */
                         $r = R::load(TOOLS, $id);
-                        $tr = $r['toolname'];
+                        $tr = $r['manufacturer_name'] . ' ' . $r['device_model'];
+                        $imagePath = $r['image'];
+
+                        // Проверка, есть ли путь к фото только в этом инструменте
+                        $imageCount = R::count(TOOLS, 'image LIKE ?', [$imagePath]);
+                        if ($imageCount == 1) {
+                            // Если нет совпадений, очищаем место файла
+                            unlink($imagePath);
+                        }
+
+                        // Проверка в таблице projects
+                        $projects = R::findAll(PROJECTS, 'tools LIKE ?', ['%' . $id . '%']);
+                        foreach ($projects as $project) {
+                            $tools = explode(',', $project->tools);
+                            if (in_array($id, $tools)) {
+                                // Удаление id инструмента из списка
+                                $tools = array_filter($tools, function ($toolId) use ($id) {
+                                    return $toolId != $id;
+                                });
+                                $project->tools = implode(',', $tools);
+                                R::store($project);
+                            }
+                        }
 
                         $log_details = "Tool id №:$id was deleted, Name: $tr";
-
                         R::trash($r);
                         $res['info'] = "Tool $tr deleted successfully!";
                     }
                     break;
+
             }
+
             $res['color'] = 'success';
 
             /* [     LOGS FOR THIS ACTION     ] */
             if (!logAction($user['user_name'], 'DELETING', OBJECT_TYPE[12], $log_details)) {
-                $res['info'] = 'The log not created.';
-                $res['color'] = 'danger';
+                $res[] = ['info' => 'The log not created.', 'color' => 'danger'];
             }
         } else {
-            $res['info'] = "Incorrect password writed!";
-            $res['color'] = 'danger';
+            $res[] = ['info' => 'Incorrect password writed!', 'color' => 'danger'];
         }
 
         return $res;
@@ -203,83 +242,102 @@ class Management
      * USERS ACTIONS CODE
      *
      * @param $post
+     * @param $thisUser
      * @return array
-     * @throws //\RedBeanPHP\RedException\SQL
+     * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function editUserData($post): array
+    public static function addOrUpdateUsersData($post, $thisUser): array
     {
-        $user = R::load(USERS, _E($post['user-data-editing']));
+        $post = self::checkPostDataAndConvertToArray($post);
+        $name = $post['name'];
+        $email = $post['email'];
+        $phone = $post['phone'] ?? null;
+        $can_change_data = $post['can-change-data'] ?? 0;
+        $role = $post['approle'] ?? ROLE_WORKER;
+        $jobrole = $post['jobrole'] ?? ROLE[ROLE_WORKER];
+        $pass = $post['user_password'] ?? null;
+        $adminPass = $post['admin_password'] ?? null;
+        $date_in = $post['date_in'];
 
-        $log_details = "User id №:$user->id was edited, old stepsData:[$user->job_role, $user->app_role, $user->user_name]";
+        // CREATE NEW USER
+        if (isset($post['add-new-user'])) {
+            if (!empty($adminPass) && !empty($pass) && checkPassword($adminPass)) {
 
-        $user->user_name = _E($post['name'] ?? 'Jon Doe');
-        $user->email = _E($post['regEmail'] ?? 'Jon@Doe.com');
-        $user->job_role = _E($post['jobrole'] ?? 'Camera Man');
-        $user->app_role = _E($post['approle'] ?? 'worker');
-        $user->can_change_data = _E($post['can-change-data'] ?? 0);
-        $user->date_in = _E($post['datein'] ?? date("Y-m-d h:i"));
+                $user = R::findOrCreate(USERS, ['user_name' => $name]);
 
-        if (R::store($user)) {
-            $log_details .= "<br>new stepsData: [$user->job_role, $user->app_role, $user->user_name]";
-            $res[] = ['info' => 'Changes Saved successfully!', 'color' => 'success'];
-        } else {
-            $res[] = ['info' => 'Something went wrong!', 'color' => 'danger'];
+                if (empty($user['user_hash']) && !password_verify($pass, $user['user_hash'])) {
+                    $hash = password_hash($pass, PASSWORD_DEFAULT);
+                    $user->user_hash = $hash;
+                    $user->email = $email;
+                    $user->phone = $phone;
+                    $user->job_role = $jobrole;
+                    $user->app_role = $role;
+                    $user->can_change_data = $can_change_data;
+                    $user->filterby_status = '-1';
+                    $user->filterby_user = 'all';
+                    $user->filterby_client = '';
+                    $user->link = 'order';
+                    $user->sound = 1;
+                    $user->view_mode = 'light';
+                    $user->date_in = date("Y-m-d h:i");
+
+                    /* creation admin-panel for view tables */
+                    // fixme цикл в котором заполнятся первичные настройки для вывода информации пользователю
+                    $settings = R::dispense(SETTINGS);
+                    $settings->table_name = DEFAULT_SETTINGS['table_name'];
+                    $settings->setup = DEFAULT_SETTINGS['setup'];
+                    R::store($settings);
+
+                    $user->ownSettingsList[] = $settings;
+                    R::store($user);
+                    $args = ['color' => 'success', 'info' => 'Registration complite!'];
+
+                    $details = 'Worker named: ' . $user->user_name . ', Added successfully on: ' . date('Y/m/d') . ' at ' . date('h:i');
+                    $details .= getServerData();
+                    logAction($thisUser['user_name'], 'REGISTER', OBJECT_TYPE[11], $details);
+                }
+            } else {
+                $args = ['color' => 'danger', 'info' => 'Registration error Password Data wrong!'];
+            }
         }
 
-        /* [     LOGS FOR THIS ACTION     ] */
-        if (!logAction($user['user_name'], 'EDITING', OBJECT_TYPE[11], $log_details)) {
-            $res[] = ['info' => 'The log not created.', 'color' => 'danger'];
-        }
-        return $res;
-    }
+        // UPDATE USER INFORMATION
+        if (isset($post['update-user-data'])) {
+            $uid = $post['update-user-data'];
+            $user = R::load(USERS, $uid);
 
-    public static function addNewWorker($post, $thisUser): array
-    {
-        $name = _E($post['regUserName']);
-        $email = _E($post['regEmail']);
-        $pass = _E($post['regUserPassword']);
-        $adminPass = _E($post['adminPassword']);
-        $can_change_data = isset($post['can-change-data']) ? _E($post['can-change-data']) : 0;
-        $role = _E($post['approle']) ?? ROLE_WORKER;
-        $jobrole = _E($post['regJobRole']) ?? ROLE[ROLE_WORKER];
+            $log_details = "User id №:$user->id was edited, brfore:[$user->job_role, $user->app_role, $user->user_name]";
+            $log_details .= "<br> [$user->phone, $user->email, permitions = $user->can_change_data]";
 
-        if (checkPassword($adminPass)) {
+            $user->user_name = $name ?? 'Jon Doe';
+            $user->email = $email ?? 'Jon@Doe.com';
+            $user->phone = $phone ?? 'Jon@Doe.com';
+            $user->job_role = $jobrole ?? 'Camera Man';
+            $user->app_role = $role ?? 'worker';
+            $user->can_change_data = $can_change_data;
+            // если время изменилось то сохраним новое
+            $user->date_in = ($date_in != $user->date_in) ? $date_in : $user->date_in;
 
-            $user = R::findOrCreate(USERS, ['user_name' => $name]);
-
-            if (empty($user['user_hash']) && !password_verify($pass, $user['user_hash'])) {
+            // password changing if need
+            if (!empty($adminPass) && !empty($pass) && checkPassword($adminPass)) {
                 $hash = password_hash($pass, PASSWORD_DEFAULT);
                 $user->user_hash = $hash;
-                $user->email = $email;
-                $user->date_in = date("Y-m-d h:i");
-                $user->job_role = $jobrole;
-                $user->app_role = $role;
-                $user->can_change_data = $can_change_data;
-                $user->filterby_status = '-1';
-                $user->filterby_user = 'all';
-                $user->filterby_client = '';
-                $user->link = 'order';
-                $user->sound = 1;
-                $user->view_mode = 'light';
-
-                /* creation admin-panel for view tables */
-                // fixme цикл в котором заполнятся первичные настройки для вывода информации пользователю
-                $settings = R::dispense(SETTINGS);
-                $settings->table_name = DEFAULT_SETTINGS['table_name'];
-                $settings->setup = DEFAULT_SETTINGS['setup'];
-                R::store($settings);
-
-                $user->ownSettingsList[] = $settings;
-                R::store($user);
-                $args = ['color' => 'success', 'info' => 'Registration complite!'];
-
-                $details = 'Worker named: ' . $user->user_name . ', Added successfully on: ' . date('Y/m/d') . ' at ' . date('h:i');
-                $details .= getServerData();
-                logAction($thisUser['user_name'], 'REGISTER', OBJECT_TYPE[11], $details);
+                $log_details .= '<br>password was changed!';
+                $args[] = ['info' => 'The user password has been successfully changed!!!<br>To log in, use the new password.', 'color' => 'danger'];
+            } else {
+                $args[] = ['info' => 'No password changes!<br>Ignore this message if you have not changed your password!', 'color' => 'warning'];
             }
-        } else {
-            $args = ['color' => 'danger', 'info' => 'Registration error Some Data wrong!'];
+
+            if (R::store($user)) {
+                $log_details .= "<br>Changes: [$user->job_role, $user->app_role, $user->user_name]";
+                $args[] = ['info' => 'Changes Saved successfully!', 'color' => 'success'];
+            } else {
+                $args[] = ['info' => 'Something went wrong!', 'color' => 'danger'];
+            }
+
+            logAction($user['user_name'], 'EDITING', OBJECT_TYPE[11], $log_details);
         }
+
         return $args;
     }
 

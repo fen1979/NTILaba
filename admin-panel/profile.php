@@ -153,52 +153,11 @@ const START_PAGE = ['order' => 'Orders', 'project' => 'Projects', 'wh' => 'Wareh
 
 <?php
 // MODAL WINDOW WITH ROUTE FORM
-deleteModalRouteForm($_GET['route-page'] ?? 1);
+deleteModalRouteForm();
 // Футер
 footer($page);
 // SCRIPTS
 ScriptContent($page);
 ?>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-
-        // кнопки выбора фото пользователя и Обработчик обновления превью
-        document.doClick("#btn-take-image", "#file-input");
-        document.doPreviewFile("file-input", "profile-img");
-
-        // делаем видимой форму смены пароля
-        document.querySelector("#change-password").addEventListener("click", function () {
-            document.querySelector("#password-form").classList.remove("hidden");
-        });
-
-        const password1 = document.getElementById('password_1');
-        const password2 = document.getElementById('password_2');
-        const emailInput = document.getElementById('email');
-        const checkbox = document.getElementById('check');
-        const submitButton = document.querySelector('#pass-btn');
-
-        function validateForm() {
-            // Проверка совпадения паролей
-            const passwordsMatch = password1.value === password2.value && password1.value !== '';
-            // Проверка валидности имейла
-            const emailValid = emailInput.checkValidity(); // возвращает true, если поле валидно
-            // Проверка состояния чекбокса
-            const checkboxChecked = checkbox.checked;
-
-            // Управление атрибутом required для имейла
-            emailInput.required = checkboxChecked;
-
-            // Управление доступностью кнопки
-            submitButton.disabled = !(passwordsMatch && (!checkboxChecked || (checkboxChecked && emailValid)));
-        }
-
-        // Добавляем обработчики на все поля формы
-        password1.addEventListener('input', validateForm);
-        password2.addEventListener('input', validateForm);
-        emailInput.addEventListener('input', validateForm);
-        checkbox.addEventListener('change', validateForm);
-    });
-</script>
 </body>
 </html>

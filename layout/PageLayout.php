@@ -265,11 +265,12 @@ function ALL_PAGES_BUTTONS($page, $l): void
  */
 function ADMIN_PANEL_BUTTONS($btn_title, $page): void
 {
+    // уровень администратора позволяет работать с админ панелью
     if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) {
         // страница где отображается кнопка импортировать из файла
         if ($page == 3) { ?>
             <li class="nav-item">
-                <button type="button" id="import-from-file" class="btn btn-sm btn-outline-primary m-03">
+                <button type="button" id="import-from-file" class="btn btn-sm btn-outline-info m-03">
                     Import from file <i class="bi bi-filetype-csv"></i>
                 </button>
             </li>
@@ -278,46 +279,49 @@ function ADMIN_PANEL_BUTTONS($btn_title, $page): void
         // страницы где не отображается кнопка добавить новый
         if (!in_array($page, [1, 7, 8])) { ?>
             <li class="nav-item">
-                <button type="button" id="create-btn" class="btn btn-sm btn-outline-danger m-03">
+                <button type="button" id="create-btn" class="btn btn-sm btn-outline-success m-03">
                     <i class="bi bi-plus"></i> Create new <?= $btn_title ?>
                 </button>
             </li>
         <?php } ?>
+
         <li class="nav-item">
-            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-primary" value="7">Search</button>
+            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-secondary" value="7">Search</button>
         </li>
         <li class="nav-item">
-            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-primary" value="1">Columns</button>
+            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-secondary" value="1">Columns</button>
         </li>
         <li class="nav-item">
-            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-primary" value="2">Rout's</button>
+            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-secondary" value="2">Rout's</button>
         </li>
         <li class="nav-item">
-            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-primary" value="3">Tools</button>
+            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-secondary" value="3">Tools</button>
         </li>
-        <?php if (isUserRole([ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
+        <?php
+        // только высокий уровень пользователя может работать с персональными данными
+        if (isUserRole([ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
             <li class="nav-item">
-                <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-primary" value="4">Users</button>
+                <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-secondary" value="4">Users</button>
             </li>
         <?php } ?>
         <li class="nav-item">
-            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-primary" value="5">Projects</button>
+            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-secondary" value="5" disabled>Projects</button>
         </li>
         <li class="nav-item">
-            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-primary" value="6">Orders</button>
+            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-secondary" value="6" disabled>Orders</button>
         </li>
         <li class="nav-item">
-            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-primary" value="9">Warehouses</button>
+            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-secondary" value="9">Warehouses</button>
         </li>
 
     <?php } else { ?>
         <li class="nav-item">
-            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-primary" value="1">Columns</button>
+            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-secondary" value="1">Columns</button>
         </li>
     <?php } ?>
 
     <li class="nav-item">
-        <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-primary" value="8">Profile</button>
+        <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-secondary" value="8">Profile</button>
     </li>
 
     <li class="divider-vertical"></li>
