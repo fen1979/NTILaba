@@ -1,18 +1,20 @@
 <?php
+EnsureUserIsAuthenticated($_SESSION, 'userBean');
+
 /* searching in to users/tools/routactions by name/actions/specifications return table */
 if (isset($_POST['suggest'])) {
-    // подключение Базы Данных МаринаДБ
-    require_once "../core/rb-mysql.php";
-    require_once '../core/Resources.php';
-    require_once '../core/Utility.php';
-
-    // database name = !!!-> nti_production <-!!!
-    R::setup('mysql:host=localhost;dbname=nti_production', 'root', '8CwG24YwZG');
-    // R::freeze( true ); /* тут выключение режима заморозки */
-    if (!R::testConnection()) {
-        exit ('No database connection');
-    }
-    session_start();
+//    // подключение Базы Данных МаринаДБ
+//    require_once "../core/rb-mysql.php";
+//    require_once '../core/Resources.php';
+//    require_once '../core/Utility.php';
+//
+//    // database name = !!!-> nti_production <-!!!
+//    R::setup('mysql:host=localhost;dbname=nti_production', 'root', '8CwG24YwZG');
+//    // R::freeze( true ); /* тут выключение режима заморозки */
+//    if (!R::testConnection()) {
+//        exit ('No database connection');
+//    }
+//    session_start();
     /* проверяем на скрипты и другие бяки от пользователя */
     $searchTerm = '%' . _E($_POST['suggest']) . '%';
 

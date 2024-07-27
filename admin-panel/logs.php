@@ -5,6 +5,11 @@ $page = 'logs';
 $thisUser = $_SESSION['userBean'];
 $orderid = $settings = null;
 
+//$max_id = R::getCell('SELECT MAX(id) FROM logs');
+//// Установите новое автоинкрементное значение
+//$new_auto_increment = $max_id + 1;
+//R::exec('ALTER TABLE logs AUTO_INCREMENT = ?', [$new_auto_increment]);
+
 // Параметры пагинации
 list($pagination, $paginationButtons) = PaginationForPages($_GET, 'logs', LOGS, 50);
 ?>

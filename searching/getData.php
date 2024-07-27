@@ -118,10 +118,15 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
             break;
 
         case 'get-images':
+        case 'tools-images':
             {
-                /* вывод всех существующих изображений записанных в БД в товарах */
-                $itemImages = R::getCol('SELECT item_image FROM ' . WH_ITEMS . ' WHERE item_image IS NOT NULL AND item_image != ""');
-                echo itemImagesForChoose($itemImages);
+                list($table, $column) = $request == 'get-images' ? [WH_ITEMS, 'item_image'] : [TOOLS, 'image'];
+                try {
+                    $itemImages = getAllImagesSavedInDB($table, $column);
+                    echo itemImagesForChoose($itemImages);
+                } catch (Exception $e) {
+                    echo "Error: " . $e->getMessage();
+                }
             }
             break;
         default:
@@ -163,8 +168,8 @@ function SearchWarehouseItems($searchTerm, $table_one, $table_two)
     // SQL-запрос для поиска в двух таблицах и объединения результатов
     $query = "
     SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf, w.fifo, wt.type_name
-    FROM whitems wn
-    LEFT JOIN warehouse w ON wn.id = w.items_id
+    FROM $table_one wn
+    LEFT JOIN $table_two w ON wn.id = w.items_id
     LEFT JOIN whtypes wt ON wt.id = w.wh_types_id
     WHERE wn.part_name LIKE ?
        OR wn.part_value LIKE ?
@@ -178,6 +183,24 @@ function SearchWarehouseItems($searchTerm, $table_one, $table_two)
     $params = [$q, $q, $q, $q, $q, $q];
     // Возвращение результатов в виде массива
     return R::getAll($query, $params);
+}
+
+
+/**
+ * Получает уникальные непустые значения из указанного поля таблицы.
+ *
+ * @param string $tableName Имя таблицы.
+ * @param string $fieldName Имя поля, содержащего пути к файлам.
+ * @return array Уникальные непустые значения поля.
+ */
+function getAllImagesSavedInDB(string $tableName, string $fieldName): array
+{
+    // Проверка корректности имен таблицы и поля
+    if (empty($tableName) || empty($fieldName)) {
+        throw new InvalidArgumentException("Table name and field name must be provided.");
+    }
+    // Выполнение запроса и получение результатов
+    return R::getCol("SELECT DISTINCT $fieldName FROM $tableName WHERE $fieldName IS NOT NULL AND $fieldName !=''");
 }
 
 exit();

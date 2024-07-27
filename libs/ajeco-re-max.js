@@ -35,19 +35,45 @@ const win = window;
 /**
  * Добавляет обработчик события клика к документу, который инициирует клик на целевом элементе,
  * если источником события является элемент, соответствующий `triggerSelector`.
+ *
+ * // Пример использования функции
+ * dom.doClick('.trigger-button', '#file-input', function (inputElement) {
+ *     console.log('Файл выбран:', inputElement.files[0]);
+ *     console.log('Событие вызвано элементом:', this);
+ * });
+ *
  * @param {string} triggerSelector - Селектор элемента, при клике на который будет инициирован клик на целевом элементе.
  * @param {string} targetSelector - Селектор целевого элемента, на который будет произведено событие клика.
+ * @param callback - возвращает обьекты this и input на который был произведено нажатие
  */
-dom.doClick = function (triggerSelector, targetSelector) {
-    dom.addEventListener('click', function (event) {
+dom.doClick = function (triggerSelector, targetSelector, callback = null) {
+    document.addEventListener('click', function (event) {
         if (event.target.matches(triggerSelector)) {
-            const targetElement = dom.querySelector(targetSelector);
+            const targetElement = document.querySelector(targetSelector);
             if (targetElement) {
                 targetElement.click();
+
+                if (typeof callback === 'function') {
+                    targetElement.addEventListener('change', function () {
+                        if (callback && typeof callback === 'function') {
+                            callback.call(event.target, this);
+                        }
+                    }, {once: true});
+                }
             }
         }
     });
 };
+// dom.doClick = function (triggerSelector, targetSelector) {
+//     dom.addEventListener('click', function (event) {
+//         if (event.target.matches(triggerSelector)) {
+//             const targetElement = dom.querySelector(targetSelector);
+//             if (targetElement) {
+//                 targetElement.click();
+//             }
+//         }
+//     });
+// };
 
 /**
  * Добавляет обработчик события клика к документу, который отправляет форму, если источником события

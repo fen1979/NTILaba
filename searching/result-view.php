@@ -1,9 +1,10 @@
 <?php
 /**
+ * функция вывода поиска на странице добавления клиента
+ *
  * @param $result
  * @param $col
  * @return void
- * функция вывода поиска на странице добавления клиента
  */
 function viewCustomer($result, $col)
 {
@@ -46,11 +47,13 @@ function viewCustomer($result, $col)
 
 /**
  * ФУНКЦИЯ ВЫВОДА ДАННЫХ ДЛЯ ПОЛЕЙ SUPPLIER/MANUFACTURER
+ *
  * @param $result
  * @param $request
+ * @param $mySearchString
  * @return void
  */
-function viewSupplier($result, $request, $mySearchString)
+function viewSupplier($result, $request, $mySearchString): void
 {
     if ($result) { ?>
         <thead>
@@ -549,27 +552,18 @@ function viewPartsForProjectBOM($result): void
     <?php endforeach; endif;
 }
 
-
 /**
  * @param $itemImages
  * @return void
  */
 function itemImagesForChoose($itemImages): string
 {
-    // убираем одинаковые пути к файлам
-    $uniqueImages = [];
-    foreach ($itemImages as $path) {
-        if (!in_array($path, $uniqueImages)) {
-            $uniqueImages[] = $path;
-        }
-    }
-
     // собираем все пути в таблицу по 3 штуки в ряду и возвращаем для вывода на страницу
     // ширина изображения установлена в 200рх
     $outRes = '<thead><tr><th colspan="3">Click on image for choose</th></tr></thead>';
     $outRes .= '<tbody>';
     $count = 0;
-    foreach ($uniqueImages as $path) {
+    foreach ($itemImages as $path) {
         if ($count % 3 === 0) {
             if ($count > 0) {
                 $outRes .= '</tr>';

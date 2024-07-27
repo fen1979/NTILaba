@@ -2,6 +2,45 @@
 
 class Profiler
 {
+    private static function checkPostDataAndConvertToArray($post): array
+    {
+        $postDataArray = [];
+        foreach ($post as $key => $item) {
+            if (is_array($item)) {
+                $postDataArray[$key] = self::checkPostDataAndConvertToArray($item);
+            } else {
+                $postDataArray[$key] = _E($item);
+            }
+        }
+        return $postDataArray;
+    }
+
+    private static function backDataToRoutedPage(array $get, array $urlData): string
+    {
+        // routed from create project page
+        $newUrl = '';
+        if (isset($get['routed-from'])) {
+            $url = 'customer_name=' . urlencode($urlData->name) . '&priority=' . urlencode($urlData->priority) .
+                '&customer_id=' . urlencode($urlData->id);
+
+            switch ($get['routed-from']) {
+                // back to project creation page with parameters
+                case 'create-project':
+                    $newUrl = "Location: new_project?$url";
+                    break;
+                // back to order creation page with parameters
+                case 'create-order':
+                    $newUrl = "Location: new_order?$url";
+                    break;
+            }
+        }
+        return $newUrl;
+    }
+
+    /*========================================================== PRIVATE =====================================================================*/
+    /*========================================================================================================================================*/
+    /*========================================================== PUBLIC ======================================================================*/
+
     /**
      * CREATION NEW SUPPLIER/MANUFACTURER FROM MODAL WINDOW ON PAGES arrival, in-out-item
      * @param $post
@@ -33,5 +72,103 @@ class Profiler
             return json_encode(['supplier_id' => $sup_id, 'supplier_name' => $sup_name, 'request' => $post['request'], 'log' => $log_data]);
         else
             return json_encode(['supplier_id' => null, 'supplier_name' => null, 'request' => $post['request'], 'log' => $log_data]);
+    }
+
+    public static function createCustomer($get, $post, $user): array
+    {
+        $post = self::checkPostDataAndConvertToArray($post);
+
+        $extraPhones = ['phone_1' => $post['extraPhone_1'] ?? '', 'phone_2' => $post['extraPhone_2'] ?? ''];
+        $extraContact = ['contact_1' => $post['extraContact_1'] ?? '', 'contact_2' => $post['extraContact_2'] ?? ''];
+        $extraEmail = ['email_1' => $post['extraEmail_1'] ?? '', 'email_2' => $post['extraEmail_2'] ?? ''];
+
+        $name = $post['customerName'];
+        $priority = $post['priorityMakat'];
+
+        $c = R::dispense(CLIENTS);
+        $c->name = $name;
+        $c->head_pay = $post['headPay'];
+        $c->priority = $priority;
+        $c->address = $post['address'];
+        $c->phone = $post['phone'];
+        $c->contact = $post['contact'];
+        $c->email = $post['email'];
+        $c->extra_phone = json_encode($extraPhones);
+        $c->extra_contact = json_encode($extraContact);
+        $c->extra_email = json_encode($extraEmail);
+        $c->information = $post['information'];
+        $c->date_in = $post['dateIn'];
+        $id = R::store($c);
+
+        $args = ['color' => 'success', 'info' => 'Customer Saved successfully!'];
+
+        // if routed from order or project pages back data to page
+        $urlData['id'] = $id;
+        $urlData['name'] = $name;
+        $urlData['priority'] = $priority;
+        // если клиент был создан при создании заказа/проекта
+        // здесь создается обратный путь с новыми данными для заполнения полей
+        $args['location'] = self::backDataToRoutedPage($get, $urlData);//
+
+        /* [     LOGS FOR THIS ACTION     ] */
+        $details = "Customer name: $name, was created in: {$post['dateIn']} <br>";
+        if (isset($get['routed-from']))
+            $details .= "Creation initiated from {$get['routed-from']}";
+        if (!logAction($user['user_name'], 'CREATION', OBJECT_TYPE[13], $details)) {
+            $args[] = ['color' => 'danger', 'info' => 'Error! log creation!'];
+        }
+
+        return $args;
+    }
+
+    public static function updateCustomerData($post, $user): array
+    {
+        $post = self::checkPostDataAndConvertToArray($post);
+
+        $extraPhones = ['phone_1' => $post['extraPhone_1'] ?? '', 'phone_2' => $post['extraPhone_2'] ?? ''];
+        $extraContact = ['contact_1' => $post['extraContact_1'] ?? '', 'contact_2' => $post['extraContact_2'] ?? ''];
+        $extraEmail = ['email_1' => $post['extraEmail_1'] ?? '', 'email_2' => $post['extraEmail_2'] ?? ''];
+
+        $name = $post['customerName'];
+        $priority = $post['priorityMakat'];
+        $c = null;
+        // Проверяем, состоит ли строка только из чисел
+        if (isset($post['cuid']) && ctype_digit($post['cuid'])) {
+            $c = R::load(CLIENTS, $post['cuid']);
+        } else {
+            return ['color' => 'danger', 'info' => 'Customer ID is not correct !!!'];
+        }
+        // data before update
+        //$before = $c->export();
+
+        $c->name = $name;
+        $c->head_pay = $post['headPay'];
+        $c->priority = $priority;
+        $c->address = $post['address'];
+        $c->phone = $post['phone'];
+        $c->contact = $post['contact'];
+        $c->email = $post['email'];
+        $c->extra_phone = json_encode($extraPhones);
+        $c->extra_contact = json_encode($extraContact);
+        $c->extra_email = json_encode($extraEmail);
+        $c->information = $post['information'];
+        $c->date_in = $post['dateIn'];
+        $id = R::store($c);
+
+        // data after update
+        //$after = $c->export();
+        // json_encode($before, JSON_UNESCAPED_UNICODE);
+        // json_encode($after, JSON_UNESCAPED_UNICODE);
+// fixme сделать правильное логирование
+        $args[] = ['color' => 'success', 'info' => 'Customer Updated successfully!'];
+
+        /* [     LOGS FOR THIS ACTION     ] */
+        $details = "Customer name: $name, was updated <br>";
+
+        if (!logAction($user['user_name'], 'CREATION', OBJECT_TYPE[13], $details)) {
+            $args[] = ['color' => 'danger', 'info' => 'Error! log creation!'];
+        }
+
+        return $args;
     }
 }

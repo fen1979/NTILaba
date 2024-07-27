@@ -388,10 +388,14 @@ DisplayMessage($args ?? null);
                         if ($settings) {
                             foreach ($settings as $item) {
                                 if ($item != 'image') {
-                                    echo '<td>' . $row[$item] . '</td>';
+                                    if ($item == 'responsible')
+                                        echo '<td>' . (json_decode($row[$item])->name) . '</td>';
+                                    else
+                                        echo '<td>' . $row[$item] . '</td>';
                                 } else {
                                     echo '<td>' .
-                                        '<img src="/' . $row['image'] . '" alt="Tool Image Preview" width="180px" >' .
+                                        '<img src="/' . (!empty($row['image']) ? $row['image'] : 'public/images/pna_en.webp') .
+                                        '" alt="Tool Image Preview" width="180px" >' .
                                         '</td>';
                                 }
                             }

@@ -186,34 +186,34 @@ DisplayMessage($args ?? null);
 
 <div class="container mt-5 px-3 py-3 rounded" style="background: beige;">
     <div class="row">
-        <div class="p-1 col-8"><h3><?= (!$id) ? 'Create Project' : 'Edit Project'; ?></h3></div>
+        <div class="col-8"><h3><?= (!$id) ? 'Create Project' : 'Edit Project'; ?></h3></div>
         <?php $lastId = R::getCol("SELECT MAX(id) FROM projects"); ?>
-        <div class="p-1 col-4"><h3>Project ID: &nbsp; <?= !$id ? $lastId[0] + 1 : $id; ?></h3></div>
+        <div class="col-4"><h3>Project ID: &nbsp; <?= !$id ? $lastId[0] + 1 : $id; ?></h3></div>
     </div>
 
     <form id="createProjectForm" action="" method="post" enctype="multipart/form-data" autocomplete="off">
         <!--i CUSTOMER NAME ID -->
         <div class="mb-3">
             <div class="row">
-                <div class="p-1 col-6">
+                <div class="col-6">
                     <label for="customerName" class="form-label">Customer Name <b class="text-danger">*</b> <i class="bi bi-search"></i></label>
                 </div>
-                <div class="p-1 col-3">
+                <div class="col-3">
                     <label for="customerId" class="form-label">Customer ID</label>
                 </div>
-                <div class="p-1 col-3"></div>
+                <div class="col-3"></div>
             </div>
             <div class="row">
-                <div class="p-1 col-6">
+                <div class="col-6">
                     <input type="text" class="form-control searchThis" id="customerName" name="customerName"
                            value="<?= (!empty($project['customername'])) ? $project['customername'] : set_value('customerName'); ?>"
                            data-request="customer" required>
                 </div>
-                <div class="p-1 col-3">
+                <div class="col-3">
                     <input type="text" class="form-control" id="customerId" name="customerId" readonly
                            value="<?= (!empty($project['customerid'])) ? $project['customerid'] : set_value('customerId'); ?>">
                 </div>
-                <div class="p-1 col-3">
+                <div class="col-3">
                     <?php $href = "/create_client?routed-from=create-project"; ?>
                     <a role="button" class="btn btn-outline-diliny form-control" id="createCustomer" href="<?= $href ?>">
                         Add New Customer
@@ -224,19 +224,19 @@ DisplayMessage($args ?? null);
         <!--i CUSTOMER PRIORITY AND HEAD PAY -->
         <div class="mb-3">
             <div class="row">
-                <div class="p-1 col-6">
+                <div class="col-6">
                     <label for="priorityMakat" class="form-label">Priority makat <!--<b class="text-danger">*</b>--></label>
                 </div>
-                <div class="p-1 col-6">
+                <div class="col-6">
                     <label for="headPay" class="form-label">Head Pay <!--<b class="text-danger">*</b>--></label>
                 </div>
             </div>
             <div class="row">
-                <div class="p-1 col-6">
+                <div class="col-6">
                     <input type="text" name="priorityMakat" value="<?= (!empty($project['priority'])) ? $project['priority'] : set_value('priorityMakat'); ?>"
                            class="form-control" id="priorityMakat">
                 </div>
-                <div class="p-1 col-6">
+                <div class="col-6">
                     <input type="text" name="headPay" value="<?= (!empty($project['headpay'])) ? $project['headpay'] : set_value('headPay'); ?>"
                            id="headPay" class="form-control">
                 </div>
@@ -245,27 +245,27 @@ DisplayMessage($args ?? null);
         <!--i PROJECT NAME, INCOMING DATE, REVISION -->
         <div class="mb-3">
             <div class="row">
-                <div class="p-1 col-7">
+                <div class="col-7">
                     <label for="pn" class="form-label" id="pn_label">Project Name <b class="text-danger">*</b></label>
                 </div>
-                <div class="p-1 col-3">
+                <div class="col-3">
                     <label for="pr" class="form-label">Project Version <b class="text-danger">*</b></label>
                 </div>
-                <div class="p-1 col-2">
+                <div class="col-2">
                     <label for="date_in" class="form-label">Project start Date <b class="text-danger">*</b></label>
                 </div>
             </div>
 
             <div class="row">
-                <div class="p-1 col-7">
+                <div class="col-7">
                     <input type="text" name="projectName" value="<?= (!empty($project['projectname'])) ? $project['projectname'] : set_value('projectName'); ?>"
                            class="form-control" id="pn" data-mode="<?= !empty($_GET['pid']) ? $_GET['pid'] : '0'; ?>" required>
                 </div>
-                <div class="p-1 col-3">
+                <div class="col-3">
                     <input type="text" class="form-control" id="pr" name="projectRevision" required
                            value="<?= (!empty($project['revision'])) ? $project['revision'] : set_value('projectRevision'); ?>">
                 </div>
-                <div class="p-1 col-2">
+                <div class="col-2">
                     <input type="datetime-local" class="form-control" id="date_in" name="date_in"
                            value="<?= (!empty($project->date_in)) ? $project->date_in : date('Y-m-d H:i'); ?>" required>
                 </div>
@@ -275,12 +275,12 @@ DisplayMessage($args ?? null);
 
         <div class="mb-4">
             <div class="row">
-                <div class="p-1 col-6">
+                <div class="col-6">
                     <label for="en" class="form-label">Executor Name <b class="text-danger">*</b></label>
                     <input type="text" class="form-control" id="en" name="executorName" required
                            value="<?= (!empty($project['executor'])) ? $project['executor'] : set_value('executorName', 'NTI'); ?>">
                 </div>
-                <div class="p-1 col-6">
+                <div class="col-6">
                     <label for="rcn" class="form-label">Route Card Name <b class="text-danger">*</b></label>
                     <select id="rcn" name="route_card_name" class="form-select" aria-label="Route Card Name">
                         <option selected>Choose Route Card Name for this Project</option>
@@ -338,14 +338,14 @@ DisplayMessage($args ?? null);
                     <i class="bi bi-info-circle" data-title="<?= $t; ?>"></i>
                     <span id="pick_files_text">Upload Additional files</span>
                 </button>
-                <input type="file" name="projects_files[]" id="projects_files" accept="*/*" multiple hidden>
+                <input type="file" name="projects_files[]" id="projects_files" accept="*/*" value="" multiple hidden>
             </div>
         </div>
 
         <!--i FOR SUB ASSEMBLY PROJECT ROUTECARD -->
         <div class="checkbox mb-3">
             <div class="row">
-                <div class="p-1 col-9 border-end">
+                <div class="col-9 border-end">
                     <?php $sub_assy = (!empty($project['sub_assembly']) && $project['sub_assembly'] == 1) ? 'checked' : ''; ?>
                     <div class="form-check form-switch fs-3">
                         <input class="form-check-input track-change" type="checkbox" id="sub_assembly" name="sub_assembly"
@@ -357,7 +357,7 @@ DisplayMessage($args ?? null);
                         </label>
                     </div>
                 </div>
-                <div class="p-1 col-3 border-start">
+                <div class="col-3 border-start">
                     <?php $project_type = (!empty($project['project_type']) && $project['project_type'] == 1) ? 'checked' : ''; ?>
                     <div class="form-check form-switch fs-3">
                         <input class="form-check-input track-change" type="checkbox" id="project_type" name="project_type"
@@ -380,42 +380,46 @@ DisplayMessage($args ?? null);
 
         <!--i CHOOSE TOOL TO PROJECT AND CREATE PROJECT BUTTONS -->
         <div class="row mt-5">
-            <div class="p-1 col-8">
+            <div class="col-8">
                 <button class="btn btn-outline-dark form-control dropdown-toggle" type="button" id="dropdownMenuTools" data-bs-toggle="dropdown" aria-expanded="false">
                     Choose Tools to Project
                 </button>
-                <div class="dropdown-menu w-50" aria-labelledby="dropdownMenuTools">
-                    <!-- список инструментов на производстве, выбирается при создании проекта -->
-                    <div class="dropdown-item border-bottom tools-row">
-                        <div class="p-1 col-1 border-end">Check</div>
-                        <div class="p-1 col-4 border-end">Preview</div>
-                        <div class="col">Tool Name</div>
-                    </div>
 
-                    <div style="overflow-y: scroll; height: 40rem;">
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuTools">
+                    <!-- список инструментов на производстве, выбирается при создании проекта -->
+                    <div style="overflow-y: scroll; height: 45rem;" class="p-3">
                         <?php
-                        $table = R::find(TOOLS);
+                        $table = R::getAll('SELECT DISTINCT t.* FROM tools t WHERE t.device_model IS NOT NULL AND t.device_model != "" GROUP BY t.device_model');
                         $toolsChoosen = (!empty($project['tools']) && $project['tools'] != 'NC') ? explode(',', $project['tools']) : null;
                         foreach ($table as $row) {
                             $on = '';
-                            if ($toolsChoosen != null && in_array($row->id, $toolsChoosen, true) !== false) {
+                            if ($toolsChoosen != null && in_array($row['id'], $toolsChoosen, true) !== false) {
                                 $on = 'checked';
                             }
                             ?>
-                            <div class="dropdown-item border-bottom tools-row">
-                                <div class="p-1 col-1 tool-name">
-                                    <input class="form-check-input" type="checkbox" name="selected-tools[]" <?= 'value="' . $row->id . '" ' . $on; ?>>
+                            <div class="card mb-3" style="max-width: 540px;">
+                                <div class="row g-0">
+                                    <div class="col-md-6">
+                                        <img src="<?= !empty($row['image']) ? $row['image'] : 'public/images/pna_en.webp'; ?>" class="img-fluid rounded-end"
+                                             alt="<?= $row['serial_num'] ?>">
+                                    </div>
+                                    <div class="col-md-6 border-start">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?= $row['manufacturer_name'] ?></h5>
+                                            <p class="card-text"><?= $row['device_model'] ?></p>
+                                            <p class="card-text"><?= $row['device_type'] ?></p>
+                                            <p class="card-text"><small class="text-muted"><?= $row['next_inspection_date'] ?></small></p>
+                                            <input class="form-check-input" type="checkbox" name="selected-tools[]" value="<?= $row['id'] ?>" <?= $on ?>
+                                            style="width: 10rem; height: 10rem;">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="p-1 col-4">
-                                    <img src="<?= $row->image; ?>" alt="Tools" style="width: 250px; height: auto;">
-                                </div>
-                                <div class="col tool-name"><?= $row->toolname; ?></div>
                             </div>
                         <?php } ?>
                     </div>
                 </div>
             </div>
-            <div class="p-1 col-4">
+            <div class="col-4">
                 <button type="submit" class="btn btn-outline-success form-control" id="createProjectBtn" <?= $disabled; ?>>
                     <?= $buttonSave; ?>
                 </button>

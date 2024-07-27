@@ -1,5 +1,5 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION,'userBean');
+EnsureUserIsAuthenticated($_SESSION, 'userBean');
 /* class для работы с таблицами */
 require 'admin-panel/Management.php';
 
@@ -31,6 +31,9 @@ if (isset($_POST['add-new-user'])) {
 if (isset($_POST['tools-saving']) || isset($_POST['tools-editing'])) {
     $args = Management::createUpdateTools($_POST, $_FILES['imageFile'], $user);
 }
+if(isset($_POST['import-from-csv-file']) && isset($_FILES['csvFile'])){
+    $args = Management::importToolsListByCsvFile($_POST, $_FILES, $user);
+}
 /* TABLE COLUMNS ACTIONS CODE ------------------------------------------------- */
 if (isset($_POST['rowOrder']) && isset($_POST['save-settings'])) {
     $args = Management::columnsRedirection($_POST, $user['id']);
@@ -46,7 +49,7 @@ if (isset($_POST['update-user-password'])) {
     $timer = '<meta http-equiv="refresh" content="6;url=/sign-out">';
     $args[] = ['info' => 'The password has been changed! Re-authorization required! You will be redirected to the login page. Wait!', 'color' => 'danger'];
 }
-function deleteModalRouteForm($route = 1)
+function deleteModalRouteForm($route = 1, $createFormAction = '')
 { ?>
     <!--  модальное окно форма для удаления  -->
     <div class="modal" id="deleteModal" style="backdrop-filter: blur(15px);">
@@ -63,22 +66,26 @@ function deleteModalRouteForm($route = 1)
                 <div class="modal-body">
                     <form action="/setup" method="post">
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
+                            <label for="password" class="form-label text-danger">Administrator password required!</label>
                             <input type="password" class="form-control" id="password" name="password" required autofocus>
                             <input type="hidden" id="idForUse" name="idForUse">
                         </div>
-                        <button type="submit" class="btn btn-primary">Delete</button>
+                        <button type="submit" class="btn btn-outline-danger form-control">Delete Forever</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-
     <!-- вспомогательный элемент для подсветки кнопок в меню -->
-    <form action="" method="get" class="hidden">
+    <form action="" method="get" hidden>
         <span id="page" hidden><?= $route; ?></span>
         <button type="submit" name="route-page" value="1" id="route-form"></button>
+    </form>
+
+    <!-- вспомогательный элемент для создания новой записи в таблицах  -->
+    <form method="post" action="<?= $createFormAction ?>" hidden id="create-form">
+        <input type="hidden" name="create">
     </form>
     <?php
 }
@@ -116,7 +123,7 @@ switch ($_GET['route-page'] ?? 1) {
         /* страница настроек пользовательского аккаунта  */
         include_once 'admin-panel/profile.php';
         break;
-        case 9:
+    case 9:
         /* страница настроек пользовательского аккаунта  */
         include_once 'admin-panel/wh-types.php';
         break;

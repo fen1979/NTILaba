@@ -98,22 +98,36 @@ DisplayMessage($args);
 
         <div class="row mb-3">
             <div class="col-8">
-                <label for="toolChose" class="form-label">
-                    Choise Tool for this step
-                </label>
                 <div class="dropdown">
-                    <input type="text" class="form-control dropdown-toggle" id="toolChose" name="toolName"
-                           data-bs-toggle="dropdown" aria-expanded="false" readonly>
+                    <input type="hidden" id="toolChose" name="toolName">
+                    <button class="btn btn-outline-dark form-control dropdown-toggle" type="button" id="dropDownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        Choose Tools for Step
+                    </button>
                     <ul class="dropdown-menu ajeco-bg-aqua" aria-labelledby="toolChose" id="toolChoseUl">
                         <?php
                         $tools = R::find(TOOLS);
                         $pTolls = explode(',', $project['tools']);
                         foreach ($tools as $tool) {
                             if (in_array($tool['id'], $pTolls)) {
+                                $text = $tool['manufacturer_name'] . ' ' . $tool['device_model'];
                                 ?>
-                                <li class="dropdown-item" data-toolid="<?= $tool['id']; ?>" data-image="<?= $tool['image']; ?>">
-                                    <?= $tool['toolname']; ?>
-                                    <img src="<?= $tool['image']; ?>" alt="x tools" width="300px" style="display: block;">
+                                <li class="dropdown-item" data-toolid="<?= $tool['id']; ?>" data-image="<?= $tool['image']; ?>" data-text="<?= $text ?>">
+                                    <div class="card mb-3" style="max-width: 540px;">
+                                        <div class="row g-0">
+                                            <div class="col-md-6">
+                                                <img src="<?= !empty($tool['image']) ? $tool['image'] : 'public/images/pna_en.webp'; ?>" class="img-fluid rounded-end"
+                                                     alt="<?= $tool['serial_num'] ?>">
+                                            </div>
+                                            <div class="col-md-6 border-start">
+                                                <div class="card-body">
+                                                    <h5 class="card-title"><?= $tool['manufacturer_name'] ?></h5>
+                                                    <p class="card-text"><?= $tool['device_model'] ?></p>
+                                                    <p class="card-text"><?= $tool['device_type'] ?></p>
+                                                    <p class="card-text"><small class="text-muted"><?= $tool['next_inspection_date'] ?></small></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </li>
                                 <?php
                             }
@@ -123,10 +137,7 @@ DisplayMessage($args);
                 </div>
             </div>
             <div class="col-4">
-                <span class="form-label">
-                    Tool preview
-                </span>
-                <img src="/public/images/tools.webp" alt="x tools" width="400px" style="display: block;" id="toolImage">
+                <img src="/public/images/pna_en.webp" alt="x tools" width="400px" style="display: block;" id="toolImage" class="hidden">
             </div>
         </div>
 
@@ -153,18 +164,6 @@ DisplayMessage($args);
 <?php ScriptContent($page); ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-
-
-        // кнопки выбора фото/ видео от пользователя
-        document.doClick("#takePic", "#photo");
-        document.doClick("#takeMovie", "#video");
-        // Обработчик изменений файлов для обновления превью
-        document.doPreviewFile("photo", "photoPreview", checkFormAndToggleSubmit);
-        document.doPreviewFile("video", "videoPreview");
-
-        // отправка формы после изменений через кнопку в нав панели
-        document.doSubmit("#finishBtn", "#addDataForm");
-
         // поиск по списку элементов рут карты
         const routeActionInput = document.getElementById('routeAction');
         const dropdownItems = document.querySelectorAll('#routeActionUl li.dropdown-item');
@@ -181,43 +180,62 @@ DisplayMessage($args);
             });
         });
 
+        // кнопки выбора фото/ видео от пользователя
+        dom.doClick("#takePic", "#photo");
+        dom.doClick("#takeMovie", "#video");
+        // Обработчик изменений файлов для обновления превью
+        dom.doPreviewFile("photo", "photoPreview", checkFormAndToggleSubmit);
+        dom.doPreviewFile("video", "videoPreview");
+
+        // отправка формы после изменений через кнопку в нав панели
+        dom.doSubmit("#finishBtn", "#addDataForm");
+
         /* добавление значения из списка в инпут для отправки на сервер ROUT ACTION */
-        $('#routeActionUl li').click(function (e) {
+        dom.in("click", "#routeActionUl li", function (e) {
             e.preventDefault();
-            $('#routeAction').val($(this).text().trim());
-            $('#routeid').val($(this).attr('data-routeid'));
+            dom.e('#routeAction').value = this.textContent.trim();
+            dom.e('#routeid').value = this.dataset.routeid;
             checkFormAndToggleSubmit();
         });
 
         /* добавление значения из списка в инпут для отправки на сервер TOOL CHOOSE */
-        $('#toolChoseUl li').click(function (e) {
+        dom.in("click", "#toolChoseUl li", function (e) {
             e.preventDefault();
-            $('#toolChose').val($(this).text().trim());
-            $('#toolId').val($(this).attr('data-toolid'));
-            $('#toolImage').attr('src', $(this).attr('data-image'));
-            checkFormAndToggleSubmit();
+
+            // Находим ближайший элемент li, даже если клик был по его потомку
+            const liElement = e.target.closest('li');
+
+            if (liElement) {
+                dom.e("#dropDownButton").append(liElement.dataset.text);
+                dom.e("#toolId").value = liElement.dataset.toolid;
+                dom.e("#toolImage").src = liElement.dataset.image;
+                dom.show("#toolImage");
+
+                checkFormAndToggleSubmit();
+            }
         });
 
+        // Проверка поля ввода текста в реальном времени
+        dom.in("input", "#actionDescription", checkFormAndToggleSubmit);
+
+        // check form and toggle disability of submit button
         function checkFormAndToggleSubmit() {
             let allFilled = true;
 
-            if ($('#toolId').val().trim() === '' ||
-                $('#routeid').val().trim() === '' ||
-                $('#actionDescription').val().trim() === '' ||
-                ($('#photo').data("required") === 0 && $('#photo')[0].files.length === 0)
+            if (dom.e('#toolId').value === '' ||
+                dom.e('#routeid').value.trim() === '' ||
+                dom.e('#actionDescription').value.trim() === '' ||
+                (dom.e('#photo').dataset.required === 0 && dom.e('#photo')[0].files.length === 0)
             ) {
                 allFilled = false;
             }
 
             if (allFilled) {
-                $("#finishBtn").removeClass("disabled");
+                dom.removeClass("#finishBtn", "disabled");
             } else {
-                $("#finishBtn").addClass("disabled");
+                dom.addClass("#finishBtn", "disabled");
             }
         }
-
-        // Проверка поля ввода текста в реальном времени
-        $('#actionDescription').on('input', checkFormAndToggleSubmit);
 
         // Инициализируем проверку при загрузке страницы
         checkFormAndToggleSubmit();

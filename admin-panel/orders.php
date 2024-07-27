@@ -26,10 +26,6 @@ NavBarContent($navBarData);
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>
-<!-- add new item to list  -->
-<form method="post" action="/new_order" class="hidden" id="create-form">
-    <input type="hidden" name="create">
-</form>
 
 <div class="main-container">
     <main class="container-fluid content">
@@ -37,8 +33,8 @@ DisplayMessage($args ?? null);
     </main>
 </div>
 <?php
-// MODAL WINDOW WITH ROUTE FORM
-deleteModalRouteForm($_GET['route-page'] ?? 1);
+// MODAL WINDOW WITH ROUTE FORM AND CREATION FORM
+deleteModalRouteForm($_GET['route-page'] ?? 1, '/new_order');
 // Футер
 footer($page);
 // SCRIPTS

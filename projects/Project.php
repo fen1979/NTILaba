@@ -27,6 +27,7 @@ class Project
      */
     private static function saveProjectDocumentation($files, $projectName, $filename = '', bool $isNew = true): array
     {
+        var_dump($files);
         $dataArray = ['args' => null, 'filename' => null, 'errors' => null, 'info' => null];
         $docDir = PROJECTS_FOLDER . "$projectName/docs/";
 
@@ -301,7 +302,7 @@ class Project
     public static function editProject($post, $user, $files = null): array
     {
         $post = self::checkPostDataAndConvertToArray($post);
-        $log_details = '';
+        $log_details = '<h4>Changes</h4>';
 
         /* Получаем данные из формы*/
         $projectName = $post['projectName'];
@@ -327,48 +328,51 @@ class Project
             $log_details .= "<br> Project name not Changed:  $projectName";
         }
 
-        $log_details .= "<br> Old Data Priority: $project->priority -> New Data:  $priorityMakat";
+        $log_details .= "<br> Priority Before: $project->priority -> After  $priorityMakat";
         $project->priority = $priorityMakat; // SKU in priority programm
 
-        $log_details .= "<br> Old Data HeadPay: $project->headpay -> New Data:  $headPay";
+        $log_details .= "<br> HeadPay Before: $project->headpay -> After:  $headPay";
         $project->headpay = $headPay; // customer HP
 
-        $log_details .= "<br> Old Data Customer ID: $project->customerid -> New Data:  $customerId";
+        $log_details .= "<br> Customer ID Before: $project->customerid -> After:  $customerId";
         $project->customerid = $customerId; // customer id
 
-        $log_details .= "<br> Old Data Customer Name: $project->customername -> New Data:  $customerName";
+        $log_details .= "<br> Customer Name Before: $project->customername -> After:  $customerName";
         $project->customername = $customerName; // customer name for this project
 
-        $log_details .= "<br> Old Data Executor Name: $project->executor -> New Data:  $executorName";
+        $log_details .= "<br> Executor Name Before: $project->executor -> After:  $executorName";
         $project->executor = $executorName; // company name who is execute the project
 
-        $log_details .= "<br> Old Data Revision: $project->revision -> New Data:  $projectRevision";
+        $log_details .= "<br> Revision Before: $project->revision -> After:  $projectRevision";
         $project->revision = $projectRevision; // project revision
 
-        $log_details .= "<br> Old Data Note: $project->extra -> New Data:  $extra";
+        $log_details .= "<br> Note Before: $project->extra <br> After:  $extra";
         $project->extra = $extra; // description or any extra information
 
         $sas = ($project->sub_assembly == 1) ? 'SAS true' : 'SAS none';
-        $log_details .= "<br> Old Data Note: $project->sub_assembly -> New Data: $sas ";
+        $log_details .= "<br> Note Before: $project->sub_assembly -> After: $sas ";
         $project->sub_assembly = $sub_assembly; // if project include only route actions instructions
 
         $smt = ($project->project_type == 1) ? 'SMT true' : 'SMT none';
-        $log_details .= "<br> Old Data Note: $project->project_type -> New Data: $smt ";
+        $log_details .= "<br> Note Before: $project->project_type -> After: $smt ";
         $project->project_type = $project_type; // if project is SMT line assembly type = 1
 
         $tools = $_POST['selected-tools'] ?? [];
         $t = $project->tools = implode(',', $tools);
-        $log_details .= "<br> Old Data Tools ID: $project->tools -> New Data:  $t";
+        $log_details .= "<br> Tools ID Before: $project->tools -> After:  $t";
 
         /* сохраняем документацию в папку */
-        $result = null;
-        if (!empty($files['dockFile']['name'][0]) || !empty($files['projects_files'])) {
+        $result = ['errors' => null];
+        if (!empty($files['dockFile']['tmp_name']) || !empty($files['projects_files']['name'][0])) {
             // if project name has changed erlier than added or edited docs file
             $result = self::saveProjectDocumentation($files, $projectName, $project->projectdocs, false);
-
             if (isset($result['args']) && $result['args']) {
                 /* сохранить путь к файлу в базу данных */
                 $project->projectdocs = $result['filename'];
+
+                $args[] = (!empty($result['errors'])) ?
+                    ['color' => 'danger', 'info' => $result['errors']] :
+                    ['color' => 'success', 'info' => $result['info']];
             }
         }
 
@@ -380,7 +384,7 @@ class Project
             if ($dateTime && $dateTime->format('Y-m-d H:i') === $date) {
                 // Дата валидна, можно обновлять в БД
                 if ($project->date_in != $date) {
-                    $log_details .= "<br> Old Data: $project->date_in -> New Data:  $date";
+                    $log_details .= "<br> Before: $project->date_in -> After:  $date";
                     $project->date_in = $date;
                 }
             }
@@ -391,20 +395,16 @@ class Project
         // if name changed than changing folders and path names
         if ($changNameNeeded) {
             $args[] = self::changeProjectName($project->id, $projectName);
-            $log_details .= "<br> Old Data Project Name: $project->projectname -> New Data:  $projectName";
+            $log_details .= "<br> Project Name Before: $project->projectname -> After:  $projectName";
         }
-
-        $args[] = (!empty($result['errors'])) ?
-            ['color' => 'danger', 'info' => $result['errors']] :
-            ['color' => 'success', 'info' => $result['info']];
-
-
+        $args[] = ['color' => 'success', 'info' => $log_details];
+        $args['hide'] = 'manual';
         /* [     LOGS FOR THIS ACTION     ] */
         $details = "Project id:$id,| $log_details";
         if (!logAction($user['user_name'], 'EDITING', OBJECT_TYPE[3], $details)) {
             $args[] = ['info' => 'Log creation failed.', 'color' => 'danger'];
         }
-        return $args;
+        return $args ?? [null];
     }
 
     /**
@@ -415,7 +415,7 @@ class Project
      * @return array[]s
      * @throws /\RedBeanPHP\RedException\SQL
      */
-    public static function addItemToProjectPartList($post, $user, $project_id): array
+    public static function createProjectBomItem($post, $user, $project_id): array
     {
         $post = self::checkPostDataAndConvertToArray($post);
         $project = R::load(PROJECTS, $project_id);
@@ -469,7 +469,7 @@ class Project
      * @return mixed
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    public static function addItemsToProjectPartListFromCSV($files, $post, $user, $project_id): array
+    public static function importProjectBomFromFile($files, $post, $user, $project_id): array
     {
         $project = R::load(PROJECTS, $project_id);
         // converting post to assoc array
@@ -611,7 +611,7 @@ class Project
      * @param $user
      * @return array
      */
-    public static function deleteItemFromProjectPartList($post, $user): array
+    public static function deleteProjectBomItem($post, $user): array
     {
         $post = self::checkPostDataAndConvertToArray($post);
         if (checkPassword($post['password'], true, $user)) {
@@ -874,7 +874,7 @@ class Project
             $projectData->routeid = (int)$post['routeid'];
             $projectData->validation = (!empty($post['validation']) && $post['validation'] == 'on') ? 1 : 0;
             $projectData->revision = '0';
-            $projectData->tool = $post['tool'] ?? 'no choosen';
+            $projectData->tool = $post['tool'] ?? 'no choosen'; // id of tool table element
 
             R::store($projectData);
             /* добавляем шаг к списку шагов в проекте */

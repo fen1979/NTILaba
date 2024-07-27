@@ -20,8 +20,9 @@ button {
     white-space: nowrap;
 }
 
+/* убирает отступы бутстрапа и горизонтальный скролл */
 .row {
-    --bs-gutter-x: 0 !important;
+    --bs-gutter-x: 5px !important;
 }
 
 /*i
@@ -569,6 +570,19 @@ button {
 .out-btn:hover {
     background: red;
     color: white;
+}
+
+/* [X] кнопка сокрытия системных сообщений */
+.hide-service-msg {
+    position: absolute;
+    font-size: 25px;
+    right: 2%;
+    top: 3%;
+    color: blue;
+}
+
+.hide-service-msg:hover {
+    color: red;
 }
 
 /*i LANGUAGE ICONS FLAG */

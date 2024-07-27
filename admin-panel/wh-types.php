@@ -58,11 +58,6 @@ NavBarContent($navBarData);
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>
-<!-- add new item to list  -->
-<form method="post" action="" class="hidden" id="create-form">
-    <input type="hidden" name="create">
-</form>
-
 <div class="container-fluid">
     <?php if (!isset($_POST['edit']) && !isset($_POST['create'])) { ?>
         <table>

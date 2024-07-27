@@ -266,9 +266,19 @@ function ALL_PAGES_BUTTONS($page, $l): void
 function ADMIN_PANEL_BUTTONS($btn_title, $page): void
 {
     if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) {
+        // страница где отображается кнопка импортировать из файла
+        if ($page == 3) { ?>
+            <li class="nav-item">
+                <button type="button" id="import-from-file" class="btn btn-sm btn-outline-primary m-03">
+                    Import from file <i class="bi bi-filetype-csv"></i>
+                </button>
+            </li>
+        <?php }
+
+        // страницы где не отображается кнопка добавить новый
         if (!in_array($page, [1, 7, 8])) { ?>
             <li class="nav-item">
-                <button type="button" id="create-btn" class="btn btn-sm btn-outline-danger" style="margin: .3rem">
+                <button type="button" id="create-btn" class="btn btn-sm btn-outline-danger m-03">
                     <i class="bi bi-plus"></i> Create new <?= $btn_title ?>
                 </button>
             </li>
@@ -696,7 +706,7 @@ function ScriptContent($page = null)
  */
 function DisplayMessage($args)
 {
-    $icon = '<i class="bi bi-x-square p-3" onclick="dom.hide(\'.global-notification\', \'slow\')"></i>';
+    $icon = '<i class="bi bi-x-square hide-service-msg" onclick="dom.hide(\'.global-notification\', \'slow\')"></i>';
     if (!empty($_SESSION['info']) && $args == null) {
         $args = $_SESSION['info'];
         $_SESSION['info'] = null;

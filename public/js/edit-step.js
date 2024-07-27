@@ -1,21 +1,21 @@
 document.addEventListener("DOMContentLoaded", function () {
-    
-    const v = document.getElementById('back-btn');
-    const d = document.getElementById('step-number');
+
+    const v = dom.e('#back-btn');
+    const d = dom.e('#step-number');
     v.value = v.value + "&#" + d.value;
 
     // кнопки выбора фото/ видео от пользователя
-    document.doClick("#takePic", "#photo");
-    document.doClick("#takeMovie", "#video");
+    dom.doClick("#takePic", "#photo");
+    dom.doClick("#takeMovie", "#video");
     // Обработчик изменений файлов для обновления превью
-    document.doPreviewFile("photo", "photoPreview");
-    document.doPreviewFile("video", "videoPreview");
+    dom.doPreviewFile("photo", "photoPreview");
+    dom.doPreviewFile("video", "videoPreview");
 
     // отправка формы после изменений через кнопку в нав панели
-    document.doSubmit("#finishBtn", "#addDataForm");
+    dom.doSubmit("#finishBtn", "#addDataForm");
 
     // filtering searching in the route actions
-    const routeActionInput = document.getElementById('routeAction');
+    const routeActionInput = dom.e('#routeAction');
     const dropdownItems = document.querySelectorAll('#routeActionUl li.dropdown-item');
 
     routeActionInput.addEventListener('input', function () {
@@ -48,24 +48,26 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll('#toolChoseUl li').forEach(item => {
         item.addEventListener('click', function (e) {
             e.preventDefault();
-            let toolInput = document.getElementById('toolChose')
+            let toolInput = dom.e('#dropDownButton');
             // Получаем текстовое содержимое
-            toolInput.value = this.textContent.trim();
+            toolInput.append(this.dataset.text);
+
             // сообщаем ДОМ элементам что данный инпут был изменен програмно для корректной работы формы
-            forceInputChangeEvent(toolInput);
             // Помещаем значение data-toolid в скрытый input
-            document.getElementById('toolId').value = this.dataset.toolid;
-            document.getElementById('toolImage').src = this.dataset.image;
+            let tid = dom.e('#toolId')
+            tid.value = this.dataset.toolid;
+            dom.e('#toolImage').src = this.dataset.image;
+            forceInputChangeEvent(tid);
         });
     });
 
     /* отслеживание изменения в полях формы для работы в PHP над изменениями */
     let changedFields = [];
-    $('.track-change').on('change', function () {
-        let fieldId = $(this).data('field-id');
+    dom.in("change", ".track-change", function () {
+        let fieldId = this.dataset.fieldId;
         if (changedFields.indexOf(fieldId) === -1) {  // Использование indexOf вместо $.inArray
             changedFields.push(fieldId);
-            $('#changedFields').val(changedFields.join(','));
+            dom.e('#changedFields').value = changedFields.join(',');
         }
     });
 });
@@ -77,6 +79,6 @@ function forceInputChangeEvent(element) {
     }
 
     // Создаем и диспатчим событие 'change'
-    let changeEvent = new Event("change", { bubbles: true, cancelable: false });
+    let changeEvent = new Event("change", {bubbles: true, cancelable: false});
     element.dispatchEvent(changeEvent);
 }

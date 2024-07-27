@@ -136,41 +136,51 @@ DisplayMessage($args);
 
         <div class="row mb-3">
             <div class="col-8">
-                <label for="routAction" class="form-label">
-                    Choise Tool for this step
-                </label>
                 <div class="dropdown">
-                    <?php
-                    $tools = R::find(TOOLS);
-                    $pTolls = explode(',', $project['tools']);
-                    $toolsList = '';
-                    foreach ($tools as $tool) {
-                        if (in_array($tool['id'], $pTolls)) {
-                            if ($tool['id'] == $toolID) {
-                                $tool_choosen = $tool['toolname'];
-                                $tool_image = $tool['image'];
-                            }
-                            $toolsList .= '<li class="dropdown-item" data-toolid="' . $tool['id'] . '" data-image="' . $tool['image'] . '">'
-                                . $tool['toolname'] . '
-                                <img src="' . $tool['image'] . '" alt="x tools" width="300px" style="display: block;">
-                            </li>';
-                        }
-                    }
-                    ?>
-                    <input type="text" class="form-control dropdown-toggle track-change" data-field-id="6"
-                           id="toolChose" name="toolName" data-bs-toggle="dropdown" aria-expanded="false"
-                           readonly value="<?= $tool_choosen ?? 'No needed any tools'; ?>">
-                    <input type="hidden" name="tool" id="toolId" value="0" readonly>
+                    <!--                    <input type="hidden" id="toolChose" name="toolName" class="track-change" data-field-id="6">-->
+                    <button class="btn btn-outline-dark form-control dropdown-toggle" type="button" id="dropDownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        Choose Tools for Step
+                    </button>
                     <ul class="dropdown-menu ajeco-bg-aqua" aria-labelledby="toolChose" id="toolChoseUl">
-                        <?= $toolsList; ?>
+                        <?php
+                        $tools = R::find(TOOLS);
+                        $pTolls = explode(',', $project['tools']);
+                        foreach ($tools as $tool) {
+                            if (in_array($tool['id'], $pTolls)) {
+                                $text = $tool['manufacturer_name'] . ' ' . $tool['device_model'];
+                                if ($tool['id'] == $toolID) {
+                                    list($tName, $tImage) = [$tool['manufacturer_name'], $tool['image']];
+                                }
+                                ?>
+                                <li class="dropdown-item" data-toolid="<?= $tool['id']; ?>" data-image="<?= $tool['image']; ?>" data-text="<?= $text ?>">
+                                    <div class="card mb-3" style="max-width: 540px;">
+                                        <div class="row g-0">
+                                            <div class="col-md-6">
+                                                <img src="<?= !empty($tool['image']) ? $tool['image'] : 'public/images/pna_en.webp'; ?>" class="img-fluid rounded-end"
+                                                     alt="<?= $tool['serial_num'] ?>">
+                                            </div>
+                                            <div class="col-md-6 border-start">
+                                                <div class="card-body">
+                                                    <h5 class="card-title"><?= $tool['manufacturer_name'] ?></h5>
+                                                    <p class="card-text"><?= $tool['device_model'] ?></p>
+                                                    <p class="card-text"><?= $tool['device_type'] ?></p>
+                                                    <p class="card-text"><small class="text-muted"><?= $tool['next_inspection_date'] ?></small></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <?php
+                            }
+                        }
+                        ?>
                     </ul>
+                    <input type="hidden" name="tool" id="toolId" class="track-change" data-field-id="6">
                 </div>
             </div>
+
             <div class="col-4">
-                <label class="form-label">
-                    Tool preview
-                </label>
-                <img src="<?= $tool_image ?? 'public/images/tools.webp'; ?>" alt="x tools" width="400px" style="display: block;" id="toolImage">
+                <img src="<?= !empty($tImage) ? $tImage : 'public/images/pna_en.webp'; ?>" alt="x tools" width="400px" style="display: block;" id="toolImage">
             </div>
         </div>
 

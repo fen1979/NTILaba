@@ -29,15 +29,15 @@ if (isset($_GET['pid']) && isset($_GET['back-id']) && isset($_GET['mode'])) {
 /* saving the item to DB */
 if (isset($_POST['save-item-to-bom'])) {
     if (!isset($_FILES['import_csv']['name'][0])) {
-        $args = Project::addItemToProjectPartList($_POST, $user, $_GET['pid']);
+        $args = Project::createProjectBomItem($_POST, $user, $_GET['pid']);
     } else {
-        $args = Project::addItemsToProjectPartListFromCSV($_FILES, $_POST, $user, $_GET['pid']);
+        $args = Project::importProjectBomFromFile($_FILES, $_POST, $user, $_GET['pid']);
     }
 }
 
 /* delete item from project BOM */
 if (isset($_POST['password']) && isset($_POST['itemId']) && isset($_POST['delete-item'])) {
-    $args = Project::deleteItemFromProjectPartList($_POST, $user);
+    $args = Project::deleteProjectBomItem($_POST, $user);
 }
 
 /* undo delete item */

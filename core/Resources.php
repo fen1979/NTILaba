@@ -227,12 +227,20 @@ class L
         $tableData['chats']['id'] = 'Chat №';
 
         /* TABLE TOOLS */
-        $tableData['tools']['id'] = 'Tool №';
-        $tableData['tools']['toolname'] = 'Tool Name';
-        $tableData['tools']['image'] = 'Preview';
-        $tableData['tools']['specifications'] = 'Specifications';
-        $tableData['tools']['esd'] = 'ESD';
-        $tableData['tools']['exp_date'] = 'Expaire Date';
+        $tableData['tools']['id'] = '№'; //
+        $tableData['tools']['manufacturer_name'] = 'Tool Name'; // имя инструмента от производителя
+        $tableData['tools']['device_model'] = 'Model'; // модель инструмента
+        $tableData['tools']['device_type'] = 'Type'; // тип инструмента
+        $tableData['tools']['device_location'] = 'Location'; // рабочее местонахождение инструмента
+        $tableData['tools']['in_use'] = 'In Use'; // рабочий который пользуется инструментом
+        $tableData['tools']['calibration'] = 'Calibration status'; // NONC = no need calibration, NEC = need calibration
+        $tableData['tools']['serial_num'] = 'Serial N'; // сирийный номер инструмента после калибровки
+        $tableData['tools']['date_of_inspection'] = 'Inspection Date'; // дата последней калибровки - обслуживания инструмента
+        $tableData['tools']['next_inspection_date'] = 'Next Inspection Date'; // следующая дата калибровки - обслуживания инструмента !!!
+        $tableData['tools']['work_life'] = 'Work Life (M)'; // интервал обслуживания/калибровки (месяцев)
+        $tableData['tools']['responsible'] = 'Service Manager'; // ответственный за инструмент
+        $tableData['tools']['remarks'] = 'Remarks'; // заметки на полях
+        $tableData['tools']['image'] = 'Image'; // путь к фото инструмента или ПДФ
 
         /* TABLE ROUTE ACTIONS FOR STEPS */
         $tableData['routactions']['id'] = 'SKU';
@@ -415,12 +423,15 @@ const CHECK_BOX = [
  * USER - 11
  *
  * ADMINKA - 12
+ *
+ * CUSTOMERS - 13
+ *
  * fixme расширить и продумат как перенести в БД
  */
 const OBJECT_TYPE = ['ORDER', 'ORDER_BOM', 'ORDER_CHAT',
     'PROJECT', 'PROJECT_STEP', 'PROJECT_BOM',
     'WAREHOUSE', 'SETTINGS', 'ROUTE_ACTION',
-    'TOOLS', 'COLUMNS', 'USER', 'ADMINKA'];
+    'TOOLS', 'COLUMNS', 'USER', 'ADMINKA', 'CUSTOMERS'];
 
 /**
  *  Список игнорируемых путей и файлов

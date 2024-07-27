@@ -1,78 +1,29 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION,'userBean');
-
+EnsureUserIsAuthenticated($_SESSION, 'userBean');
+require 'Profiler.php';
 $user = $_SESSION['userBean'];
 $page = 'customers';
 $client = null;
 $saveButtonText = 'Save New Customer';
 
-/* creation new customer from creation new order page */
+/* creation new customer from new order page */
 if (isset($_GET['routed-from']) || isset($_GET['search'])) {
     $saveButtonText = 'Save and Back to ' . $_GET['routed-from'];
 }
 
 // create or update and save new customer
-function backDataToRoutedPage(array $get, array $args, $urlData): void
-{
-    // routed from create project page
-    if (isset($get['routed-from'])) {
-        $_SESSION['info'] = $args;
-        $url = 'customer_name=' . urlencode($urlData->name) . '&priority=' . urlencode($urlData->priority) .
-            '&customer_id=' . urlencode($urlData->id);
-        switch ($get['routed-from']) {
-            // back to project creation page with parameters
-            case 'create-project':
-                header("Location: new_project?$url");
-                break;
-            // back to order creation page with parameters
-            case 'create-order':
-                header("Location: new_order?$url");
-                break;
-        }
-        exit();
-    }
-}
-
 if (isset($_POST['createCstomer'])) {
-    $extraPhones = ['phone_1' => _E($_POST['extraPhone_1']), 'phone_2' => _E($_POST['extraPhone_2'])];
-    $extraContact = ['contact_1' => _E($_POST['extraContact_1']), 'contact_2' => _E($_POST['extraContact_2'])];
-    $extraEmail = ['email_1' => _E($_POST['extraEmail_1']), 'email_2' => _E($_POST['extraEmail_2'])];
-
-    $name = _E($_POST['customerName']);
-    $priority = _E($_POST['priorityMakat']);
-    $c = null;
-    // Проверяем, состоит ли строка только из чисел
-    if (isset($_POST['cuid']) && ctype_digit($_POST['cuid'])) {
-        $c = R::load(CLIENTS, $_POST['cuid']);
-    } else {
-        $c = R::dispense(CLIENTS);
-    }
-
-    $c->name = $name;
-    $c->head_pay = _E($_POST['headPay']);
-    $c->priority = $priority;
-    $c->address = _E($_POST['address']);
-    $c->phone = _E($_POST['phone']);
-    $c->contact = _E($_POST['contact']);
-    $c->email = _E($_POST['email']);
-    $c->extra_phone = json_encode($extraPhones ?? ['']);
-    $c->extra_contact = json_encode($extraContact ?? ['']);
-    $c->extra_email = json_encode($extraEmail ?? ['']);
-    $c->information = _E($_POST['information']);
-    $c->date_in = _E($_POST['dateIn']);
-    $id = R::store($c);
-
-    $args = ['color' => 'success', 'info' => 'Customer Saved successfully!'];
-
-    // if routed from order or project pages back data to page
-    $urlData['id'] = $id;
-    $urlData['name'] = $name;
-    $urlData['priority'] = $priority;
-    backDataToRoutedPage($_GET, $args, $urlData);
-
     // if customer was edited
     if (isset($_POST['cuid'])) {
-        $args['info'] = 'Customer Edited successfully!';
+        $args = Profiler::updateCustomerData($_POST, $user);
+    } else {
+        // if customer was created
+        $args = Profiler::createCustomer($_GET, $_POST, $user);
+    }
+    if (!empty($args['location'])) {
+        $_SESSION['info'] = $args;
+        header("Location: {$args['location']}");
+        exit();
     }
 }
 
@@ -327,20 +278,7 @@ DisplayMessage($args ?? null);
 
 <?php ScriptContent($page); ?>
 <script>
-    // document.addEventListener("DOMContentLoaded", function () {
-    //     // Обработка клика по результату поиска клиента
-    //     dom.in("click", "#search-responce tr.customer", function () {
-    //         if (this.parentElement.dataset.info) {
-    //             // Извлекаем и парсим данные из атрибута data-info
-    //             let info = JSON.parse(this.parentElement.dataset.info);
-    //             dom.e("#owner").value = info.name; // Устанавливаем имя клиента
-    //             dom.e("#owner-id").value = info.clientID; // Устанавливаем ID клиента
-    //             // Очищаем результаты поиска
-    //             dom.hide("#searchModal);
-    //         }
-    //     });
-    // }); //  конец реди док
-
+    // функция добавляется в ряд таблицы при формировании страницы на сервере
     function changeClientInformation(id) {
         dom.e("#cuid").value = id;
         dom.e("#tmp-form").submit();
