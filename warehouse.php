@@ -3,7 +3,6 @@ EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, R
 require 'warehouse/WareHouse.php';
 /* получение пользователя из сессии */
 $thisUser = $_SESSION['userBean'];
-//$page = 'warehouse';
 $page = 'wh';
 
 // SQL-запрос для получения всех записей из nomenclature (whitems) с прикрепленными записями из warehouse

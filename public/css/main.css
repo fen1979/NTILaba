@@ -90,6 +90,18 @@ button {
     border-color: #0dcaf0;
 }
 
+.btn-outline-proma {
+    color: #fff;
+    background-color: #5a67cb;
+    border-color: #5a67cb;
+}
+
+.btn-outline-proma:hover {
+    color: #5a67cb;
+    background-color: #fff;
+    border-color: #5a67cb;
+}
+
 .btn-outline-primary {
     color: #fff;
     background-color: #0d6efd;

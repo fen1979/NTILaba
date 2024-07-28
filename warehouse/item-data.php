@@ -25,7 +25,7 @@ if (isset($_GET['itemid'])) {
     // получаем весь резерв на данный товар
     $wh_reserv = R::findAll(WH_RESERV, 'WHERE items_id = ?', [$item->id]);
     // получаем записи о заказанных запчастях если они есть
-    $itemOrders = R::findAll(WH_ORDERED_ITEMS, 'tems_id = ?', [$item->id]);
+    $orderedItems = R::findAll(WH_ORDERED_ITEMS, 'items_id = ?', [$item->id]);
     // получаем логирование по данному товару
     $logs = R::findAll(WH_LOGS, 'WHERE items_id = ?', [$item->id]);
 
@@ -288,7 +288,7 @@ DisplayMessage($args ?? null);
     <!-- ----------------------- Контент Табов ------------------------------ -->
     <div class="tab-content" id="myTabContent">
 
-        <!--  Контент Таба 1 -->
+        <!--  Контент Таба 1 *Warehouse Information* -->
         <div class="tab-pane fade show <?= ($A_T == 'tab1') ? 'active' : '' ?>" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
             <table class="p-3">
                 <!-- header -->
@@ -337,7 +337,7 @@ DisplayMessage($args ?? null);
         </div>
         <!-- end tab 1 -->
 
-        <!--  Контент Таба 2 -->
+        <!--  Контент Таба 2 *Reserved item information* -->
         <div class="tab-pane fade show <?= ($A_T == 'tab2') ? 'active' : '' ?>" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
             <table>
                 <thead>
@@ -386,7 +386,7 @@ DisplayMessage($args ?? null);
         </div>
         <!-- end tab 2 -->
 
-        <!--  Контент Таба 3 -->
+        <!--  Контент Таба 3 *Invoices information* -->
         <div class="tab-pane fade show <?= ($A_T == 'tab3') ? 'active' : '' ?>" id="tab3" role="tabpanel" aria-labelledby="tab3-tab">
             <table class="p-3">
                 <!-- header -->
@@ -429,13 +429,18 @@ DisplayMessage($args ?? null);
         </div>
         <!-- end tab 3 -->
 
-        <!-- Контент Таба 4 no changes table data -->
+        <!-- Контент Таба 4 no changes table data *Information about orders* -->
         <div class="tab-pane fade show <?= ($A_T == 'tab4') ? 'active' : '' ?>" id="tab4" role="tabpanel" aria-labelledby="tab4-tab">
             <table class="p-3">
                 <!-- header -->
+<!--                | Order Number | Order Date | Order Status | Customer Name | Customer Phone | Customer Email        | Part Name    | Quantity | Total Cost | Payment Method | Shipping Method | Tracking Number | Delivery Date | Seller ID |-->
+<!--                |--------------|------------|--------------|---------------|----------------|-----------------------|--------------|----------|------------|----------------|-----------------|-----------------|---------------|-----------|-->
+<!--                | 123456       | 01/01/2024 | In Progress  | John Doe      | (123) 456-7890 | johndoe@example.com   | Capacitor    | 50       | $21.50     | Credit Card    | Courier         | ABC1234567890   | 01/07/2024    | 789       |-->
+<!--                | 789012       | 02/02/2024 | Shipped      | Jane Smith    | (234) 567-8901 | janesmith@example.com | Resistor     | 100      | $35.75     | PayPal         | Postal Service  | XYZ9876543210   | 02/09/2024    | 456       |-->
+
                 <thead>
                 <tr>
-                    <th>Order Id</th>
+                    <th>Order Number</th>
                     <th>Supplier</th>
                     <th>Ordered by</th>
                     <th>Delivery date</th>
@@ -447,8 +452,8 @@ DisplayMessage($args ?? null);
                 <!-- table -->
                 <tbody>
                 <?php
-                if (!empty($itemOrders)) {
-                    foreach ($itemOrders as $line) {
+                if (!empty($orderedItems)) {
+                    foreach ($orderedItems as $line) {
                         echo '<tr  class="text-primary">';
                         echo '<td>' . $line['order_id'] . '</td>';
                         echo '<td>' . $line['supplier'] . '</td>';
@@ -466,7 +471,7 @@ DisplayMessage($args ?? null);
         </div>
         <!-- end tab 4 -->
 
-        <!-- Контент Таба 5 no changes table data -->
+        <!-- Контент Таба 5 no changes table data *Item Movements information* -->
         <div class="tab-pane fade show <?= ($A_T == 'tab5') ? 'active' : '' ?>" id="tab5" role="tabpanel" aria-labelledby="tab5-tab">
             <table class="p-3">
                 <!-- header -->

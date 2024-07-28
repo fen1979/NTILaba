@@ -1,4 +1,5 @@
 <?php
+
 //R::setup('mysql:host=localhost;dbname=nti_production', 'root', '8CwG24YwZG');
 
 //phpinfo();
@@ -8,7 +9,6 @@
 //echo 'session.gc_divisor: ' . ini_get('session.gc_divisor') . '<br>';
 //exit();
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,7 +56,10 @@
     </style>
 </head>
 <body>
+
+<!--=========================================================================================================-->
 <?php
+
 include 'core/Routing.php';
 // разборка таблицы которая была в самом начале на 3 подтаблицы
 //$st = R::findAll('whnomenclature');
@@ -311,27 +314,27 @@ function dropAutoincrementInWarehouse()
 
 //dropAutoincrementInWarehouse();
 
-//
+// B732CFDC14FF474163709A0656637AAA  - 17trak apikey
 
 // заполенение БОМа проекта подготовка метода для переноса на страницу БОМ проекта
 // после адаптции условие для внесения новой запчасти будет отсутствие ID запчасти при отправке данных со страницы
 // так как при выборе существующей ЗЧ имеется ID то при его отсутствии это будет новая ЗЧ
-$pbo = R::findAll(PROJECT_BOM);
-foreach ($pbo as $b) {
-    //$pb = R::dispense('prbom');
-    //$pb->item_id = ; // номер в каталоге запчастей
-    //$pb->wh_first_id = $b->; // номер на складе самый первый пришедший не равный 0
-    //$pb->project_id = $b->projects_id; // номер проекта
-    //$pb->owner_id = $b->customerid; // номер клиента
-    //$pb->required_qty = $b->amount; // требуемое кол-во
-    //$pb->item_in_work = $b->item_in_work; //
-    //$pb->designator = !empty($b->notes) ? $b->notes: null; // наименование запчастей на плате для установки (SMT only)
-    //$pb->
-    //$pb->date_in = $b->date_in; //
-echo $b->item_in_work;
-//R::store($pb);
-
-}
+//$pbo = R::findAll(PROJECT_BOM);
+//foreach ($pbo as $b) {
+//    //$pb = R::dispense('prbom');
+//    //$pb->item_id = ; // номер в каталоге запчастей
+//    //$pb->wh_first_id = $b->; // номер на складе самый первый пришедший не равный 0
+//    //$pb->project_id = $b->projects_id; // номер проекта
+//    //$pb->owner_id = $b->customerid; // номер клиента
+//    //$pb->required_qty = $b->amount; // требуемое кол-во
+//    //$pb->item_in_work = $b->item_in_work; //
+//    //$pb->designator = !empty($b->notes) ? $b->notes: null; // наименование запчастей на плате для установки (SMT only)
+//    //$pb->
+//    //$pb->date_in = $b->date_in; //
+//    echo $b->item_in_work;
+////R::store($pb);
+//
+//}
 
 ?>
 <form action="">
@@ -458,6 +461,11 @@ echo $b->item_in_work;
         </tbody>
     </table>
 <?php } ?>
+
+
+<!--=========================================================================================================-->
+
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="libs/ajeco-re-max.js"></script>
 <script>

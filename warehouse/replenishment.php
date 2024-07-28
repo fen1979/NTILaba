@@ -10,7 +10,7 @@ $item = null;
 if (isset($_POST['save-new-arrival']) && !empty($_POST['item_id'])) {
     $args = WareHouse::ReplenishInventory($_POST, $user);
     if (!empty($args['action']) && $args['action'] == 'success') {
-        header('Location: wh/the_item?item_id=' . $_POST['item_id']);
+        redirectTo('wh/the_item?item_id=' . $_POST['item_id']);
         exit($args);
     }
 }

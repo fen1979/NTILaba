@@ -30,14 +30,27 @@ function EnsureUserIsAuthenticated(array $valueForCheck, string $valueName, arra
 {
     if (!empty($role)) {
         if (!isUserRole($role) && !isset($valueForCheck[$valueName])) {
-            header("Location: /$redirection") and exit();
+            redirectTo($redirection) and exit();
         }
     } else {
         if (!isset($valueForCheck[$valueName])) {
-            header("Location: /$redirection") and exit();
+            redirectTo($redirection) and exit();
         }
     }
 }
+
+/**
+ * Redirects to a specific URL.
+ *
+ * @param string $url The URL to redirect to. Defaults to the site root.
+ */
+function redirectTo(string $url = '', array $args = [null])
+{
+    $_SESSION['info'] = $args;
+    header('Location: /' . $url);
+    exit(); // Ensure no further code is executed
+}
+
 
 /**
  * SOME USER DATA FOR LOGS
@@ -323,7 +336,7 @@ function isDirEmpty(string $dirName): bool
 function _dirPath(array $params): string
 {
     if (!isset($params['pr_dir'])) {
-        header('Location: /order');
+        redirectTo('order');
         exit();
     }
 
@@ -335,7 +348,7 @@ function _dirPath(array $params): string
     if (strpos($dir, 'storage/projects/') === 0 && !preg_match('/[^a-zA-Z0-9_\/\-]/', $dir)) {
         return $dir;
     } else {
-        header('Location: /order');
+        redirectTo('order');
         exit();
     }
 }

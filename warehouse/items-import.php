@@ -1,8 +1,8 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean');
+function_exists('EnsureUserIsAuthenticated') ? EnsureUserIsAuthenticated($_SESSION, 'userBean') : die('Forbidden 372.5');
 require 'WareHouse.php';
 /* получение пользователя из сессии */
-$thisUser = $_SESSION['userBean'];
+$user = $_SESSION['userBean'];
 $page = 'import_csv';
 
 // получаем из пост запроса поля с именами для внесения данных в БД
@@ -26,7 +26,7 @@ $tableHead = [
     'storage-class',
     'storage-state',
     'owner-part-name',
-    'owner-part-key',
+    //'owner-part-key',
     'storage-box',
     'storage-shelf',
     'manufactured-date',
@@ -45,7 +45,7 @@ $labels = [
     'manufacture-part-number' => 'Manufacture PN',
     'manufacturer' => 'Manufacturer',
     'owner-part-name' => 'Owner PN',
-    'owner-part-key' => 'Owner Part Key (optional)',
+    //'owner-part-key' => 'Owner Part Key (optional)',
     'quantity' => 'Amount',
     'minimun-quantity' => 'Minimum Quantity',
     'storage_shelf' => 'Storage Shelf',
@@ -111,7 +111,7 @@ if (isset($_POST['importCsvFile'])) {
                         // если нет то создаем новый
                         if ($result[0]) {
                             // записываем данные в БД
-                            WareHouse::CreateNewWarehouseItem($rowData, $thisUser);
+                            WareHouse::CreateNewWarehouseItem($rowData, $user);
                             $items++;
                         }
 
@@ -120,7 +120,7 @@ if (isset($_POST['importCsvFile'])) {
                         if ($result[0] === 'exist') {
                             $rowData['item_id'] = $result[1];
                             // переписываем данные в БД
-                            WareHouse::ReplenishInventory($rowData, $thisUser);
+                            WareHouse::ReplenishInventory($rowData, $user);
                             $items++;
                         }
                         // если записи полностью совпадают с существующими в БД

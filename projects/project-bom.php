@@ -67,7 +67,7 @@ if (isset($_GET['edit-item'])) {
         // обновляем адресную строку
         if ($args['args']) {
             $_SESSION['info'] = $args;
-            header('Location: check_part_list?orid=none&pid=' . $_GET['pid']);
+            redirectTo('check_part_list?orid=none&pid=' . $_GET['pid']);
             exit();
         }
     }
