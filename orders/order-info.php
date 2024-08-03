@@ -1,5 +1,24 @@
 <?php
 // контент первого таба (TAB1) на странице выводится как функция для удобства редактирования кода
+
+/**
+ * fixme перенести в БД и сделать инерфейс для КРУД действий в админке
+ * константа для вывода чекбоксов на странице заказа при его взятии в работу
+ */
+const CHECK_BOX = [
+    'Check if the BOM has been fully added to the box.',
+    'Verify that all parts match those in the BOM.',
+    'Ensure all tools are available and have not expired.',
+    'Make sure your workspace is approved for work.',
+    'Confirm the order doesn\'t have any additional information about assembly stages.',
+    'Ensure the project\'s assembly steps are fully documented.',
+    'Check if the project documentation/version has not changed during client interactions.',
+    'See if the order chat contains any additional information about this order/project.',
+    'Wear protective equipment and static grounding. Turn on the hood if necessary.',
+    'Make yourself a coffee, go to the toilet, turn off your phone, set a timer for a break, paint the sky blue!',
+    'Verify that day is day and night is night.',
+    'Then take the order to work.'
+];
 function getOrderInformationHTML($orderid, $order, $customer, $project, $projectBom, $assy_in_progress, $chatLastMsg, $amount)
 {
     ?>

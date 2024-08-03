@@ -280,7 +280,7 @@ DisplayMessage($args ?? null);
                         <?php
                         if ($settings = getUserSettings($user, PROJECT_BOM)) {
                             foreach ($settings as $item) {
-                                echo '<th>' . L::TABLES(PROJECT_BOM, $item) . '</th>';
+                                echo '<th>' . SR::getResourceValue(PROJECT_BOM, $item) . '</th>';
                             } ?>
                             <th>Shelf / Box</th>
                             <th>Aqtual QTY</th>
@@ -367,7 +367,7 @@ DisplayMessage($args ?? null);
                         /* настройки вывода от пользователя */
                         if ($settings = getUserSettings($user, TOOLS)) {
                             foreach ($settings as $item) {
-                                echo '<th>' . L::TABLES(TOOLS, $item) . '</th>';
+                                echo '<th>' . SR::getResourceValue(TOOLS, $item) . '</th>';
                             }
                         } else {
                             ?>
@@ -464,7 +464,7 @@ DisplayMessage($args ?? null);
                         <?php
                         if ($settings = getUserSettings($user, PROJECT_BOM)) {
                             foreach ($settings as $item) {
-                                echo '<th>' . L::TABLES(PROJECT_BOM, $item) . '</th>';
+                                echo '<th>' . SR::getResourceValue(PROJECT_BOM, $item) . '</th>';
                             }
                         } else {
                             ?>

@@ -131,7 +131,7 @@ The information will be displayed based on the order of the fields when saving.'
                             }
 
                             foreach ($array_D as $columnName) {
-                                $f = L::TABLES($tab, $columnName);
+                                $f = SR::getResourceValue($tab, $columnName);
                                 if (!empty($f)) {
                                     $ch = '';
                                     if (isset($settings) && in_array($columnName, $settings)) {
@@ -142,7 +142,7 @@ The information will be displayed based on the order of the fields when saving.'
                                         <td class="fs-5 me-3 p-2">
                                             <input class="form-check-input ms-2" type="checkbox" name="selected-colums[]" value="<?= $columnName; ?>" <?= $ch; ?>>
                                         </td>
-                                        <td><?= L::TABLES($tab, $columnName); ?></td>
+                                        <td><?= SR::getResourceValue($tab, $columnName); ?></td>
                                     </tr>
                                     <?php
                                 }

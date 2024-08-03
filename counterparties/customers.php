@@ -237,7 +237,7 @@ DisplayMessage($args ?? null);
                 <?php
                 if ($settings) {
                     foreach ($settings as $item) {
-                        echo '<div class="col">' . L::TABLES(CLIENTS, $item) . '</div>';
+                        echo '<div class="col">' . SR::getResourceValue(CLIENTS, $item) . '</div>';
                     }
                 } ?>
             </div>

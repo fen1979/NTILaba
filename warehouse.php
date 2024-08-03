@@ -43,7 +43,6 @@ $query = "
 $goods = R::getAll($query);
 
 
-
 // get user settings for preview table
 $settings = getUserSettings($thisUser, WH_ITEMS);
 ?>
@@ -131,7 +130,7 @@ DisplayMessage($args ?? null);
                 <?php
                 // выводим заголовки согласно настройкам пользователя
                 foreach ($settings as $k => $set) {
-                    echo '<th>' . L::TABLES(WH_ITEMS, $set) . '</th>';
+                    echo '<th>' . SR::getResourceValue(WH_ITEMS, $set) . '</th>';
                 }
                 ?>
             </tr>

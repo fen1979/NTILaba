@@ -454,7 +454,7 @@ class Orders
     {
         include_once 'libs/xlsxgen.php';
 
-        $titles = L::TABLES(PROJECT_BOM, null); // 12 titles
+        $titles = SR::getAllResourcesInGroup(PROJECT_BOM); // 12 titles
         $order = R::load(ORDERS, $order_id);
         $data = R::findAll(PROJECT_BOM, "projects_id = ?", [$order->projects_id]);
         $orderBOM[] = $titles;

@@ -70,7 +70,7 @@ DisplayMessage($args ?? null);
                     <?php
                     if ($settings = getUserSettings($user, PROJECTS)) {
                         foreach ($settings as $item) {
-                            echo '<th>' . L::TABLES(PROJECTS, $item) . '</th>';
+                            echo '<th>' . SR::getResourceValue(PROJECTS, $item) . '</th>';
                         }
                         echo '<th>Share Project</th>';
                     } else {

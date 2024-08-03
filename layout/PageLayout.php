@@ -118,7 +118,7 @@ function NavBarContent($navBarData): void
                 }
                 $w = 'w-100';
                 if ($page == 'order') { ?>
-                    <div class="<?= $w ?> d-flex mainSearchForm" data-title="<?= FIND_T[$allowed ?? '']; ?>"
+                    <div class="<?= $w ?> d-flex mainSearchForm" data-title="<?= SR::getResourceValue('search', $allowed ?? ''); ?>"
                          style="justify-content: space-evenly; align-items: center;">
 
                         <form action="" id="<?= $elem; ?>" class="form <?= $hideThis; ?>" style="width: 70%;">
@@ -132,7 +132,7 @@ function NavBarContent($navBarData): void
                         </form>
                     </div>
                 <?php } else { ?>
-                    <div class="<?= $w ?> ms-2 me-2 mainSearchForm" data-title="<?= FIND_T[$allowed ?? '']; ?>">
+                    <div class="<?= $w ?> ms-2 me-2 mainSearchForm" data-title="<?= SR::getResourceValue('search', $allowed ?? ''); ?>">
                         <form action="" id="<?= $elem; ?>" class="form <?= $hideThis; ?>">
                             <input type="search" role="searchbox" aria-label="Search" class="searchThis form-control"
                                    data-request="<?= $page; ?>_nav" autofocus placeholder="Search" required>
