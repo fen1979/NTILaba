@@ -70,7 +70,7 @@ DisplayMessage($args ?? null);
                             <?php
                             if (isset($thisUser['filterby_status'])) {
                                 $s = explode(',', $thisUser['filterby_status']);
-                                foreach (L::STATUS() as $key => $status) {
+                                foreach (SR::getAllResourcesInGroup('status') as $key => $status) {
                                     $checked = '';
                                     if (in_array($key, $s)) {
                                         $checked = 'checked';
@@ -79,7 +79,7 @@ DisplayMessage($args ?? null);
                                     ?>
                                     <li class="form-check dropdown-item">
                                         <input type="checkbox" id="cb-<?= $key; ?>" name="status[]" value="<?= $key; ?>" <?= $checked; ?> class="form-check-input">
-                                        <label class="form-check-label" for="cb-<?= $key; ?>"> <?= L::STATUS($key); ?></label>
+                                        <label class="form-check-label" for="cb-<?= $key; ?>"> <?= SR::getResourceValue('status', $key); ?></label>
                                     </li>
                                     <?php
                                 }
@@ -101,9 +101,8 @@ DisplayMessage($args ?? null);
                         </button>
                         <ul class="dropdown-menu p-2">
                             <?php
-                            $allUsers = R::find(USERS);
                             $s = explode(',', $thisUser['filterby_user']);
-                            foreach ($allUsers as $key => $u) {
+                            foreach (R::find(USERS) as $key => $u) {
                                 if ($u['id'] != '1') {
                                     $checked = '';
                                     if (in_array($u['user_name'], $s)) {
@@ -137,8 +136,7 @@ DisplayMessage($args ?? null);
                         </button>
                         <ul class="dropdown-menu p-2">
                             <?php
-                            $clients = R::find(CLIENTS);
-                            foreach ($clients as $cl) {
+                            foreach (R::find(CLIENTS) as $cl) {
                                 $checked = ($cl['name'] == $thisUser['filterby_client']) ? 'checked' : '';
                                 ?>
                                 <div class="radio-item">
@@ -212,7 +210,7 @@ DisplayMessage($args ?? null);
                     <?php
                     if ($settings) {
                         foreach ($settings as $item) {
-                            echo '<th scope="col" class="border-end">' . L::TABLES(ORDERS, $item) . '</th>';
+                            echo '<th scope="col" class="border-end">' . SR::getResourceValue(ORDERS, $item) . '</th>';
                         }
                     } ?>
                     <th scope="col">
@@ -245,8 +243,8 @@ DisplayMessage($args ?? null);
                                             isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR]))) ? ' onclick="getInfo(' . $order['id'] . ')"' : '';
                                     if ($item == 'status') {
                                         // status colorise bg and play text
-                                        $color = L::STATUS($order[$item], 1);
-                                        echo '<td class="border-end ' . $color . '"' . $click . '>' . L::STATUS($order[$item]) . '</td>';
+                                        $color = SR::getResourceDetail('status', $order[$item]);
+                                        echo '<td class="border-end ' . $color . '"' . $click . '>' . SR::getResourceValue('status', $order[$item]) . '</td>';
 
                                     } elseif ($item == 'prioritet') {
                                         // prioritet colorise bg

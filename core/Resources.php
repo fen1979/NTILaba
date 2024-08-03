@@ -5,24 +5,24 @@
 class L
 {
     /* =================== PROTECTED METHODS ==================== */
-    private static function getStatusColor($status): string
-    {
-        /* clors BG for statuses */
-        $statusColors = [
-            'success' => ['st-1'],
-            'warning' => ['st-0', 'st-2', 'st-4', 'st-5', 'st-7'],
-            'danger' => ['st-6', 'st-3'],
-            'info' => ['st-8', 'st-111'],
-            'secondary' => ['st-8', 'st-222'],
-            'dark' => []
-        ];
-        foreach ($statusColors as $color => $statuses) {
-            if (in_array($status, $statuses)) {
-                return $color;
-            }
-        }
-        return ''; // или значение по умолчанию, если статус не найден
-    }
+//    private static function getStatusColor($status): string
+//    {
+//        /* clors BG for statuses */
+//        $statusColors = [
+//            'success' => ['st-1'],
+//            'warning' => ['st-0', 'st-2', 'st-4', 'st-5', 'st-7'],
+//            'danger' => ['st-6', 'st-3'],
+//            'info' => ['st-8', 'st-111'],
+//            'secondary' => ['st-8', 'st-222'],
+//            'dark' => []
+//        ];
+//        foreach ($statusColors as $color => $statuses) {
+//            if (in_array($status, $statuses)) {
+//                return $color;
+//            }
+//        }
+//        return ''; // или значение по умолчанию, если статус не найден
+//    }
 
     /* ===================== STATUS FOR ORDERS ================== */
     /**
@@ -33,28 +33,28 @@ class L
      * @param $color
      * @return mixed|string
      */
-    public static function STATUS($key = null, $color = null)
-    {
-        /* TODO  придумать ключ для поиска по статусу заказа */
-        $orderStatus['-1'] = 'All';
-        $orderStatus['st-0'] = 'Waiting for BOM inspection';
-        $orderStatus['st-1'] = 'Approved for work';
-        $orderStatus['st-2'] = 'Waiting for Customer approval';
-        $orderStatus['st-3'] = 'Waiting for spare parts';
-        $orderStatus['st-4'] = 'Waiting for inspection';
-        $orderStatus['st-5'] = 'Waiting for Step Validation';
-        $orderStatus['st-6'] = 'Project on Pause';
-        $orderStatus['st-7'] = 'Waiting delivery';
-        $orderStatus['st-8'] = 'Order in work';
-        $orderStatus['st-9'] = 'Requires build process creation';
-        //$orderStatus[''] = '';
-        $orderStatus['st-111'] = 'Completed';
-        $orderStatus['st-222'] = 'Archivated';
-        if (!$color)
-            return ($key === null) ? $orderStatus : $orderStatus[$key];
-        else
-            return self::getStatusColor($key);
-    }
+//    public static function STATUS($key = null, $color = null)
+//    {
+//        /* TODO  придумать ключ для поиска по статусу заказа */
+//        $orderStatus['-1'] = 'All';
+//        $orderStatus['st-0'] = 'Waiting for BOM inspection';
+//        $orderStatus['st-1'] = 'Approved for work';
+//        $orderStatus['st-2'] = 'Waiting for Customer approval';
+//        $orderStatus['st-3'] = 'Waiting for spare parts';
+//        $orderStatus['st-4'] = 'Waiting for inspection';
+//        $orderStatus['st-5'] = 'Waiting for Step Validation';
+//        $orderStatus['st-6'] = 'Project on Pause';
+//        $orderStatus['st-7'] = 'Waiting delivery';
+//        $orderStatus['st-8'] = 'Order in work';
+//        $orderStatus['st-9'] = 'Requires build process creation';
+//        //$orderStatus[''] = '';
+//        $orderStatus['st-111'] = 'Completed';
+//        $orderStatus['st-222'] = 'Archivated';
+//        if (!$color)
+//            return ($key === null) ? $orderStatus : $orderStatus[$key];
+//        else
+//            return self::getStatusColor($key);
+//    }
 
     /* ==================== TITLES FOR PAGES ==================== */
     /**
@@ -62,46 +62,46 @@ class L
      * @param $key
      * @return string
      */
-    public static function TITLES($key): string
-    {
-        $title['home'] = 'Home';
-        //$title['hi'] = 'Hi';
-
-        $title['login'] = 'Authetification';
-
-        $title['order'] = 'Orders';
-        $title['new_order'] = 'Create Order';
-        $title['edit_order'] = 'Edit Order';
-        $title['order_bom'] = 'Fill BOM';
-        $title['order_details'] = 'Order Info';
-
-        $title['project'] = 'Projects';
-        $title['new_project'] = 'Create Project';
-        $title['edit_project'] = 'Edit Project';
-        $title['view_project'] = 'View Project';
-        $title['add_step'] = 'Add Step';
-        $title['edit_step'] = 'Edit Step';
-        $title['project_part_list'] = 'Part List';
-        $title['shared'] = 'Shared Project';
-
-        $title['wh'] = 'Warehouse';
-        $title['import_csv'] = 'Import File';
-        $title['wh_log'] = 'Warehouse Log';
-        $title['view_item'] = 'Item Information';
-        $title['edit_item'] = 'Edit Item Information';
-        $title['arrivals'] = 'Add new Item';
-        $title['in_out_item'] = 'The Actions';
-
-        $title['admin-panel'] = 'Management';
-        $title['customers'] = 'Clients';
-        $title['logs'] = 'Log';
-        $title['wiki'] = 'Resources';
-        $title['docs'] = 'Docs';
-        $title['priority'] = 'Priority';
-        //$title[''] = 'No Title';
-
-        return $title[$key] ?? 'No Title Yet';
-    }
+//    public static function TITLES($key): string
+//    {
+//        $title['home'] = 'Home';
+//        //$title['hi'] = 'Hi';
+//
+//        $title['login'] = 'Authetification';
+//
+//        $title['order'] = 'Orders';
+//        $title['new_order'] = 'Create Order';
+//        $title['edit_order'] = 'Edit Order';
+//        $title['order_bom'] = 'Fill BOM';
+//        $title['order_details'] = 'Order Info';
+//
+//        $title['project'] = 'Projects';
+//        $title['new_project'] = 'Create Project';
+//        $title['edit_project'] = 'Edit Project';
+//        $title['view_project'] = 'View Project';
+//        $title['add_step'] = 'Add Step';
+//        $title['edit_step'] = 'Edit Step';
+//        $title['project_part_list'] = 'Part List';
+//        $title['shared'] = 'Shared Project';
+//
+//        $title['wh'] = 'Warehouse';
+//        $title['import_csv'] = 'Import File';
+//        $title['wh_log'] = 'Warehouse Log';
+//        $title['view_item'] = 'Item Information';
+//        $title['edit_item'] = 'Edit Item Information';
+//        $title['arrivals'] = 'Add new Item';
+//        $title['in_out_item'] = 'The Actions';
+//
+//        $title['admin-panel'] = 'Management';
+//        $title['customers'] = 'Clients';
+//        $title['logs'] = 'Log';
+//        $title['wiki'] = 'Resources';
+//        $title['docs'] = 'Docs';
+//        $title['priority'] = 'Priority';
+//        //$title[''] = 'No Title';
+//
+//        return $title[$key] ?? 'No Title Yet';
+//    }
 
     /* ==================== TABLES COLUMN NAMES ================= */
     /**
@@ -348,7 +348,7 @@ const WH_INVOICE = 'whinvoice'; // товарный склад, приход/р�
 const WAREHOUSE = 'warehouse'; // динамический склад, кол-во и прочее
 const WH_LOGS = 'whlogs'; // логи склада
 const WH_RESERV = 'whreserv'; // созданный резерв запчастей для заказов
-const WH_SLOTS = 'whslots'; // места для хранения товара
+//const WH_SLOTS = 'whslots'; // места для хранения товара
 const WH_TYPES = 'whtypes'; // СПИСОК ИМЕН И ТИПОВ СКЛАДОВ
 const WH_ORDERED_ITEMS = 'whordereditems'; // СПИСОК ЗАКАЗАННЫХ ЗАПЧАСТЕЙ
 const ASSY_PROGRESS = 'assyprogress';
@@ -463,3 +463,213 @@ const MOUNTING_TYPE = ["SMT", "TH", "CM", "PM", "SOLDER", "CRIMP", "LM", "OTHER"
 const NTI_PN = ['NCAP' => 'Capacitor', 'NRES' => 'Resistor', 'NDIO' => 'Diode', 'NIC' => 'Micro Chip', 'NTR' => 'Transistor',
     'NCR' => 'Oscilator', 'NFU' => 'Fuse', 'NFB' => 'Ferrite bead', 'NCON' => 'Connector', 'NIND' => 'Inductor', 'NPIN' => 'Pins',
     'NW' => 'Wires', 'NTUBE' => 'Shrink Tube', 'custom' => 'Custom'];
+
+class_alias('Resources', 'SR');
+
+/**
+ *  Example usage Resources alias SR
+ *  SR::createTable(); // создать таблицу при первом запуске
+ *  SR::addResource('group1', 'key1', 'value1', 'status1'); // добавляем новую запись сттатус указан как 0 по умолчанию
+ *  SR::editResource('group1', 'key1', 'new_value3', 'new_status3); // изменение записи: статус и значение
+ *  SR::updateResourceStatus('group1', 'key1', 'new_status3'); // обновление статуса
+ *  print_r(SR::getResource('group1', 'key1')); // вывод записи по связке группа-ключь
+ *  SR::deleteResource('group1', 'key1'); // удаление записи по связке группа-ключь
+ *  print_r(SR::getAllResourcesInGroup('group1')); // вывад всех записей в группе
+ *  SR::deleteAllResourcesInGroup('group1'); // удаление всех записей по групповому признаку
+ *  print_r(SR::getAllResources()); // вывод вссех записей из БД
+ */
+class Resources
+{
+    // Data Base table name
+    private const RESOURCES = 'resources';
+    private static ?string $groupName = null;
+
+    /**
+     * Set the group name
+     *
+     * @param string $group
+     * @return void
+     */
+    public static function setGroupName(string $group)
+    {
+        self::$groupName = $group;
+    }
+
+    /**
+     * Create table
+     * @param $table
+     * @return void
+     */
+    public static function createTable()
+    {
+        R::exec('CREATE TABLE IF NOT EXISTS ' . self::RESOURCES . ' (id INT AUTO_INCREMENT PRIMARY KEY,
+        group_name VARCHAR(255) NOT NULL, key_name VARCHAR(255) NOT NULL, value TEXT NOT NULL,
+        UNIQUE KEY unique_key (group_name, key_name))');
+    }
+
+    /**
+     * Add record
+     *
+     * @param $group
+     * @param $key
+     * @param $value
+     * @param int $status
+     * @return void
+     */
+    public static function addResource($group, $key, $value, $detail = '0')
+    {
+        try {
+            // Проверяем, существует ли запись
+            $existingData = R::findOne(self::RESOURCES, 'group_name = ? AND key_name = ?', [$group, $key]);
+            if (!$existingData) {
+                // Если записи нет, создаем новую
+                $data = R::dispense(self::RESOURCES);
+                $data->group_name = $group;
+                $data->key_name = $key;
+                $data->value = $value ?? '';
+                $data->detail = $detail;
+                R::store($data);
+            }
+        } catch (Exception $exception) {
+            var_dump($exception->getMessage());
+        }
+    }
+
+    /**
+     * Edit record
+     *
+     * @param $group
+     * @param $key
+     * @param $value
+     * @return void
+     * @throws \RedBeanPHP\RedException\SQL
+     */
+    public static function editResource($group, $key, $value)
+    {
+        $data = R::findOne(self::RESOURCES, 'group_name = ? AND key_name = ?', [$group, $key]);
+        if ($data) {
+            $data->value = $value;
+            R::store($data);
+        }
+    }
+
+    /**
+     * update detail
+     *
+     * @param $group
+     * @param $key
+     * @param $detail
+     * @return void
+     * @throws \RedBeanPHP\RedException\SQL
+     */
+    public static function updateResourceStatus($group, $key, $detail)
+    {
+        $data = R::findOne(self::RESOURCES, 'group_name = ? AND key_name = ?', [$group, $key]);
+        if ($data) {
+            $data->detail = $detail;
+            R::store($data);
+        }
+    }
+
+    /**
+     * Delete record by key
+     *
+     * @param $group
+     * @param $key
+     * @return void
+     */
+    public static function deleteResource($group, $key)
+    {
+        $data = R::findOne(self::RESOURCES, 'group_name = ? AND key_name = ?', [$group, $key]);
+        if ($data) {
+            R::trash($data);
+        }
+    }
+
+    /**
+     * Delete all records in group
+     *
+     * @param $group
+     * @return void
+     */
+    public static function deleteAllResourcesInGroup($group)
+    {
+        $data = R::find(self::RESOURCES, 'group_name = ?', [$group]);
+        R::trashAll($data);
+    }
+
+    /**
+     * Get record by key
+     *
+     * @param $group
+     * @param $key
+     * @return \RedBeanPHP\OODBBean|NULL
+     */
+    public static function getResource($group, $key): ?\RedBeanPHP\OODBBean
+    {
+        return R::findOne(self::RESOURCES, 'group_name = ? AND key_name = ?', [$group, $key]);
+    }
+
+    /**
+     * Get value by key
+     * @param $group
+     * @param $key
+     * @return string
+     */
+    public static function getResourceValue($group, $key): string
+    {
+        //$groupName = self::$groupName ?: $group;
+        $o = R::findOne(self::RESOURCES, 'group_name = ? AND key_name = ?', [$group, $key]);
+        if ($o)
+            return $o->value;
+        else
+            return '';
+    }
+
+    /**
+     * Get status by key
+     * @param $group
+     * @param $key
+     * @return string
+     */
+    public static function getResourceDetail($group, $key): string
+    {
+        $o = R::findOne(self::RESOURCES, 'group_name = ? AND key_name = ?', [$group, $key]);
+        return $o->detail;
+    }
+
+    /**
+     * Get all records in groups
+     * поддерживает установку группы через
+     * setGroupName(string $group)
+     * @param $group
+     * @param bool $object
+     * @return array
+     */
+    public static function getAllResourcesInGroup($group = null, bool $object = false): array
+    {
+        $groupName = self::$groupName ?: $group;
+        if ($object) {
+            return R::find(self::RESOURCES, 'group_name = ?', [$groupName]);
+        } else {
+            $records = R::find(self::RESOURCES, 'group_name = ?', [$groupName]);
+            $result = [];
+
+            foreach ($records as $record) {
+                $result[$record['key_name']] = $record['value'];
+            }
+
+            return $result;
+        }
+    }
+
+    /**
+     * Get all records
+     *
+     * @return array
+     */
+    public static function getAllResources(): array
+    {
+        return R::findAll(self::RESOURCES, 'ORDER BY group_name');
+    }
+}

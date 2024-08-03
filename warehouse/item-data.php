@@ -438,6 +438,13 @@ DisplayMessage($args ?? null);
 <!--                | 123456       | 01/01/2024 | In Progress  | John Doe      | (123) 456-7890 | johndoe@example.com   | Capacitor    | 50       | $21.50     | Credit Card    | Courier         | ABC1234567890   | 01/07/2024    | 789       |-->
 <!--                | 789012       | 02/02/2024 | Shipped      | Jane Smith    | (234) 567-8901 | janesmith@example.com | Resistor     | 100      | $35.75     | PayPal         | Postal Service  | XYZ9876543210   | 02/09/2024    | 456       |-->
 
+                <?php
+                // ссылки на которых можно просто поискать
+                // https://t.17track.net/en?nums=LP00663674349554
+                // https://track24.net/?code=LP00663674349554
+                // https://www.ship24.com/tracking?p=LP00663674349554
+                // https://www.tracktry.com/track/LP00663674349554   ничего не находит но работает как ссылка ???
+                ?>
                 <thead>
                 <tr>
                     <th>Order Number</th>
@@ -445,8 +452,8 @@ DisplayMessage($args ?? null);
                     <th>Ordered by</th>
                     <th>Delivery date</th>
                     <th>Amount</th>
-                    <th>Invoice</th>
-                    <th>Created on</th>
+                    <th>Tracking</th>
+                    <th>Ordered date</th>
                 </tr>
                 </thead>
                 <!-- table -->
@@ -455,13 +462,13 @@ DisplayMessage($args ?? null);
                 if (!empty($orderedItems)) {
                     foreach ($orderedItems as $line) {
                         echo '<tr  class="text-primary">';
-                        echo '<td>' . $line['order_id'] . '</td>';
+                        echo '<td>' . $line['order_number'] . '</td>';
                         echo '<td>' . $line['supplier'] . '</td>';
                         echo '<td>' . $line['ordered_by'] . '</td>';
                         echo '<td>' . $line['delivery_date'] . '</td>';
                         echo '<td>' . $line['quantity'] . '</td>';
-                        echo '<td>' . $line['invoice'] . '</td>';
-                        echo '<td>' . $line['date_in'] . '</td>';
+                        echo '<td>' . $line['track_number'] . '</td>';
+                        echo '<td>' . $line['order_date'] . '</td>';
                         echo '</tr>';
                     }
                 }

@@ -22,7 +22,7 @@ function HeadContent($page)
     <!--    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">-->
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="icon" href="/public/images/nti_logo.png">
-    <title><?= L::TITLES($page ?? ''); ?></title>
+    <title><?= SR::getResourceValue('title', $page ?? ''); ?></title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
@@ -560,7 +560,7 @@ function DROPDOWN_BUTTONS($user)
 { ?>
     <div class="btn-group nav-item" style="align-items: center;">
         <button class="url btn btn-outline-secondary btn-sm" type="button" value="<?= $user['link'] ?>">
-            <?= L::TITLES($user['link']) ?>
+            <?= SR::getResourceValue('title', $user['link']) ?>
         </button>
         <button type="button" class="btn btn-sm btn-outline-dark dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
             <span class="visually-hidden">Site Pages</span>

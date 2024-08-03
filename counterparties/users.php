@@ -154,6 +154,21 @@ DisplayMessage($args ?? null);
                         </div>
 
                         <div class="mb-3">
+                            <label for="work_space" class="form-label">Work Space</label>
+                            <select name="work_space" id="work_space" class="form-control" required>
+                                <?php
+                                $name = !empty($tool['in_use']) ? $tool['in_use'] : '';
+                                foreach (getRessource('work_space') as $u) {
+                                    if ($u['id'] != 1) {
+                                        $sel = !empty($tool['responsible']) && $u['user_name'] == $name ? 'selected' : '';
+                                        ?>
+                                        <option value="<?= $u['user_name'] ?>" <?= $sel ?>><?= $u['user_name'] ?></option>
+                                    <?php }
+                                } ?>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
                             <label class="form-label">User`s Permissions</label>
 
                             <?php

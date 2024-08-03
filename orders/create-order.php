@@ -2,27 +2,51 @@
 EnsureUserIsAuthenticated($_SESSION, 'userBean');
 include_once 'Orders.php';
 
-// check for not in use boxws in storage
+//// check for not in use boxws in storage
+//if (isset($_POST['search-for-storage-box'])) {
+//    // Получаем текущий номер из запроса
+//    $currentNumber = _E($_POST['search-for-storage-box']);
+//    // Ищем следующий доступный номер, где in_use = 0, есть индексация по колонке box
+//    $nextBox = R::findOne(WH_SLOTS, 'box > ? AND in_use = 0 ORDER BY box ASC', [$currentNumber]);
+//
+//    // Если следующего номера нет (мы достигли конца списка), начинаем сначала
+//    if (!$nextBox) {
+//        $nextBox = R::findOne(WH_SLOTS, 'in_use = 0 ORDER BY box ASC');
+//    }
+//
+//    // Возвращаем номер следующего доступного элемента
+//    if ($nextBox) {
+//        echo $nextBox->box;
+//    } else {
+//        // Если не найдено ни одного доступного номера
+//        echo "No available boxes found";
+//    }
+//    exit();
+//}
+
+// check for not in use boxes in storage
 if (isset($_POST['search-for-storage-box'])) {
     // Получаем текущий номер из запроса
-    $currentNumber = _E($_POST['search-for-storage-box']);
+    $key = _E($_POST['search-for-storage-box']);
+    $key = (int)$key + 1;
     // Ищем следующий доступный номер, где in_use = 0, есть индексация по колонке box
-    $nextBox = R::findOne(WH_SLOTS, 'box > ? AND in_use = 0 ORDER BY box ASC', [$currentNumber]);
+    $nextBox = SR::getResource('stock', $key);
 
     // Если следующего номера нет (мы достигли конца списка), начинаем сначала
-    if (!$nextBox) {
-        $nextBox = R::findOne(WH_SLOTS, 'in_use = 0 ORDER BY box ASC');
+    if (empty($nextBox)) {
+        $nextBox = SR::getResource('stock', '1');
     }
 
     // Возвращаем номер следующего доступного элемента
-    if ($nextBox) {
-        echo $nextBox->box;
+    if (!empty($nextBox)) {
+        echo $nextBox['key_name'];
     } else {
         // Если не найдено ни одного доступного номера
         echo "No available boxes found";
     }
     exit();
 }
+
 
 $user = $_SESSION['userBean'];
 $page = 'new_order';
@@ -446,15 +470,11 @@ ScriptContent($page);
                 // Очищаем результаты поиска
                 dom.hide("#searchModal");
             }
-        }, "body");
+        });
 
         // скрываем ответ от сервера при клике на странице
-        dom.in('click', "body", function (event) {
-            const searchAnswer = dom.e("#searchAnswer");
-            // Проверяем, что клик произошел вне элемента searchAnswer и что он видим
-            if (!searchAnswer.contains(event.target) && getComputedStyle(searchAnswer).display !== 'none') {
-                searchAnswer.style.display = 'none';
-            }
+        dom.in('click', "body", function () {
+            dom.hide("#searchModal");
         });
 
         // Обработчик события ввода для обновления состояния кнопки
@@ -488,7 +508,6 @@ ScriptContent($page);
         // Начальная проверка при загрузке страницы
         $('#createOrderFBtn').prop('disabled', !checkRequiredFields());
 
-
         /* prioritet for order */
         $(document).on("change", "#prioritet", function () {
             // Объект для сопоставления значений с классами
@@ -517,6 +536,7 @@ ScriptContent($page);
             }, function (data) {
                 // При успешном получении ответа обновляем значение поля ввода
                 $('#storageBox').val(data);
+                console.log(data)
             });
         });
 

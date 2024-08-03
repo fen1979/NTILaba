@@ -306,8 +306,8 @@ function viewOrder($result, $user)
                                 isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR]))) ? ' onclick="getInfo(' . $order['id'] . ')"' : '';
                         if ($item == 'status') {
                             // status colorise bg and play text
-                            $color = L::STATUS($order[$item], 1);
-                            echo '<td class="border-end ' . $color . '"' . $click . '>' . L::STATUS($order[$item]) . '</td>';
+                            $color = SR::getResourceDetail('status', $order[$item]);
+                            echo '<td class="border-end ' . $color . '"' . $click . '>' . SR::getResourceValue('status', $order[$item]) . '</td>';
 
                         } elseif ($item == 'prioritet') {
                             // prioritet colorise bg

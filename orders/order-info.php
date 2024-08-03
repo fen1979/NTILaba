@@ -13,7 +13,7 @@ function getOrderInformationHTML($orderid, $order, $customer, $project, $project
         </div>
 
         <!--  изменение статуса заказа -->
-        <?php  if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
+        <?php if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
             <div class="col-2">
                 <form action="" method="POST" class="form" id="setStatus">
                     <input type="hidden" name="set-order-status" readonly>
@@ -26,13 +26,13 @@ function getOrderInformationHTML($orderid, $order, $customer, $project, $project
                             <?php
                             // если заказ на паузе то выводим только один статус для разблокировки
                             if (isset($order->status) && $order->status != 'st-6') {
-                                foreach (L::STATUS() as $key => $status) {
+                                foreach (SR::getAllResourcesInGroup('status') as $key => $status) {
                                     if ($key != -1) {
                                         $checked = ($key == $order->status) ? 'checked' : '';
                                         ?>
                                         <div class="radio-item">
                                             <input type="radio" name="status" id="in-<?= $key; ?>" value="<?= $key; ?>" <?= $checked; ?> class="me-2">
-                                            <label for="in-<?= $key; ?>"> <?= L::STATUS((string)$key); ?></label>
+                                            <label for="in-<?= $key; ?>"> <?= SR::getResourceValue('status', $key); ?></label>
                                         </div>
                                         <?php
                                     }
@@ -43,7 +43,7 @@ function getOrderInformationHTML($orderid, $order, $customer, $project, $project
                                 ?>
                                 <div class="radio-item">
                                     <input type="radio" name="status" id="in-<?= $key; ?>" value="<?= $key; ?>" class="me-2">
-                                    <label for="in-<?= $key; ?>"> <?= L::STATUS($key); ?></label>
+                                    <label for="in-<?= $key; ?>"> <?= SR::getResourceValue('status', $key); ?></label>
                                 </div>
                                 <?php
                             } ?>
@@ -57,7 +57,7 @@ function getOrderInformationHTML($orderid, $order, $customer, $project, $project
         <?php } ?>
 
         <!--  установка работника для проекта -->
-        <?php  if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
+        <?php if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
             <div class="col-2">
                 <form action="" method="POST" class="form">
                     <input type="hidden" name="set-order-user">
@@ -190,10 +190,10 @@ function getOrderInformationHTML($orderid, $order, $customer, $project, $project
         <div class="col border-start">
             <!-- statuses of order -->
             <div class="mb-3">
-                <h4 class="<?= L::STATUS($order['status'], 1); ?> p-2 rounded mb-2">
+                <h4 class="<?= SR::getResourceDetail('status', $order['status']); ?> p-2 rounded mb-2">
                     Order Status:
                     <small>
-                        <?= L::STATUS($order['status']); ?>
+                        <?= SR::getResourceValue('status', $order['status']); ?>
                     </small>
                 </h4>
 
@@ -261,7 +261,7 @@ function getOrderInformationHTML($orderid, $order, $customer, $project, $project
                     If the order was only partially placed but allowed for assembly despite not having a complete set of spare parts,
                     indicate this in the order's BOM.
                 </h4>
-                <?php  if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
+                <?php if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
                     <a href="<?= $url; ?>" role="button" class="btn btn-outline-dark">Edit BOM for this Order</a>
                     <?php
                 }

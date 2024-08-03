@@ -138,9 +138,9 @@ class Orders
             $res[] = ['info' => 'Users changed successfully', 'color' => 'success'];
         } else {
             $order->status = $post['status'];
-            $log_details = 'Order status hase be changed to ' . L::STATUS($post['status']);
+            $log_details = 'Order status hase be changed to ' . SR::getResourceValue('status', $post['status']);
             $res[] = ['info' => 'Status changed successfully', 'color' => 'success'];
-            $args['messageText'] = 'Transferred to status: ' . L::STATUS($post['status']);
+            $args['messageText'] = 'Transferred to status: ' . SR::getResourceValue('status', $post['status']);
             $log_action = 'STATUS_CHANGED';
         }
         $args['readonly'] = 1;
@@ -209,9 +209,11 @@ class Orders
         $order->prioritet = $post['prioritet']; // приоритет выполнения заказа
         $shelf = $order->storage_shelf = $post['storageShelf'] ?? 'A0'; // место хранения коробки с запчастями к заказу
         $box = $order->storage_box = $post['storageBox']; // номер коробки для запчастей к заказу
+
         // обновляем значение в нумерации указывая что данный номер занят
         // TODO  сделать сброс после завершения проекта или на одном из статусов например когда ушел в упаковку
-        R::exec("UPDATE storage SET in_use = 1 WHERE id = ?", [$post['storageBox']]);
+        SR::updateResourceStatus('stock', $post['storageBox'], '1');
+//        R::exec("UPDATE storage SET in_use = 1 WHERE id = ?", [$post['storageBox']]);
 
         $unic_name = strtolower($p_name) . '_' . date('Ymd_is'); // project name/date/
         $order->order_folder = self::makeFolderInStorage($unic_name); // папка заказа для хранения информации
@@ -228,7 +230,7 @@ class Orders
 
         /* записываем в чат сообщение о создании заказа и установки ему параметров по умолчанию */
         $firstQty = (!empty($post['fai_qty'])) ? "<b class='text-danger'>First test batch: {$post['fai_qty']} pieces.</b><br>" : '';
-        $msg = 'Order Status: ' . L::STATUS('st-0') . ',<br>'
+        $msg = 'Order Status: ' . SR::getResourceValue('status', 'st-0') . ',<br>'
             . 'Order Prioritet: ' . $post['prioritet'] . ',<br>'
             . 'Order Workers: ' . $post['orderWorkers'] . ',<br>'
             . 'Forwarded to: ' . $post['forwardedTo'] . ',<br>'
