@@ -352,9 +352,3 @@ function _dirPath(array $params): string
         exit();
     }
 }
-
-function getRessource(string $request, bool $array = true, array $optionals = null): array
-{
-
-    return [];
-}

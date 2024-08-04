@@ -303,20 +303,24 @@ class Resources
      * @param bool $object
      * @return array
      */
-    public static function getAllResourcesInGroup($group = null, bool $object = false): array
+    public static function getAllResourcesInGroup($group = null, bool $object = false, $ordered = false): ?array
     {
         $groupName = self::$groupName ?: $group;
         if ($object) {
-            return R::find(self::RESOURCES, 'group_name = ?', [$groupName]);
+            $query = ($ordered) ? 'ORDER BY id' : '';
+            return R::find(self::RESOURCES, 'group_name = ? ' . $query, [$groupName]);
         } else {
             $records = R::find(self::RESOURCES, 'group_name = ?', [$groupName]);
             $result = [];
+            if ($records) {
+                foreach ($records as $record) {
+                    $result[$record['key_name']] = $record['value'];
+                }
 
-            foreach ($records as $record) {
-                $result[$record['key_name']] = $record['value'];
+                return $result;
+            } else {
+                return null;
             }
-
-            return $result;
         }
     }
 

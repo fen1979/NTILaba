@@ -17,6 +17,23 @@ session_start();
 $mode = 'data-bs-theme="' . ($_SESSION['userBean']['view_mode'] ?? 'light') . '"';
 define("VIEW_MODE", $mode);
 
+/*
+ * Список игнорируемых путей и файлов
+ * требуется для правильного возврата пользователя после логина
+ **/
+const IGNORE_LIST = [
+    ['type' => 'exact', 'value' => '/'],
+    ['type' => 'exact', 'value' => '/sign-out'],
+    ['type' => 'exact', 'value' => '/get_data'],
+    ['type' => 'exact', 'value' => '/create_bom'],
+    ['type' => 'exact', 'value' => '/is_change'],
+    ['type' => 'exact', 'value' => '/6fef03d1aac6981d6c6eaa35fc9b46d1311b4b5425a305fc7da1b00c2'],
+    ['type' => 'contains', 'value' => '.ico'],
+    ['type' => 'contains', 'value' => '.css'],
+    ['type' => 'contains', 'value' => 'storage/projects/']
+    // Добавляйте сюда новые условия для игнорирования
+];
+
 /* ==================== SITE PUBLIC RESOURCES ================== */
 require_once 'Resources.php';
 require_once 'Utility.php';
@@ -117,7 +134,7 @@ class Routing
             header('Pragma: no-cache');
             // session destroing
             session_destroy();
-            header('Location: /');
+            redirectTo();
             exit();
         }
     }

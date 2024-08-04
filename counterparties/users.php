@@ -157,12 +157,17 @@ DisplayMessage($args ?? null);
                             <label for="work_space" class="form-label">Work Space</label>
                             <select name="work_space" id="work_space" class="form-control" required>
                                 <?php
-                                $name = !empty($tool['in_use']) ? $tool['in_use'] : '';
-                                foreach (getRessource('work_space') as $u) {
-                                    if ($u['id'] != 1) {
-                                        $sel = !empty($tool['responsible']) && $u['user_name'] == $name ? 'selected' : '';
+                                $userSpace = !empty($localUser['work_space']) ? $localUser['work_space'] : '';
+                                if ($work_space = SR::getAllResourcesInGroup('work_space', true, true)) {
+                                    foreach ($work_space as $space) {
+                                        $sel = !empty($space) && $space['key_name'] == $userSpace ? 'selected' : '';
                                         ?>
-                                        <option value="<?= $u['user_name'] ?>" <?= $sel ?>><?= $u['user_name'] ?></option>
+                                        <option value="<?= $space['key_name'] ?>" <?= $sel ?>>
+                                            <?= $space['value'] ?>
+                                            <bold>
+                                                <?= $space['detail'] ?>
+                                            </bold>
+                                        </option>
                                     <?php }
                                 } ?>
                             </select>
