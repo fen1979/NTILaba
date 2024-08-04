@@ -152,7 +152,7 @@ class Resources
     }
 
     /**
-     * Create table
+     * Create table first init process
      * @param $table
      * @return void
      */
@@ -164,15 +164,15 @@ class Resources
     }
 
     /**
-     * Add record
+     * Add resource to DB
      *
      * @param $group
      * @param $key
      * @param $value
      * @param int $status
-     * @return void
+     * @return bool
      */
-    public static function addResource($group, $key, $value, $detail = '0')
+    public static function addResource($group, $key, $value, $detail = '0'): bool
     {
         try {
             // Проверяем, существует ли запись
@@ -185,32 +185,43 @@ class Resources
                 $data->value = $value ?? '';
                 $data->detail = $detail;
                 R::store($data);
+                $_SESSION['info'] = ['info' => 'Resource added successfuly', 'color' => 'success'];
+                return true;
             }
         } catch (Exception $exception) {
-            var_dump($exception->getMessage());
+            $_SESSION['info'] = ['info' => $exception->getMessage(), 'color' => 'danger'];
         }
+        return false;
     }
 
     /**
-     * Edit record
+     * Update resource value and detail
      *
      * @param $group
      * @param $key
      * @param $value
-     * @return void
-     * @throws \RedBeanPHP\RedException\SQL
+     * @param $detail
+     * @return bool
      */
-    public static function editResource($group, $key, $value)
+    public static function updateResource($group, $key, $value, $detail): bool
     {
-        $data = R::findOne(self::RESOURCES, 'group_name = ? AND key_name = ?', [$group, $key]);
-        if ($data) {
-            $data->value = $value;
-            R::store($data);
+        try {
+            $data = R::findOne(self::RESOURCES, 'group_name = ? AND key_name = ?', [$group, $key]);
+            if ($data) {
+                $data->value = $value;
+                $data->detail = $detail;
+                R::store($data);
+                $_SESSION['info'] = ['info' => 'Resource updated successfuly', 'color' => 'success'];
+                return true;
+            }
+        } catch (Exception $exception) {
+            $_SESSION['info'] = ['info' => $exception->getMessage(), 'color' => 'danger'];
         }
+        return false;
     }
 
     /**
-     * update detail
+     * update resource detail only
      *
      * @param $group
      * @param $key
@@ -218,7 +229,7 @@ class Resources
      * @return void
      * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function updateResourceStatus($group, $key, $detail)
+    public static function updateResourceDetail($group, $key, $detail)
     {
         $data = R::findOne(self::RESOURCES, 'group_name = ? AND key_name = ?', [$group, $key]);
         if ($data) {

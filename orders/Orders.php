@@ -212,7 +212,7 @@ class Orders
 
         // обновляем значение в нумерации указывая что данный номер занят
         // TODO  сделать сброс после завершения проекта или на одном из статусов например когда ушел в упаковку
-        SR::updateResourceStatus('stock', $post['storageBox'], '1');
+        SR::updateResourceDetail('stock', $post['storageBox'], '1');
 //        R::exec("UPDATE storage SET in_use = 1 WHERE id = ?", [$post['storageBox']]);
 
         $unic_name = strtolower($p_name) . '_' . date('Ymd_is'); // project name/date/
