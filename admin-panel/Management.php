@@ -415,6 +415,15 @@ class Management
         return $res;
     }
 
+    /**
+     * IMPORT TOOLS DATA FROM AN CSV FILE
+     *
+     * @param $post
+     * @param $files
+     * @param $user
+     * @return null[]
+     * @throws \RedBeanPHP\RedException\SQL
+     */
     public static function importToolsListByCsvFile($post, $files, $user): array
     {
         $args = [null];
@@ -442,6 +451,26 @@ class Management
                             // Чтение первой строки с заголовками колонок
                             $headers = fgetcsv($handle, 1000);
 
+                            // Определение ожидаемой структуры заголовков
+                            $expectedHeaders = [
+                                'manufacturer', 'model', 'device_type', 'location', 'in_use',
+                                'calibration', 'serial', 'calibration_date', 'next_calibration',
+                                'responsible', 'email', 'remarks', 'image'
+                            ];
+
+                            // Проверка структуры файла
+                            if ($headers !== $expectedHeaders) {
+                                // Закрытие файла
+                                fclose($handle);
+
+                                // Удаление временного файла CSV
+                                unlink($uploadedFile);
+
+                                // Вывод сообщения пользователю о несоответствии структуры файла
+                                $args[] = ['info' => 'Error, file structure does not match expected format!', 'color' => 'danger'];
+                                return $args;
+                            }
+
                             // Массив для хранения данных из CSV файла
                             $data = [];
 
@@ -454,6 +483,7 @@ class Management
                             // Закрытие файла
                             fclose($handle);
                             $items = 0;
+
                             // Пример доступа к данным
                             foreach ($data as $rowLine) {
                                 $nt = R::dispense(TOOLS);
@@ -504,6 +534,97 @@ class Management
         }
         return $args;
     }
+
+
+//    public static function importToolsListByCsvFile($post, $files, $user): array
+//    {
+//        $args = [null];
+//        if (isset($post['import-from-csv-file'])) {
+//
+//            /* сохраняем файл с данными для работы */
+//            if (!empty($files['csvFile']['name'][0])) {
+//                $tmp_name = $files['csvFile']['tmp_name'];
+//                $uploadedFile = TEMP_FOLDER . basename($files['csvFile']['name']);
+//                $fileType = strtolower(pathinfo($uploadedFile, PATHINFO_EXTENSION));
+//
+//                if ($fileType == 'csv') {
+//                    // если файл соответствует требованиям сохраняем в ТМП папку
+//                    $uploadSuccess = move_uploaded_file($tmp_name, $uploadedFile);
+//                    if ($uploadSuccess) {
+//
+//                        // Проверка наличия файла
+//                        if (!file_exists($uploadedFile)) {
+//                            $_SESSION['info'] = ['info' => 'File not found', 'color' => 'danger'];
+//                            die();
+//                        }
+//
+//                        // Открытие файла для чтения
+//                        if (($handle = fopen($uploadedFile, "r")) !== FALSE) {
+//                            // Чтение первой строки с заголовками колонок
+//                            $headers = fgetcsv($handle, 1000);
+//
+//                            // Массив для хранения данных из CSV файла
+//                            $data = [];
+//
+//                            // Чтение каждой строки и преобразование в ассоциативный массив
+//                            while (($row = fgetcsv($handle, 1000)) !== FALSE) {
+//                                $rowLine = array_combine($headers, $row);
+//                                $data[] = $rowLine;
+//                            }
+//
+//                            // Закрытие файла
+//                            fclose($handle);
+//                            $items = 0;
+//                            // Пример доступа к данным
+//                            foreach ($data as $rowLine) {
+//                                $nt = R::dispense(TOOLS);
+//                                $nt->manufacturer_name = $rowLine['manufacturer']; // имя инструмента от производителя
+//                                $nt->device_model = $rowLine['model']; // модель инструмента
+//                                $nt->device_type = $rowLine['device_type']; // тип инструмента
+//                                $nt->device_location = $rowLine['location']; // рабочее местонахождение инструмента
+//                                $nt->in_use = $rowLine['in_use']; // рабочий который пользуется инструментом
+//                                $nt->calibration = $rowLine['calibration']; // NONC = no need calibration, NEC = need calibration
+//                                $nt->serial_num = $rowLine['serial']; // сирийный номер инструмента после калибровки
+//                                $nt->date_of_inspection = $rowLine['calibration_date']; // дата последней калибровки - обслуживания инструмента
+//                                $nt->next_inspection_date = $rowLine['next_calibration']; // следующая дата калибровки - обслуживания инструмента !!!
+//                                $nt->work_life = '12'; // интервал обслуживания/калибровки (месяцев)
+//                                $res = json_encode(['name' => $rowLine['responsible'], 'email' => $rowLine['email'] ?? '']);
+//                                $nt->responsible = $res; // ответственный за инструмент
+//                                $nt->remarks = $rowLine['remarks']; // заметки на полях
+//                                $nt->image = $rowLine['image'] ?? null; // путь к фото инструмента или ПДФ
+//                                $nt->date_in = date('Y-m-d H:i'); // дата внесения в БД
+//
+//                                R::store($nt);
+//                                $items++;
+//                            }
+//
+//                        } else {
+//                            $args[] = ['info' => 'Error open file', 'color' => 'danger'];
+//                        }
+//                    } // upload success
+//
+//                    // удаляем временный файл CSV
+//                    array_map('unlink', glob(TEMP_FOLDER . '*.*'));
+//
+//                    // выводим сообщение пользователю
+//                    if ($items > 0) {
+//                        $log_details = "File was imported correctly.<br> Lines added: $items";
+//                        $args[] = ['info' => $log_details, 'color' => 'success'];
+//
+//                        /* [     LOGS FOR THIS ACTION     ] */
+//                        if (!logAction($user['user_name'], 'IMPORT FILE', OBJECT_TYPE[9], $log_details)) {
+//                            $args[] = ['info' => 'The log not created.', 'color' => 'danger'];
+//                        }
+//                    } else {
+//                        $args[] = ['info' => 'No items added!', 'color' => 'warning'];
+//                    }
+//                } else {
+//                    $args[] = ['info' => 'Error, File format wrong! Only .csv', 'color' => 'danger'];
+//                }
+//            }
+//        }
+//        return $args;
+//    }
 
     /**
      * TABLE COLUMNS ACTIONS CODE

@@ -81,7 +81,7 @@ $r->addRout('/get_data', 'searching/getData.php');
 
 
 // page for testing some examples
-$r->addRout('/test', 'test.php');
+$r->addRout('/resources', 'static-data.php');
 
 // call the routing function to view page
 $r->route($r->getUrl());

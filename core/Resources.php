@@ -103,7 +103,6 @@ const OBJECT_TYPE = ['ORDER', 'ORDER_BOM', 'ORDER_CHAT',
     'WAREHOUSE', 'SETTINGS', 'ROUTE_ACTION',
     'TOOLS', 'COLUMNS', 'USER', 'ADMINKA', 'CUSTOMERS'];
 
-
 /**
  * fixme перенести в БД сделать пополняемой
  * СПИСОК ВАРИАНТОВ ВИДОВ УСТАНОВКИ ДЕТАЛЕЙ
@@ -120,20 +119,6 @@ const NTI_PN = ['NCAP' => 'Capacitor', 'NRES' => 'Resistor', 'NDIO' => 'Diode', 
 
 /* ==================================================== PROJECT RESOURCES ==================================================== */
 
-/**
- *  Example usage Resources alias SR
- *  SR::createTable(); // создать таблицу при первом запуске
- *  SR::addResource('group1', 'key1', 'value1', 'status1'); // добавляем новую запись сттатус указан как 0 по умолчанию
- *  SR::editResource('group1', 'key1', 'new_value3', 'new_status3); // изменение записи: статус и значение
- *  SR::updateResourceStatus('group1', 'key1', 'new_status3'); // обновление статуса
- *  print_r(SR::getResource('group1', 'key1')); // вывод записи по связке группа-ключь
- *  SR::deleteResource('group1', 'key1'); // удаление записи по связке группа-ключь
- *  print_r(SR::getAllResourcesInGroup('group1')); // вывад всех записей в группе
- *  SR::deleteAllResourcesInGroup('group1'); // удаление всех записей по групповому признаку
- *  print_r(SR::getAllResources()); // вывод вссех записей из БД
- *
- * имя таблицы в БД 'resources'
- */
 class Resources
 {
     // Data Base table name
@@ -143,6 +128,7 @@ class Resources
     /**
      * Set the group name
      *
+     * SR::setGroupName('group1');
      * @param string $group
      * @return void
      */
@@ -153,6 +139,8 @@ class Resources
 
     /**
      * Create table first init process
+     *
+     * SR::createTable(); // создать таблицу при первом запуске
      * @param $table
      * @return void
      */
@@ -166,6 +154,7 @@ class Resources
     /**
      * Add resource to DB
      *
+     * SR::addResource('group1', 'key1', 'value1', 'status1'); // добавляем новую запись сттатус указан как 0 по умолчанию
      * @param $group
      * @param $key
      * @param $value
@@ -197,6 +186,7 @@ class Resources
     /**
      * Update resource value and detail
      *
+     * SR::updateResource('group1', 'key1', 'new_value', 'new_detail); // изменение записи: детали и значение
      * @param $group
      * @param $key
      * @param $value
@@ -223,6 +213,7 @@ class Resources
     /**
      * update resource detail only
      *
+     * SR::updateResourceDetail('group1', 'key1', 'new_detail'); // обновление деталей
      * @param $group
      * @param $key
      * @param $detail
@@ -241,6 +232,7 @@ class Resources
     /**
      * Delete record by key
      *
+     * SR::deleteResource('group1', 'key1'); // удаление записи по связке группа-ключь
      * @param $group
      * @param $key
      * @return void
@@ -256,6 +248,7 @@ class Resources
     /**
      * Delete all records in group
      *
+     * SR::deleteAllResourcesInGroup('group1'); // удаление всех записей по групповому признаку
      * @param $group
      * @return void
      */
@@ -265,9 +258,11 @@ class Resources
         R::trashAll($data);
     }
 
+    /********************************************* GETTERS ***************************************************/
     /**
-     * Get record by key
+     * Get record by group & key
      *
+     * SR::getResource('group1', 'key1'); // вывод записи по связке группа-ключь
      * @param $group
      * @param $key
      * @return \RedBeanPHP\OODBBean|NULL
@@ -279,6 +274,8 @@ class Resources
 
     /**
      * Get value by key
+     *
+     * SR::getResourceValue('group1', 'key1');
      * @param $group
      * @param $key
      * @return string
@@ -296,6 +293,8 @@ class Resources
 
     /**
      * Get status by key
+     *
+     * SR::getResourceDetail('group1', 'key1');
      * @param $group
      * @param $key
      * @return string
@@ -308,13 +307,17 @@ class Resources
 
     /**
      * Get all records in groups
+     *
+     * SR::getAllResourcesInGroup('group1'); // example
+     *
      * поддерживает установку группы через
      * setGroupName(string $group)
-     * @param $group
+     * @param null $group
      * @param bool $object
+     * @param bool $ordered
      * @return array
      */
-    public static function getAllResourcesInGroup($group = null, bool $object = false, $ordered = false): ?array
+    public static function getAllResourcesInGroup($group = null, bool $object = false, bool $ordered = false): ?array
     {
         $groupName = self::$groupName ?: $group;
         if ($object) {
@@ -337,6 +340,8 @@ class Resources
 
     /**
      * Get all records
+     *
+     * SR::getAllResources(); // вывод вссех записей из БД
      *
      * @return array
      */
