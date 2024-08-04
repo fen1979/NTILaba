@@ -81,7 +81,6 @@ function NavBarContent($navBarData): void
     $link = $navBarData['user']['link'];
     $title = $navBarData['title'] ?? null;
     $page = $navBarData['page_name'];
-    $l = $navBarData['active_btn'] ?? null;
     $page_tab = $navBarData['page_tab'] ?? null;
     $pid = $navBarData['record_id'] ?? null;
     // admin panel
@@ -160,10 +159,10 @@ function NavBarContent($navBarData): void
                             case 'edit_item':
                             case 'wh':
                             case 'replenishment':
-                                WAREHOUSE_PAGE_BUTTONS($l, $page, $pid, $page_tab);
+                                WAREHOUSE_PAGE_BUTTONS($page, $pid, $page_tab);
                                 break;
                             default:
-                                ALL_PAGES_BUTTONS($page, $l);
+                                ALL_PAGES_BUTTONS($page);
                                 LANGUAGE_BUTTONS();
                                 break;
                         } ?>
@@ -186,7 +185,7 @@ function NavBarContent($navBarData): void
  * @param $l
  * @return void
  */
-function ALL_PAGES_BUTTONS($page, $l): void
+function ALL_PAGES_BUTTONS($page): void
 {
     // change page view btn only for projects page
     if ($page == 'project'): ?>
@@ -206,12 +205,12 @@ function ALL_PAGES_BUTTONS($page, $l): void
     ?>
 
     <li class="nav-item">
-        <button type="button" class="url btn btn-sm btn-outline-<?= ($l == Y['ORDER']) ? 'gold' : 'secondary'; ?>"
+        <button type="button" class="url btn btn-sm btn-outline-secondary"
                 value="order">Orders
         </button>
     </li>
     <li class="nav-item">
-        <button type="button" class="url btn btn-sm btn-outline-<?= ($l == Y['PROJECT']) ? 'gold' : 'secondary'; ?>"
+        <button type="button" class="url btn btn-sm btn-outline-secondary"
                 value="project">Projects
         </button>
     </li>
@@ -220,40 +219,42 @@ function ALL_PAGES_BUTTONS($page, $l): void
     $text = ($page == 'edit_order') ? 'Edit' : 'New'; ?>
 
     <li class="nav-item">
-        <button type="button" class="url btn btn-sm btn-outline-<?= ($l == Y['N_ORDER']) ? 'gold' : 'secondary'; ?>"
+        <button type="button" class="url btn btn-sm btn-outline-secondary"
                 value="new_order"><?= $text; ?> Order
         </button>
     </li>
     <li class="nav-item">
-        <button type="button" class="url btn btn-sm btn-outline-<?= ($l == Y['N_PROJECT']) ? 'gold' : 'secondary'; ?>"
+        <button type="button" class="url btn btn-sm btn-outline-secondary"
                 value="new_project">New Project
         </button>
     </li>
     <li class="nav-item">
-        <button type="button" class="url btn btn-sm btn-outline-<?= ($l == Y['CLIENT']) ? 'gold' : 'secondary'; ?>"
+        <button type="button" class="url btn btn-sm btn-outline-secondary"
                 value="create_client">Customers
         </button>
     </li>
     <li class="nav-item">
-        <button type="button" class="url btn btn-sm btn-outline-<?= ($l == Y['STOCK']) ? 'gold' : 'secondary'; ?>"
+        <button type="button" class="url btn btn-sm btn-outline-secondary"
                 value="wh">Warehouse
         </button>
     </li>
     <li class="nav-item">
-        <button type="button" class="url btn btn-sm btn-outline-<?= ($l == Y['LOG']) ? 'gold' : 'secondary'; ?>"
+        <button type="button" class="url btn btn-sm btn-outline-secondary"
                 value="logs">Logs
         </button>
     </li>
 <?php } ?>
 
     <li class="nav-item">
-        <button type="button" class="url btn btn-sm btn-outline-<?= ($l == Y['WIKI']) ? 'gold' : 'secondary'; ?>"
+        <button type="button" class="url btn btn-sm btn-outline-secondary"
                 value="wiki">Wiki
         </button>
     </li>
 
     <li class="nav-item">
-        <button type="button" class="url btn btn-sm btn-outline-secondary" value="setup?route-page=1" data-blank="1">Settings</button>
+        <button type="button" class="url btn btn-sm btn-outline-secondary"
+                value="setup?route-page=1" data-blank="1">Settings
+        </button>
     </li>
     <?php
 }
@@ -296,6 +297,10 @@ function ADMIN_PANEL_BUTTONS($btn_title, $page): void
         </li>
         <li class="nav-item">
             <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-secondary" value="3">Tools</button>
+        </li>
+
+        <li class="nav-item">
+            <button type="button" name="sw_bt" class="url btn btn-sm btn-outline-secondary" value="resources">Resources</button>
         </li>
         <?php
         // только высокий уровень пользователя может работать с персональными данными
@@ -437,7 +442,7 @@ function EDIT_AND_ADD_STEP_BUTTONS($pid): void
  * @param $l
  * @return void
  */
-function WAREHOUSE_PAGE_BUTTONS($l, $page, $pid, $page_tab = ''): void
+function WAREHOUSE_PAGE_BUTTONS($page, $pid, $page_tab = ''): void
 {
     if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) {
         $pt = !empty($page_tab) ? "?page=$page_tab&#row-$pid" : null;

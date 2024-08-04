@@ -14,11 +14,11 @@ if (isset($_POST['update-resource'])) {
 }
 
 if (isset($_POST['change-group-name'])) {
-
+    $r = 'l';
 }
 
 if (isset($_POST['change-key-name'])) {
-
+    $r = 'j';
 }
 
 if (isset($_GET['resid'])) {
@@ -78,7 +78,7 @@ if (isset($_GET['resid'])) {
 <?php
 // NAVIGATION BAR
 //$navBarData['title'] = '';
-//$navBarData['active_btn'] = Y['ORDER'];
+$navBarData['active_btn'] = Y['SETTINGS'];
 //$navBarData['page_tab'] = $_GET['page'] ?? null;
 //$navBarData['record_id'] = $item->id ?? null;
 $navBarData['user'] = $user;

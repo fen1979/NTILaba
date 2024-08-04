@@ -35,7 +35,7 @@ const SHARE_LINK_ROUTE = BASE_URL . 'shared-project?shared='; // the path to sha
 /*
  *  ACTIVE LINKS FOR NAV BUTTONS
  * */
-const Y = ['ORDER' => 0, 'PROJECT' => 1, 'N_ORDER' => 2, 'N_PROJECT' => 3, 'CLIENT' => 4, 'STOCK' => 5, 'LOG' => 6, 'WIKI' => 7, 'E_ORDER' => 8];
+const Y = ['ORDER' => 0, 'PROJECT' => 1, 'N_ORDER' => 2, 'N_PROJECT' => 3, 'CLIENT' => 4, 'STOCK' => 5, 'LOG' => 6, 'WIKI' => 7, 'E_ORDER' => 8, 'SETTINGS'=>9];
 const STORAGE_STATUS = ['smt' => 'In SMT Line', 'shelf' => 'On Shelf', 'work' => 'In Work'];
 
 

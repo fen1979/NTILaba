@@ -889,8 +889,8 @@ dom.addEventListener("DOMContentLoaded", function () {
         }
 
         // Set interval to check for changes every 120000 milliseconds (2 minutes)
-        // setInterval(checkForChanges, 120000);
-        setInterval(checkForChanges, 2000);
+        setInterval(checkForChanges, 120000);
+        // setInterval(checkForChanges, 15000);
     };
 
     // слушатель колеса загрузки
@@ -909,6 +909,26 @@ dom.addEventListener("DOMContentLoaded", function () {
             nav.classList.toggle("show"); // Переключает класс "show"
         });
     }
+
+    // установка цвета на активную кнопку в навбаре
+    // Получаем текущий URL
+    const url = new URL(window.location.href);
+    // получаем имя страницы из адресной строки
+    const routePage = url.pathname;
+    // получаем все кнопки у которых есть класс url
+    const navButtons = document.querySelectorAll('.url');
+    // Loop through the buttons and check their value
+    navButtons.forEach(function (button) {
+        if (button.value === routePage.replace("/", "")) {
+            // Add the active class to the button with the matching value
+            button.classList.remove('btn-outline-secondary');
+            button.classList.add('btn-outline-primary');
+        } else {
+            // Remove the active class from all other buttons
+            button.classList.remove('btn-outline-primary');
+            button.classList.add('btn-outline-secondary');
+        }
+    });
 }); // end dom loaded
 
 

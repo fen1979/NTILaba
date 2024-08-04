@@ -47,6 +47,8 @@ $r->addRout('/setup', 'admin-panel.php');
 $r->addRout('/create_client', 'counterparties/customers.php');
 $r->addRout('/create_supplier', 'counterparties/suppliers.php');
 $r->addRout('/logs', 'admin-panel/logs.php');
+// page for ADD AND MANAGE site static rsources
+$r->addRout('/resources', 'static-data.php');
 
 // warehouse pages
 $r->addRout('/wh', 'warehouse.php');
@@ -79,9 +81,6 @@ $r->addRout('/6fef03d1aac6981d6c6eaa35fc9b46d1311b4b5425a305fc7da1b00c2', 'core/
 // запрос на поиск данных в БД
 $r->addRout('/get_data', 'searching/getData.php');
 
-
-// page for testing some examples
-$r->addRout('/resources', 'static-data.php');
 
 // call the routing function to view page
 $r->route($r->getUrl());
