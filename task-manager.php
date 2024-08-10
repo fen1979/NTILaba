@@ -4,11 +4,13 @@ require 'task-manager/TaskManager.php';
 $user = $_SESSION['userBean'];
 $page = 'task_manager';
 $preview_archive = false;
+// preview all tasks
 $task = R::findAll(TASKS);
+// preview tasks by list
 if (isset($_GET['list_id'])) {
     $task = R::findAll(TASKS, 'lists_id = ?', [_E($_GET['list_id'])]);
 }
-
+// tasks archivated erlier
 if (isset($_GET['archive'])) {
     $task = R::findAll(TASKS, 'archivated = 1');
     $preview_archive = true;
@@ -36,24 +38,32 @@ DisplayMessage($args ?? null);
 <div class="wrapper mt-3">
     <!-- Menu Starts Here -->
     <div class="menu">
-        <a role="button" class="btn btn-outline-proma" href="/task_list">All Tasks</a>
-        <?php
-        $res = R::findAll(TASK_LIST);
-        //CHeck whether the query executed or not
-        if ($res) {
-            //Display the lists in menu
-            foreach ($res as $row) {
-                $list_id = $row['id'];
-                $list_name = $row['list_name'];
-                ?>
-                <a role="button" class="btn btn-outline-proma" href="/task_list?list_id=<?= $list_id; ?>"><?= $list_name; ?></a>
-                <?php
-            }
-        }
-        ?>
-        <a role="button" class="btn btn-outline-proma" href="/task_list?archive">Archive</a>
+        <a role="button" class="btn btn-outline-success" href="/add-task">Add New Task</a>
         <a role="button" class="btn btn-outline-primary" href="/manage-list">Manage Lists</a>
-        <a role="button" class="btn btn-outline-success" href="/add-task">Add Task</a>
+        <a role="button" class="btn btn-outline-dark" href="/task_list?archive">Archive</a>
+
+        <div class="btn-group">
+            <button type="button" id="dp-btn" class="btn btn-outline-proma dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <?= (isset($_GET['list_id'])) ?
+                    // Отображаем имя списка
+                    'Task List: ' . htmlspecialchars(R::load(TASK_LIST, $_GET['list_id'])->list_name ?? '')
+                    // По умолчанию
+                    : "All Tasks"; ?>
+            </button>
+
+            <ul class="dropdown-menu">
+                <a class="dropdown-item" href="/task_list">All Tasks</a>
+                <?php $res = R::find(TASK_LIST);
+                // Отображаем списки в меню
+                if ($res) {
+                    foreach ($res as $list) { ?>
+                        <li><a class="dropdown-item" href="/task_list?list_id=<?= $list['id']; ?>"><?= htmlspecialchars($list['list_name']); ?></a></li>
+                        <?php
+                    }
+                }
+                ?>
+            </ul>
+        </div>
     </div>
     <!-- Menu Ends Here -->
 

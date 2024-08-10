@@ -141,12 +141,39 @@ dom.addEventListener("DOMContentLoaded", function () {
 
     /*=================== ФУНКЦИОНАЛ ДЛЯ СТРАНИЦЫ  ROUTES.PHP ================================*/
     /*=================== ФУНКЦИОНАЛ ДЛЯ СТРАНИЦЫ  TOOLS.PHP =================================*/
+    /* код вставки изображений скопированных на сайтах */
+
+    let pasteArea = document.getElementById('pasteArea');
+    if (pasteArea) {
+        pasteArea.addEventListener('paste', function (e) {
+            e.preventDefault();
+            let items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let index in items) {
+                let item = items[index];
+                if (item.kind === 'file') {
+                    let blob = item.getAsFile();
+                    let reader = new FileReader();
+                    reader.onload = function (event) {
+                        // Кодируем изображение в base64 и вставляем в скрытое поле
+                        document.getElementById('imageData').value = event.target.result;
+                    };
+                    reader.readAsDataURL(blob);
+                    // Создаем URL для Blob и Выводим изображение
+                    let img = document.getElementById('preview');
+                    img.src = URL.createObjectURL(blob);
+                    img.classList.remove("hidden");
+                    dom.e("#pasteArea").classList.add("hidden");
+                }
+            }
+        });
+    }
     // take picture for tool
     dom.doClick("#take_a_pic", "#image");
 
     // preview image taken by user
     dom.doPreviewFile("#image", "#preview", function () {
         dom.e("#take_a_pic").textContent = dom.e("#image").files[0].name;
+        dom.hide("#pasteArea");
     });
 
     // при изменени списка ответственного за инструмент открываем кнопку сохранить/изменить инструмент
@@ -219,16 +246,18 @@ dom.addEventListener("DOMContentLoaded", function () {
     dom.inAll("input", "input", function () {
         const pass_1 = dom.e('#password_1');
         const pass_2 = dom.e('#password_2');
-        // Проверка совпадения паролей
-        const passwordsMatch = pass_1.value === pass_2.value && pass_1.value !== '';
-        // Проверка валидности имейла
-        const emailValid = dom.e('#email').checkValidity(); // возвращает true, если поле валидно
-        // Проверка состояния чекбокса
-        const checkboxChecked = dom.e('#check').checked;
-        // Управление атрибутом required для имейла
-        dom.e('#email').required = checkboxChecked;
-        // Управление доступностью кнопки
-        dom.e("#pass-btn").disabled = !(passwordsMatch && (!checkboxChecked || (checkboxChecked && emailValid)));
+        if (pass_1 && pass_2) {
+            // Проверка совпадения паролей
+            const passwordsMatch = pass_1.value === pass_2.value && pass_1.value !== '';
+            // Проверка валидности имейла
+            const emailValid = dom.e('#email').checkValidity(); // возвращает true, если поле валидно
+            // Проверка состояния чекбокса
+            const checkboxChecked = dom.e('#check').checked;
+            // Управление атрибутом required для имейла
+            dom.e('#email').required = checkboxChecked;
+            // Управление доступностью кнопки
+            dom.e("#pass-btn").disabled = !(passwordsMatch && (!checkboxChecked || (checkboxChecked && emailValid)));
+        }
     });
 
     /*=================== ФУНКЦИОНАЛ ДЛЯ СТРАНИЦЫ  SEARCHING.PHP =============================*/

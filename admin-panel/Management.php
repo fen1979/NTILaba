@@ -80,6 +80,47 @@ class Management
     }
 
     /**
+     * PASTED IMAGE CONVERTER AND SAVER
+     * @param $imageData
+     * @param $partName
+     * @return string[]
+     */
+    private static function convertAndSavePastedImageForItem($imageData, $toolName): array
+    {
+        $partName = preg_replace(['/[^a-z0-9 \-_]/', '/[ \-]+/'], ['', '_'], strtolower($toolName));
+        // Убираем префикс data:image/...;base64, если он есть
+        if (strpos($imageData, "base64,") !== false) {
+            list($typePart, $imageData) = explode('base64,', $imageData);
+            // Получаем тип изображения из строки data URI
+            preg_match("/^data:image\/(\w+);/", $typePart, $matches);
+            $imageType = $matches[1] ?? null;
+        } else {
+            $imageType = null; // Тип не определён
+        }
+
+        $imageData = base64_decode($imageData);
+        // Определяем путь сохранения в зависимости от типа изображения
+        if ($imageType !== 'webp') {
+            // Если изображение не webp, сохраняем во временную папку для дальнейшей конвертации
+            $filePathRaw = TEMP_FOLDER . 'image.' . $imageType; // Используем расширение полученное из типа
+            // Сохраняем изображение
+            file_put_contents($filePathRaw, $imageData);
+            // Путь для сохранения конвертированного изображения
+            $filePathWebp = TOOLS_FOLDER . $toolName . ".webp";
+            // Вызываем метод конвертации
+            $res = Converter::convertToWebp($filePathRaw, $filePathWebp);
+            array_map('unlink', glob(TEMP_FOLDER . "*.*"));
+        } else {
+            // Если изображение уже в webp, формируем путь для сохранения
+            $filePathWebp = TOOLS_FOLDER . $toolName . ".webp";
+            // Сохраняем изображение
+            file_put_contents($filePathWebp, $imageData);
+        }
+
+        return ['file-path' => $filePathWebp];
+    }
+
+    /**
      * удаление rout card/user/tools и всех его данных
      *
      * @param $post
@@ -352,13 +393,16 @@ class Management
      */
     public static function createUpdateTools($post, $files, $user): array
     {
+        $post = self::checkPostDataAndConvertToArray($post);
         $log_details = '';
         /* $imagePath = [0] -> path to file, [1] -> errors, [2] -> statment true/false */
         if (isset($post['tools-editing']) && isset($post['tool_id'])) {
-            $tool = R::load(TOOLS, _E($post['tool_id']));
+            $tool = R::load(TOOLS, $post['tool_id']);
             $imagePath = $tool->image ?? '';
+
+            // check if image exist in DB and get copied
             if (!empty($post['image-from-db'])) {
-                $imagePath = _E($post['image-from-db']);
+                $imagePath = $post['image-from-db'];
             }
 
             $log_action = 'EDITING';
@@ -372,29 +416,36 @@ class Management
             $log_action = 'CREATING';
         }
 
-        $tool->manufacturer_name = _E($post['manufacturer_name']); // имя инструмента от производителя
-        $tool->device_model = _E($post['device_model']); // модель инструмента
-        $tool->device_type = _E($post['device_type']); // тип инструмента
-        $tool->device_location = _E($post['device_location']); // рабочее местонахождение инструмента
-        $tool->in_use = _E($post['in_use']); // рабочий который пользуется инструментом
-        $tool->calibration = _E($post['calibration']); // NONC = no need calibration, NEC = need calibration
-        $tool->serial_num = _E($post['serial_num']); // сирийный номер инструмента после калибровки
-        $tool->date_of_inspection = _E($post['date_of_inspection']); // дата последней калибровки - обслуживания инструмента
-        $tool->next_inspection_date = _E($post['next_inspection_date']); // следующая дата калибровки - обслуживания инструмента !!!
-        $tool->work_life = _E($post['work_life']); // интервал обслуживания/калибровки (месяцев)
-        $tool->responsible = _E($post['responsible']); // ответственный за инструмент
-        $tool->remarks = _E($post['remarks']); // заметки на полях
-        $tool->date_in = _E($post['date_in']) ?? date("Y-m-d h:i"); // дата внесения в БД
-
-        //$nt->colored = $tool['colored']; // надо уточнить
-        //$tool->esd = _E($post['esd-sertificate'] ?? 'ESD');
-
+        $tool->manufacturer_name = $post['manufacturer_name']; // имя инструмента от производителя
+        $tool->device_model = $post['device_model']; // модель инструмента
+        $tool->device_type = $post['device_type']; // тип инструмента
+        $tool->device_location = $post['device_location']; // рабочее местонахождение инструмента
+        $tool->in_use = $post['in_use']; // рабочий который пользуется инструментом
+        $tool->calibration = $post['calibration']; // NONC = no need calibration, NEC = need calibration
+        $tool->serial_num = $post['serial_num']; // сирийный номер инструмента после калибровки
+        $tool->date_of_inspection = $post['date_of_inspection']; // дата последней калибровки - обслуживания инструмента
+        $tool->next_inspection_date = $post['next_inspection_date']; // следующая дата калибровки - обслуживания инструмента !!!
+        $tool->work_life = $post['work_life']; // интервал обслуживания/калибровки (месяцев)
+        $tool->responsible = $post['responsible']; // ответственный за инструмент
+        $tool->remarks = $post['remarks']; // заметки на полях
+        $tool->date_in = $post['date_in'] ?? date("Y-m-d h:i"); // дата внесения в БД
 
         /* saving image for tool */
-        // fixme починить коректный вывод сообщений при обновлении инструмента!!!
-        $result = self::saveOrChangeImage($files, $imagePath);
-        $tool->image = $result['path']; // путь к фото инструмента или ПДФ
+        // если фото было где то скопированно а не выбрано физически
+        $pastedImagexist = false;
+        if (!empty($_POST['imageData']) && strpos($_POST['imageData'], 'data:image') === 0) {
+            $pastedImagexist = true;
+            $name = $post['manufacturer_name'] . '_' . $post['device_model'];
+            $result = self::convertAndSavePastedImageForItem($post['imageData'], $name);
+            $tool->image = $result['file-path'] ?? 'public/images/ips.webp';
+        }
 
+        // fixme починить коректный вывод сообщений при обновлении инструмента!!!
+        // если фото было выбрано с компа пользователя
+        if (!$pastedImagexist) {
+            $result = self::saveOrChangeImage($files, $imagePath);
+            $tool->image = $result['path']; // путь к фото инструмента или ПДФ
+        }
 
         if (R::store($tool) && $result['status']) {
             $act = $log_action == 'EDITING' ? 'updated' : 'saved';
@@ -403,7 +454,7 @@ class Management
             $res[] = ['info' => $result['error'], 'color' => 'danger'];
         }
 
-        //fixme сделать нормальный лог для обновления и создания и прочего
+        // fixme сделать нормальный лог для обновления и создания и прочего
         $log_details .= ($log_action == 'creating_tool') ?
             "Tool id №:$tool->id was created: [$tool->manufacturer_name, $tool->device_model]" :
             "<br> TODO updated information!!!!!!!!!!!!!!!!!";
@@ -535,96 +586,6 @@ class Management
         return $args;
     }
 
-
-//    public static function importToolsListByCsvFile($post, $files, $user): array
-//    {
-//        $args = [null];
-//        if (isset($post['import-from-csv-file'])) {
-//
-//            /* сохраняем файл с данными для работы */
-//            if (!empty($files['csvFile']['name'][0])) {
-//                $tmp_name = $files['csvFile']['tmp_name'];
-//                $uploadedFile = TEMP_FOLDER . basename($files['csvFile']['name']);
-//                $fileType = strtolower(pathinfo($uploadedFile, PATHINFO_EXTENSION));
-//
-//                if ($fileType == 'csv') {
-//                    // если файл соответствует требованиям сохраняем в ТМП папку
-//                    $uploadSuccess = move_uploaded_file($tmp_name, $uploadedFile);
-//                    if ($uploadSuccess) {
-//
-//                        // Проверка наличия файла
-//                        if (!file_exists($uploadedFile)) {
-//                            $_SESSION['info'] = ['info' => 'File not found', 'color' => 'danger'];
-//                            die();
-//                        }
-//
-//                        // Открытие файла для чтения
-//                        if (($handle = fopen($uploadedFile, "r")) !== FALSE) {
-//                            // Чтение первой строки с заголовками колонок
-//                            $headers = fgetcsv($handle, 1000);
-//
-//                            // Массив для хранения данных из CSV файла
-//                            $data = [];
-//
-//                            // Чтение каждой строки и преобразование в ассоциативный массив
-//                            while (($row = fgetcsv($handle, 1000)) !== FALSE) {
-//                                $rowLine = array_combine($headers, $row);
-//                                $data[] = $rowLine;
-//                            }
-//
-//                            // Закрытие файла
-//                            fclose($handle);
-//                            $items = 0;
-//                            // Пример доступа к данным
-//                            foreach ($data as $rowLine) {
-//                                $nt = R::dispense(TOOLS);
-//                                $nt->manufacturer_name = $rowLine['manufacturer']; // имя инструмента от производителя
-//                                $nt->device_model = $rowLine['model']; // модель инструмента
-//                                $nt->device_type = $rowLine['device_type']; // тип инструмента
-//                                $nt->device_location = $rowLine['location']; // рабочее местонахождение инструмента
-//                                $nt->in_use = $rowLine['in_use']; // рабочий который пользуется инструментом
-//                                $nt->calibration = $rowLine['calibration']; // NONC = no need calibration, NEC = need calibration
-//                                $nt->serial_num = $rowLine['serial']; // сирийный номер инструмента после калибровки
-//                                $nt->date_of_inspection = $rowLine['calibration_date']; // дата последней калибровки - обслуживания инструмента
-//                                $nt->next_inspection_date = $rowLine['next_calibration']; // следующая дата калибровки - обслуживания инструмента !!!
-//                                $nt->work_life = '12'; // интервал обслуживания/калибровки (месяцев)
-//                                $res = json_encode(['name' => $rowLine['responsible'], 'email' => $rowLine['email'] ?? '']);
-//                                $nt->responsible = $res; // ответственный за инструмент
-//                                $nt->remarks = $rowLine['remarks']; // заметки на полях
-//                                $nt->image = $rowLine['image'] ?? null; // путь к фото инструмента или ПДФ
-//                                $nt->date_in = date('Y-m-d H:i'); // дата внесения в БД
-//
-//                                R::store($nt);
-//                                $items++;
-//                            }
-//
-//                        } else {
-//                            $args[] = ['info' => 'Error open file', 'color' => 'danger'];
-//                        }
-//                    } // upload success
-//
-//                    // удаляем временный файл CSV
-//                    array_map('unlink', glob(TEMP_FOLDER . '*.*'));
-//
-//                    // выводим сообщение пользователю
-//                    if ($items > 0) {
-//                        $log_details = "File was imported correctly.<br> Lines added: $items";
-//                        $args[] = ['info' => $log_details, 'color' => 'success'];
-//
-//                        /* [     LOGS FOR THIS ACTION     ] */
-//                        if (!logAction($user['user_name'], 'IMPORT FILE', OBJECT_TYPE[9], $log_details)) {
-//                            $args[] = ['info' => 'The log not created.', 'color' => 'danger'];
-//                        }
-//                    } else {
-//                        $args[] = ['info' => 'No items added!', 'color' => 'warning'];
-//                    }
-//                } else {
-//                    $args[] = ['info' => 'Error, File format wrong! Only .csv', 'color' => 'danger'];
-//                }
-//            }
-//        }
-//        return $args;
-//    }
 
     /**
      * TABLE COLUMNS ACTIONS CODE

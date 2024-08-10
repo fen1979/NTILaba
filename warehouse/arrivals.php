@@ -547,7 +547,6 @@ ScriptContent('arrivals');
             }
         });
 
-
         // Обработка клика по результату поиска для места хранения
         $(document).on("click", "#storage-box", function () {
             // Отправляем POST-запрос на сервер

@@ -68,6 +68,14 @@
         #search-responce thead {
             display: none;
         }
+
+        #pasteArea {
+            width: 100%;
+            height: 30rem;
+            background-image: url("/public/images/drop-here.png");
+            background-repeat: no-repeat;
+            background-position: center;
+        }
     </style>
 </head>
 <body>
@@ -144,6 +152,7 @@ DisplayMessage($args ?? null);
                 <div class="col-6 p-2">
                     <form method="post" enctype="multipart/form-data">
                         <input type="hidden" name="tool_id" value="<?= $tool['id'] ?? '' ?>">
+                        <input type="hidden" name="imageData" id="imageData">
 
                         <div class="mb-2">
                             <label for="manufacturer_name" class="form-label">Manufacturer name <b class="text-danger">*</b></label>
@@ -258,8 +267,12 @@ DisplayMessage($args ?? null);
                 <!-- image container -->
                 <div class="col-6 p-2">
                     <div class="mt-5 mb-5 d-flex justify-content-center">
-                        <img src="<?= !empty($tool['image']) ? $tool['image'] : 'public/images/pna_en.webp'; ?>" alt="Tool Preview" style="width: 600px; height: 400px;" id="preview">
+                        <?php $hide = !empty($tool['image']) ? '' : 'hidden'; ?>
+                        <img src="<?= !empty($tool['image']) ? $tool['image'] : 'public/images/pna_en.webp'; ?>" alt="Tool Preview"
+                             style="width: 600px; height: 400px;" id="preview" class="<?= $hide ?>">
                     </div>
+
+                    <div id="pasteArea" contenteditable="true" class="mb-4 border-bottom"></div>
                 </div>
             </div>
         <?php } ?>
