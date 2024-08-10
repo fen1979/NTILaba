@@ -4,6 +4,19 @@ require('TaskManager.php');
 $user = $_SESSION['userBean'];
 $page = 'task_manager';
 $args = TaskManager::deleteTaskOrList($_GET, $_POST, $user);
+
+// creation new list of tasks
+if (isset($_POST['save-new'])) {
+    $args = TaskManager::createNewTasksList($_POST, $user);
+}
+
+// task list information updating
+if (isset($_POST['update'])) {
+    $args = TaskManager::updateTasksList($_POST, $user);
+}
+
+$hide_new = isset($_GET['list_id']) && isset($_GET['update']) ? 'hidden' : null;
+$list = isset($_GET['list_id']) && isset($_GET['update']) ? R::load(TASK_LIST, $_GET['list_id']) : null;
 ?>
 <!doctype html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
@@ -25,10 +38,10 @@ NavBarContent($navBarData);
 DisplayMessage($args ?? null);
 ?>
 <div class="container-fluid mt-3">
-    <a role="button" class="btn btn-outline-success" href="/manage-list">Add List</a>
+    <a role="button" class="btn btn-outline-success" href="/manage-list" <?= empty($hide_new) ? 'hidden' : ''; ?>>Add New Task List</a>
 
     <div class="row">
-        <div class="col-8">
+        <div class="col-8 p-2">
             <table>
                 <thead>
                 <tr>
@@ -67,8 +80,39 @@ DisplayMessage($args ?? null);
             </table>
         </div>
 
-        <div class="col-4">
-            <?php include_once 'add-list.php' ?>
+        <div class="col-4 p-4">
+            <form method="POST" action="" <?= $hide_new ?? '' ?>>
+                <h4>Create New Task List form</h4>
+
+                <div class="mb-3">
+                    <label for="list_name" class="form-label">List Name</label>
+                    <input type="text" name="list_name" id="list_name" class="form-control" placeholder="Type list name here" required="required"/>
+                </div>
+                <div class="mb-3">
+                    <label for="list_description" class="form-label">List Description:</label>
+                    <textarea name="list_description" class="form-control" id="list_description" placeholder="Type List Description Here"></textarea>
+                </div>
+
+                <button type="submit" name="save-new" class="btn btn-outline-success form-control">Save new List</button>
+            </form>
+
+
+            <form method="POST" action="" <?= empty($hide_new) ? 'hidden' : ''; ?>>
+                <h4>Update current information</h4>
+
+                <div class="mb-3">
+                    <label for="list-name" class="form-label">List Name</label>
+                    <input type="text" name="list_name" id="list-name" placeholder="Type list name here" class="form-control"
+                           value="<?= $list['list_name'] ?? '' ?>" required="required"/>
+                </div>
+                <div class="mb-3">
+                    <label for="list-description" class="form-label">List Description:</label>
+                    <textarea name="list_description" id="list-description" class="form-control"
+                              placeholder="Type List Description Here"><?= trim(($list['list_description'] ?? '')) ?></textarea>
+                </div>
+
+                <button type="submit" name="update" class="btn btn-outline-success form-control" value="<?= $list['id'] ?? '' ?>">Update this List</button>
+            </form>
         </div>
     </div>
 </div>
@@ -77,10 +121,5 @@ DisplayMessage($args ?? null);
 footer();
 ScriptContent($page);
 ?>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-
-    });
-</script>
 </body>
 </html>

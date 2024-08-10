@@ -4,6 +4,7 @@ require 'TaskManager.php';
 $user = $_SESSION['userBean'];
 $page = 'task_manager';
 $task = null;
+$args = TaskManager::deleteTaskOrList($_GET, $_POST, $user);
 
 // update task information or status
 if (isset($_POST['task-id']) && isset($_POST['update'])) {
@@ -37,6 +38,15 @@ DisplayMessage($args ?? null);
 ?>
 <div class="wrapper mt-3">
     <form method="POST" action="">
+        <div class="row">
+            <div class="col-9"></div>
+            <div class="col-3 fs-4">
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" role="switch" id="archivate" name="archivate" value="1">
+                    <label class="form-check-label" for="archivate">Switch for Archivate Task</label>
+                </div>
+            </div>
+        </div>
         <div class="row mb-3">
             <div class="col">
                 <label for="priority" class="form-label">Priority</label>
@@ -46,6 +56,7 @@ DisplayMessage($args ?? null);
                     <?php } ?>
                 </select>
             </div>
+
             <div class="col">
                 <label for="list-select" class="form-label">Select Task List</label>
                 <select name="list_id" class="form-control" id="list-select" required>
@@ -78,9 +89,9 @@ DisplayMessage($args ?? null);
 
         <div class="row mb-3">
             <div class="col">
-                <div class="form-check form-switch mb-2">
+                <div class="form-check form-switch fs-5">
                     <input class="form-check-input" type="checkbox" role="switch" id="send-email" name="send-email" value="1" checked>
-                    <label class="form-check-label" for="send-email">Switch if no need sent email</label>
+                    <label class="form-check-label" for="send-email">Turn it off if you don't need to send emails.</label>
                 </div>
 
                 <div class="dropdown">
@@ -129,11 +140,17 @@ DisplayMessage($args ?? null);
         <input type="hidden" name="check_tasks" id="check_tasks"/>
         <input type="hidden" name="task-id" value="<?= $task['id'] ?>"/>
 
-        <button type="submit" name="update" class="btn btn-outline-success form-control">Update Task</button>
+        <button type="submit" name="update" class="btn btn-outline-success form-control mb-3">Update Task</button>
+
+        <?php if (isUserRole([ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
+            <a role="button" class="btn btn-sm btn-outline-danger" href="/update-task?task_id=<?= $task_id; ?>&delete">
+                <i class="bi bi-trash"></i> &nbsp; Delete Task
+            </a>
+        <?php } ?>
     </form>
 </div>
 
-<?php ScriptContent($page); ?>
+<?php ScriptContent(); ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const db = <?= json_encode(json_decode($task['sub_tasks'], true)) ?>;
@@ -185,7 +202,7 @@ DisplayMessage($args ?? null);
             updateHiddenField();
         }
 
-        addTaskBtn.addEventListener('click', function () {
+        function addTask() {
             const taskText = taskInput.value.trim();
             if (taskText !== "") {
                 taskCount++;
@@ -197,6 +214,17 @@ DisplayMessage($args ?? null);
                 addTaskToList(taskCount, taskText, false);
                 taskInput.value = "";
                 updateHiddenField();
+            }
+        }
+
+        // Событие для кнопки "Добавить подзадачу"
+        addTaskBtn.addEventListener('click', addTask);
+
+        // Событие для нажатия клавиши "Enter" в поле ввода подзадачи
+        taskInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Предотвращаем стандартное поведение (например, отправку формы)
+                addTask();
             }
         });
 

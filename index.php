@@ -84,7 +84,6 @@ $r->addRout('/get_data', 'searching/getData.php');
 $r->addRout('/task_list', 'task-manager.php');
 $r->addRout('/add-task', 'task-manager/add-task.php');
 $r->addRout('/update-task', 'task-manager/update-task.php');
-$r->addRout('/add-list', 'task-manager/add-list.php');
 $r->addRout('/manage-list', 'task-manager/manage-list.php');
 
 // call the routing function to view page

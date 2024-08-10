@@ -119,6 +119,7 @@ class TaskManager
             $task->deadline = $post['deadline'];
             $task->sub_tasks = $post['check_tasks']; // json string
             $task->complite = self::compliteness($post['check_tasks'] ?? '{}');
+            $task->archivated = isset($post['archivate']) ? 1 : 0;
             $emails = $task->users = self::getUsersForThisTask($post['users'], $user);
 
             R::store($task);
@@ -136,14 +137,45 @@ class TaskManager
         return $args;
     }
 
-    public static function createNewTasksList($post, $user)
+    public static function createNewTasksList($post, $user): array
     {
         $post = self::checkPostDataAndConvertToArray($post);
+        //Get the values from form and save it in variables
+        $list_name = $_POST['list_name'];
+        $list_description = $_POST['list_description'];
+        try {
+            $list = R::dispense(TASK_LIST);
+            $list->list_name = $list_name;
+            $list->list_description = $list_description;
+            R::store($list);
+            $args = ['info' => 'List Added Successfully', 'color' => 'success'];
+            redirectTo('manage-list', $args);
+        } catch (Exception $e) {
+            $args = ['info' => 'Failed to Add List ' . $e->getMessage(), 'color' => 'danger'];
+        }
+
+        return $args;
     }
 
-    public static function updateTasksList($post, $user)
+    public static function updateTasksList($post, $user): array
     {
         $post = self::checkPostDataAndConvertToArray($post);
+
+        try {
+            $list_id = $_POST['update'];
+            $list_name = $_POST['list_name'];
+            $list_description = $_POST['list_description'];
+            $list = R::load(TASK_LIST, $list_id);
+            $list->list_name = $list_name;
+            $list->list_description = $list_description;
+            R::store($list);
+            $args = ['info' => 'List Updated Successfully', 'color' => 'success'];
+            redirectTo('manage-list', $args);
+        } catch (Exception $e) {
+            $args = ['info' => 'Failed to Update List ' . $e->getMessage(), 'color' => 'danger'];
+        }
+
+        return $args;
     }
 
     public static function deleteTaskOrList($get, $post, $user): array

@@ -679,7 +679,7 @@ function footer($page = '', $blur = '')
 <?php }
 
 /* JAVASCRIPTS */
-function ScriptContent($page = null)
+function ScriptContent($page = null, $data = null)
 { ?>
     <div class="loading-element" id="loading">
         <span style="position: absolute" class="fs-4 blinking">Loading...</span>

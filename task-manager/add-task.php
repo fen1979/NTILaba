@@ -123,7 +123,8 @@ DisplayMessage($args ?? null);
     </form>
 </div>
 
-<?php ScriptContent($page); ?>
+<?php ScriptContent(); ?>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const addTaskBtn = document.getElementById('add-task-btn');
@@ -134,7 +135,7 @@ DisplayMessage($args ?? null);
         let taskCount = 0;
         const tasks = {};
 
-        addTaskBtn.addEventListener('click', function () {
+        function addTask() {
             const taskText = taskInput.value.trim();
             if (taskText !== "") {
                 taskCount++;
@@ -164,6 +165,17 @@ DisplayMessage($args ?? null);
                     checkTasksInput.value = JSON.stringify(tasks); // Обновляем JSON в скрытом поле
                 });
             }
+        }
+
+        // Событие для кнопки "Добавить подзадачу"
+        addTaskBtn.addEventListener('click', addTask);
+
+        // Событие для нажатия клавиши "Enter" в поле ввода подзадачи
+        taskInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Предотвращаем стандартное поведение (например, отправку формы)
+                addTask();
+            }
         });
 
         // выбор чекбоксов с пользователями
@@ -189,7 +201,6 @@ DisplayMessage($args ?? null);
         // Инициализируем поле ввода с уже выбранными значениями (если нужно)
         updateViewChooseInput();
     });
-
 </script>
 </body>
 </html>
