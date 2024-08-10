@@ -17,15 +17,22 @@ if (isset($_POST['userName']) && isset($_POST['userPassword'])) {
         $details .= '<br>User device type is: ' . $deviceType . ', ';
         $details .= getServerData();
         logAction($user->user_name, 'LOGIN', OBJECT_TYPE[11], $details);
-        // смотрим где было последнее посещение и переходим туда
-        if ($user->last_action) {
-            $url = (strpos($user->last_action, 'assy_flow_pdf') === false && strpos($user->last_action, 'route_card') === false)
-                ? $user->last_action : '/' . $user->link;
-            header("Location: $url");
+
+        // Проверяем, существует ли сохраненный URL для перенаправления
+        if (isset($_SESSION['redirect_after_login'])) {
+            $redirect_url = ltrim($_SESSION['redirect_after_login'], '/'); // Удаляем начальный слэш, если он есть
+            unset($_SESSION['redirect_after_login']); // Удаляем из сессии, чтобы не было повторных перенаправлений
+            redirectTo($redirect_url);
         } else {
-            header("Location: /" . $user->link);
+            // смотрим где было последнее посещение и переходим туда
+            if ($user->last_action) {
+                $url = (strpos($user->last_action, 'assy_flow_pdf') === false && strpos($user->last_action, 'route_card') === false)
+                    ? $user->last_action : $user->link;
+                redirectTo(ltrim($url, '/'));
+            } else {
+                redirectTo($user->link);
+            }
         }
-        exit();
     } else {
         $error = 'Password or Name incorrect. Please try again!';
     }

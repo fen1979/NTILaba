@@ -1,0 +1,107 @@
+.wrapper {
+    width: 70%;
+    margin: 0 auto;
+    padding: 2%;
+}
+
+.menu {
+    margin-bottom: 2%;
+}
+
+.menu a {
+    font-weight: bold;
+    margin-right: 1%;
+    /*color: black;*/
+    text-decoration: none;
+}
+
+.menu a:hover {
+    text-decoration: underline;
+}
+
+/* ========================= */
+
+.progress-bar {
+    background-color: #4caf50;
+}
+
+.high-priority {
+    background-color: #ff4c4c; /* Red */
+    color: white;
+}
+
+.medium-priority {
+    background-color: #ffc107; /* Yellow */
+    color: white;
+}
+
+.low-priority {
+    background-color: #28a745; /* Green */
+    color: white;
+}
+
+.icon {
+    width: 24px;
+    height: 24px;
+}
+
+.routing {
+    cursor: pointer;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    white-space: nowrap;
+}
+
+table thead tr th {
+    /* Important */
+    background-color: #c7dfec;
+    position: sticky;
+    z-index: 100;
+    top: 6.6%;
+}
+
+th, td {
+    text-align: left;
+    padding: 0 5px 0 5px;
+    border: 1px solid #ddd;
+}
+
+tr:hover {
+    cursor: pointer;
+    background: #baecf6;
+}
+
+td.clickable:hover {
+    background: #0739ff;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

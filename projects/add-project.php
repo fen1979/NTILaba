@@ -42,7 +42,7 @@ if (isset($_POST['projectName']) && !isset($_SESSION['editmode'])) {
 if (isset($_POST['projectName']) && isset($_SESSION['editmode']) && $_SESSION['editmode'] == 'activated') {
     /* добавляем в пост id проекта */
     $_POST['projectid'] = $_SESSION['projectid'];
-    $args = Project::editProject($_POST, $user, $_FILES);
+    $args = Project::editProjectInformation($_POST, $user, $_FILES);
 }
 
 /* АКТИВАЦИЯ EDITING MODE */

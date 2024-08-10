@@ -12,9 +12,9 @@ class Mailer
     /**
      * ЦЕНТР СООБЩЕНИЙ ДЛЯ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ СИСТЕМЫ
      * @param $email
-     * @param $to_whom
-     * @param $subject
-     * @param $html_body
+     * @param $to_whom - name user for who is email
+     * @param $subject - email subject title
+     * @param $html_body - email body html or text
      * @param string $attachment
      * @param string $attach_name
      * @return string

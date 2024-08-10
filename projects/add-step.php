@@ -29,11 +29,78 @@ $nextStepNumber = R::count(PROJECT_STEPS, 'projects_id = ?', [$project->id]) + 1
     /* ICON, TITLE, STYLES AND META TAGS */
     HeadContent($page);
     ?>
+    <style>
+        /* Основные стили */
+        .preview-box {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+        }
+
+        .preview-box > div {
+            text-align: center;
+            width: 30%;
+        }
+
+        .preview-box img, .preview-box video {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .preview-box p {
+            margin-bottom: 10px;
+        }
+
+        .resource-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .resource-box img, .resource-box video {
+            width: 100%;
+            height: 200px; /* фиксированная высота для всех ресурсов */
+            object-fit: cover; /* это свойство помогает поддерживать соотношение сторон */
+        }
+
+        /* Стили для мобильного отображения */
+        @media (max-width: 768px) {
+            .navbar-nav {
+                display: flex;
+                padding-left: 0;
+                margin-bottom: 0;
+                list-style: none;
+                flex-direction: row;
+                justify-content: flex-end;
+            }
+
+            .preview-box {
+                flex-direction: column;
+            }
+
+            .preview-box > div {
+                width: 100%;
+                margin-bottom: 20px; /* отступ между элементами */
+            }
+
+            .resource-box img, .resource-box video {
+                height: 150px; /* уменьшенная высота для мобильных устройств */
+            }
+            .title{
+                font-size: 17px;
+                color: #0d6efd;
+                padding-bottom: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = '<b class="text-primary"> Project: ' . $projectName . '</b>';
+$navBarData['title'] = 'Add New';
 $navBarData['record_id'] = $_GET['pid'] ?? null;
 $navBarData['user'] = $user;
 $navBarData['page_name'] = $page;
@@ -43,122 +110,145 @@ NavBarContent($navBarData);
 DisplayMessage($args);
 ?>
 <div class="container mt-5">
-    <div class="mb-3">
-        <h3><?= "Name: $projectName"; ?></h3>
+    <div class="row">
+        <div class="col">
+            <h3 class="title"><?= "Name: $projectName"; ?></h3>
+        </div>
     </div>
-
-    <form id="addDataForm" action="" method="post" enctype="multipart/form-data">
-        <div class="mb-3">
-            <label class="form-label">Step N: &nbsp;&nbsp;&nbsp;
-                <input type="number" class="text-danger step-number" name="actionNumber" value="<?= $nextStepNumber; ?>" readonly>
-            </label>
-        </div>
-
-        <div class="checkbox mb-3">
-            <div class="form-check form-switch fs-3">
-                <input class="form-check-input" type="checkbox" id="front-picture" value="1" name="front-picture">
-                <label class="form-check-label" for="front-picture" style="font-size: large">Set Step As Main Photo</label>
+    <div class="mb-3">
+        <form id="addDataForm" action="" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label class="form-label">Step N: &nbsp;&nbsp;&nbsp;
+                    <input type="number" class="text-danger step-number" name="actionNumber" value="<?= $nextStepNumber; ?>" readonly>
+                </label>
             </div>
-        </div>
 
-        <div class="checkbox mb-3">
-            <div class="form-check form-switch fs-3">
-                <input class="validation form-check-input" type="checkbox" id="validation" name="validation">
-                <label class="form-check-label" for="validation" style="font-size: large">If a step needs validation!</label>
-            </div>
-        </div>
+            <div class="row mb-3">
+                <div class="checkbox col">
+                    <div class="form-check form-switch fs-3">
+                        <input class="validation form-check-input" type="checkbox" id="validation" name="validation">
+                        <label class="form-check-label" for="validation" style="font-size: large">If a step needs validation!</label>
+                    </div>
+                </div>
 
-        <div class="mb-3">
-            <label for="actionDescription" class="form-label">Description</label>
-            <textarea class="form-control" id="actionDescription" name="actionDescription" required></textarea>
-        </div>
+                <div class="checkbox col">
+                    <div class="form-check form-switch fs-3">
+                        <input class="form-check-input" type="checkbox" id="front-picture" value="1" name="front-picture">
+                        <label class="form-check-label" for="front-picture" style="font-size: large">Set Step As Main Photo</label>
+                    </div>
+                </div>
 
-        <div class="mb-3">
-            <i class="bi bi-info-circle" data-title="This Needed route action choose one for create route list"></i>
-            <label for="routeAction" class="form-label">
-                Choise Route Action
-            </label>
-            <div class="dropdown">
-                <?php
-                $routeActions = R::find(ROUTE_ACTION);
-                $list = '';
-                foreach ($routeActions as $action) {
-                    $list .= '<li class="dropdown-item" data-routeid="' . $action['id'] . '">' . $action['actions'] . '</li>';
-                }
-                ?>
-                <input type="text" name="routeAction" value="" id="routeAction" class="form-control dropdown-toggle"
-                       data-bs-toggle="dropdown" aria-expanded="false" placeholder="Choise Route Action" autocomplete="off">
-
-                <ul class="dropdown-menu ajeco-bg-aqua" aria-labelledby="routeAction" id="routeActionUl">
-                    <li class="dropdown-item" data-routeid="0">Not Alloved Actiond For Route Card</li>
-                    <?= $list; ?>
-                </ul>
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-8">
-                <div class="dropdown">
-                    <input type="hidden" id="toolChose" name="toolName">
-                    <button class="btn btn-outline-dark form-control dropdown-toggle" type="button" id="dropDownButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        Choose Tools for Step
-                    </button>
-                    <ul class="dropdown-menu ajeco-bg-aqua" aria-labelledby="toolChose" id="toolChoseUl">
-                        <?php
-                        $tools = R::find(TOOLS);
-                        $pTolls = explode(',', $project['tools']);
-                        foreach ($tools as $tool) {
-                            if (in_array($tool['id'], $pTolls)) {
-                                $text = $tool['manufacturer_name'] . ' ' . $tool['device_model'];
-                                ?>
-                                <li class="dropdown-item" data-toolid="<?= $tool['id']; ?>" data-image="<?= $tool['image']; ?>" data-text="<?= $text ?>">
-                                    <div class="card mb-3" style="max-width: 540px;">
-                                        <div class="row g-0">
-                                            <div class="col-md-6">
-                                                <img src="<?= !empty($tool['image']) ? $tool['image'] : 'public/images/pna_en.webp'; ?>" class="img-fluid rounded-end"
-                                                     alt="<?= $tool['serial_num'] ?>">
-                                            </div>
-                                            <div class="col-md-6 border-start">
-                                                <div class="card-body">
-                                                    <h5 class="card-title"><?= $tool['manufacturer_name'] ?></h5>
-                                                    <p class="card-text"><?= $tool['device_model'] ?></p>
-                                                    <p class="card-text"><?= $tool['device_type'] ?></p>
-                                                    <p class="card-text"><small class="text-muted"><?= $tool['next_inspection_date'] ?></small></p>
+                <div class="col">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-dark form-control dropdown-toggle" type="button" id="dropDownButton"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            Choose Tools for Step
+                        </button>
+                        <ul class="dropdown-menu ajeco-bg-aqua" aria-labelledby="toolChose" id="toolChoseUl">
+                            <?php
+                            $tools = R::find(TOOLS);
+                            $pTolls = explode(',', $project['tools']);
+                            foreach ($tools as $tool) {
+                                if (in_array($tool['id'], $pTolls)) {
+                                    $text = $tool['manufacturer_name'] . ' ' . $tool['device_model'];
+                                    ?>
+                                    <li class="dropdown-item" data-toolid="<?= $tool['id']; ?>" data-image="<?= $tool['image']; ?>" data-text="<?= $text ?>">
+                                        <div class="card mb-3" style="max-width: 540px;">
+                                            <div class="row g-0">
+                                                <div class="col-md-6">
+                                                    <img src="<?= !empty($tool['image']) ? $tool['image'] : 'public/images/pna_en.webp'; ?>"
+                                                         class="img-fluid rounded-end" alt="<?= $tool['serial_num'] ?>">
+                                                </div>
+                                                <div class="col-md-6 border-start">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title"><?= $tool['manufacturer_name'] ?></h5>
+                                                        <p class="card-text"><?= $tool['device_model'] ?></p>
+                                                        <p class="card-text"><?= $tool['device_type'] ?></p>
+                                                        <p class="card-text"><small class="text-muted"><?= $tool['next_inspection_date'] ?></small></p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </li>
-                                <?php
+                                    </li>
+                                    <?php
+                                }
                             }
-                        }
-                        ?>
+                            ?>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="part-number" class="form-label">Part NUmber</label>
+                <input type="text" name="part-number" id="part-number" class="form-control" placeholder="Part number if exist [optional]">
+            </div>
+
+            <div class="mb-3">
+                <label for="note" class="form-label">Notice</label>
+                <input type="text" name="note" id="note" class="form-control" placeholder="Some notes for step [optional]">
+            </div>
+
+            <div class="mb-3">
+                <?php $t = 'This field must be selected in case of default operations set, 
+                    if there are no operations set for this step, then it should be set as Not Alloved Actiond For Route Card!
+                    This field contains a search by the typed value!'; ?>
+                <i class="bi bi-info-circle text-primary" data-title="<?= $t ?>"></i>
+                <label for="routeAction" class="form-label">
+                    Choise Route Action
+                </label>
+                <div class="dropdown">
+                    <?php
+                    $routeActions = R::find(ROUTE_ACTION);
+                    $list = '';
+                    foreach ($routeActions as $action) {
+                        $list .= '<li class="dropdown-item" data-routeid="' . $action['id'] . '">' . $action['actions'] . '</li>';
+                    }
+                    ?>
+                    <input type="text" name="routeAction" value="" id="routeAction" class="form-control dropdown-toggle"
+                           data-bs-toggle="dropdown" aria-expanded="false" placeholder="Choise Route Action" autocomplete="off">
+
+                    <ul class="dropdown-menu ajeco-bg-aqua" aria-labelledby="routeAction" id="routeActionUl">
+                        <li class="dropdown-item" data-routeid="0">Not Alloved Actiond For Route Card</li>
+                        <?= $list; ?>
                     </ul>
                 </div>
             </div>
-            <div class="col-4">
-                <img src="/public/images/pna_en.webp" alt="x tools" width="400px" style="display: block;" id="toolImage" class="hidden">
+
+            <div class="mb-3">
+                <?php $t = 'IMPORTANT! A full detailed description of the actions supported by a photo or video next to this step is required, 
+                    be sure to indicate all possible actions required to complete this step correctly!'; ?>
+                <i class="bi bi-info-circle text-primary" data-title="<?= $t ?>"></i>
+                <label for="actionDescription" class="form-label">Description</label>
+                <textarea class="form-control" id="actionDescription" name="actionDescription" required></textarea>
             </div>
+
+            <input type="hidden" id="toolId" name="tool">
+            <input type="hidden" id="routeid" name="routeid">
+            <input type="file" id="photo" name="photoFile" accept="image/*" hidden data-required="<?= $project->sub_assembly; ?>">
+            <input type="file" id="video" name="videoFile" accept="video/*" hidden>
+            <input type="hidden" name="next-button" value="1">
+        </form>
+    </div>
+    <!-- привью файлов пользователя -->
+    <div class="preview-box border-top p-2">
+        <div class="resource-box">
+            <p>Step Image</p>
+            <img id="photoPreview" alt="Превью фотографии" src="/public/images/ips.webp">
         </div>
 
-        <input type="hidden" id="toolId" name="tool">
-        <input type="hidden" id="routeid" name="routeid">
-        <input type="file" id="photo" name="photoFile" accept="image/*" hidden data-required="<?= $project->sub_assembly; ?>">
-        <input type="file" id="video" name="videoFile" accept="video/*" hidden>
-        <input type="hidden" name="next-button" value="1">
-
-        <!-- привью файлов пользователя -->
-        <div class="mb-3">
-            <!--
-            TODO для работы дизайнера заглушка с изображением 500х500рх
-            <img id="photoPreview" class="img-thumbnail" alt="Превью фотографии" src="/public/images/ips.webp" >
-            -->
-            <img id="photoPreview" class="img-thumbnail" alt="Превью фотографии" src="" style="display: none;">
-            <video controls id="videoPreview" width="640" height="480" style="display: none;">
-                Your browser isn't support video!
+        <div class="resource-box">
+            <p>Step Video</p>
+            <video controls id="videoPreview" src="" poster="/public/images/vps.png">
+                Your browser isn't support video!!!
             </video>
         </div>
-    </form>
+
+        <div class="resource-box">
+            <p id="tool-name-label">Tool no choosen yet</p>
+            <img src="/public/images/ips.webp" alt="x tools" id="toolImage">
+        </div>
+    </div>
 </div>
 
 <?php ScriptContent($page); ?>
@@ -184,8 +274,8 @@ DisplayMessage($args);
         dom.doClick("#takePic", "#photo");
         dom.doClick("#takeMovie", "#video");
         // Обработчик изменений файлов для обновления превью
-        dom.doPreviewFile("photo", "photoPreview", checkFormAndToggleSubmit);
-        dom.doPreviewFile("video", "videoPreview");
+        dom.doPreviewFile("#photo", "#photoPreview", checkFormAndToggleSubmit);
+        dom.doPreviewFile("#video", "#videoPreview");
 
         // отправка формы после изменений через кнопку в нав панели
         dom.doSubmit("#finishBtn", "#addDataForm");
@@ -206,10 +296,10 @@ DisplayMessage($args);
             const liElement = e.target.closest('li');
 
             if (liElement) {
-                dom.e("#dropDownButton").append(liElement.dataset.text);
+                dom.e("#tool-name-label").textContent = "Choosen tool: " + liElement.dataset.text;
                 dom.e("#toolId").value = liElement.dataset.toolid;
                 dom.e("#toolImage").src = liElement.dataset.image;
-                dom.show("#toolImage");
+                // dom.show("#toolImage");
 
                 checkFormAndToggleSubmit();
             }

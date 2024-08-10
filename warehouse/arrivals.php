@@ -1,6 +1,30 @@
 <?php
 EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
 require 'WareHouse.php';
+
+// check for not in use boxes in storage
+if (isset($_POST['search-for-storage-box'])) {
+    // Получаем текущий номер из запроса
+    $key = _E($_POST['search-for-storage-box']);
+    $key = (int)$key + 1;
+    // Ищем следующий доступный номер, где in_use = 0, есть индексация по колонке box
+    $nextBox = SR::getResource('stock', $key);
+
+    // Если следующего номера нет (мы достигли конца списка), начинаем сначала
+    if (empty($nextBox)) {
+        $nextBox = SR::getResource('stock', '1');
+    }
+
+    // Возвращаем номер следующего доступного элемента
+    if (!empty($nextBox)) {
+        echo $nextBox['key_name'];
+    } else {
+        // Если не найдено ни одного доступного номера
+        echo "No available boxes found";
+    }
+    exit();
+}
+
 /* получение пользователя из сессии */
 $user = $_SESSION['userBean'];
 $page = 'arrivals';
@@ -521,6 +545,20 @@ ScriptContent('arrivals');
                 dom.hide('#custom-pn-box');
                 dom.e('#owner-pn-input').required = false;
             }
+        });
+
+
+        // Обработка клика по результату поиска для места хранения
+        $(document).on("click", "#storage-box", function () {
+            // Отправляем POST-запрос на сервер
+            $.post('', {
+                // Параметры, которые вы хотите отправить на сервер
+                'search-for-storage-box': $(this).val()
+            }, function (data) {
+                // При успешном получении ответа обновляем значение поля ввода
+                $('#storage-box').val(data);
+                console.log(data)
+            });
         });
     });
 

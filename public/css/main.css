@@ -552,8 +552,20 @@ button {
         color: #4f4f4f !important;
     }
 
-    button.url.btn, button.swb.btn {
-        width: 100%;
+    .navbar-brand {
+        font-size: 1rem;
+    }
+
+    .step-btn, #back-btn {
+        width: 5rem;
+    }
+
+    .btn-group {
+        display: flow !important;
+    }
+
+    .btn-sm {
+        font-size: 1.3rem;
     }
 }
 

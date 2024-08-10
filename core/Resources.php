@@ -3,6 +3,7 @@ class_alias('Resources', 'SR');
 
 /* ==================================================== PROJECT CONSTANTS ==================================================== */
 const BASE_URL = 'https://nti.icu/'; // path to site root catalog (index.php)
+const SALT_PEPPER = 'w96qH3b3ijLiqFD';
 
 $lang = substr($_SERVER ['HTTP_ACCEPT_LANGUAGE'], 0, 2);
 define("LANG", $lang);
@@ -35,7 +36,7 @@ const SHARE_LINK_ROUTE = BASE_URL . 'shared-project?shared='; // the path to sha
 /*
  *  ACTIVE LINKS FOR NAV BUTTONS
  * */
-const Y = ['ORDER' => 0, 'PROJECT' => 1, 'N_ORDER' => 2, 'N_PROJECT' => 3, 'CLIENT' => 4, 'STOCK' => 5, 'LOG' => 6, 'WIKI' => 7, 'E_ORDER' => 8, 'SETTINGS'=>9];
+const Y = ['ORDER' => 0, 'PROJECT' => 1, 'N_ORDER' => 2, 'N_PROJECT' => 3, 'CLIENT' => 4, 'STOCK' => 5, 'LOG' => 6, 'WIKI' => 7, 'E_ORDER' => 8, 'SETTINGS' => 9];
 const STORAGE_STATUS = ['smt' => 'In SMT Line', 'shelf' => 'On Shelf', 'work' => 'In Work'];
 
 
@@ -66,6 +67,8 @@ const SETTINGS = 'settings'; // таблица настроек пользова
 const SMT_LINE = 'smtline';
 const LOGS = 'logs'; // логи сайта и всех его операций
 const UNDO_TABLE = 'deletedrecords'; // таблица временно хранящая данные удаленных записей склада
+const TASK_LIST = 'tasklists';
+const TASKS = 'tasks';
 
 /**
  * ORDER - 0
@@ -116,6 +119,14 @@ const MOUNTING_TYPE = ["SMT", "TH", "CM", "PM", "SOLDER", "CRIMP", "LM", "OTHER"
 const NTI_PN = ['NCAP' => 'Capacitor', 'NRES' => 'Resistor', 'NDIO' => 'Diode', 'NIC' => 'Micro Chip', 'NTR' => 'Transistor',
     'NCR' => 'Oscilator', 'NFU' => 'Fuse', 'NFB' => 'Ferrite bead', 'NCON' => 'Connector', 'NIND' => 'Inductor', 'NPIN' => 'Pins',
     'NW' => 'Wires', 'NTUBE' => 'Shrink Tube', 'custom' => 'Custom'];
+
+//============== task manager delete letter
+//Create Constants to save Database Credentials
+const LOCALHOST = 'localhost';
+const DB_USERNAME = 'root';
+const DB_PASSWORD = '8CwG24YwZG';
+const DB_NAME = 'task_manager';
+const SITEURL = 'task_list';
 
 /* ==================================================== PROJECT RESOURCES ==================================================== */
 
@@ -198,6 +209,7 @@ class Resources
         try {
             $data = R::findOne(self::RESOURCES, 'group_name = ? AND key_name = ?', [$group, $key]);
             if ($data) {
+                $data->key_name = $key;
                 $data->value = $value;
                 $data->detail = $detail;
                 R::store($data);

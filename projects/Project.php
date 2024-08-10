@@ -299,7 +299,7 @@ class Project
      * @return string[]
      * @throws //\RedBeanPHP\RedException\SQL
      */
-    public static function editProject($post, $user, $files = null): array
+    public static function editProjectInformation($post, $user, $files = null): array
     {
         $post = self::checkPostDataAndConvertToArray($post);
         $log_details = '<h4>Changes</h4>';
@@ -867,6 +867,8 @@ class Project
             $projectData->front_pic = $post['front-picture'] ?? 0; // создаем галлерею на главной странице
             $projectData->video = $outputVideoFile;
             $projectData->step = $post['actionNumber'];
+            $projectData->part_number = $post['part-number'] ?? '';
+            $projectData->note = $post['note'] ?? '';
             $projectData->description = trim($post['actionDescription']);
             /* записываем переменную в ЬД проверяя на вредонос */
             $projectData->routeaction = $post['routeAction'];
@@ -957,6 +959,14 @@ class Project
                 case 9:
                     $res[] = $out = self::changeFrontPicture($step_id, $post);
                     $log_details['front-picture'] = $out['log'];
+                    break;
+                case 10:
+                    $res[] = $out = self::changePartNumber($step_id, $post);
+                    $log_details['part-number'] = $out['log'];
+                    break;
+                case 11:
+                    $res[] = $out = self::changeNotice($step_id, $post);
+                    $log_details['note'] = $out['log'];
                     break;
                 default:
                     $res = ['info' => 'No Changes added!', 'color' => 'warning'];
@@ -1173,6 +1183,22 @@ class Project
         return ['info' => 'Project front image changed successfuly', 'color' => 'success', 'log' => 'front-picture'];
     }
 
+    private static function changePartNumber($step_id, $post): array
+    {
+        //
+        $query = "UPDATE " . PROJECT_STEPS . " SET part_number = ? WHERE id = ?";
+        R::exec($query, [$post['part-number'] ?? '', $step_id]);
+        return ['info' => 'Item part number changed successfuly', 'color' => 'success', 'log' => 'part-number'];
+    }
+
+    private static function changeNotice($step_id, $post): array
+    {
+        //
+        $query = "UPDATE " . PROJECT_STEPS . " SET note = ? WHERE id = ?";
+        R::exec($query, [$post['note'] ?? '', $step_id]);
+        return ['info' => 'Step Note changed successfuly', 'color' => 'success', 'log' => 'note'];
+    }
+
     /**
      * LOG AND HISTORY FOR STEP CHANGES
      * @param $data
@@ -1208,6 +1234,8 @@ class Project
         $history->validation = $step['validation'] ?? 0;
         $history->step = $step['step'];
         $history->revision = $step['revision'];
+        $history->part_number = $step['part_number'];
+        $history->note = $step['note'];
         $history->description = $step['description'];
         $history->routeid = $step['routid'];
         $history->routeaction = $step['routaction'];

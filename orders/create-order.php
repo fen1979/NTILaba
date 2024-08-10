@@ -2,39 +2,17 @@
 EnsureUserIsAuthenticated($_SESSION, 'userBean');
 include_once 'Orders.php';
 
-//// check for not in use boxws in storage
-//if (isset($_POST['search-for-storage-box'])) {
-//    // Получаем текущий номер из запроса
-//    $currentNumber = _E($_POST['search-for-storage-box']);
-//    // Ищем следующий доступный номер, где in_use = 0, есть индексация по колонке box
-//    $nextBox = R::findOne(WH_SLOTS, 'box > ? AND in_use = 0 ORDER BY box ASC', [$currentNumber]);
-//
-//    // Если следующего номера нет (мы достигли конца списка), начинаем сначала
-//    if (!$nextBox) {
-//        $nextBox = R::findOne(WH_SLOTS, 'in_use = 0 ORDER BY box ASC');
-//    }
-//
-//    // Возвращаем номер следующего доступного элемента
-//    if ($nextBox) {
-//        echo $nextBox->box;
-//    } else {
-//        // Если не найдено ни одного доступного номера
-//        echo "No available boxes found";
-//    }
-//    exit();
-//}
-
 // check for not in use boxes in storage
 if (isset($_POST['search-for-storage-box'])) {
     // Получаем текущий номер из запроса
     $key = _E($_POST['search-for-storage-box']);
     $key = (int)$key + 1;
     // Ищем следующий доступный номер, где in_use = 0, есть индексация по колонке box
-    $nextBox = SR::getResource('stock', $key);
+    $nextBox = SR::getResource('order_kit', $key);
 
     // Если следующего номера нет (мы достигли конца списка), начинаем сначала
     if (empty($nextBox)) {
-        $nextBox = SR::getResource('stock', '1');
+        $nextBox = SR::getResource('order_kit', '1');
     }
 
     // Возвращаем номер следующего доступного элемента

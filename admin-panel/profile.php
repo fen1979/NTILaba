@@ -46,7 +46,7 @@ NavBarContent($navBarData);
 
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
-const START_PAGE = ['order' => 'Orders', 'project' => 'Projects', 'wh' => 'Warehouse', 'wiki' => 'Wiki'];
+const START_PAGE = ['order' => 'Orders', 'project' => 'Projects', 'wh' => 'Warehouse', 'wiki' => 'Wiki', 'task_list' => 'Task Manager'];
 ?>
 
 <div class="main-container">

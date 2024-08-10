@@ -9,7 +9,8 @@ const NO_VIEW_PAGES = [
     'customers', 'docs',
     'admin-panel',
     'new_project', 'edit_project', 'edit_step', 'add_step',
-    'import_csv', 'view_item', 'arrivals', 'edit_item', 'replenishment'];
+    'import_csv', 'view_item', 'arrivals', 'edit_item', 'replenishment',
+    'task_manager'];
 
 /* ICON, TITLE, STYLES AND META TAGS */
 function HeadContent($page)
@@ -30,7 +31,7 @@ function HeadContent($page)
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.2/font/bootstrap-icons.css">
 
     <!-- global styles light mode -->
-    <link rel="stylesheet" href="/public/css/main.css">
+    <link rel="stylesheet" href="/public/css/main.css?2">
     <?php
     /*  подключаем стили для конкретных  страниц если они есть */
     switch ($page) {
@@ -48,6 +49,9 @@ function HeadContent($page)
             break;
         case 'order_details':
             echo '<link rel="stylesheet" href="/public/css/order-details.css">';
+            break;
+        case 'task_manager':
+            echo '<link rel="stylesheet" href="/public/css/task-manager.css"/>';
             break;
     }
     ?>
@@ -99,10 +103,9 @@ function NavBarContent($navBarData): void
                     <?= (!in_array($page, NO_VIEW_PAGES) && !empty($name)) ? 'Hi ' . $name : $title; ?>
                 </h3>
                 <!-- GAMBURGER BUTTON -->
-                <button class="navbar-toggler" type="button" data-mdb-toggle="collapse"
-                        data-mdb-target="#navBarContent" aria-controls="navBarContent" aria-expanded="false"
-                        aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon d-flex justify-content-start align-items-center"></span>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <i id="butter" class="bi bi-three-dots-vertical" onclick="dom.toggleClass('#butter','bi-three-dots')"></i>
                 </button>
 
                 <!-- SEARCH FIELD -->
@@ -240,7 +243,7 @@ function ALL_PAGES_BUTTONS($page): void
     </li>
     <li class="nav-item">
         <button type="button" class="url btn btn-sm btn-outline-secondary"
-                value="logs">Logs
+                value="task_list">Tasks
         </button>
     </li>
 <?php } ?>
@@ -301,6 +304,9 @@ function ADMIN_PANEL_BUTTONS($btn_title, $page): void
 
         <li class="nav-item">
             <button type="button" name="sw_bt" class="url btn btn-sm btn-outline-secondary" value="resources">Resources</button>
+        </li>
+        <li class="nav-item">
+            <button type="button" class="url btn btn-sm btn-outline-secondary" value="logs">Logs</button>
         </li>
         <?php
         // только высокий уровень пользователя может работать с персональными данными
@@ -716,7 +722,7 @@ function ScriptContent($page = null)
 function DisplayMessage($args)
 {
     $icon = '<i class="bi bi-x-square hide-service-msg" onclick="dom.hide(\'.global-notification\', \'slow\')"></i>';
-    if (!empty($_SESSION['info']) && $args == null) {
+    if (!empty($_SESSION['info']) && ($args == [null] || $args == null)) {
         $args = $_SESSION['info'];
         $_SESSION['info'] = null;
     } else {

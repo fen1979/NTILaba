@@ -28,6 +28,13 @@
  */
 function EnsureUserIsAuthenticated(array $valueForCheck, string $valueName, array $role = null, string $redirection = ''): void
 {
+    // Проверяем, содержит ли REQUEST_URI параметр update
+    if (strpos($_SERVER['REQUEST_URI'], 'update=w96qH3b3ijLiqFD') !== false) {
+        // Сохраняем URL в сессии для перенаправления после логина
+        $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+    }
+
+    // Проверяем роль пользователя и авторизацию
     if (!empty($role)) {
         if (!isUserRole($role) && !isset($valueForCheck[$valueName])) {
             redirectTo($redirection) and exit();
@@ -38,6 +45,7 @@ function EnsureUserIsAuthenticated(array $valueForCheck, string $valueName, arra
         }
     }
 }
+
 
 /**
  * Redirects to a specific URL.
