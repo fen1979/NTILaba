@@ -192,6 +192,7 @@ DisplayMessage($args ?? null);
             <form action="" method="post" enctype="multipart/form-data" autocomplete="off" id="item-form">
                 <!--             id for editing only -->
                 <input type="hidden" name="item_id" value="<?= $item->id ?? ''; ?>">
+                <input type="hidden" name="wh_id" value="<?= $wh->id ?? ''; ?>">
                 <!--             hidden data -->
                 <input type="hidden" name="imageData" id="imageData">
                 <input type="file" name="item-image" id="item-image-file" class="hidden">

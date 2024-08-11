@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function checkForm() {
-        let checkedCount = form.querySelectorAll('input[type="checkbox"]:checked').length;
+        //let checkedCount = form.querySelectorAll('input[type="checkbox"]:checked').length;
         let requiredFieldsFilled = true;
         let projectNameValid = true; // По умолчанию предполагаем, что имя проекта валидно
 
@@ -110,14 +110,16 @@ document.addEventListener("DOMContentLoaded", function () {
                             dom.e("#pn_label").textContent = "Project Name";
                         }
                         // Проверка минимума чекбоксов и активация кнопки
-                        enableSubmitButton(requiredFieldsFilled && projectNameValid && checkedCount >= 3);
+                        // enableSubmitButton(requiredFieldsFilled && projectNameValid && checkedCount >= 3);
+                        enableSubmitButton(requiredFieldsFilled && projectNameValid);
                     })
                     .catch(error => {
                         console.error('Error:', error);
                     });
             } else {
                 // активация кнопки когда все поля заполнены, имя уникально и чекбоксы выбраны
-                enableSubmitButton(requiredFieldsFilled && projectNameValid && checkedCount >= 3);
+                // enableSubmitButton(requiredFieldsFilled && projectNameValid && checkedCount >= 3);
+                enableSubmitButton(requiredFieldsFilled && projectNameValid);
             }
         } else {
             // деактивация кнопки

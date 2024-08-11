@@ -119,6 +119,7 @@ if (isset($_GET['order-ids'])) {
         <!-- Поля формы будут добавлены динамически -->
     </form>
 
+    <button type="button" class="url btn btn-proma mt-5" value="order">Back to Orders</button>
     <button id="saveChanges" type="button" class="btn btn-success mt-5" disabled>Save Changes</button>
 
     <pre class="mt-5">
@@ -135,6 +136,7 @@ if (isset($_GET['order-ids'])) {
         Если заказ был перевыполнен и клиент согласен забрать актуальное изготовленное количество,
         измененное количество будет сохранено в заказе.
     </pre>
+    <?php ScriptContent('priority'); ?>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const table = document.getElementById('items-table');

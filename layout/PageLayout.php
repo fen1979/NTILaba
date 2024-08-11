@@ -706,6 +706,9 @@ function ScriptContent($page = null, $data = null)
         case 'order_details':
             echo '<script src="/public/js/order-view.js"></script>';
             break;
+        case 'priority':
+            echo '<form action="" id="routing" class="hidden" method="post"></form>';
+            break;
     }
 }
 

@@ -236,7 +236,7 @@ DisplayMessage($args ?? null);
             <div class="row secondary rounded p-2">
                 <?php
                 if ($settings) {
-                    foreach ($settings as $item) {
+                    foreach ($settings as $item => $_) {
                         echo '<div class="col">' . SR::getResourceValue(CLIENTS, $item) . '</div>';
                     }
                 } ?>
@@ -253,16 +253,23 @@ DisplayMessage($args ?? null);
 
                         if ($settings) {
                             // creating table using user settings
-                            foreach ($settings as $k => $item) {
+                            $k = 0;
+                            foreach ($settings as $item => $_) {
                                 $click = ($k === 0) ? 'onclick="changeClientInformation(' . $line['id'] . ')"' : '';
                                 ?>
                                 <div class="col p-2 border-bottom" <?= $click ?>>
                                     <?= $line[$item]; ?>
                                 </div>
                                 <?php
+                                $k++;
                             }
-                        }
-                        ?>
+                        } else {
+                            ?>
+                            <div class="col p-2 border-bottom">
+                                Your view settings for this table isn`t exist yet
+                                <a role="button" href="/setup" class="btn btn-outline-info">Edit Columns view settings</a>
+                            </div>
+                        <?php } ?>
                     </div>
                     <?php
                 }

@@ -139,33 +139,37 @@ function viewSupplier($result, $request, $mySearchString): void
  * форма поиска по проектам
  */
 function viewLineProject($result, $col)
-{ ?>
-    <thead>
-    <tr>
-        <th>Id</th>
-        <th>Version</th>
-        <th>Name</th>
-        <th>Customer</th>
-    </tr>
-    </thead>
-    <tbody>
-    <?php foreach ($result as $item) {
-        // Подготавливаем данные для атрибута data-info
-        $infoData = json_encode([
-            'name' => $item[$col[0]],
-            'client' => $item[$col[1]],
-            'revision' => $item[$col[2]],
-            'projectID' => $item['id'],
-        ]); ?>
-        <tr class="project item-list" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
-            <td><?= $item['id']; ?></td>
-            <td><?= $item[$col[2]]; ?></td>
-            <td><?= $item[$col[0]]; ?></td>
-            <td><?= $item[$col[1]]; ?></td>
+{
+    if ($result) { ?>
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Version</th>
+            <th>Name</th>
+            <th>Customer</th>
         </tr>
-    <?php } ?>
-    </tbody>
-    <?php
+        </thead>
+        <tbody>
+        <?php foreach ($result as $item) {
+            // Подготавливаем данные для атрибута data-info
+            $infoData = json_encode([
+                'name' => $item[$col[0]],
+                'client' => $item[$col[1]],
+                'revision' => $item[$col[2]],
+                'projectID' => $item['id'],
+            ]); ?>
+            <tr class="project item-list" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
+                <td><?= $item['id']; ?></td>
+                <td><?= $item[$col[2]]; ?></td>
+                <td><?= $item[$col[0]]; ?></td>
+                <td><?= $item[$col[1]]; ?></td>
+            </tr>
+        <?php } ?>
+        </tbody>
+        <?php
+    }else{
+        echo 'EMPTY';
+    }
 }
 
 /**
@@ -277,7 +281,7 @@ function viewOrder($result, $user)
         if ($user) {
             foreach ($user['ownSettingsList'] as $item) {
                 if (isset($item['table_name']) && $item['table_name'] == 'orders') {
-                    $settings = json_decode($item['setup']);
+                    $settings = json_decode($item['setup'], true);
                     break;
                 }
             }
@@ -301,7 +305,8 @@ function viewOrder($result, $user)
                 <?php
                 if ($settings) {
                     // creating table using user settings
-                    foreach ($settings as $k => $item) {
+                    $k = 0;
+                    foreach ($settings as $item => $_) {
                         $click = ($k === 0 && (in_array($user['user_name'], $workers) ||
                                 isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR]))) ? ' onclick="getInfo(' . $order['id'] . ')"' : '';
                         if ($item == 'status') {
@@ -322,6 +327,7 @@ function viewOrder($result, $user)
                             // regular tab cel
                             echo '<td class="border-end"' . $click . '>' . $order[$item] . '</td>';
                         }
+                        $k++;
                     }
                 }
 
@@ -355,7 +361,7 @@ function viewOrder($result, $user)
         ?>
         <tr class="hidden">
             <td>
-                <form action="/priority-out" method="post" target="_blank" id="priority-form" class="hidden">
+                <form action="/priority-out" method="get" target="_blank" id="priority-form" class="hidden">
                     <input type="hidden" name="order-ids" value="<?= $orders_ids; ?>">
                     <input type="hidden" name="customer-name" value="<?= $customer_name; ?>">
                     <input type="hidden" name="priority-id" value="<?= $priority_id; ?>">
@@ -403,7 +409,7 @@ function viewStorageItems($result, $searchString, $request, $user): void
                     <td><?= $item['type_name']; ?></td>
                     <?php
                     // выводим таблицу согласно настройкам пользователя
-                    foreach ($settings as $set) {
+                    foreach ($settings as $set => $_) {
                         if ($set == 'item_image') { ?>
                             <td>
                                 <?php $img_href = ($item['mounting_type'] == 'SMT') ? '/public/images/smt.webp' : '/public/images/pna_en.webp' ?>

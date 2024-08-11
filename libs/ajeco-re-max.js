@@ -300,7 +300,6 @@ dom.addEventListener("DOMContentLoaded", function () {
         }
     };
 
-
     /**
      * window reset post/get
      */
@@ -725,7 +724,7 @@ dom.addEventListener("DOMContentLoaded", function () {
                 // Сбор данных из формы
                 const form = e.target;
                 const formData = new FormData(form);
-                console.log(formData);
+               // console.log(formData);
 
                 // Настройки для fetch-запроса
                 const requestOptions = {
@@ -878,7 +877,7 @@ dom.addEventListener("DOMContentLoaded", function () {
             })
                 .then(response => response.text())  // Assuming the response is text
                 .then(text => {
-                    console.log(text);
+                    //console.log(text);
                     // Check if the response indicates changes
                     if (text === '1') {
                         // If changes are detected, submit the hidden form
@@ -976,9 +975,10 @@ const currentSort = {
 };
 
 // sort table by text char value
-function sortTable(columnIndex) {
+function sortTable(columnIndex, table_id = 0) {
+    let tab_id = (table_id !== 0) ? table_id : "itemTable";
     let table, rows, switching, i, x, y, shouldSwitch;
-    table = document.getElementById("itemTable");
+    table = document.getElementById(tab_id);
     switching = true;
 
     // Определить направление сортировки
@@ -1000,14 +1000,18 @@ function sortTable(columnIndex) {
 
             // Сравнение строк в зависимости от направления сортировки
             if (currentSort.direction === 'asc') {
-                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                    shouldSwitch = true;
-                    break;
+                if (y) {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
                 }
             } else if (currentSort.direction === 'desc') {
-                if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                    shouldSwitch = true;
-                    break;
+                if (y) {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
                 }
             }
         }
@@ -1019,9 +1023,10 @@ function sortTable(columnIndex) {
 }
 
 // sort table by number value
-function sortNum(columnIndex) {
+function sortNum(columnIndex, table_id = 0) {
     let table, rows, switching, i, x, y, shouldSwitch, xValue, yValue;
-    table = document.getElementById("itemTable");
+    let tab_id = (table_id !== 0) ? table_id : "itemTable";
+    table = document.getElementById(tab_id);
     switching = true;
 
     // Определить направление сортировки

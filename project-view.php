@@ -1,5 +1,5 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION,'userBean');
+EnsureUserIsAuthenticated($_SESSION, 'userBean');
 require_once 'projects/Project.php';
 
 $page = 'project';
@@ -31,6 +31,8 @@ $role = $user['app_role'];
 list($pagination, $paginationButtons) = PaginationForPages($_GET, $page, PROJECTS, 20);
 
 $result = R::findAll(PROJECTS, 'ORDER BY id DESC ' . $pagination);
+// get user settings for this page
+$settings = getUserSettings($user, PROJECTS);
 ?>
 
 <!doctype html>
@@ -66,20 +68,8 @@ DisplayMessage($args ?? null);
             <table class="p-3" id="project-table">
                 <!-- header -->
                 <thead>
-                <tr>
-                    <?php
-                    if ($settings = getUserSettings($user, PROJECTS)) {
-                        foreach ($settings as $item) {
-                            echo '<th>' . SR::getResourceValue(PROJECTS, $item) . '</th>';
-                        }
-                        echo '<th>Share Project</th>';
-                    } else {
-                        ?>
-                        <th>
-                            Your view settings for this table isn`t exist yet
-                            <a role="button" href="/setup" class="btn btn-outline-info">Edit Columns view settings</a>
-                        </th>
-                    <?php } ?>
+                <tr style="white-space: nowrap">
+                    <?= CreateTableHeaderUsingUserSettings($settings, 'project-table', PROJECTS, '<th>Share Project</th>') ?>
                 </tr>
                 </thead>
                 <!-- table -->
@@ -92,7 +82,7 @@ DisplayMessage($args ?? null);
                     <tr class="item-list" data-id="<?= $projectId; ?>">
                         <?php
                         if ($settings) {
-                            foreach ($settings as $item) {
+                            foreach ($settings as $item => $_) {
                                 echo '<td>' . $value[$item] . '</td>';
                             }
                         }
@@ -243,7 +233,6 @@ ScriptContent($page);
 
         // Добавляем делегированный обработчик событий на таблицу
         table.addEventListener('click', function (event) {
-            console.log(event.target.tagName.toLowerCase());
             // Проверяем, был ли клик по ссылке
             if (event.target.tagName.toLowerCase() === 'button' || event.target.tagName.toLowerCase() === 'i') {
                 return; // Прекращаем выполнение функции, если клик был по ссылке

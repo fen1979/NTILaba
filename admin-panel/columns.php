@@ -63,7 +63,7 @@ The information will be displayed based on the order of the fields when saving.'
         <?php
         // fixme добавить в склад колонки таблицу инвойса тоже
         if (isset($_POST['sel_tab'])) {
-            // check if table exist in DB
+            // check if table exists in DB
             $tableExists = R::getAll("SHOW TABLES LIKE '" . _E($_POST["sel_tab"]) . "'");
 
             if (count($tableExists) > 0) {
@@ -71,7 +71,7 @@ The information will be displayed based on the order of the fields when saving.'
                 $settings = null;
                 foreach ($user['ownSettingsList'] as $item) {
                     if (isset($item['table_name']) && $item['table_name'] == $_POST['sel_tab']) {
-                        $settings = json_decode($item['setup']);
+                        $settings = json_decode($item['setup'], true); // Используем true, чтобы получить ассоциативный массив
                         break;
                     }
                 }
@@ -83,8 +83,9 @@ The information will be displayed based on the order of the fields when saving.'
                             <tr class="text-left align-middle">
                                 <th scope="col" class="p-2">Table for configure: <b style="color: #dc3545; "><?= $_POST['table-name']; ?></b></th>
                             </tr>
-                            <tr class=" align-middle">
-                                <th scope="col" class="border-end text-left p-2">Choose</th>
+                            <tr class="align-middle">
+                                <th scope="col" class="border-end text-left p-2">Name</th>
+                                <th scope="col" class="text-left p-2">Enable Filter</th>
                                 <th scope="col" class="text-left p-2">Colum Name</th>
 
                                 <th style="float: right; margin-top: -1.5rem; padding-right: 1rem;">
@@ -103,11 +104,11 @@ The information will be displayed based on the order of the fields when saving.'
                             }
 
                             // Имена таблиц
-                            $tables = ['warehouse', 'whitems'];//, 'whinvoice'];
+                            $tables = ['warehouse', 'whitems'];
                             $tableColumns = [];
 
                             if ($_POST['sel_tab'] == WH_ITEMS) {
-                                // Получаем данные о полях из трех таблиц и объединяем их
+                                // Получаем данные о полях из нескольких таблиц и объединяем их
                                 foreach ($tables as $table) {
                                     $tableColumns = array_merge($tableColumns, getTableColumns($table));
                                 }
@@ -121,9 +122,11 @@ The information will be displayed based on the order of the fields when saving.'
                             // Вывод имен столбцов
                             $tab = $_POST['sel_tab'];
                             $array_D = $columnNames;
+
                             if ($settings) {
-                                $array_A = $settings; // Сортированный массив
-                                $array_B = $columnNames; // Несортированный массив
+                                // Извлекаем ключи из настроек пользователя, так как настройки теперь ассоциативный массив
+                                $array_A = array_keys($settings);
+                                $array_B = $columnNames;
                                 // Находим элементы, которые есть в B, но нет в A
                                 $diff = array_diff($array_B, $array_A);
                                 // Объединяем массивы
@@ -133,16 +136,20 @@ The information will be displayed based on the order of the fields when saving.'
                             foreach ($array_D as $columnName) {
                                 $f = SR::getResourceValue($tab, $columnName);
                                 if (!empty($f)) {
-                                    $ch = '';
-                                    if (isset($settings) && in_array($columnName, $settings)) {
+                                    $ch = $fc = '';
+                                    if (isset($settings[$columnName])) {
                                         $ch = 'checked';
+                                        $fc = $settings[$columnName] === 'filter' ? 'checked' : '';
                                     }
                                     ?>
                                     <tr class="text-left align-middle border-bottom">
                                         <td class="fs-5 me-3 p-2">
                                             <input class="form-check-input ms-2" type="checkbox" name="selected-colums[]" value="<?= $columnName; ?>" <?= $ch; ?>>
                                         </td>
-                                        <td><?= SR::getResourceValue($tab, $columnName); ?></td>
+                                        <td class="fs-5 me-3 p-2">
+                                            <input type="checkbox" class="form-check-input " name="enable-filter[<?= $columnName; ?>]" value="filter" <?= $fc; ?>>
+                                        </td>
+                                        <td class="ms-2"><?= SR::getResourceValue($tab, $columnName); ?></td>
                                     </tr>
                                     <?php
                                 }
@@ -157,6 +164,7 @@ The information will be displayed based on the order of the fields when saving.'
             <?php }
         }
         ?>
+
     </main>
 </div>
 
@@ -168,11 +176,5 @@ footer($page);
 // SCRIPTS
 ScriptContent($page);
 ?>
-<!-- JS for buttons to choose and view table name -->
-<script>
-    dom.addEventListener('DOMContentLoaded', function () {
-
-    });
-</script>
 </body>
 </html>

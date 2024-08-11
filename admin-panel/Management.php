@@ -606,8 +606,8 @@ class Management
             // Создаем новую запись настроек
             $settings = R::dispense(SETTINGS);
             $t_name = $settings->table_name = _E($post['save-settings']);
-            $orderedByUser = explode(',', $post['rowOrder']);
-            $settings->setup = json_encode($orderedByUser);
+            $columnsOrderedByUser = json_decode($post['rowOrder'], true);//explode(',', $post['rowOrder']);
+            $settings->setup = json_encode($columnsOrderedByUser);
             R::store($settings);
 
             $user->ownSettingsList[] = $settings;
@@ -616,8 +616,8 @@ class Management
 
             // Обновляем существующие настройки
             $settings = R::load(SETTINGS, $existingSetting['id']);
-            $orderedByUser = explode(',', $post['rowOrder']);
-            $settings->setup = json_encode($orderedByUser);
+            $columnsOrderedByUser = json_decode($post['rowOrder'], true);//explode(',', $post['rowOrder']);
+            $settings->setup = json_encode($columnsOrderedByUser);
             R::store($settings);
         }
 

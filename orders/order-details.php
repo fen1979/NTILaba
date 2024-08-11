@@ -279,7 +279,7 @@ DisplayMessage($args ?? null);
                     <tr>
                         <?php
                         if ($settings = getUserSettings($user, PROJECT_BOM)) {
-                            foreach ($settings as $item) {
+                            foreach ($settings as $item => $_) {
                                 echo '<th>' . SR::getResourceValue(PROJECT_BOM, $item) . '</th>';
                             } ?>
                             <th>Shelf / Box</th>
@@ -304,7 +304,7 @@ DisplayMessage($args ?? null);
                         <tr class="item-list <?= $color; ?>">
                             <?php
                             if ($settings) {
-                                foreach ($settings as $item) {
+                                foreach ($settings as $item => $_) {
                                     if ($item == 'amount') {
                                         $it = $line[$item] * $order['order_amount'];
                                     } else {
@@ -366,7 +366,7 @@ DisplayMessage($args ?? null);
                         <?php
                         /* настройки вывода от пользователя */
                         if ($settings = getUserSettings($user, TOOLS)) {
-                            foreach ($settings as $item) {
+                            foreach ($settings as $item=>$_) {
                                 echo '<th>' . SR::getResourceValue(TOOLS, $item) . '</th>';
                             }
                         } else {
@@ -386,7 +386,7 @@ DisplayMessage($args ?? null);
                         $row = R::load(TOOLS, $id);
                         echo '<tr class="item-list">';
                         if ($settings) {
-                            foreach ($settings as $item) {
+                            foreach ($settings as $item=>$_) {
                                 if ($item != 'image') {
                                     if ($item == 'responsible')
                                         echo '<td>' . (json_decode($row[$item])->name) . '</td>';
@@ -463,7 +463,7 @@ DisplayMessage($args ?? null);
                     <tr>
                         <?php
                         if ($settings = getUserSettings($user, PROJECT_BOM)) {
-                            foreach ($settings as $item) {
+                            foreach ($settings as $item=>$_) {
                                 echo '<th>' . SR::getResourceValue(PROJECT_BOM, $item) . '</th>';
                             }
                         } else {
@@ -481,7 +481,7 @@ DisplayMessage($args ?? null);
                     foreach ($projectBom as $line) {
                         echo '<tr class="item-list">';
                         if ($settings) {
-                            foreach ($settings as $item) {
+                            foreach ($settings as $item=>$_) {
                                 echo '<td>' . $line[$item] . '</td>';
                             }
                         }

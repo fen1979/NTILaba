@@ -123,17 +123,21 @@ DisplayMessage($args ?? null);
 
     <!-- ВЫВОД ДАННЫХ ПОСЛЕ СОХРАНЕНИЯ ЗАПЧАСТИ В БД -->
     <?php if ($settings) { ?>
-        <table class="custom-table">
+        <table class="custom-table" id="warehouse-table">
             <thead>
             <tr>
                 <th>Warehouse</th>
                 <?php
                 // выводим заголовки согласно настройкам пользователя
-                foreach ($settings as $k => $set) {
+                foreach ($settings as $set => $_) {
                     echo '<th>' . SR::getResourceValue(WH_ITEMS, $set) . '</th>';
                 }
                 ?>
             </tr>
+<!--            <tr style="white-space: nowrap">-->
+<!--                <th>Warehouse</th>-->
+<!--                --><?php //= CreateTableHeaderUsingUserSettings($settings, 'warehouse-table', WH_ITEMS) ?>
+<!--            </tr>-->
             </thead>
 
             <tbody id="searchAnswer">
@@ -147,10 +151,11 @@ DisplayMessage($args ?? null);
                     } ?>
 
                     <tr class="<?= $color; ?>" data-id="<?= $item['id']; ?>" data-page="<?= $_GET['page'] ?? null; ?>" id="row-<?= $item['id']; ?>">
+                    
                     <td><?= $item['type_name']; ?></td>
                     <?php
                     // выводим таблицу согласно настройкам пользователя
-                    foreach ($settings as $key => $set) {
+                    foreach ($settings as $set => $_) {
                         if ($set == 'item_image') { ?>
                             <td>
                                 <?php $img_href = ($item['mounting_type'] == 'SMT') ? '/public/images/smt.webp' : '/public/images/pna_en.webp' ?>

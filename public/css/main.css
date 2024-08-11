@@ -444,6 +444,7 @@ button {
 
 /* i for sorting columns */
 .sortable:hover {
+    cursor: pointer;
     background: #3dd5f3;
 }
 

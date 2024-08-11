@@ -281,12 +281,81 @@ function getUserSettings($user, $args)
     if ($user) {
         foreach ($user['ownSettingsList'] as $item) {
             if (isset($item['table_name']) && $item['table_name'] == $args) {
-                $settings = json_decode($item['setup']);
+                $settings = json_decode($item['setup'], true);
                 break;
             }
         }
     }
     return !empty($settings) ? $settings : null;
+}
+
+/**
+ * Получает тип данных для указанного столбца в таблице.
+ *
+ * Эта функция выполняет SQL-запрос, чтобы получить информацию о конкретном столбце
+ * в указанной таблице базы данных. Если столбец найден, функция возвращает его тип данных.
+ * Если столбец не найден, возвращается `null`.
+ *
+ * @param string $tableName Название таблицы, в которой находится столбец.
+ * @param string $columnName Название столбца, тип данных которого необходимо получить.
+ * @return bool true если столбец цифровой и false если столбец не найден или он имеет другой формат.
+ */
+function isColumnTypeDigit(string $tableName, string $columnName): bool
+{
+    $columnInfo = R::getRow("SHOW COLUMNS FROM " . $tableName . " LIKE ?", [$columnName]);
+    $columnType = $columnInfo['Type'] ?? null;
+    if (strpos($columnType, 'int') !== false ||
+        strpos($columnType, 'float') !== false ||
+        strpos($columnType, 'double') !== false ||
+        strpos($columnType, 'decimal') !== false) {
+        // Колонка содержит числа
+        return true;
+    } else {
+        // Колонка содержит текст или другой тип данных
+        return false;
+    }
+}
+
+function CreateTableHeaderUsingUserSettings($settings, $table_id, $DB_table_name, $static_th = ''): string
+{
+    if (!empty($settings)) {
+        ob_start(); // Начинаем буферизацию вывода
+        $i = 0; // counter columns
+        foreach ($settings as $item => $filter) {
+            // creating filter for columns
+            $tab_id = "$i, '$table_id'";
+            if (!empty($filter)) {
+                // if column type is digit
+                if (isColumnTypeDigit($DB_table_name, $item)) { ?>
+                    <th class="sortable" onclick="sortNum(<?= $tab_id ?>)">
+                        <i class="bi bi-filter"></i>
+                        <?= SR::getResourceValue($DB_table_name, $item) ?>
+                    </th>
+                <?php } else { ?>
+                    <th class="sortable" onclick="sortTable(<?= $tab_id ?>)">
+                        <i class="bi bi-filter"></i>
+                        <?= SR::getResourceValue($DB_table_name, $item) ?>
+                    </th>
+                    <?php
+                }
+                // if filter isn't present for this column
+            } else { ?>
+                <th><?= SR::getResourceValue($DB_table_name, $item) ?></th>
+            <?php }
+            $i++;
+        }
+
+        // Static content place here
+        echo $static_th;
+
+    } else { ?>
+        <th>
+            Your view settings for this table isn`t exist yet
+            <a role="button" href="/setup" class="btn btn-outline-info">Edit Columns view settings</a>
+        </th>
+    <?php }
+    // Получаем содержимое буфера и Возвращаем содержимое как строку
+    return ob_get_clean();
 }
 
 /**

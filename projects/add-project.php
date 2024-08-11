@@ -69,7 +69,6 @@ if (isset($_GET["pid"]) && isset($_GET['mode']) && $_GET['mode'] == "editmode" &
 <!DOCTYPE html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
 <head>
-
     <?php
     /* ICON, TITLE, STYLES AND META TAGS */
     HeadContent($page);
@@ -346,7 +345,13 @@ DisplayMessage($args ?? null);
         <div class="checkbox mb-3">
             <div class="row">
                 <div class="col-9 border-end">
-                    <?php $sub_assy = (!empty($project['sub_assembly']) && $project['sub_assembly'] == 1) ? 'checked' : ''; ?>
+                    <?php
+                    if (isset($_SESSION['editmode']) && $_SESSION['editmode'] == 'activated') {
+                        echo $sub_assy = (!empty($project['sub_assembly']) && $project['sub_assembly'] == 1) ? 'checked' : '';
+                    } else {
+                        $sub_assy = 'checked';
+                    }
+                    ?>
                     <div class="form-check form-switch fs-3">
                         <input class="form-check-input track-change" type="checkbox" id="sub_assembly" name="sub_assembly"
                                value="1" <?= $sub_assy; ?>>
@@ -410,7 +415,7 @@ DisplayMessage($args ?? null);
                                             <p class="card-text"><?= $row['device_type'] ?></p>
                                             <p class="card-text"><small class="text-muted"><?= $row['next_inspection_date'] ?></small></p>
                                             <input class="form-check-input" type="checkbox" name="selected-tools[]" value="<?= $row['id'] ?>" <?= $on ?>
-                                            style="width: 10rem; height: 10rem;">
+                                                   style="width: 10rem; height: 10rem;">
                                         </div>
                                     </div>
                                 </div>

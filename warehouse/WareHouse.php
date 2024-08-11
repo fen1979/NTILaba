@@ -308,8 +308,16 @@ class WareHouse
         // update item
         $item_id = R::store($item);
 
-        //$warehouse = R::load(WAREHOUSE, );
-        //$warehouse->wh_types_id = $post['warehouse-type-id']; // расположение склада физичеки
+        // обновление местоположения склада если его изменили
+        // fixme сделать лог для изменений 
+        $warehouse = R::load(WAREHOUSE, $post['wh_id']);
+        if ($warehouse->wh_types_id != $post['warehouse-type-id']) {
+            // $itemDataBefore['wh_type_id'] = $warehouse->wh_types_id;
+            // расположение склада физичеки
+            $warehouse->wh_types_id = $post['warehouse-type-id'];
+            R::store($warehouse);
+            // $itemDataAfter['wh_type_id'] = $post['warehouse-type-id'];
+        }
 
         // проверяем если ранее было добавлено фото и удаляем старое если оно есть/было
         if (!empty($oldPhotoPath) && is_file($oldPhotoPath) && $needToDelete) {

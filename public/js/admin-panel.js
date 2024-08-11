@@ -274,15 +274,29 @@ dom.addEventListener("DOMContentLoaded", function () {
 });
 
 // Функция для обновления порядка строк
+// function updateRowOrder() {
+//     let order = [];
+//     dom.querySelectorAll('tbody tr').forEach(tr => {
+//         let checkbox = tr.querySelector('input[type="checkbox"]');
+//         if (checkbox && checkbox.checked) {
+//             order.push(checkbox.value);
+//         }
+//     });
+//     // добавляем в инпут сортированный список выбранных элементов
+//     if (order.length > 0)
+//         dom.e('#rowOrder').value = order.join(',');
+// }
+
 function updateRowOrder() {
-    let order = [];
+    let order = {};
     dom.querySelectorAll('tbody tr').forEach(tr => {
-        let checkbox = tr.querySelector('input[type="checkbox"]');
+        let checkbox = tr.querySelector('input[type="checkbox"][name="selected-colums[]"]');
         if (checkbox && checkbox.checked) {
-            order.push(checkbox.value);
+            let filterCheckbox = tr.querySelector('input[type="checkbox"][name^="enable-filter"]');
+            let fieldName = checkbox.value;
+            order[fieldName] = filterCheckbox && filterCheckbox.checked ? "filter" : "";
         }
     });
-    // добавляем в инпут сортированный список выбранных элементов
-    if (order.length > 0)
-        dom.e('#rowOrder').value = order.join(',');
+    // добавляем в инпут сортированный список выбранных элементов в формате JSON
+    dom.e('#rowOrder').value = JSON.stringify(order);
 }

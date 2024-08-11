@@ -204,18 +204,22 @@ DisplayMessage($args ?? null);
 
         <!-- ORDERS TABLE -->
         <div class="table-responsive">
-            <table>
+            <table id="orders-table">
                 <thead>
-                <tr class="border-bottom info-1">
-                    <?php
-                    if ($settings) {
-                        foreach ($settings as $item) {
-                            echo '<th scope="col" class="border-end">' . SR::getResourceValue(ORDERS, $item) . '</th>';
-                        }
-                    } ?>
-                    <th scope="col">
-                        Actions
-                    </th>
+<!--                <tr class="border-bottom info-1">-->
+<!--                    --><?php
+//                    if ($settings) {
+//                        foreach ($settings as $item => $_) {
+//                            echo '<th scope="col" class="border-end">' . SR::getResourceValue(ORDERS, $item) . '</th>';
+//                        }
+//                    } ?>
+<!--                    <th scope="col">-->
+<!--                        Actions-->
+<!--                    </th>-->
+<!--                </tr>-->
+
+                <tr class="border-bottom info-1" style="white-space: nowrap">
+                    <?= CreateTableHeaderUsingUserSettings($settings, 'orders-table', ORDERS, '<th scope="col">Actions</th>') ?>
                 </tr>
                 </thead>
                 <tbody id="searchAnswer">
@@ -238,7 +242,8 @@ DisplayMessage($args ?? null);
                             <?php
                             if ($settings) {
                                 // creating table using user settings
-                                foreach ($settings as $k => $item) {
+                                $k = 0;
+                                foreach ($settings as $item => $_) {
                                     $click = ($k === 0 && (in_array($thisUser['user_name'], $workers) ||
                                             isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR]))) ? ' onclick="getInfo(' . $order['id'] . ')"' : '';
                                     if ($item == 'status') {
@@ -259,6 +264,7 @@ DisplayMessage($args ?? null);
                                         // regular tab cel
                                         echo '<td class="border-end"' . $click . '>' . $order[$item] . '</td>';
                                     }
+                                    $k++;
                                 }
                             }
 
