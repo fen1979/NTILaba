@@ -101,21 +101,8 @@ DisplayMessage($args ?? null);
         <?php if (!isset($_POST['edit']) && !isset($_POST['create'])) { ?>
             <table id="tool-table">
                 <thead>
-                <tr>
-                    <th>N</th>
-                    <th>Manufacturer name</th>
-                    <th>Model</th>
-                    <th>Device type</th>
-                    <th>Device location</th>
-                    <th>Calibration status</th>
-                    <th>Serial No</th>
-                    <th>Calibration date</th>
-                    <th>Next calibration</th>
-                    <th>Work Life</th>
-                    <th>Service Manager</th>
-                    <th>Remarks</th>
-                    <th>Image Path</th>
-                    <th>Date in</th>
+                <tr style="white-space: nowrap">
+                    <?= CreateTableHeaderUsingUserSettings($settings, 'tool-table', TOOLS) ?>
                 </tr>
                 </thead>
 
@@ -123,20 +110,17 @@ DisplayMessage($args ?? null);
                 <?php $table = R::find(TOOLS);
                 foreach ($table as $tool) { ?>
                     <tr class="item-list" data-id="<?= $tool['id'] ?>">
-                        <td><?= $tool['id'] ?></td>
-                        <td><?= $tool['manufacturer_name'] ?></td>
-                        <td><?= $tool['device_model'] ?></td>
-                        <td><?= $tool['device_type'] ?></td>
-                        <td><?= $tool['device_location'] ?></td>
-                        <td><?= $tool['calibration'] ?></td>
-                        <td><?= $tool['serial_num'] ?></td>
-                        <td><?= $tool['date_of_inspection'] ?></td>
-                        <td><?= $tool['next_inspection_date'] ?></td>
-                        <td><?= $tool['work_life'] ?></td>
-                        <td><?= !empty($tool['responsible']) ? json_decode($tool['responsible'])->name : ''; ?></td>
-                        <td><?= $tool['remarks'] ?></td>
-                        <td><?= $tool['image'] ?></td>
-                        <td><?= $tool['date_in'] ?></td>
+                        <?php
+                        if ($settings) {
+                            foreach ($settings as $item => $_) {
+                                if ($item == 'responsible') {
+                                    echo '<td>' . (!empty($tool[$item]) ? json_decode($tool[$item])->name : '') . '</td>';
+                                } else {
+                                    echo '<td>' . $tool[$item] . '</td>';
+                                }
+                            }
+                        }
+                        ?>
                     </tr>
                 <?php } ?>
                 </tbody>

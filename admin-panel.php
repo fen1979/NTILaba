@@ -91,6 +91,7 @@ switch ($_GET['route-page'] ?? 1) {
         break;
     case 3:
         /* страница редактированиея и добавления инструиента в систему */
+        $settings = getUserSettings($user, TOOLS);
         include_once 'admin-panel/tools.php';
         break;
     case 4:
