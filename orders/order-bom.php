@@ -217,6 +217,7 @@ DisplayMessage($args ?? null);
             </tr>
             </thead>
             <!-- table -->
+<!--   TODO         СДЕЛАТЬ НОРМАЛЬНЫЙ ВЫВОД ДЛЯ БОМА И ЕЩЕ ЧТО ТО -->
             <tbody>
             <?php
             if ($projectBom) {

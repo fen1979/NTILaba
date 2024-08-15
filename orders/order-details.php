@@ -260,7 +260,6 @@ DisplayMessage($args ?? null);
 
     <!-- ----------------------- Контент Табов ------------------------------ -->
     <div class="tab-content" id="myTabContent">
-
         <!--  Контент Таба 1 order information -->
         <div class="tab-pane fade show <?= ($A_T == 'tab1') ? 'active' : '' ?>" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
             <?php
@@ -273,33 +272,27 @@ DisplayMessage($args ?? null);
         <!--  Контент Таба 2 order bom -->
         <div class="tab-pane fade show <?= ($A_T == 'tab2') ? 'active' : '' ?>" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
             <?php if ($projectBom) { ?>
-                <table class="p-3">
+                <table class="p-3" id="order-bom-table">
                     <!-- header -->
                     <thead>
-                    <tr>
-                        <?php
-                        if ($settings = getUserSettings($user, PROJECT_BOM)) {
-                            foreach ($settings as $item => $_) {
-                                echo '<th>' . SR::getResourceValue(PROJECT_BOM, $item) . '</th>';
-                            } ?>
-                            <th>Shelf / Box</th>
-                            <th>Aqtual QTY</th>
-                            <?php
-                        } else {
-                            ?>
-                            <th>
-                                Your view settings for this table isn`t exist yet
-                                <a role="button" href="/setup" class="btn btn-outline-info">Edit Columns view settings</a>
-                            </th>
-                        <?php } ?>
+                    <tr style="white-space: nowrap">
+                        <?php list($tHead, $settings) = CreateTableHeadByUserSettings(
+                            $user, 'order-bom-table', PROJECT_BOM, '<th>Shelf / Box</th><th>Aqtual QTY [PCS, M]</th>');
+                        echo $tHead;
+                        ?>
                     </tr>
                     </thead>
                     <!-- table -->
                     <tbody>
                     <?php
                     foreach ($projectBom as $line) {
-                        $color = (($line['amount'] * $order['order_amount']) <= WareHouse::GetActualQtyForItem($line['customerid'], $line['item_id'])) ?
-                            'success' : 'danger';
+                        $actual_qty = WareHouse::GetActualQtyForItem($line['customerid'], $line['item_id']);
+                        $length = (double)$line['length_mm'] ?? 0;
+                        $qty = (int)$line['amount'];
+                        $oqty = (int)$order['order_amount'];
+                        // length in meters
+                        $bom_qty = empty($length) ? $qty * $oqty : (($qty * $length) / 1000) * $oqty;
+                        $color = ($actual_qty >= $bom_qty) ? 'success' : 'danger';
                         ?>
                         <tr class="item-list <?= $color; ?>">
                             <?php
@@ -307,6 +300,9 @@ DisplayMessage($args ?? null);
                                 foreach ($settings as $item => $_) {
                                     if ($item == 'amount') {
                                         $it = $line[$item] * $order['order_amount'];
+                                    } elseif ($item == 'length_mm') {
+                                        $m = $line[$item] * $order['order_amount'] * $line['amount'] / 1000;
+                                        $it = !empty($m) ? "$m meter" : '---';
                                     } else {
                                         $it = $line[$item];
                                     }
@@ -315,7 +311,8 @@ DisplayMessage($args ?? null);
                                     <?php
                                 }
                             }
-                            $storage = WareHouse::GetOneItemFromWarehouse($line['manufacture_pn'], $line['owner_pn']);
+
+                            $storage = WareHouse::GetOneItemFromWarehouse($line['manufacture_pn'], $line['owner_pn'], $line['item_id']);
                             $shelf = $storage['storage_shelf'] ?? 'N/A';
                             $box = $storage['storage_box'] ?? 'N/A';
                             ?>
@@ -366,7 +363,7 @@ DisplayMessage($args ?? null);
                         <?php
                         /* настройки вывода от пользователя */
                         if ($settings = getUserSettings($user, TOOLS)) {
-                            foreach ($settings as $item=>$_) {
+                            foreach ($settings as $item => $_) {
                                 echo '<th>' . SR::getResourceValue(TOOLS, $item) . '</th>';
                             }
                         } else {
@@ -386,7 +383,7 @@ DisplayMessage($args ?? null);
                         $row = R::load(TOOLS, $id);
                         echo '<tr class="item-list">';
                         if ($settings) {
-                            foreach ($settings as $item=>$_) {
+                            foreach ($settings as $item => $_) {
                                 if ($item != 'image') {
                                     if ($item == 'responsible')
                                         echo '<td>' . (json_decode($row[$item])->name) . '</td>';
@@ -463,7 +460,7 @@ DisplayMessage($args ?? null);
                     <tr>
                         <?php
                         if ($settings = getUserSettings($user, PROJECT_BOM)) {
-                            foreach ($settings as $item=>$_) {
+                            foreach ($settings as $item => $_) {
                                 echo '<th>' . SR::getResourceValue(PROJECT_BOM, $item) . '</th>';
                             }
                         } else {
@@ -481,7 +478,7 @@ DisplayMessage($args ?? null);
                     foreach ($projectBom as $line) {
                         echo '<tr class="item-list">';
                         if ($settings) {
-                            foreach ($settings as $item=>$_) {
+                            foreach ($settings as $item => $_) {
                                 echo '<td>' . $line[$item] . '</td>';
                             }
                         }

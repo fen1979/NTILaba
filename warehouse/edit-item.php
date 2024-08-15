@@ -38,7 +38,7 @@ if (isset($_POST['save-edited-item']) && !empty($_POST['item_id'])) {
 if (!empty($_GET['item_id'])) {
     $item = R::load(WH_ITEMS, _E($_GET['item_id']));
     $wh = R::findOne(WAREHOUSE, 'items_id = ?', [$item->id]);
-    $lot = R::findOne(WH_INVOICE, 'items_id = ?', [$item->id]);
+    $lot = R::findOne(WH_DELIVERY, 'items_id = ?', [$item->id]);
 }
 ?>
 <!doctype html>
@@ -317,9 +317,9 @@ DisplayMessage($args ?? null);
                        name="part-lot" id="part-lot" value="<?= $lot->lot ?? '' ?>" class="input"/>
 
                 <?php if ($pageMode != 'edit') { ?>
-                    <label for="invoice">Invoice <b class="text-danger">*</b></label>
-                    <input type="text" placeholder="Invoice"
-                           name="invoice" id="invoice" value="<?= $lot['invoice'] ?>" class="input" required/>
+                    <label for="delivery_note">Delivery note <b class="text-danger">*</b></label>
+                    <input type="text" placeholder="Delivery note"
+                           name="delivery_note" id="delivery_note" value="<?= $lot['delivery_note'] ?>" class="input" required/>
                 <?php } ?>
 
                 <label for="supplier">Supplier</label>

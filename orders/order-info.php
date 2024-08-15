@@ -182,7 +182,7 @@ function getOrderInformationHTML($orderid, $order, $customer, $project, $project
         if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
             <div class="col-3 border-start sunset">
                 <!-- Customer Information -->
-                <div class="mb-3">
+                <div class="mb-3 p-2">
                     <h5>Customer Information</h5>
                     <p>Name: <?= $customer['name']; ?></p>
                     <p>Address: <?= $customer['address']; ?></p>
@@ -193,7 +193,7 @@ function getOrderInformationHTML($orderid, $order, $customer, $project, $project
                 </div>
 
                 <!-- Order Information -->
-                <div class="mb-3">
+                <div class="mb-3 p-2">
                     <h5>Order Information</h5>
                     <p>Date In: <?= $order['date_in']; ?></p>
                     <p>Purchase Order: <?= $order['purchase_order']; ?></p>
@@ -203,6 +203,10 @@ function getOrderInformationHTML($orderid, $order, $customer, $project, $project
                 </div>
             </div>
             <?php
+        } else {
+            echo '<div class="col-3 border-start">';
+            echo '<img src="https://i.giphy.com/ecDeNVQMGuhxGovKPr.webp" style="width: 100%;height: auto;padding: 3px;background-color: hsl(0, 0%, 90%);" alt="">';
+            echo '</div>';
         }
         ?>
         <!--  information for worker use RIGHT SIDE -->

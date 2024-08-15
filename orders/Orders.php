@@ -202,7 +202,8 @@ class Orders
         $order->serial_required = $post['serial-required'] ?? 0; // требуется сериализация всей партии
 
         /* main order status */
-        $order->status = 'st-0'; // статус заказа общий
+
+        $order->status = $post['order-status']; // статус заказа по умолчанию st-0
         $order->order_progress = 0; // записываем id рут акта шага над которым работаем сейчас
 
         // LOW, MEDIUM, HIGH, DO FIRST
@@ -212,8 +213,7 @@ class Orders
 
         // обновляем значение в нумерации указывая что данный номер занят
         // TODO  сделать сброс после завершения проекта или на одном из статусов например когда ушел в упаковку
-        SR::updateResourceDetail('stock', $post['storageBox'], '1');
-//        R::exec("UPDATE storage SET in_use = 1 WHERE id = ?", [$post['storageBox']]);
+        SR::updateResourceDetail('order_kit', $post['storageBox'], '1');
 
         $unic_name = strtolower($p_name) . '_' . date('Ymd_is'); // project name/date/
         $order->order_folder = self::makeFolderInStorage($unic_name); // папка заказа для хранения информации
@@ -285,6 +285,14 @@ class Orders
                 $msg .= "<b class='text-danger'>Order Prioritet changed FROM: $order->prioritet -> TO: {$post['prioritet']}</b><br>";
                 // приоритет выполнения заказа
                 $order->prioritet = $post['prioritet'];
+            }
+
+            // ORDER STATUS FOR UPDATING
+            if ($order->status != $post['order-status']) {
+                // message to order log
+                $msg .= "<b class='text-danger'>Order Status changed FROM: $order->status -> TO: {$post['order-status']}</b><br>";
+                // приоритет выполнения заказа
+                $order->status = $post['order-status'];
             }
 
             if ($order->customer_name != $post['customerName']) {

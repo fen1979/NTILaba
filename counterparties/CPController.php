@@ -1,4 +1,5 @@
 <?php
+class_alias('CPController', 'CPC');
 
 class CPController
 {
@@ -89,27 +90,30 @@ class CPController
         $c->name = $name;
         $c->head_pay = $post['headPay'];
         $c->priority = $priority;
-        $c->address = $post['address'];
-        $c->phone = $post['phone'];
-        $c->contact = $post['contact'];
-        $c->email = $post['email'];
+        $c->address = $post['address'] ?? '';
+        $c->phone = $post['phone'] ?? '';
+        $c->contact = $post['contact'] ?? '';
+        $c->email = $post['email'] ?? '';
         $c->extra_phone = json_encode($extraPhones);
         $c->extra_contact = json_encode($extraContact);
         $c->extra_email = json_encode($extraEmail);
-        $c->information = $post['information'];
-        $c->date_in = $post['dateIn'];
+        $c->information = $post['information'] ?? '';
+        $c->date_in = str_replace('T', ' ', $post['date_in']); // дата создания clienta
         $id = R::store($c);
 
         $args = ['color' => 'success', 'info' => 'Customer Saved successfully!'];
 
-        // if routed from order or project pages back data to page
-        $urlData['id'] = $id;
-        $urlData['name'] = $name;
-        $urlData['priority'] = $priority;
-        // если клиент был создан при создании заказа/проекта
-        // здесь создается обратный путь с новыми данными для заполнения полей
-        $args['location'] = self::backDataToRoutedPage($get, $urlData);//
-
+        if ($get != null) {
+            // if routed from order or project pages back data to page
+            $urlData['id'] = $id;
+            $urlData['name'] = $name;
+            $urlData['priority'] = $priority;
+            // если клиент был создан при создании заказа/проекта
+            // здесь создается обратный путь с новыми данными для заполнения полей
+            $args['location'] = self::backDataToRoutedPage($get, $urlData);//
+        } else {
+            $args['customer_id'] = $id;
+        }
         /* [     LOGS FOR THIS ACTION     ] */
         $details = "Customer name: $name, was created in: {$post['dateIn']} <br>";
         if (isset($get['routed-from']))

@@ -42,8 +42,7 @@ if (isset($_POST['createOrder'])) {
 
     if ($result[0]) {
         $orderId = $result[1];
-        header("Location: /check_bom?orid=$orderId&pid=$project->id");
-        exit();
+        redirectTo("check_bom?orid=$orderId&pid=$project->id");
     } else {
         $result = ['color' => 'danger', 'info' => 'Can not write log information^ '];
     }
@@ -57,8 +56,7 @@ if (isset($_POST['editOrder'])) {
 
     $_SESSION['info'] = $res = Orders::updateOrder($user, _E($_POST['order_id']), $_POST, $project, $client);
     if ($res) {
-        header("Location: /check_bom?orid=$orderId&pid=$project->id");
-        exit();
+        redirectTo("check_bom?orid=$orderId&pid=$project->id");
     }
 }
 
@@ -83,8 +81,7 @@ if (isset($_GET['edit-order']) && isset($_GET['pid']) && isset($_GET['orid'])) {
 if (isset($_POST['updateOrder']) && !empty($_POST['order-id'])) {
     $result = Orders::updateOrder($user, _E($_POST['order-id']), $_POST, true, true);
     $_SESSION['info'] = $result;
-    header("Location: /edit-order?edit-order&orid={$_GET['orid']}&pid={$result['pid']}");
-    exit();
+    redirectTo("edit-order?edit-order&orid={$_GET['orid']}&pid={$result['pid']}");
 }
 ?>
 <!DOCTYPE html>
@@ -288,28 +285,31 @@ DisplayMessage($result ?? null);
 
         <div class="mb-3">
             <div class="row g-3 align-items-center">
-                <div class="col-4">
+                <div class="col">
                     <label for="purchaseOrder" class="form-label">Purchase Order</label>
                 </div>
-                <div class="col-3">
+                <div class="col">
                     <label for="orderWorkers" class="form-label">Workers to Order <b class="text-danger">*</b></label>
                 </div>
-                <div class="col-3">
+                <div class="col">
                     <label for="forwardTo" class="form-label">Forward To <b class="text-danger">*</b></label>
                 </div>
-                <div class="col-2">
+                <div class="col">
                     <?php $t = 'To improve effectiveness, keep your mind clear.'; ?>
                     <label for="prioritet" class="form-label"><i class="bi bi-info-circle" data-title="<?= $t; ?>"></i> &nbsp;Prioritet</label>
+                </div>
+                <div class="col">
+                    <label for="order-status" class="form-label">Order Status</label>
                 </div>
             </div>
 
             <div class="row g-3 align-items-center">
-                <div class="col-4">
+                <div class="col">
                     <input type="text" class="form-control track-change" id="purchaseOrder" name="purchaseOrder"
                            value="<?= set_value('purchaseOrder', $client->head_pay ?? '0'); ?>" data-field-id="head_pay">
                 </div>
 
-                <div class="col-3">
+                <div class="col">
                     <!-- i выбор работников для заказа -->
                     <div class="dropdown" id="workers">
                         <input type="text" name="orderWorkers" id="orderWorkers" class="form-control" placeholder="Choose the workers"
@@ -335,7 +335,7 @@ DisplayMessage($result ?? null);
                     </div>
                 </div>
 
-                <div class="col-3">
+                <div class="col">
                     <!-- переведено на ... -->
                     <div class="dropdown" id="forwarded">
                         <input type="text" name="forwardedTo" id="forwardTo" class="form-control" placeholder="Forward To"
@@ -350,7 +350,7 @@ DisplayMessage($result ?? null);
                     </div>
                 </div>
 
-                <div class="col-2">
+                <div class="col">
                     <?php
                     if (!empty($order['prioritet'])) {
                         $pri = ['DO FIRST' => 'danger', 'HIGH' => 'danger', 'MEDIUM' => 'warning', 'LOW' => 'success'];
@@ -373,6 +373,17 @@ DisplayMessage($result ?? null);
                     <?php } ?>
                 </div>
 
+                <div class="col">
+                    <select class="form-control" name="order-status">
+                        <?php
+                        // если заказ на паузе то выводим только один статус для разблокировки
+                        foreach (SR::getAllResourcesInGroup('status') as $key => $status) {
+                            if ($key != '-1') { ?>
+                                <option value="<?= $key ?>"> <?= SR::getResourceValue('status', $key); ?></option>
+                            <?php }
+                        } ?>
+                    </select>
+                </div>
             </div>
         </div>
 

@@ -31,7 +31,7 @@ $tableHead = [
     'storage-shelf',
     'manufactured-date',
     'part-lot',
-    'invoice',
+    'delivery_note',
     'supplier'
 ];
 
@@ -58,7 +58,7 @@ $labels = [
     'notes' => 'Notes',
     'owner' => 'Owner',
     'supplier' => 'Supplier',
-    'invoice' => 'Invoice',
+    'delivery_note' => 'Delivery Note',
     'lot' => 'Lot',
     'manufacture-date' => 'Manufacture Date',
 ];

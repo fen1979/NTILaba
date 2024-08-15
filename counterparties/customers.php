@@ -219,8 +219,8 @@ DisplayMessage($args ?? null);
                 </div>
 
                 <div class="mb-3">
-                    <label for="date" class="form-label">Incoming Date</label>
-                    <input type="datetime-local" class="form-control" id="date" name="dateIn" value="<?= $client['date_in'] ?? date('Y-m-d H:i'); ?>">
+                    <label for="date_in" class="form-label">Incoming Date</label>
+                    <input type="datetime-local" class="form-control" id="date_in" name="date_in" value="<?= $client['date_in'] ?? date('Y-m-d H:i'); ?>">
                 </div>
 
                 <button type="submit" class="btn btn-primary form-control mb-2 mt-3" name="createCstomer">

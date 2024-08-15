@@ -29,7 +29,7 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
                 // поиск по клиенту
                 /* search for order creation page */
                 $col = ['name', 'contact', 'information', 'priority'];
-                viewCustomer(dynamicSearch(CLIENTS, $col, $mySearchString), $col);
+                viewCustomer(dynamicSearch(CLIENTS, $col, $mySearchString), $col, $mySearchString);
             }
             break;
 
@@ -47,7 +47,7 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
                 /* search for order creation page */
                 $colForSearch = ['priority'];
                 $col = ['name', 'contact', 'information', 'priority'];
-                viewCustomer(dynamicSearch(CLIENTS, $colForSearch, $mySearchString), $col);
+                viewCustomer(dynamicSearch(CLIENTS, $colForSearch, $mySearchString), $col, $mySearchString);
             }
             break;
 
@@ -55,7 +55,7 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
             {
                 /* search project, for order creation page */
                 $col = ['projectname', 'customername', 'revision'];
-                viewLineProject(dynamicSearch(PROJECTS, $col, $mySearchString), $col);
+                viewLineProject(dynamicSearch(PROJECTS, $col, $mySearchString), $col, $mySearchString);
             }
             break;
 
@@ -166,8 +166,9 @@ function dynamicSearch($tableName, $columns, $searchString)
 function SearchWarehouseItems($searchTerm, $table_one, $table_two)
 {
     // SQL-запрос для поиска в двух таблицах и объединения результатов
+    // Используем * для выбора всех полей из обеих таблиц
     $query = "
-    SELECT wn.*, w.owner, w.owner_pn, w.quantity, w.storage_box, w.storage_shelf, w.fifo, wt.type_name
+    SELECT wn.*, w.*, wt.type_name
     FROM $table_one wn
     LEFT JOIN $table_two w ON wn.id = w.items_id
     LEFT JOIN whtypes wt ON wt.id = w.wh_types_id
@@ -176,15 +177,14 @@ function SearchWarehouseItems($searchTerm, $table_one, $table_two)
        OR wn.mounting_type LIKE ?
        OR wn.manufacture_pn LIKE ?
        OR w.owner LIKE ?
-       OR w.owner_pn LIKE ?
-    ORDER BY w.fifo ASC";
+       OR w.owner_pn LIKE ?";
+//    ORDER BY STR_TO_DATE(w.fifo, '%Y-%m-%d %H:%i') ASC"; // если нужна сортировка по fifo
 
     $q = '%' . $searchTerm . '%';
     $params = [$q, $q, $q, $q, $q, $q];
     // Возвращение результатов в виде массива
     return R::getAll($query, $params);
 }
-
 
 /**
  * Получает уникальные непустые значения из указанного поля таблицы.

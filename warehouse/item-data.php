@@ -19,7 +19,7 @@ if (isset($_GET['itemid'])) {
     // получаем товар
     $item = R::load(WH_ITEMS, _E($_GET['itemid']));
     // получаем информацию о приходах
-    $lots = R::findAll(WH_INVOICE, 'items_id = ?', [$item->id]);
+    $lots = R::findAll(WH_DELIVERY, 'items_id = ?', [$item->id]);
     // получаем информацию о складе
     $wh = R::findAll(WAREHOUSE, 'items_id = ?', [$item->id]);
     // получаем весь резерв на данный товар
@@ -268,7 +268,7 @@ DisplayMessage($args ?? null);
         <!-- Таб 3 -->
         <li class="nav-item" role="presentation">
             <button class="nav-link <?= ($A_T == 'tab3') ? 'active' : '' ?>"
-                    data-bs-target="#tab3" id="nav-link-3" type="button" role="tab">Invoices information
+                    data-bs-target="#tab3" id="nav-link-3" type="button" role="tab">Delivery information
             </button>
         </li>
         <!-- Таб 4 -->
@@ -407,13 +407,13 @@ DisplayMessage($args ?? null);
                 if (!empty($lots)) {
                     foreach ($lots as $line) { ?>
                         <tr class="item-list">
-                            <td data-name="table-name" class="hidden"><?= WH_INVOICE ?></td>
+                            <td data-name="table-name" class="hidden"><?= WH_DELIVERY ?></td>
                             <td data-name="item_id" class="hidden"><?= $line['id']; ?></td>
                             <td data-name="supplier_id" class="hidden"><?= json_decode($line['supplier'])->id; ?></td>
                             <td data-name="owner_id" class="hidden"><?= json_decode($line['owner'])->id; ?></td>
 
                             <td data-name="lot"><?= $line['lot']; ?></td>
-                            <td data-name="invoice"><?= $line['invoice']; ?></td>
+                            <td data-name="delivery_note"><?= $line['delivery_note']; ?></td>
                             <td data-name="supplier"><?= json_decode($line['supplier'])->name; ?></td>
                             <td data-name="owner"><?= json_decode($line['owner'])->name; ?></td>
                             <td data-name="quantity"><?= $line['quantity']; ?></td>

@@ -235,7 +235,7 @@ function smtAssemblyProjectType($order, $amount, $projectBom): void
 
                         <?php
                         // trying to find component in our DB
-                        $it = WareHouse::GetOneItemFromWarehouse($item['manufacture_pn'], $item['owner_pn']);
+                        $it = WareHouse::GetOneItemFromWarehouse($item['manufacture_pn'], $item['owner_pn'], $item['items_id']);
                         if ($it) {
                             // if component exist then writing where is stored
                             $stor = $it->storage_shelf ?? 'N/A' . ' / ' . $it->storage_box ?? 'N/A';

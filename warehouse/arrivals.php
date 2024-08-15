@@ -293,9 +293,9 @@ DisplayMessage($args ?? null);
                 <input type="text" placeholder="Lot"
                        name="part-lot" id="part-lot" value="<?= set_value('part-lot'); ?>" class="input"/>
 
-                <label for="invoice">Invoice</label>
-                <input type="text" placeholder="Invoice"
-                       name="invoice" id="invoice" value="<?= set_value('invoice', 'base flooding'); ?>" class="input" required/>
+                <label for="delivery_note">Delivery Note</label>
+                <input type="text" placeholder="Delivery Note [ by default value is 'base flooding' ]"
+                       name="delivery_note" id="delivery_note" value="<?= set_value('delivery_note'); ?>" class="input" required/>
 
                 <label for="supplier">Supplier</label>
                 <input type="text" placeholder="Supplier" class="input searchThis" data-request="supplier"

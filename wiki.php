@@ -141,6 +141,9 @@ DisplayMessage($args);
         <?php if (isUserRole([ROLE_SUPERADMIN, ROLE_SUPERVISOR])){ ?>
             <button class='btn drop-target btn-trash' data-dir='delete'><i class='bi bi-trash'></i></button>
         <?php }
+
+        // кнопка возврата на главную страницу вики и так же при переносе файла на кнопку он
+        // будет перенесен на главную вики
         if ($backBtn) { ?>
             <a type="button" href="/wiki" class="btn btn-outline-dark drop-target" data-dir="wiki">
                 <i class="bi bi-box-arrow-in-left"></i>

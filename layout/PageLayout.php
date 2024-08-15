@@ -218,12 +218,15 @@ function ALL_PAGES_BUTTONS($page): void
         </button>
     </li>
 
-    <?php if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) {
-    $text = ($page == 'edit_order') ? 'Edit' : 'New'; ?>
-
+    <?php if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
+    <li class="nav-item hidden">
+        <button type="button" class="url btn btn-sm btn-outline-secondary"
+                value="pioi">P.O.
+        </button>
+    </li>
     <li class="nav-item">
         <button type="button" class="url btn btn-sm btn-outline-secondary"
-                value="new_order"><?= $text; ?> Order
+                value="new_order">New Order
         </button>
     </li>
     <li class="nav-item">

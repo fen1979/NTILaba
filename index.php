@@ -81,10 +81,14 @@ $r->addRout('/6fef03d1aac6981d6c6eaa35fc9b46d1311b4b5425a305fc7da1b00c2', 'core/
 // запрос на поиск данных в БД
 $r->addRout('/get_data', 'searching/getData.php');
 
+// task manager pages
 $r->addRout('/task_list', 'task-manager.php');
 $r->addRout('/add-task', 'task-manager/add-task.php');
 $r->addRout('/update-task', 'task-manager/update-task.php');
 $r->addRout('/manage-list', 'task-manager/manage-list.php');
+// спец страница для автоматического ввода данных
+$r->addRout('/pioi', 'task-manager/add-po.php');
+
 
 // call the routing function to view page
 $r->route($r->getUrl());

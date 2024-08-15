@@ -421,7 +421,7 @@ class Project
         $project = R::load(PROJECTS, $project_id);
 
         $partList = R::dispense(PROJECT_BOM);
-        $partList->customerid = $project['customerid'];  // customer id hidden val
+        $partList->customerid = $post['owner_id'];  // customer id hidden val
         $partList->sku = $post['sku'];  // sku makat
         $partList->part_name = $post['part_name'];  // part name
         $partList->part_value = $post['part_value'];  // part value
@@ -433,19 +433,20 @@ class Project
 
         // добавляем ID детали из БД если она есть в БД
         // если детали нет то оставляем пустое поле
-        if (!empty($post['item_id'])) {
-            $partList->item_id = $post['item_id'];  // warehouse item id
-        } else {
-            $wh = WareHouse::GetOneItemFromWarehouse($post['manufacture_pn'], $post['owner_pn']);  // warehouse item id
-            if ($wh)
-                $partList->item_id = $wh->id;
-            else
-                $partList->item_id = null;
-        }
+//        if (!empty($post['item_id'])) {
+        $partList->item_id = $post['item_id'] ?? null;  // warehouse item id
+//        } else {
+//            $wh = WareHouse::GetOneItemFromWarehouse($post['manufacture_pn'], $post['owner_pn']);  // warehouse item id
+//            if ($wh)
+//                $partList->item_id = $wh->id;
+//            else
+//                $partList->item_id = null;
+//        }
         $partList->description = $post['description'];  // description
         $partList->notes = $post['note'];  // note
-        // before set number to DB check if this digit
-        $partList->amount = self::isDigits($post['qty']);  // amount for one peace can be double!!!
+        // before set number to DB check if this digit amount for one peace can be double!!!
+        $partList->amount = self::isDigits($post['qty']);  // кол-во для одной штуки в сборке
+        $partList->length_mm = self::isDigits($post['length_mm']);  // длина детали для сборки в МИЛЛИМЕТРАХ
         // tables relations
         $partList->projects_id = $project->id;
 
@@ -521,7 +522,8 @@ class Project
                             $goods->manufacturer = $rowData['manufacturer'];
                             $goods->manufacture_pn = $rowData['manufacture_pn'];
                             $goods->owner_pn = $rowData['owner_pn'] ?? '';
-                            $goods->amount = trim($rowData['qty']);
+                            $goods->amount = trim($rowData['qty']);// требуемое кол-во на одну штуку
+                            $goods->length_mm = self::isDigits(trim($rowData['length_mm'])); // ДЛИНА В ММ ЕСЛИ ЕСТЬ
                             $goods->description = $rowData['description'] ?? '';
                             $goods->notes = $rowData['note'] ?? '';
                             $goods->projects_id = $project->id;
@@ -529,15 +531,15 @@ class Project
 
                             // добавляем ID детали из БД если она есть в БД
                             // если детали нет то оставляем пустое поле
-                            if (!empty($rowData['item_id'])) {
-                                $partList->item_id = $rowData['item_id'];  // warehouse item id
-                            } else {
-                                $wh = WareHouse::GetOneItemFromWarehouse($rowData['manufacture_pn'], $rowData['owner_pn']);  // warehouse item id
-                                if ($wh)
-                                    $partList->item_id = $wh->id;
-                                else
-                                    $partList->item_id = null;
-                            }
+//                            if (!empty($rowData['item_id'])) {
+//                                $partList->item_id = $rowData['item_id'];  // warehouse item id
+//                            } else {
+                            $wh = WareHouse::GetOneItemFromWarehouse($rowData['manufacture_pn'], $rowData['owner_pn']);  // warehouse item id
+                            if ($wh)
+                                $partList->item_id = $wh->id;
+                            else
+                                $partList->item_id = null;
+//                            }
 
                             $goods->date_in = date("Y-m-d H:i");
 
@@ -590,8 +592,9 @@ class Project
         $item->owner_pn = $post['owner_pn'];  // owner p/n
         $item->description = $post['description'];  // description
         $item->notes = $post['note'];  // note
-        // before set number to DB check if this digit
-        $item->amount = self::isDigits($post['qty']);  // amount for one peace can be double!!!
+        // before set number to DB check if this digit amount for one peace can be double!!!
+        $item->amount = self::isDigits($post['qty']);  // кол-во для одной штуки в сборке
+        $item->length_mm = self::isDigits($post['length_mm']);  // длина детали для сборки в МИЛЛИМЕТРАХ
 
         R::store($item);
 

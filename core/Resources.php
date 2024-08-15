@@ -36,7 +36,8 @@ const SHARE_LINK_ROUTE = BASE_URL . 'shared-project?shared='; // the path to sha
 /*
  *  ACTIVE LINKS FOR NAV BUTTONS
  * */
-const Y = ['ORDER' => 0, 'PROJECT' => 1, 'N_ORDER' => 2, 'N_PROJECT' => 3, 'CLIENT' => 4, 'STOCK' => 5, 'LOG' => 6, 'WIKI' => 7, 'E_ORDER' => 8, 'SETTINGS' => 9];
+const Y = ['ORDER' => 0, 'PROJECT' => 1, 'N_ORDER' => 2, 'N_PROJECT' => 3, 'CLIENT' => 4, 'STOCK' => 5,
+    'LOG' => 6, 'WIKI' => 7, 'E_ORDER' => 8, 'SETTINGS' => 9, 'PO' => 10];
 const STORAGE_STATUS = ['smt' => 'In SMT Line', 'shelf' => 'On Shelf', 'work' => 'In Work'];
 
 
@@ -50,7 +51,7 @@ const USERS = 'users'; // users table
 const SUPPLIERS = 'suppliers';
 
 const WH_ITEMS = 'whitems'; // перечень товарной базы
-const WH_INVOICE = 'whinvoice'; // товарный склад, приход/рарсход
+const WH_DELIVERY = 'whdelivery'; // товарный склад, приход/рарсход
 const WAREHOUSE = 'warehouse'; // динамический склад, кол-во и прочее
 const WH_LOGS = 'whlogs'; // логи склада и всех его операций
 const WH_RESERV = 'whreserv'; // созданный резерв запчастей для заказов
@@ -119,15 +120,6 @@ const MOUNTING_TYPE = ["SMT", "TH", "CM", "PM", "SOLDER", "CRIMP", "LM", "OTHER"
 const NTI_PN = ['NCAP' => 'Capacitor', 'NRES' => 'Resistor', 'NDIO' => 'Diode', 'NIC' => 'Micro Chip', 'NTR' => 'Transistor',
     'NCR' => 'Oscilator', 'NFU' => 'Fuse', 'NFB' => 'Ferrite bead', 'NCON' => 'Connector', 'NIND' => 'Inductor', 'NPIN' => 'Pins',
     'NW' => 'Wires', 'NTUBE' => 'Shrink Tube', 'custom' => 'Custom'];
-
-//============== task manager delete letter
-//Create Constants to save Database Credentials
-const LOCALHOST = 'localhost';
-const DB_USERNAME = 'root';
-const DB_PASSWORD = '8CwG24YwZG';
-const DB_NAME = 'task_manager';
-const SITEURL = 'task_list';
-
 /* ==================================================== PROJECT RESOURCES ==================================================== */
 
 class Resources

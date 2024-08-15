@@ -6,9 +6,9 @@
  * @param $col
  * @return void
  */
-function viewCustomer($result, $col)
+function viewCustomer($result, $col, $mySearchString)
 {
-    if ($result) { ?>
+    if ($result && !empty($mySearchString)) { ?>
         <thead>
         <tr>
             <th>ID</th>
@@ -55,7 +55,7 @@ function viewCustomer($result, $col)
  */
 function viewSupplier($result, $request, $mySearchString): void
 {
-    if ($result) { ?>
+    if ($result && !empty($mySearchString)) { ?>
         <thead>
         <tr>
             <th>Name</th>
@@ -81,67 +81,72 @@ function viewSupplier($result, $request, $mySearchString): void
         </tbody>
         <?php
     } else {
-        // ДОБАВЛЕНИЕ НА ЛЕТУ ПОСТАВЩИКА-ПРОИЗВОДИТЕЛЯ
-        ?>
-        <thead>
-        <tr>
-            <th><h2>Form adding a new supplier/manufacturer</h2></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>
-                <form action="/counterparties/suppliers.php" method="post" id="supplier_form">
-                    <input type="hidden" name="user-data" value="" id="user_data">
-                    <input type="hidden" name="request" value="<?= $request ?>">
+        if (!empty($mySearchString)) {
+            // ДОБАВЛЕНИЕ НА ЛЕТУ ПОСТАВЩИКА-ПРОИЗВОДИТЕЛЯ
+            ?>
+            <thead>
+            <tr>
+                <th><h2>Form adding a new supplier/manufacturer</h2></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <form action="/counterparties/suppliers.php" method="post" id="supplier_form">
+                        <input type="hidden" name="user-data" value="" id="user_data">
+                        <input type="hidden" name="request" value="<?= $request ?>">
 
-                    <div class="mb-2">
-                        <label for="supplier-name">Supplier/Manufacturer Name <b class="text-danger">*</b></label>
-                        <input type="text" placeholder="Supplier Name" name="supplier-name" id="supplier-name" class="input"
-                               value="<?= set_value('supplier-name', $mySearchString); ?>" required/>
-                    </div>
-
-                    <div class="row mb-2">
-                        <div class="col-8 pe-3">
-                            <label for="sup_type">Choose Supplier Type <b class="text-danger">*</b></label>
-                            <select name="sup_type" id="sup_type" class="input" required>
-                                <option value="Manufacturer">Manufacturer</option>
-                                <option value="Distributors">Distributors</option>
-                            </select>
+                        <div class="mb-2">
+                            <label for="supplier-name">Supplier/Manufacturer Name <b class="text-danger">*</b></label>
+                            <input type="text" placeholder="Supplier Name" name="supplier-name" id="supplier-name" class="input"
+                                   value="<?= set_value('supplier-name', $mySearchString); ?>" required/>
                         </div>
 
-                        <div class="col-4">
-                            <label for="rating">Rating <b class="text-danger">*</b></label>
-                            <input type="number" placeholder="Rating" class="input" name="rating" id="rating"
-                                   value="<?= set_value('rating'); ?>" required/>
+                        <div class="row mb-2">
+                            <div class="col-8 pe-3">
+                                <label for="sup_type">Choose Supplier Type <b class="text-danger">*</b></label>
+                                <select name="sup_type" id="sup_type" class="input" required>
+                                    <option value="Manufacturer">Manufacturer</option>
+                                    <option value="Distributors">Distributors</option>
+                                </select>
+                            </div>
+
+                            <div class="col-4">
+                                <label for="rating">Rating <b class="text-danger">*</b></label>
+                                <input type="number" placeholder="Rating" class="input" name="rating" id="rating"
+                                       value="<?= set_value('rating'); ?>" required/>
+                            </div>
                         </div>
-                    </div>
 
-                    <label for="description">Description <b class="text-danger">*</b></label>
-                    <textarea placeholder="Description" name="description" id="description" class="input" required><?= set_value('description'); ?></textarea>
+                        <label for="description">Description <b class="text-danger">*</b></label>
+                        <textarea placeholder="Description" name="description" id="description" class="input" required><?= set_value('description'); ?></textarea>
 
-                    <div class="mt-3">
-                        <button type="submit" class="btn btn-success input" id="modal-btn-succes" disabled>Save Changes</button>
-                    </div>
-                </form>
-            </td>
-        </tr>
-        </tbody>
-        <?php
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-success input" id="modal-btn-succes" disabled>Save Changes</button>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+            <?php
+        } else {
+            echo 'EMPTY';
+        }
     }
 }
 
 /**
  * @param $result
  * @param $col
+ * @param $mySearchString
  * @return void
  * функция вывода результатов поиска на странице добавления заказа
  * форма поиска по проектам
  */
-function viewLineProject($result, $col)
+function viewLineProject($result, $col, $mySearchString)
 {
     //i ВЫВОД РЕЗУЛЬТАТОВ ПОИСКА В МОДАЛЬНОМ ОКНЕ
-    if ($result) { ?>
+    if ($result && !empty($mySearchString)) { ?>
         <thead>
         <tr>
             <th>Id</th>
@@ -426,7 +431,7 @@ function viewOrder($result, $user)
  */
 function viewStorageItems($result, $searchString, $request, $user): void
 {
-    if ($result) {
+    if ($result && !empty($searchString)) {
         // ВЫВОД ТАБЛИЦЫ ПРИ ПОИСКЕ НА ГЛАВНОЙ СТРАНИЦЕ СКЛАДА
         if ($request == 'wh_nav') {
             $settings = getUserSettings($user, WH_ITEMS);
@@ -520,11 +525,11 @@ function viewStorageItems($result, $searchString, $request, $user): void
                     'quantity' => $item['quantity'],
                     'storage_box' => $item['storage_box'],
                     'storage_shelf' => $item['storage_shelf'],
-                    'storage_state' => $item['storage_state'],
+                    'storage_state' => $item['storage_state']
                     // invoice table fields
                     // 'manufactured_date' => $item['manufacture_date'],
                     // 'part_lot' => $item['lots'],
-                    // 'invoice' => $item['invoice']б
+                    // 'delivery_note' => $item['delivery_note'], // was invoice
                     // 'supplier' => $item['supplier']
                 ]);
                 ?>
@@ -569,6 +574,7 @@ function viewPartsForProjectBOM($result): void
     if ($result): foreach ($result as $item):
 
         $infoData = json_encode([
+            'owner_id' => $item['owner'],
             'item_id' => $item['id'],
             'partName' => $item['part_name'],
             'partValue' => $item['part_value'],

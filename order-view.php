@@ -206,18 +206,6 @@ DisplayMessage($args ?? null);
         <div class="table-responsive">
             <table id="orders-table">
                 <thead>
-<!--                <tr class="border-bottom info-1">-->
-<!--                    --><?php
-//                    if ($settings) {
-//                        foreach ($settings as $item => $_) {
-//                            echo '<th scope="col" class="border-end">' . SR::getResourceValue(ORDERS, $item) . '</th>';
-//                        }
-//                    } ?>
-<!--                    <th scope="col">-->
-<!--                        Actions-->
-<!--                    </th>-->
-<!--                </tr>-->
-
                 <tr class="border-bottom info-1" style="white-space: nowrap">
                     <?= CreateTableHeaderUsingUserSettings($settings, 'orders-table', ORDERS, '<th scope="col">Actions</th>') ?>
                 </tr>

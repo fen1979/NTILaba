@@ -69,6 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Устанавливаем полученные значения в поля ввода
             dom.e("#item_id").value = info.item_id; // Устанавливаем Item ID
+            dom.e("#owner_id").value = JSON.parse(info.owner_id).id; // Устанавливаем owner ID
             dom.e("#pn").value = info.partName; // Устанавливаем Item Name
             dom.e("#pv").value = info.partValue; // Устанавливаем Item Value
             dom.e("#mounting_type").value = info.mountingType; // Устанавливаем Item Type

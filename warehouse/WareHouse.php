@@ -231,12 +231,12 @@ class WareHouse
 
 
         // СОЗДАЕМ ЗАПИСЬ В ТАБЛИЦУ ИНВОЙСОВ
-        $invoice = R::dispense(WH_INVOICE);
+        $invoice = R::dispense(WH_DELIVERY);
         $invoice->items_id = $item_id;
         $invoice->quantity = $post['quantity']; // полученное кол-во товара в этой накладной
         $invoice->warehouses_id = $warehouse_id;
         $lot = $invoice->lot = !empty($post['part-lot']) ? $post['part-lot'] : 'N:' . date('m/Y') . ':TI~' . $item_id;
-        $invoice->invoice = $post['invoice']; // this airrval invoice
+        $invoice->delivery_note = $post['delivery_note']; // this airrval delivery_note
         $invoice->supplier = '{"name":"' . ($post['supplier'] ?? '') . '","id":"' . ($post['supplier-id'] ?? '') . '"}'; // this airrval suplplier
         $invoice->owner = $owner_data; // this part owner
         $invoice->date_in = $item->date_in;
@@ -385,19 +385,19 @@ class WareHouse
 
 
         // СОЗДАЕМ ЗАПИСЬ В ТАБЛИЦУ ИНВОЙСОВ
-        $invoice = R::dispense(WH_INVOICE);
-        $invoice->items_id = $item_id;
-        $invoice->quantity = $post['quantity']; // полученное кол-во товара в этой накладной
-        $invoice->warehouses_id = $warehouse_id;
-        $lot = $invoice->lot = !empty($post['part-lot']) ? $post['part-lot'] : 'N:' . date('m/Y') . ':TI~' . $item_id;
-        $invoice->invoice = $post['invoice']; // this airrval invoice
-        $invoice->supplier = '{"name":"' . ($post['supplier'] ?? '') . '","id":"' . ($post['supplier-id'] ?? '') . '"}'; // this airrval suplplier
-        $invoice->owner = $owner_data; // this part owner
-        $invoice->date_in = date('Y-m-d H:i');
-        $invoice_id = R::store($invoice);
+        $delivery = R::dispense(WH_DELIVERY);
+        $delivery->items_id = $item_id;
+        $delivery->quantity = $post['quantity']; // полученное кол-во товара в этой накладной
+        $delivery->warehouses_id = $warehouse_id;
+        $lot = $delivery->lot = !empty($post['part-lot']) ? $post['part-lot'] : 'N:' . date('m/Y') . ':TI~' . $item_id;
+        $delivery->delivery_note = $post['delivery_note']; // this airrval delivery note
+        $delivery->supplier = '{"name":"' . ($post['supplier'] ?? '') . '","id":"' . ($post['supplier-id'] ?? '') . '"}'; // this airrval suplplier
+        $delivery->owner = $owner_data; // this part owner
+        $delivery->date_in = date('Y-m-d H:i');
+        $delivery_id = R::store($delivery);
 
         // ЗАПИСЫВАЕМ В ЛОГ ОПЕРАЦИЮ И ДАННЫЕ ТАБЛИЦ
-        $args = WareHouseLog::registerNewArrival($item->export(), $warehouse->export(), $invoice->export(), $user, 'NEW ITEM ARRIVAL');
+        $args = WareHouseLog::registerNewArrival($item->export(), $warehouse->export(), $delivery->export(), $user, 'NEW ITEM ARRIVAL');
         $args['action'] = 'success';
         return $args;
     }
@@ -529,11 +529,11 @@ class WareHouse
      * Затем она суммирует все значения поля `quantity`, которые не равны нулю. Если записи найдены, но все значения
      * поля `quantity` равны нулю, функция возвращает 0. Если записи не найдены, функция возвращает `null`.
      *
-     * @param int $owner_id Идентификатор владельца.
-     * @param int $item_id Идентификатор товара.
+     * @param string $owner_id Идентификатор владельца.
+     * @param string $item_id Идентификатор товара.
      * @return float|null Суммарное количество товара или `null`, если записи не найдены.
      */
-    public static function GetActualQtyForItem($owner_id, $item_id)
+    public static function GetActualQtyForItem(string $owner_id, string $item_id)
     {
         // Проверяем, что $owner_id и $item_id не пусты
         $ownerId = (!empty($owner_id)) ? trim($owner_id) : null;
@@ -541,8 +541,8 @@ class WareHouse
 
         // Проводим запрос в БД только если $ownerId и $itemId не пусты
         if ($ownerId !== null && $itemId !== null) {
-            $query = 'SELECT quantity FROM ' . WAREHOUSE . ' WHERE owner LIKE ? AND items_id = ?';
-            $results = R::getAll($query, ['%"' . $ownerId . '"%', $itemId]);
+            $query = 'SELECT quantity FROM ' . WAREHOUSE . ' WHERE JSON_UNQUOTE(JSON_EXTRACT(owner, "$.id")) = ? AND items_id = ?';
+            $results = R::getAll($query, [$ownerId, $itemId]);
 
             // Если записи найдены, суммируем количество
             if ($results) {
@@ -568,28 +568,67 @@ class WareHouse
     }
 
 
+//    public static function GetActualQtyForItem(string $owner_id, string $item_id)
+//    {
+//        // Проверяем, что $owner_id и $item_id не пусты
+//        $ownerId = (!empty($owner_id)) ? trim($owner_id) : null;
+//        $itemId = (!empty($item_id)) ? trim($item_id) : null;
+//
+//        // Проводим запрос в БД только если $ownerId и $itemId не пусты
+//        if ($ownerId !== null && $itemId !== null) {
+//            $query = 'SELECT quantity FROM ' . WAREHOUSE . ' WHERE JSON_EXTRACT(owner, "$.id") = ? AND items_id = ?';
+//            $results = R::getAll($query, [$ownerId, $itemId]);
+//            // Если записи найдены, суммируем количество
+//            if ($results) {
+//                $totalQuantity = 0;
+//                foreach ($results as $row) {
+//                    $totalQuantity += $row['quantity'];
+//                }
+//
+//                // Если все количества равны нулю, вернуть 0
+//                if ($totalQuantity == 0) {
+//                    return 0.0;
+//                }
+//
+//                return $totalQuantity;
+//            } else {
+//                // Если ничего не найдено
+//                return null;
+//            }
+//        } else {
+//            // Если $ownerId или $itemId пусты, не выполняем запрос
+//            return null;
+//        }
+//    }
+
+
     /**
      * SEARCH AND RETURN ONE ITEM FOR PROJECT BOM TAB
      * function for finding component by several entries for SMT line assembling mode
      * @param $part_number
      * @param $owner_pn
+     * @param null $item_id
      * @return mixed
      */
-    public static function GetOneItemFromWarehouse($part_number, $owner_pn)
+    public static function GetOneItemFromWarehouse($part_number, $owner_pn, $item_id = null)
     {
-        // Очистка входных данных
-        $part_number = !empty($part_number) ? $part_number : null;
-        $owner_pn = !empty($owner_pn) ? $owner_pn : null;
-        if ($part_number || $owner_pn) {
-            // SQL-запрос для поиска по двум таблицам
-            $sql = "SELECT wi.*, w.* FROM whitems wi LEFT JOIN warehouse w ON wi.id = w.items_id
-            WHERE wi.manufacture_pn LIKE ? OR w.owner_pn LIKE ? LIMIT 1";
-            // Выполнение запроса и получение результата
-            $result = R::getRow($sql, ["%$part_number%", "%$owner_pn%"]);
-            return !empty($result) ? $result : null;
+        $item = null;
+        if (!empty($item_id)) {
+            $item = R::findOne(WAREHOUSE, 'items_id = ?', [$item_id]);
         } else {
-            return null;
+            // Очистка входных данных
+            $part_number = !empty($part_number) ? $part_number : null;
+            $owner_pn = !empty($owner_pn) ? $owner_pn : null;
+            if ($part_number || $owner_pn) {
+                // SQL-запрос для поиска по двум таблицам
+                $sql = "SELECT wi.*, w.* FROM whitems wi LEFT JOIN warehouse w ON wi.id = w.items_id
+            WHERE wi.manufacture_pn LIKE ? OR w.owner_pn LIKE ? LIMIT 1";
+                // Выполнение запроса и получение результата
+                $result = R::getRow($sql, ["%$part_number%", "%$owner_pn%"]);
+                $item = $result;
+            }
         }
+        return $item;
     }
 
     /**
@@ -616,12 +655,12 @@ class WareHouse
 
         // Имена таблиц для запроса
         $wh_item = WH_ITEMS;
-        $wh_invoice = WH_INVOICE;
+        $wh_delivery = WH_DELIVERY;
         $warehouse = WAREHOUSE;
 
         // SQL-запрос для поиска полного совпадения
         $sqlFullMatch = "SELECT w.* FROM $warehouse w JOIN $wh_item wi ON wi.id = w.items_id
-        JOIN $wh_invoice win ON win.id = w.invoice_id WHERE wi.part_value LIKE ? 
+        JOIN $wh_delivery win ON win.id = w.invoice_id WHERE wi.part_value LIKE ? 
         AND wi.manufacture_pn LIKE ? AND w.owner_pn LIKE ? AND win.invoice LIKE ?";
 
         // Выполнение запроса и получение результата

@@ -44,8 +44,7 @@ if (isset($_POST['password']) && isset($_POST['itemId']) && isset($_POST['delete
 if (isset($_GET['undo']) && isset($_GET['bomid'])) {
     Undo::RestoreDeletedRecord(_E($_GET['bomid']));
     $pid = _E($_GET['pid']);
-    header("Location: /check_part_list?pid=$pid");
-    exit();
+    redirectTo("check_part_list?pid=$pid");
 }
 
 // получаем проект в котором работаем
@@ -68,7 +67,6 @@ if (isset($_GET['edit-item'])) {
         if ($args['args']) {
             $_SESSION['info'] = $args;
             redirectTo('check_part_list?orid=none&pid=' . $_GET['pid']);
-            exit();
         }
     }
 
@@ -140,6 +138,8 @@ DisplayMessage($args ?? null);
         <h5 class="text-center">Adding Form</h5>
         <form action="" method="post" autocomplete="off" id="uploadForm" enctype="multipart/form-data">
             <input type="hidden" name="item_id" id="item_id">
+            <input type="hidden" name="owner_id" id="owner_id">
+
             <div class="mb-2">
                 <label for="sku" class="form-label">SKU <b class="text-danger">*</b></label>
                 <input type="text" class="form-control" name="sku" id="sku" value="<?= $sku; ?>" required>
@@ -197,14 +197,25 @@ DisplayMessage($args ?? null);
             </div>
 
             <div class="mb-2">
-                <label for="qty" class="form-label">QTY/M for one piece <b class="text-danger">*</b></label>
+                <?php $t = 'The number of pieces of one length or one type for the entire assembly.'; ?>
+                <label for="qty" class="form-label">QTY<b class="text-danger">*</b>&nbsp;
+                    <i class="bi bi-info-circle" data-title="<?= $t ?>"></i></label>
                 <input type="text" class="form-control" name="qty" id="qty" value="<?= set_value('qty', $itFedit->amount ?? '0'); ?>"
+                       required>
+            </div>
+
+            <div class="mb-2">
+                <?php $t = 'The length specified for one piece during assembly.'; ?>
+                <label for="length_mm" class="form-label">Length in MM<b class="text-danger">*</b>&nbsp;
+                    <i class="bi bi-info-circle" data-title="<?= $t ?>"></i></label>
+                <input type="text" class="form-control" name="length_mm" id="length_mm" value="<?= set_value('length_mm', $itFedit->length_mm ?? '0'); ?>"
                        required>
             </div>
 
             <div class="mb-2">
                 <button type="submit" name="<?= $formButton['name']; ?>" class="btn btn-outline-success form-control"><?= $formButton['text']; ?></button>
             </div>
+
             <div class="mb-2">
                 <?php $t = 'First you need to select a file! This will cancel the required fields, 
                 then enter the names of the columns in the file in the fields that you want to fill in! 
@@ -236,33 +247,35 @@ DisplayMessage($args ?? null);
                 <thead>
                 <tr>
                     <th>SKU</th>
+                    <th>Length [mm]</th>
+                    <th>QTY [pcs]</th>
                     <?php $t = 'Press and hold the CTRL button for Windows or the COMMAND button for Mac OS and hover over the SKU to remove the part from the list.'; ?>
                     <th><i class="bi bi-info-circle text-primary" data-title="<?= $t; ?>"></i> P/N</th>
-                    <th class="sortable" onclick="sortTable(2)"><i class="bi bi-filter"></i> Value</th>
-                    <th class="sortable" onclick="sortTable(3)"><i class="bi bi-filter"></i> Type</th>
-                    <th class="sortable" onclick="sortTable(4)"><i class="bi bi-filter"></i> Footprint</th>
+                    <th class="sortable" onclick="sortTable(4)"><i class="bi bi-filter"></i> Value</th>
                     <th>Manufacturer</th>
                     <th>Manufacturer P/N</th>
                     <th>Owner P/N</th>
                     <th>Desc</th>
                     <th>Note</th>
-                    <th class="sortable" onclick="sortNum(11)"><i class="bi bi-filter"></i> QTY</th>
+                    <th class="sortable" onclick="sortTable(10)"><i class="bi bi-filter"></i> Type</th>
+                    <th class="sortable" onclick="sortTable(11)"><i class="bi bi-filter"></i> Footprint</th>
                 </tr>
                 </thead>
                 <tbody id="tbody-responce">
                 <?php if ($it): foreach ($it as $item): ?>
                     <tr class="item-list">
                         <td class="item-btn" data-id="<?= $item['id']; ?>" data-num="<?= $item['sku']; ?>"><?= $item['sku']; ?></td>
+                        <td><?= $item['length_mm']; ?></td>
+                        <td><?= $item['amount']; ?></td>
                         <td><?= $item['part_name']; ?></td>
                         <td><?= $item['part_value']; ?></td>
-                        <td><?= $item['mounting_type']; ?></td>
-                        <td><?= $item['footprint']; ?></td>
                         <td><?= $item['manufacturer']; ?></td>
                         <td><?= $item['manufacture_pn']; ?></td>
                         <td><?= $item['owner_pn']; ?></td>
                         <td><?= $item['description']; ?></td>
                         <td><?= $item['notes']; ?></td>
-                        <td><?= $item['amount']; ?></td><!-- fixme to quantity ?????-->
+                        <td><?= $item['mounting_type']; ?></td>
+                        <td><?= $item['footprint']; ?></td>
                     </tr>
                 <?php endforeach; endif; ?>
                 </tbody>

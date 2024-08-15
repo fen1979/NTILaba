@@ -150,38 +150,45 @@ dom.addEventListener("DOMContentLoaded", function () {
     dom.show = function (selector, speed, blur = false) {
         const element = dom.e(selector);
         if (element) {
-            // Определяем длительность анимации
-            let duration = (speed === "slow" ? 600 : speed === "fast" ? 200 : speed) || 0;
-            // Если элемент является модальным окном Bootstrap
-            if (speed === "modal") {
-                new bootstrap.Modal(element).show("slow");
-            } else {
-                if (duration > 0) {
-                    element.style.display = 'block';
-                    element.style.opacity = "0";
-                    element.style.transition = `opacity ${duration}ms`;
-                    if (blur) element.classList.add("modal-blur");
+            // Проверяем, скрыт ли элемент
+            const isHidden = window.getComputedStyle(element).display === 'none';
 
-                    setTimeout(() => {
-                        element.style.opacity = "1";
-                    }, 50); // Небольшая задержка, чтобы стили применились
+            if (isHidden) {
+                // Определяем длительность анимации
+                let duration = (speed === "slow" ? 600 : speed === "fast" ? 200 : speed) || 0;
+                // Если элемент является модальным окном Bootstrap
+                if (speed === "modal") {
+                    new bootstrap.Modal(element).show("slow");
                 } else {
-                    // проверяем класслист элемента
-                    if (element.classList && element.classList.contains('hidden')) {
-                        element.classList.remove("hidden");
-                    } else {
-                        // Элемент не содержит класс 'hidden'
-                        // Показываем элемент, если он был скрыт
+                    if (duration > 0) {
                         element.style.display = 'block';
-                        element.style.opacity = "1";
+                        element.style.opacity = "0";
+                        element.style.transition = `opacity ${duration}ms`;
+                        if (blur) element.classList.add("modal-blur");
+
+                        setTimeout(() => {
+                            element.style.opacity = "1";
+                        }, 50); // Небольшая задержка, чтобы стили применились
+                    } else {
+                        // проверяем класслист элемента
+                        if (element.classList && element.classList.contains('hidden')) {
+                            element.classList.remove("hidden");
+                        } else {
+                            // Элемент не содержит класс 'hidden'
+                            // Показываем элемент, если он был скрыт
+                            element.style.display = 'block';
+                            element.style.opacity = "1";
+                        }
+
+                        if (blur) element.classList.add("modal-blur");
                     }
 
-                    if (blur) element.classList.add("modal-blur");
+                    // Устанавливаем обработчики
+                    attachDismissHandlers(selector);
+                    attachEscKeyHandler(selector);
                 }
-
-                // Устанавливаем обработчики
-                attachDismissHandlers(selector);
-                attachEscKeyHandler(selector);
+            } else {
+                console.log("Элемент уже виден, пропускаем выполнение действий.");
             }
         }
 
@@ -210,6 +217,7 @@ dom.addEventListener("DOMContentLoaded", function () {
             document.addEventListener('keydown', handleEscKey);
         }
     };
+
 
     /**
      * Плавно скрывает элемент, изменяя его CSS свойство `opacity` и затем `display`.
@@ -842,7 +850,7 @@ dom.addEventListener("DOMContentLoaded", function () {
         let modalTable = dom.e("#searchModal");
         if (modalTable && result !== 'EMPTY') {
             dom.e("#search-responce").innerHTML = result;
-            dom.show("#searchModal", "fast", true);
+            dom.show("#searchModal", "", true);
         } else {
             dom.hide("#searchModal");
         }
