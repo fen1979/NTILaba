@@ -10,7 +10,7 @@ const NO_VIEW_PAGES = [
     'admin-panel',
     'new_project', 'edit_project', 'edit_step', 'add_step',
     'import_csv', 'view_item', 'arrivals', 'edit_item', 'replenishment',
-    'task_manager'];
+    'task_manager', 'pioi'];
 
 /* ICON, TITLE, STYLES AND META TAGS */
 function HeadContent($page)
@@ -165,7 +165,7 @@ function NavBarContent($navBarData): void
                                 WAREHOUSE_PAGE_BUTTONS($page, $pid, $page_tab);
                                 break;
                             default:
-                                ALL_PAGES_BUTTONS($page);
+                                ALL_PAGES_BUTTONS($page, $btn_title);
                                 LANGUAGE_BUTTONS();
                                 break;
                         } ?>
@@ -188,7 +188,7 @@ function NavBarContent($navBarData): void
  * @param $l
  * @return void
  */
-function ALL_PAGES_BUTTONS($page): void
+function ALL_PAGES_BUTTONS($page, $btn_title): void
 {
     // change page view btn only for projects page
     if ($page == 'project'): ?>
@@ -219,7 +219,7 @@ function ALL_PAGES_BUTTONS($page): void
     </li>
 
     <?php if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
-    <li class="nav-item hidden">
+    <li class="nav-item">
         <button type="button" class="url btn btn-sm btn-outline-secondary"
                 value="pioi">P.O.
         </button>
@@ -257,20 +257,36 @@ function ALL_PAGES_BUTTONS($page): void
         </button>
     </li>
 
-    <li class="nav-item">
-        <button type="button" class="url btn btn-sm btn-outline-secondary"
-                value="setup?route-page=1" data-blank="1">Settings
+    <!-- SETTINGS BUTTON DROPDOWN LIST -->
+    <div class="btn-group nav-item" style="align-items: flex-start;">
+        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="margin: .3rem;">
+            Settings
         </button>
-    </li>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="setup?route-page=7" target="_blank">Search</a></li>
+            <li><a class="dropdown-item" href="setup?route-page=1" target="_blank">Columns</a></li>
+            <li><a class="dropdown-item" href="setup?route-page=2" target="_blank">Rout's</a></li>
+            <li><a class="dropdown-item" href="setup?route-page=3" target="_blank">Tools</a></li>
+            <li><a class="dropdown-item" href="setup?route-page=4" target="_blank">Users</a></li>
+            <li><a class="dropdown-item" href="setup?route-page=5" target="_blank">Projects</a></li>
+            <li><a class="dropdown-item" href="setup?route-page=6" target="_blank">Orders</a></li>
+            <li><a class="dropdown-item" href="setup?route-page=8" target="_blank">Profile</a></li>
+            <li><a class="dropdown-item" href="setup?route-page=9" target="_blank">Warehouses</a></li>
+            <li><a class="dropdown-item" href="resources" target="_blank">Resources</a></li>
+            <li><a class="dropdown-item" href="logs" target="_blank">Logs</a></li>
+        </ul>
+    </div>
     <?php
 }
 
 /**
  * ADMIN PANEL AND SETTINGS BUTTONS
- * @param $user
+ * @param $btn_title
+ * @param $page
+ * @param $width
  * @return void
  */
-function ADMIN_PANEL_BUTTONS($btn_title, $page): void
+function ADMIN_PANEL_BUTTONS($btn_title, $page, $width = false): void
 {
     // уровень администратора позволяет работать с админ панелью
     if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) {

@@ -55,19 +55,6 @@ if (isset($_POST['pioi']) && isset($_POST['projectName'])) {
     HeadContent($page);
     ?>
     <style>
-        .tool-name {
-            font-size: 170%;
-            display: flex;
-            align-items: center; /* Выравнивание по центру вертикально */
-            text-align: left; /* Выравнивание текста к левому краю */
-        }
-
-        .tools-row {
-            display: inline-flex;
-            flex-wrap: nowrap;
-            text-align: center;
-        }
-
         /* СТИЛИ ДЛЯ ВЫВОДА ТАБЛИЦ */
         .modal-body {
             /* убираем падинги от бутстрапа */
@@ -95,13 +82,12 @@ if (isset($_POST['pioi']) && isset($_POST['projectName'])) {
 
         th:last-child, td:last-child {
             text-align: right;
-            padding-right: 1rem;
+            padding-right: 0;
         }
 
         th, td {
             text-align: left;
             padding: 5px;
-            border: 1px solid #ddd;
         }
 
         th {
@@ -109,11 +95,12 @@ if (isset($_POST['pioi']) && isset($_POST['projectName'])) {
             color: #ffffff;
         }
 
-        #pasteArea {
-            height: 30rem;
-            background-image: url(/public/images/drop-here.png);
-            background-repeat: no-repeat;
-            background-position: center;
+        td {
+            width: 50%;
+        }
+
+        .border-bottom {
+            border-bottom: 3px solid #000000 !important;
         }
     </style>
 </head>
@@ -128,8 +115,9 @@ NavBarContent($navBarData);
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>
+<h3 class="mt-3 mb-3 text-center">Draft Project and Order Record</h3>
 
-<div class="container mt-5 px-3 py-3 rounded" style="background: beige;">
+<div class="container mt-5 mb-5 px-3 py-3 rounded" style="background: beige;">
 
     <form action="" method="post" enctype="multipart/form-data" autocomplete="off" id="create-pioi">
         <input type="hidden" id="customerId" name="customerId" value="">
@@ -191,7 +179,7 @@ DisplayMessage($args ?? null);
             </tr>
 
             <!--i PROJECT FILES -->
-            <tr>
+            <tr class="border-bottom">
                 <td>
                     <button type="button" class="btn btn-outline-primary form-control" id="pickFile"
                             data-who="file">Upload Project Documentation (PDF Only)
@@ -212,41 +200,40 @@ DisplayMessage($args ?? null);
                 </td>
             </tr>
 
-            <!--i FOR SUB ASSEMBLY PROJECT ROUTECARD -->
-            <tr>
+            <!--i PROJECT TYPE AND SERIALISATION REQUREMENTS -->
+            <tr class="fs-3 border-bottom">
                 <td>
-                    <div class="checkbox mb-3">
-                        <div class="form-check form-switch fs-3">
-                            <input class="form-check-input track-change" type="checkbox" id="serial-required" name="serial-required"
-                                   value="1" data-field-id="se_ed">
-                            <label class="form-check-label" for="serial-required" style="font-size: large">
-                                Each unit in this project must be serialized with a mandatory serial number.
-                            </label>
-                        </div>
+                    <div class="form-switch">
+                        <input class="form-check-input track-change" type="checkbox" id="project_type" name="project_type" value="1">
+                        <label class="form-check-label" for="project_type">
+                            Project type SMT <br> surface mount assembly line.
+                        </label>
                     </div>
                 </td>
                 <td>
-                    <div class="form-check form-switch fs-3">
-                        <input class="form-check-input track-change" type="checkbox" id="project_type" name="project_type" value="1">
-                        <label class="form-check-label fs-5" for="project_type" style="font-size: large">
-                            Project type: CMT assembly line.
+                    <div class="form-switch">
+                        <input class="form-check-input track-change" type="checkbox" id="serial-required" name="serial-required" value="1">
+                        <label class="form-check-label" for="serial-required">
+                            Each unit in this project must be serialized with a mandatory serial number.
                         </label>
                     </div>
                 </td>
             </tr>
 
+            <!--I ORDER AMOUNT AND FAI QTY -->
             <tr>
                 <td>
                     <label for="fai_qty" class="form-label">FAI Qty</label>
                     <input type="number" class="form-control track-change" id="fai_qty" name="fai_qty" value="<?= set_value('fai_qty', '3') ?>" min="0">
                 </td>
                 <td>
-                    <label for="orderAmount" class="form-label">Order Amount</label>
+                    <label for="orderAmount" class="form-label">Order Amount <b class="text-danger">*</b></label>
                     <input type="number" class="form-control track-change" id="orderAmount" name="orderAmount"
-                           value="<?= set_value('orderAmount', '10') ?>" min="1">
+                           value="<?= set_value('orderAmount', '10') ?>" min="1" required>
                 </td>
             </tr>
 
+            <!--I STORAGE PLACE FOR THIS ORDER-PROJECT -->
             <tr>
                 <td>
                     <label for="storageBox" class="form-label">Storage Box</label>
@@ -260,6 +247,7 @@ DisplayMessage($args ?? null);
                 </td>
             </tr>
 
+            <!--I DATE AND TIME IN AND OUT -->
             <tr>
                 <td>
                     <label for="date_in" class="form-label">Application date</label>
@@ -273,9 +261,9 @@ DisplayMessage($args ?? null);
                 </td>
             </tr>
 
+            <!-- i выбор работников для заказа -->
             <tr>
                 <td>
-                    <!-- i выбор работников для заказа -->
                     <label for="orderWorkers" class="form-label">Workers to Order <b class="text-danger">*</b></label>
                     <div class="dropdown" id="workers">
                         <input type="text" name="orderWorkers" id="orderWorkers" class="form-control" placeholder="Choose the workers"
@@ -312,6 +300,7 @@ DisplayMessage($args ?? null);
                 </td>
             </tr>
 
+            <!--I PRIORITET AND STATUS FOR THIS ORDER -->
             <tr>
                 <td>
                     <?php $t = 'To improve effectiveness, keep your mind clear.'; ?>
@@ -338,11 +327,12 @@ DisplayMessage($args ?? null);
                 </td>
             </tr>
 
+            <!--I OTHER INFORMATION -->
             <tr>
                 <td colspan="2">
                     <label for="purchaseOrder" class="form-label">Purchase Order</label>
                     <input type="text" class="form-control track-change" id="purchaseOrder" name="purchaseOrder"
-                           value="<?= set_value('purchaseOrder', '0'); ?>" data-field-id="head_pay">
+                           value="<?= set_value('purchaseOrder', '0'); ?>">
                 </td>
             </tr>
 
@@ -379,6 +369,9 @@ DisplayMessage($args ?? null);
 <?php
 // MODAL DIALOG FOR VIEW RESPONCE FROM SERVER IF SEARCHED VALUE EXIST
 SearchResponceModalDialog($page, 'search-responce');
+
+// FOOTER
+footer();
 
 // SCRIPTS
 ScriptContent($page); ?>

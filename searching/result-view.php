@@ -4,6 +4,7 @@
  *
  * @param $result
  * @param $col
+ * @param $mySearchString
  * @return void
  */
 function viewCustomer($result, $col, $mySearchString)
