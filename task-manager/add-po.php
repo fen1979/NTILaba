@@ -148,6 +148,20 @@ DisplayMessage($args ?? null);
                 </td>
             </tr>
 
+            <!--i CUSTOMER PHONE AND EMAIL -->
+            <tr>
+                <td>
+                    <label for="phone" class="form-label">Phone Number <b class="text-danger">*</b></label>
+                    <input type="tel" class="form-control" id="phone" name="phone"
+                           value="<?= set_value('phone'); ?>" required>
+                </td>
+                <td>
+                    <label for="email" class="form-label">Contact Email <b class="text-danger">*</b></label>
+                    <input type="email" class="form-control" id="email" name="email"
+                           value="<?= set_value('email'); ?>" required>
+                </td>
+            </tr>
+
             <!--i CUSTOMER PRIORITY AND HEAD PAY -->
             <tr>
                 <td>

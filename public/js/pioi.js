@@ -68,6 +68,8 @@ function handleCustomerSearchClick() {
     if (this.parentElement.dataset.info) {
         let info = JSON.parse(this.parentElement.dataset.info);
         dom.e("#customerName").value = info.name;
+        dom.e("#phone").value = info.phone;
+        dom.e("#email").value = info.email;
         dom.e("#customerId").value = info.clientID;
         dom.e("#priorityMakat").value = info.priority;
         dom.e("#headPay").value = info.headpay;

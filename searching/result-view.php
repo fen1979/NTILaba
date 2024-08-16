@@ -27,7 +27,9 @@ function viewCustomer($result, $col, $mySearchString)
                 'info' => $item[$col[2]],
                 'priority' => $item[$col[3]],
                 'clientID' => $item['id'],
-                'headpay' => $item['head_pay']
+                'headpay' => $item['head_pay'],
+                'phone' => $item['phone'],
+                'email' => $item['email']
             ]); ?>
 
             <tr class="customer item-list" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
