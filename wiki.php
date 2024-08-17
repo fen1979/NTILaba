@@ -1,4 +1,13 @@
 <?php
+// check and return user if logged in
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
+
+$directory = (isset($_GET['pr_dir'])) ? _dirPath($_GET) : WIKI_FOLDER; // Путь к директории с файлами
+$page = 'wiki';
+$role = $user['app_role'];
+$args = null;
+$backBtn = false;
+
 /* drag and drop file redirect */
 if (isset($_POST['filePath']) && isset($_POST['targetDir'])) {
     include_once 'core/Resources.php';
@@ -33,15 +42,7 @@ if (isset($_POST['filePath']) && isset($_POST['targetDir'])) {
     exit();
 }
 
-EnsureUserIsAuthenticated($_SESSION,'userBean');
-
-$directory = (isset($_GET['pr_dir'])) ? _dirPath($_GET) : WIKI_FOLDER; // Путь к директории с файлами
-$page = 'wiki';
-$user = $_SESSION['userBean'];
-$role = $user['app_role'];
-$args = null;
-$backBtn = false;
-
+// save files
 if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_FILES['some_file'])) {
     // Форма отправлена
     $folderName = trim($_POST['folder_name']);
@@ -138,7 +139,7 @@ DisplayMessage($args);
 
 <div class="row ms-3 me-3">
     <div class="col-3">
-        <?php if (isUserRole([ROLE_SUPERADMIN, ROLE_SUPERVISOR])){ ?>
+        <?php if (isUserRole([ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
             <button class='btn drop-target btn-trash' data-dir='delete'><i class='bi bi-trash'></i></button>
         <?php }
 

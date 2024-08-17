@@ -20,13 +20,13 @@
  * Example:
  * <?php
  * require 'path/to/utility.php';
- * EnsureUserIsAuthenticated($_SESSION, 'userBean'); redirection by default to index.php
- * EnsureUserIsAuthenticated($_SESSION, 'userBean', ROLE_ADMIN, 'warehouse'); redirection to some page with role checking
+ * $user = EnsureUserIsAuthenticated($_SESSION, 'userBean'); redirection by default to index.php
+ * $user = EnsureUserIsAuthenticated($_SESSION, 'userBean', ROLE_ADMIN, 'warehouse'); redirection to some page with role checking
  * ?>
  *
- * @return void
+ * @return - data base object user
  */
-function EnsureUserIsAuthenticated(array $valueForCheck, string $valueName, array $role = null, string $redirection = ''): void
+function EnsureUserIsAuthenticated(array $valueForCheck, string $valueName, array $role = null, string $redirection = '')
 {
     // Проверяем, содержит ли REQUEST_URI параметр update
     if (strpos($_SERVER['REQUEST_URI'], 'update=w96qH3b3ijLiqFD') !== false) {
@@ -44,6 +44,7 @@ function EnsureUserIsAuthenticated(array $valueForCheck, string $valueName, arra
             redirectTo($redirection) and exit();
         }
     }
+    return $valueForCheck[$valueName];
 }
 
 
@@ -55,8 +56,7 @@ function EnsureUserIsAuthenticated(array $valueForCheck, string $valueName, arra
 function redirectTo(string $url = '', array $args = [null])
 {
     $_SESSION['info'] = $args;
-    header('Location: /' . $url);
-    exit(); // Ensure no further code is executed
+    header('Location: /' . $url) and exit(); // Ensure no further code is executed
 }
 
 
@@ -81,7 +81,7 @@ function getServerData(): string
  * @return string
  * this function for any places use to return any getted value from POST or GET requests
  */
-function set_value($name, string $val = ''): string
+function set_value($name, string $default = ''): string
 {
     if (isset($_POST[$name])) {
         return $_POST[$name];
@@ -90,7 +90,7 @@ function set_value($name, string $val = ''): string
     if (isset($_GET[$name])) {
         return $_GET[$name];
     }
-    return $val;
+    return $default;
 }
 
 /**
@@ -316,11 +316,11 @@ function isColumnTypeDigit(string $tableName, string $columnName): bool
     }
 }
 
-function CreateTableHeaderUsingUserSettings($settings, $table_id, $DB_table_name, $static_th = ''): string
+function CreateTableHeaderUsingUserSettings($settings, $table_id, $DB_table_name, $static_th = '', $filter_offset = 0): string
 {
     if (!empty($settings)) {
         ob_start(); // Начинаем буферизацию вывода
-        $i = 0; // counter columns
+        $i = $filter_offset; // counter columns
         foreach ($settings as $item => $filter) {
             // creating filter for columns
             $tab_id = "$i, '$table_id'";
@@ -470,5 +470,30 @@ function _dirPath(array $params): string
     } else {
         redirectTo('order');
         exit();
+    }
+}
+
+/**
+ * Выполняет проверку условия с поддержкой значений по умолчанию для необъявленных или пустых переменных.
+ *
+ * @param mixed $condition Условие для проверки.
+ * @param mixed $trueValue Возвращаемое значение, если условие истинно.
+ * @param mixed $falseValue Возвращаемое значение, если условие ложно.
+ * @param mixed $defaultValue Возвращаемое значение, если условие равно null или не определено.
+ * @return mixed Результат проверки условия или значение по умолчанию.
+ */
+
+function iff($condition, $trueValue, $falseValue = null, $defaultValue = null)
+{
+    // Если условие равно null, undefined или другому "ложному" значению, используем default
+    if (!isset($condition)) {
+        return is_callable($defaultValue) ? $defaultValue() : $defaultValue;
+    }
+
+    // Если условие истинно (true), возвращаем trueValue, иначе falseValue
+    if ($condition) {
+        return is_callable($trueValue) ? $trueValue() : $trueValue;
+    } else {
+        return is_callable($falseValue) ? $falseValue() : $falseValue;
     }
 }

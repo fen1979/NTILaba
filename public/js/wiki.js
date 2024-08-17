@@ -23,7 +23,7 @@ dom.addEventListener('DOMContentLoaded', function () {
                 // Получаем путь к перетаскиваемому файлу
                 let filePath = draggedItem.getAttribute('data-filepath');
                 // Выполняем POST запрос на сервер для перемещения файла
-                $.post('/wiki.php', {
+                $.post('/wiki', {
                     filePath: filePath,
                     targetDir: targetDir
                 }).done(function (response) {

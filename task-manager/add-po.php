@@ -1,7 +1,7 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean');
+// check and return user if logged in
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 $page = 'pioi';
-$user = $_SESSION['userBean'];
 
 /* СОЗДАЕМ НОВЫЙ ПРОЕКТ И ЗАКАЗ НА ОСНОВЕ ДАННЫХ И СОХРАНЯЕМ В БД */
 if (isset($_POST['pioi']) && isset($_POST['projectName'])) {
@@ -45,7 +45,6 @@ if (isset($_POST['pioi']) && isset($_POST['projectName'])) {
     // $poi->n = $post['purchaseOrder'];
     // $poi->n = $post['extra'];
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
@@ -319,8 +318,11 @@ DisplayMessage($args ?? null);
                         <?php
                         // если заказ на паузе то выводим только один статус для разблокировки
                         foreach (SR::getAllResourcesInGroup('status') as $key => $status) {
-                            if ($key != '-1') { ?>
-                                <option value="<?= $key ?>"> <?= SR::getResourceValue('status', $key); ?></option>
+                            if ($key != '-1') {
+                                echo iff($key == 'st-333',
+                                '<option value="' . $key . '" selected>' . SR::getResourceValue('status', $key) . '</option>',
+                                '<option value="' . $key . '">' . SR::getResourceValue('status', $key) . '</option>');
+                                ?>
                             <?php }
                         } ?>
                     </select>
