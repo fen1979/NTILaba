@@ -91,8 +91,7 @@ function getOrderInformationHTML($orderid, $order, $customer, $project, $project
                             $s = explode(',', $order['workers']);
                             foreach ($allUsers as $key => $u) {
                                 if ($u['id'] != '1') {
-                                    $checked = (in_array($u['user_name'], $s)) ? 'checked' : '';
-                                    ?>
+                                    $checked = (in_array($u['user_name'], $s)) ? 'checked' : ''; ?>
                                     <li class="form-check dropdown-item">
                                         <input type="checkbox" id="u-<?= $key; ?>" name="users[]" value="<?= $u['user_name']; ?>" <?= $checked; ?>
                                                class="form-check-input">&nbsp;
@@ -172,6 +171,11 @@ function getOrderInformationHTML($orderid, $order, $customer, $project, $project
 
                     <a role="button" href="/assy_flow_pdf?pid=<?= $project->id ?>" target="_blank" class="btn btn-outline-sunset form-control mt-2">
                         Assembly steps PDF <i class="bi bi-bar-chart-steps"></i>
+                    </a>
+
+                    <?php $url = "/order_pdf?pid=$project->id&orid=$orderid"; ?>
+                    <a role="button" href="<?= $url ?>" target="_blank" class="btn btn-outline-proma form-control mt-2">
+                        Print Order Details <i class="bi bi-printer"></i>
                     </a>
                 </div>
             <?php } ?>

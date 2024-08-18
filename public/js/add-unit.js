@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
             dom.e("#pickFile").textContent = this.files[0].name;
         } else {
             // Если файлы не выбраны, возвращаем базовый текст
-            dom.e("#pickFile").textContent = "Upload Project Documentation (PDF Only)";
+            dom.e("#pickFile").textContent = "Upload ProductionUnit Documentation (PDF Only)";
         }
     });
     // Использование функции dom.in для делегирования событий клика на элементы .tools-row
@@ -103,11 +103,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         if (data.exists) {
                             dom.addClass('#pn', 'danger');
                             dom.removeClass('#pn', 'success');
-                            dom.e("#pn_label").innerHTML = "Project Name <b class='danger blinking p-2'>This name is exist!</b>";
+                            dom.e("#pn_label").innerHTML = "ProductionUnit Name <b class='danger blinking p-2'>This name is exist!</b>";
                         } else {
                             dom.addClass('#pn', 'success');
                             dom.removeClass('#pn', 'danger');
-                            dom.e("#pn_label").textContent = "Project Name";
+                            dom.e("#pn_label").textContent = "ProductionUnit Name";
                         }
                         // Проверка минимума чекбоксов и активация кнопки
                         // enableSubmitButton(requiredFieldsFilled && projectNameValid && checkedCount >= 3);

@@ -40,42 +40,36 @@ The information will be displayed based on the order of the fields when saving.'
                 <form action="" method="post" id="select-form">
                     <input type="hidden" name="table-name" id="table-name">
                     <input type="hidden" name="sel_tab" id="table-selector">
-                    <button type="button" name="sel_tab" value="<?= PROJECTS ?>" class="dob btn btn-outline-primary ms-2">Projects</button>
+                    <button type="button" name="sel_tab" value="<?= PRODUCT_UNIT ?>" class="dob btn btn-outline-primary ms-2">Product Unit</button>
                     <button type="button" name="sel_tab" value="<?= ORDERS ?>" class="dob btn btn-outline-primary ms-2">Orders</button>
-                    <button type="button" name="sel_tab" value="<?= PROJECT_BOM ?>" class="dob btn btn-outline-primary ms-2">Order and Project BOM</button>
+                    <button type="button" name="sel_tab" value="<?= UNITS_BOM ?>" class="dob btn btn-outline-primary ms-2">Order and Units BOM</button>
                     <button type="button" name="sel_tab" value="<?= TOOLS ?>" class="dob btn btn-outline-primary ms-2">Tools</button>
                     <button type="button" name="sel_tab" value="<?= CLIENTS ?>" class="dob btn btn-outline-primary ms-2">Customers</button>
                     <button type="button" name="sel_tab" value="<?= WH_ITEMS ?>" class="dob btn btn-outline-primary ms-2">Warehouse</button>
 
-                    <button type="button" name="sel_tab" disabled value="routeactions" class="dob btn btn-outline-secondary ms-2">Rout Actions</button>
-                    <button type="button" name="sel_tab" disabled value="users" class="dob btn btn-outline-secondary ms-2">Users</button>
-                    <button type="button" name="sel_tab" disabled value="projectsteps" class="dob btn btn-outline-secondary ms-2">Projects Data</button>
-                    <button type="button" name="sel_tab" disabled value="history" class="dob btn btn-outline-secondary ms-2">Projects History</button>
-                    <button type="button" name="sel_tab" disabled value="" class="dob btn btn-outline-secondary ms-2">Orders Data</button>
-                    <button type="button" name="sel_tab" id="da" value="" class=" btn btn-outline-secondary ms-2">Orders Data</button>
+                    <!--                    <button type="button" name="sel_tab" disabled value="routeactions" class="dob btn btn-outline-secondary ms-2">Rout Actions</button>-->
+                    <!--                    <button type="button" name="sel_tab" disabled value="users" class="dob btn btn-outline-secondary ms-2">Users</button>-->
+                    <!--                    <button type="button" name="sel_tab" disabled value="projectsteps" class="dob btn btn-outline-secondary ms-2">Units Data</button>-->
+                    <!--                    <button type="button" name="sel_tab" disabled value="history" class="dob btn btn-outline-secondary ms-2">Units History</button>-->
+                    <button type="button" name="sel_tab" value="order_details" class="dob btn btn-outline-secondary ms-2">Order Details</button>
+                    <!--                    <button type="button" name="sel_tab" id="da" value="" class=" btn btn-outline-secondary ms-2">Orders Data</button>-->
 
                     <button type="button" name="" value="" class="btn btn-outline-primary ms-2">Priority Out</button>
                 </form>
             </div>
         </div>
 
-
         <?php
         // fixme добавить в склад колонки таблицу инвойса тоже
+
         if (isset($_POST['sel_tab'])) {
             // check if table exists in DB
             $tableExists = R::getAll("SHOW TABLES LIKE '" . _E($_POST["sel_tab"]) . "'");
 
             if (count($tableExists) > 0) {
                 /* настройки вывода от пользователя */
-                $settings = null;
-                foreach ($user['ownSettingsList'] as $item) {
-                    if (isset($item['table_name']) && $item['table_name'] == $_POST['sel_tab']) {
-                        $settings = json_decode($item['setup'], true); // Используем true, чтобы получить ассоциативный массив
-                        break;
-                    }
-                }
-                ?>
+                $settings = getUserSettings($user, _E($_POST['sel_tab'])); ?>
+
                 <form action="" method="post">
                     <div class="p-3">
                         <table class="custom-table w-100">
@@ -104,10 +98,16 @@ The information will be displayed based on the order of the fields when saving.'
                             }
 
                             // Имена таблиц
-                            $tables = ['warehouse', 'whitems'];
+                            $tables = [WAREHOUSE, WH_ITEMS];
                             $tableColumns = [];
 
                             if ($_POST['sel_tab'] == WH_ITEMS) {
+                                // Получаем данные о полях из нескольких таблиц и объединяем их
+                                foreach ($tables as $table) {
+                                    $tableColumns = array_merge($tableColumns, getTableColumns($table));
+                                }
+                            } elseif ($_POST['sel_tab'] == 'order_details') {
+                                $tables = [ORDERS, PRODUCT_UNIT];
                                 // Получаем данные о полях из нескольких таблиц и объединяем их
                                 foreach ($tables as $table) {
                                     $tableColumns = array_merge($tableColumns, getTableColumns($table));

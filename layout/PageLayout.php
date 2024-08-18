@@ -39,7 +39,7 @@ function HeadContent($page)
         case 'add_step':
         case 'edit_step':
         case 'edit_project':
-            echo '<link rel="stylesheet" href="/public/css/project-view.css">';
+            echo '<link rel="stylesheet" href="/public/css/units-view.css">';
             break;
         case 'admin-panel':
             echo '<link rel="stylesheet" href="/public/css/admin-panel.css">';
@@ -214,7 +214,7 @@ function ALL_PAGES_BUTTONS($page, $btn_title): void
     </li>
     <li class="nav-item">
         <button type="button" class="url btn btn-sm btn-outline-secondary"
-                value="project">Projects
+                value="project">Product Units
         </button>
     </li>
 
@@ -231,7 +231,7 @@ function ALL_PAGES_BUTTONS($page, $btn_title): void
     </li>
     <li class="nav-item">
         <button type="button" class="url btn btn-sm btn-outline-secondary"
-                value="new_project">New Project
+                value="new_project">New P.U.
         </button>
     </li>
     <li class="nav-item">
@@ -268,7 +268,7 @@ function ALL_PAGES_BUTTONS($page, $btn_title): void
             <li><a class="dropdown-item" href="setup?route-page=2" target="_blank">Rout's</a></li>
             <li><a class="dropdown-item" href="setup?route-page=3" target="_blank">Tools</a></li>
             <li><a class="dropdown-item" href="setup?route-page=4" target="_blank">Users</a></li>
-            <li><a class="dropdown-item" href="setup?route-page=5" target="_blank">Projects</a></li>
+            <li><a class="dropdown-item" href="setup?route-page=5" target="_blank">Product Units</a></li>
             <li><a class="dropdown-item" href="setup?route-page=6" target="_blank">Orders</a></li>
             <li><a class="dropdown-item" href="setup?route-page=8" target="_blank">Profile</a></li>
             <li><a class="dropdown-item" href="setup?route-page=9" target="_blank">Warehouses</a></li>
@@ -335,7 +335,7 @@ function ADMIN_PANEL_BUTTONS($btn_title, $page, $width = false): void
             </li>
         <?php } ?>
         <li class="nav-item">
-            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-secondary" value="5" disabled>Projects</button>
+            <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-secondary" value="5" disabled>Producti Units</button>
         </li>
         <li class="nav-item">
             <button type="button" name="sw_bt" class="swb btn btn-sm btn-outline-secondary" value="6" disabled>Orders</button>
@@ -374,13 +374,13 @@ function EDIT_PROJECT_PAGE_BUTTONS($pid): void
         <li class="nav-item">
             <button type="button" title="Delete" class="btn btn-sm btn-outline-danger deleteProjectButton" data-projectid="<?= $pid; ?>">
                 <i class="bi bi-trash3-fill"></i>
-                Delete Project
+                Delete Unit
             </button>
         </li>
         <li class="nav-item">
             <button type="button" title="Archive" class="btn btn-sm btn-outline-diliny archive" data-projectid="<?= $pid; ?>">
                 <i class="bi bi-archive-fill"></i>
-                Archive Project
+                Archive Unit
             </button>
         </li>
         <li class="nav-item">
@@ -392,7 +392,7 @@ function EDIT_PROJECT_PAGE_BUTTONS($pid): void
         <li class="nav-item hidden" id="folder_btn_li">
             <button type="button" id="project_folder" data-blank="1" value="order" class="url btn btn btn-sm btn-outline-dark">
                 <i class="bi bi-folder"></i>
-                View Project Folder
+                View Unit Folder
             </button>
         </li>
         <li class="nav-item">
@@ -404,13 +404,13 @@ function EDIT_PROJECT_PAGE_BUTTONS($pid): void
         <li class="nav-item">
             <button type="button" class="url btn btn-sm btn-outline-diliny" value="check_part_list?orid=none&pid=<?= $pid; ?>">
                 <i class="bi bi-receipt"></i>
-                Fill Project BOM
+                Fill Unit BOM
             </button>
         </li>
         <li class="nav-item">
             <button type="button" class="url btn btn-sm btn-outline-diliny" value="new_project?pid=editmode">
                 <i class="bi bi-pencil-square"></i>
-                Edit project information
+                Edit unit information
             </button>
         </li>
     <?php } ?>
@@ -458,7 +458,6 @@ function EDIT_AND_ADD_STEP_BUTTONS($pid): void
             <i class="bi bi-x-lg"></i>
         </button>
     </li>
-
     <?php
 }
 
@@ -600,7 +599,7 @@ function DROPDOWN_BUTTONS($user)
                 <a href="/order" class="dropdown-item">Orders</a>
             </li>
             <li class="nav-item">
-                <a href="/project" class="dropdown-item">Projects</a>
+                <a href="/project" class="dropdown-item">Product Units</a>
             </li>
             <li class="nav-item">
                 <a href="/wiki" target="_blank" class="dropdown-item">Wiki</a>
@@ -690,7 +689,7 @@ function footer($page = '', $blur = '')
 
             <!-- Счетчик проектов -->
             <div class="col-md-3 text-right">
-                <?= 'NTI Group Projects Live - ' . R::count(PROJECTS); ?>
+                <?= 'NTI Group Projects Live - ' . R::count(PRODUCT_UNIT); ?>
             </div>
         </div>
     </footer>

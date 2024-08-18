@@ -26,11 +26,11 @@ function viewCustomer($result, $col, $mySearchString)
                 'name' => $item[$col[0]],
                 'contact' => $item[$col[1]],
                 'info' => $item[$col[2]],
-                'priority' => $item[$col[3]],
+                'priority' => _empty($item[$col[3]], 0),
                 'clientID' => $item['id'],
-                'headpay' => $item['head_pay'],
-                'phone' => $item['phone'],
-                'email' => $item['email']
+                'headpay' => _empty($item['head_pay'], 0),
+                'phone' => _empty($item['phone'], 0),
+                'email' => _empty($item['email'], 0)
             ]); ?>
 
             <tr class="customer item-list" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
@@ -146,7 +146,7 @@ function viewSupplier($result, $request, $mySearchString): void
  * функция вывода результатов поиска на странице добавления заказа
  * форма поиска по проектам
  */
-function viewLineProject($result, $col, $mySearchString)
+function viewLineOfUnit($result, $col, $mySearchString)
 {
     //i ВЫВОД РЕЗУЛЬТАТОВ ПОИСКА В МОДАЛЬНОМ ОКНЕ
     if ($result && !empty($mySearchString)) { ?>
@@ -188,17 +188,17 @@ function viewLineProject($result, $col, $mySearchString)
  * функция вывода результата поиска на странице пректов
  * форма глобального поиска
  */
-function viewFullProject($result, $user)
+function viewFullUnit($result, $user)
 {
     if ($_SESSION['preview_mode']) {
         //i ВЫВОД ТАБЛИЧНОГО ВИДА ПРОЕКТА ПРИ ПОИСКЕ
-        $settings = getUserSettings($user, PROJECTS);
+        $settings = getUserSettings($user, PRODUCT_UNIT);
         ?>
         <table class="p-3" id="project-table">
             <!-- header -->
             <thead>
             <tr style="white-space: nowrap">
-                <?= CreateTableHeaderUsingUserSettings($settings, 'project-table', PROJECTS, '<th>Share Project</th>') ?>
+                <?= CreateTableHeaderUsingUserSettings($settings, 'project-table', PRODUCT_UNIT, '<th>Share ProductionUnit</th>') ?>
             </tr>
             </thead>
             <!-- table -->
@@ -243,7 +243,7 @@ function viewFullProject($result, $user)
                 <div class="col-md-4">
 
                     <div class="card mb-4 shadow-sm">
-                        <!--  Project Name and Share Link -->
+                        <!--  ProductionUnit Name and Share Link -->
                         <h5 class="card-title position-relative"><b class="text-primary">Name:</b> <?= $projectName; ?>
                             <span class="text-primary share-project position-absolute end-0 me-3" data-share-link="<?= $shareLink; ?>">
 					<i class="bi bi-share-fill"></i>
@@ -251,7 +251,7 @@ function viewFullProject($result, $user)
                         </h5>
 
                         <?php
-                        //Project Documentation preview or Last step of project if Docs not exist
+                        //ProductionUnit Documentation preview or Last step of project if Docs not exist
                         if ($user['preview'] == 'docs') {
                             if (!empty($value['projectdocs']) && strpos($value['projectdocs'], '.pdf') !== false) { ?>
                                 <iframe src="<?= $value['projectdocs']; ?>"></iframe>
@@ -572,7 +572,7 @@ function viewStorageItems($result, $searchString, $request, $user): void
  * @param $result
  * @return void
  */
-function viewPartsForProjectBOM($result): void
+function viewPartsForUnitBOM($result): void
 {
     if ($result): foreach ($result as $item):
 
@@ -655,6 +655,33 @@ function viewLogs($result): void
             <td class="text-primary"><?= $log['date']; ?></td>
         </tr>
     <?php }
+}
+
+/**
+ * вывод результата поиска на странице ресурсов для сайта
+ * @param $result
+ * @return void
+ */
+function viewResources($result): void
+{
+    if ($result) {
+        foreach ($result as $reso) {
+            $infoData = json_encode([
+                'group_name' => $reso['group_name'],
+                'key_name' => $reso['key_name'],
+                'value' => $reso['value'],
+                'detail' => $reso['detail']]);
+            ?>
+            <tr class="item-list" data-info="<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>">
+                <td><?= $reso['group_name']; ?></td>
+                <td><?= $reso['key_name']; ?></td>
+                <td><?= $reso['value']; ?></td>
+                <td><?= $reso['detail']; ?></td>
+            </tr>
+        <?php }
+    } else {
+        echo 'EMPTY';
+    }
 }
 
 /**

@@ -1,6 +1,6 @@
 <?php
 EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require_once 'projects/Project.php';
+require_once 'projects/ProductionUnit.php';
 $page = 'add_step';
 $user = $_SESSION['userBean'];
 $project = $projectName = $projectDir = $args = null;
@@ -9,12 +9,12 @@ $nextStepNumber = 1;
 /* сохранение данных в БД и переход к новому шагу */
 if (isset($_POST['next-button'])) {
     $project_id = _E($_GET['pid']);
-    $args = Project::addNewStepToProject($_POST, $user, $_FILES, $project_id);
+    $args = ProductionUnit::addNewStepToProject($_POST, $user, $_FILES, $project_id);
 }
 
 /* выбираем данные о проекте из БД для показа  */
 if (isset($_GET["pid"])) {
-    $project = R::load(PROJECTS, $_GET["pid"]);
+    $project = R::load(PRODUCT_UNIT, $_GET["pid"]);
     $projectName = $project['projectname'];
     $projectDir = $project['projectdir'];
 }

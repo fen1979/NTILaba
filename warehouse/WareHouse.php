@@ -489,8 +489,8 @@ class WareHouse
         // тут надо добавить новое поступление если запчасть есть в БД
         // а если нет то перейти к созданию новой запчасти
         $post = self::checkPostDataAndConvertToArray($postData);
-        $projectBomItem = R::load(PROJECT_BOM, $postData['item_id']);
-        $project = R::load(PROJECTS, $projectBomItem->projects_id);
+        $projectBomItem = R::load(UNITS_BOM, $postData['item_id']);
+        $project = R::load(PRODUCT_UNIT, $projectBomItem->projects_id);
         $owner_pn = $projectBomItem->owner_pn;
 
         $search = !empty($owner_pn) ? trim($owner_pn) : null;
@@ -510,7 +510,7 @@ class WareHouse
 
             // TODO log for warehouse logs
             /* [     LOGS FOR THIS ACTION     ] */
-            $details = "New QTY for Item №: $bo, in Project: $project->projectname, was added";
+            $details = "New QTY for Item №: $bo, in ProductionUnit: $project->projectname, was added";
             /* сохранение логов если успешно то переходим к БОМ */
             if (!logAction($user['user_name'], 'ITEM_CHANGED', OBJECT_TYPE[6], $details)) {
                 $res['info'] = 'Log creation failed.';

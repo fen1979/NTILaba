@@ -60,7 +60,7 @@ function handlePDFInputChange() {
     if (fileCount > 0) {
         dom.e("#pickFile").textContent = this.files[0].name;
     } else {
-        dom.e("#pickFile").textContent = "Upload Project Documentation (PDF Only)";
+        dom.e("#pickFile").textContent = "Upload ProductionUnit Documentation (PDF Only)";
     }
 }
 
@@ -145,11 +145,11 @@ function validateForm() {
                 if (data.exists) {
                     dom.addClass('#pn', 'danger');
                     dom.removeClass('#pn', 'success');
-                    dom.e("#pn_label").innerHTML = "Project Name <b class='danger blinking p-2'>This name is exist!</b>";
+                    dom.e("#pn_label").innerHTML = "ProductionUnit Name <b class='danger blinking p-2'>This name is exist!</b>";
                 } else {
                     dom.addClass('#pn', 'success');
                     dom.removeClass('#pn', 'danger');
-                    dom.e("#pn_label").textContent = "Project Name";
+                    dom.e("#pn_label").textContent = "ProductionUnit Name";
                 }
                 updateSubmitButtonState(isValid && projectNameValid);
             })

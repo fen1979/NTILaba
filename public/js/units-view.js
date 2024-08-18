@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (navigator.share) {
             navigator.share({
-                title: 'Share Project',
+                title: 'Share ProductionUnit',
                 text: 'Not Editable',
                 url: linkToCopy
             })

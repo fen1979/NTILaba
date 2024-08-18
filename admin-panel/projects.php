@@ -40,7 +40,7 @@ DisplayMessage($args ?? null);
             </thead>
 
             <tbody id="data-container">
-            <?php $table = R::find(PROJECTS, 'ORDER BY customername ASC');
+            <?php $table = R::find(PRODUCT_UNIT, 'ORDER BY customername ASC');
             foreach ($table as $row) {
                 $href = PDF_FOLDER . 'routes.php?projectid=' . $row['id'];
                 ?>

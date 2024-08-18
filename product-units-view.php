@@ -1,17 +1,17 @@
 <?php
 EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require_once 'projects/Project.php';
+require_once 'projects/ProductionUnit.php';
 
 $page = 'project';
 /* delete or archive project */
 if (isset($_POST['projectid']) && isset($_POST['password'])) {
     /* adding project to archive */
     if (isset($_POST['archive'])) {
-        $args = Project::archiveOrExstractProject($_POST, $_SESSION['userBean']);
+        $args = ProductionUnit::archiveOrExstractProject($_POST, $_SESSION['userBean']);
     }
     /* удаление проекта и всех его данных включая фотографии и папку проекта */
     if (isset($_POST['delete'])) {
-        $args = Project::deleteProject($_POST, $_SESSION['userBean']);
+        $args = ProductionUnit::deleteProject($_POST, $_SESSION['userBean']);
     }
 }
 
@@ -28,11 +28,11 @@ $user = $_SESSION['userBean'];
 $role = $user['app_role'];
 
 // Параметры пагинации
-list($pagination, $paginationButtons) = PaginationForPages($_GET, $page, PROJECTS, 20);
+list($pagination, $paginationButtons) = PaginationForPages($_GET, $page, PRODUCT_UNIT, 20);
 
-$result = R::findAll(PROJECTS, 'ORDER BY id DESC ' . $pagination);
+$result = R::findAll(PRODUCT_UNIT, 'ORDER BY id DESC ' . $pagination);
 // get user settings for this page
-$settings = getUserSettings($user, PROJECTS);
+$settings = getUserSettings($user, PRODUCT_UNIT);
 ?>
 
 <!doctype html>
@@ -69,7 +69,7 @@ DisplayMessage($args ?? null);
                 <!-- header -->
                 <thead>
                 <tr style="white-space: nowrap">
-                    <?= CreateTableHeaderUsingUserSettings($settings, 'project-table', PROJECTS, '<th>Share Project</th>') ?>
+                    <?= CreateTableHeaderUsingUserSettings($settings, 'project-table', PRODUCT_UNIT, '<th>Share ProductionUnit</th>') ?>
                 </tr>
                 </thead>
                 <!-- table -->
@@ -116,7 +116,7 @@ DisplayMessage($args ?? null);
                     ?>
                     <div class="col-md-4">
                         <div class="card mb-4 shadow-sm">
-                            <!--  Project Name and Share Link -->
+                            <!--  ProductionUnit Name and Share Link -->
                             <h5 class="card-title position-relative">
                                 <b class="text-primary">Name:</b>
                                 <?= $projectName; ?>
@@ -126,7 +126,7 @@ DisplayMessage($args ?? null);
                             </h5>
 
                             <?php
-                            //Project Documentation preview or Last step of project if Docs not exist
+                            //ProductionUnit Documentation preview or Last step of project if Docs not exist
                             if ($user['preview'] == 'docs') {
                                 if (!empty($value['projectdocs']) && strpos($value['projectdocs'], '.pdf') !== false) { ?>
                                     <iframe src="<?= $value['projectdocs']; ?>"></iframe>
@@ -255,6 +255,6 @@ ScriptContent($page);
         });
     });
 </script>
-<script type="text/javascript" src="public/js/project-view.js"></script>
+<script type="text/javascript" src="public/js/units-view.js"></script>
 </body>
 </html>

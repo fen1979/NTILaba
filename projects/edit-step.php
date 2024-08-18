@@ -1,6 +1,6 @@
 <?php
 EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require_once 'projects/Project.php';
+require_once 'projects/ProductionUnit.php';
 /* страница редактирования одного шага в проекте */
 $page = 'edit_step';
 $user = $_SESSION['userBean'];
@@ -9,12 +9,12 @@ $step = $projectid = '';
 $args = array();
 
 if (isset($_POST['save-changes'])) {
-    $args = Project::editProjectStep($_POST, $_SESSION['userBean'], $_FILES, _E($_POST['step_id']));
+    $args = ProductionUnit::editProjectStep($_POST, $_SESSION['userBean'], $_FILES, _E($_POST['step_id']));
 }
 
 /* finding stepsData for step editing */
 if (isset($_GET['pid']) && isset($_GET['sid'])) {
-    $project = R::load(PROJECTS, _E($_GET['pid']));
+    $project = R::load(PRODUCT_UNIT, _E($_GET['pid']));
     $step = R::load(PROJECT_STEPS, _E($_GET['sid']));
     $max = R::count(PROJECT_STEPS, 'projects_id = ?', [_E($_GET['pid'])]);
     $ns = $step['step'];

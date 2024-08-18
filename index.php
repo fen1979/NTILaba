@@ -32,15 +32,16 @@ $r->addRout('/edit-order', 'orders/create-order.php');
 $r->addRout('/check_bom', 'orders/order-bom.php');
 $r->addRout('/order/preview', 'orders/order-details.php');
 $r->addRout('/priority-out', 'pdfOut/priority-out.php');
+$r->addRout('/order_pdf', 'pdfOut/order-details.php');
 
-// projects pages
-$r->addRout('/project', 'project-view.php');
-$r->addRout('/new_project', 'projects/add-project.php');
-$r->addRout('/edit_project', 'projects/edit-project.php');
+// production unit pages
+$r->addRout('/project', 'product-units-view.php');
+$r->addRout('/new_project', 'projects/add-unit.php');
+$r->addRout('/edit_project', 'projects/edit-unit.php');
 $r->addRout('/add_step', 'projects/add-step.php');
 $r->addRout('/edit_step', 'projects/edit-step.php');
 $r->addRout('/step_history', 'projects/history-view.php');
-$r->addRout('/check_part_list', 'projects/project-bom.php');
+$r->addRout('/check_part_list', 'projects/unit-bom.php');
 
 // admin-panel pages
 $r->addRout('/setup', 'admin-panel.php');

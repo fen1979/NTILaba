@@ -1,6 +1,6 @@
 <?php
 EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require_once 'projects/Project.php';
+require_once 'projects/ProductionUnit.php';
 $page = 'edit_project';
 $user = $_SESSION['userBean'];
 $role = $user['app_role'];
@@ -10,23 +10,23 @@ $_SESSION['editmode'] = $args = $projectForView = $projectID = null;
 if (isset($_POST['projectid']) && isset($_POST['password'])) {
     /* adding project to archive */
     if (isset($_POST['archive'])) {
-        $args = Project::archiveOrExstractProject($_POST, $_SESSION['userBean']);
+        $args = ProductionUnit::archiveOrExstractProject($_POST, $_SESSION['userBean']);
     }
     /* удаление проекта и всех его данных включая фотографии и папку проекта */
     if (isset($_POST['delete'])) {
-        $args = Project::deleteProject($_POST, $_SESSION['userBean']);
+        $args = ProductionUnit::deleteProject($_POST, $_SESSION['userBean']);
     }
 }
 
 /* delete one step from table and restruct the table */
 if (isset($_POST['projectid']) && isset($_POST['stepId']) && isset($_POST['delete-step'])) {
-    $args = Project::deleteProjectStep($_POST, $user);
+    $args = ProductionUnit::deleteProjectStep($_POST, $user);
 }
 
 /* вывод проекта для редактирования в режиме админа  и просмотра в режиме пользователя */
 if (isset($_GET['pid']) || isset($_SESSION['projectid'])) {
     $projectID = $_SESSION['projectid'] = $_GET['pid'];
-    $projectForView = R::Load(PROJECTS, $projectID);
+    $projectForView = R::Load(PRODUCT_UNIT, $projectID);
 }
 ?>
 <!DOCTYPE html>
@@ -66,7 +66,7 @@ if (isset($_GET['pid']) || isset($_SESSION['projectid'])) {
 
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = '<b class="text-primary"> Project: ' . $projectForView['projectname'] . '</b>';
+$navBarData['title'] = '<b class="text-primary"> ProductionUnit: ' . $projectForView['projectname'] . '</b>';
 $navBarData['record_id'] = $projectID ?? null;
 $navBarData['user'] = $user;
 $navBarData['page_name'] = $page;
@@ -236,6 +236,6 @@ if (isDirEmpty($projectForView->docsdir) && $projectForView->docsdir != 'storage
     echo '<span class="hidden" id="project_folder_path">wiki?pr_dir=' . $projectForView->docsdir . '</span>';
 }
 ScriptContent($page); ?>
-<script type="text/javascript" src="/public/js/edit-project.js"></script>
+<script type="text/javascript" src="/public/js/edit-unit.js"></script>
 </body>
 </html>

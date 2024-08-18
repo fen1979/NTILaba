@@ -63,9 +63,9 @@ if (isset($_POST['orid']) || isset($orderid)) {
     $amount = $order['order_amount'];
     $reserve = R::count(WH_RESERV, 'WHERE order_uid = ?', [$order->id]); // find if exist reserved BOM items
     $customer = R::load(CLIENTS, $order->customers_id);
-    $project = R::load(PROJECTS, $projectid);
+    $project = R::load(PRODUCT_UNIT, $projectid);
     $stepsData = R::findAll(PROJECT_STEPS, 'projects_id = ? ORDER BY step ASC', [$projectid]);
-    $projectBom = R::findAll(PROJECT_BOM, 'projects_id = ?', [$projectid]);
+    $projectBom = R::findAll(UNITS_BOM, 'projects_id = ?', [$projectid]);
     $orderChat = R::findAll(ORDER_CHATS, 'orders_id = ? ORDER BY time_in ASC', [$orderid]);
     $chatLastMsg = R::findOne(ORDER_CHATS, 'orders_id = ? ORDER BY time_in DESC', [$orderid]);
     $assy_in_progress = R::findOne(ASSY_PROGRESS, 'orders_id = ? AND users_id = ? AND workend = ?', [$orderid, $user['id'], '0']);
@@ -127,8 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST)) {
                 $data['set-order-status'] = '1';
                 $_SESSION['info'] = Orders::setStatusOrUserInOrder($user, $orderid, $data);
                 // reload page
-                header("Location: /order");
-                exit();
+                redirectTo('order');
             }
             break;
 
@@ -141,8 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST)) {
                 $data['set-order-status'] = '1';
                 $_SESSION['info'] = Orders::setStatusOrUserInOrder($user, $orderid, $data);
                 // reload page
-                header("Location: /order");
-                exit();
+                redirectTo('order');
             }
             break;
 
@@ -160,8 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST)) {
         $sid = !empty($args['step_id']) ? '&#sid-' . $args['step_id'] : ''; // возврат к последнему шагу
 
         $_SESSION['info'] = $args['errors']; // вывод информации об ошибках и успехах
-        header("Location: /order/preview?orid=$orderid&tab=tab$tab" . $sid);
-        exit();
+        redirectTo("order/preview?orid=$orderid&tab=tab$tab" . $sid);
     }
 }
 
@@ -196,7 +193,9 @@ DisplayMessage($args ?? null);
     <!--  заголовок окна -->
     <div class="header-line mb-4">
         <h4>
-            Project Name: <small><?= $project['projectname']; ?></small>
+            Order ID: <small><?= $order->id ?></small>
+            &nbsp;&nbsp;
+            Unit: <small><?= $project['projectname']; ?></small>
             &nbsp;&nbsp;
             <b class="text-danger">Amount: </b>
             <?= $amount; ?>
@@ -229,19 +228,19 @@ DisplayMessage($args ?? null);
         <!-- Таб 4 -->
         <li class="nav-item" role="presentation">
             <button class="nav-link <?= ($A_T == 'tab4') ? 'active' : '' ?>"
-                    data-bs-target="#tab4" id="nav-link-4" type="button" role="tab">Project Docs
+                    data-bs-target="#tab4" id="nav-link-4" type="button" role="tab">Unit Docs
             </button>
         </li>
         <!-- Таб 5 -->
         <li class="nav-item" role="presentation">
             <button class="nav-link <?= ($A_T == 'tab5') ? 'active' : '' ?>"
-                    data-bs-target="#tab5" id="nav-link-5" type="button" role="tab">Project BOM
+                    data-bs-target="#tab5" id="nav-link-5" type="button" role="tab">Unit BOM
             </button>
         </li>
         <!-- Таб 6 -->
         <li class="nav-item" role="presentation">
             <button class="nav-link <?= ($A_T == 'tab6') ? 'active' : '' ?>"
-                    data-bs-target="#tab6" id="nav-link-6" type="button" role="tab">Project Steps
+                    data-bs-target="#tab6" id="nav-link-6" type="button" role="tab">Unit Steps
             </button>
         </li>
         <!-- Таб 7 -->
@@ -253,7 +252,7 @@ DisplayMessage($args ?? null);
         <!-- Таб 8 -->
         <li class="nav-item" role="presentation">
             <button class="nav-link <?= ($A_T == 'tab8') ? 'active' : '' ?>"
-                    data-bs-target="#tab8" id="nav-link-8" type="button" role="tab">Instructions for assembling the project
+                    data-bs-target="#tab8" id="nav-link-8" type="button" role="tab">Instructions for assembling the unit
             </button>
         </li>
     </ul>
@@ -277,7 +276,7 @@ DisplayMessage($args ?? null);
                     <thead>
                     <tr style="white-space: nowrap">
                         <?php list($tHead, $settings) = CreateTableHeadByUserSettings(
-                            $user, 'order-bom-table', PROJECT_BOM, '<th>Shelf / Box</th><th>Aqtual QTY [PCS, M]</th>');
+                            $user, 'order-bom-table', UNITS_BOM, '<th>Shelf / Box</th><th>Aqtual QTY [PCS, M]</th>');
                         echo $tHead;
                         ?>
                     </tr>
@@ -438,7 +437,7 @@ DisplayMessage($args ?? null);
                     <div class="mb-3">
                         <h3 class="mb-3 ps-2">Additional Information</h3>
                         <p class="ps-2"> <?= $project['extra']; ?></p>
-                        <p class="ps-2"><?= 'Project Revision: ' . $project['revision']; ?></p>
+                        <p class="ps-2"><?= 'ProductionUnit Revision: ' . $project['revision']; ?></p>
                         <p class="ps-2 text-primary"><?= 'Created in: ' . $project['date_in']; ?></p>
                     </div>
                     <div class="mb-3">
@@ -459,9 +458,9 @@ DisplayMessage($args ?? null);
                     <thead>
                     <tr>
                         <?php
-                        if ($settings = getUserSettings($user, PROJECT_BOM)) {
+                        if ($settings = getUserSettings($user, UNITS_BOM)) {
                             foreach ($settings as $item => $_) {
-                                echo '<th>' . SR::getResourceValue(PROJECT_BOM, $item) . '</th>';
+                                echo '<th>' . SR::getResourceValue(UNITS_BOM, $item) . '</th>';
                             }
                         } else {
                             ?>

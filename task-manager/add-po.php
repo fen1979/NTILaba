@@ -5,7 +5,7 @@ $page = 'pioi';
 
 /* СОЗДАЕМ НОВЫЙ ПРОЕКТ И ЗАКАЗ НА ОСНОВЕ ДАННЫХ И СОХРАНЯЕМ В БД */
 if (isset($_POST['pioi']) && isset($_POST['projectName'])) {
-    require 'projects/Project.php';
+    require 'projects/ProductionUnit.php';
     require 'orders/Orders.php';
     require 'counterparties/CPController.php';
 
@@ -15,9 +15,9 @@ if (isset($_POST['pioi']) && isset($_POST['projectName'])) {
         $_POST['customerId'] = $args['customer_id'];
     }
     // создаем новый проект заглушку
-    $args = Project::createNewProject($_POST, $user, $_FILES);
+    $args = ProductionUnit::createNewProject($_POST, $user, $_FILES);
     // получаем данные для создания заказа заглушки
-    $project = R::load(PROJECTS, $args['id']);
+    $project = R::load(PRODUCT_UNIT, $args['id']);
     $client = R::load(CLIENTS, $args['customerId']);
     // создаем заказ заглушку что бы не забыть
     $args = Orders::createOrder($user, $client, $project, $_POST);

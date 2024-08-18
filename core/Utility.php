@@ -497,3 +497,56 @@ function iff($condition, $trueValue, $falseValue = null, $defaultValue = null)
         return is_callable($falseValue) ? $falseValue() : $falseValue;
     }
 }
+
+
+/**
+ * Проверяет переменную на пустоту с учетом различных сценариев, таких как null, несуществующие переменные,
+ * строки, содержащие только пробелы и другие "ложные" значения. Если переменная удовлетворяет одному из
+ * этих условий, функция возвращает значение по умолчанию или результат вызова переданной функции.
+ *
+ * @param mixed $value Переменная, которую нужно проверить на пустоту. Может быть любого типа: строка, число,
+ *                     массив, объект, или даже несуществующая переменная.
+ * @param mixed $callBack Значение или функция, которое/которая будет возвращено, если $value окажется пустым,
+ *                        null, неопределенным или строкой, содержащей только пробелы. Если передана функция,
+ *                        она будет вызвана, и её результат вернётся.
+ *
+ * @return mixed Возвращает значение переменной $value, если она не пуста. Если переменная пуста, возвращается
+ *               результат вызова функции $callBack, если она передана, или само значение $callBack.
+ *
+ * @example
+ * // Пример использования с простым значением по умолчанию:
+ * $username = _empty($userInput, 'Guest');
+ * echo $username;
+ * // Если $userInput пустой или не определен, выведет "Guest"
+ *
+ * @example
+ * // Пример использования с функцией:
+ * $result = _empty($configValue, function() {
+ *     return 'Default config';
+ * });
+ * echo $result;
+ * // Если $configValue пустой или не определен, выведет "Default config"
+ *
+ * @example
+ * // Обработка строки, содержащей только пробелы:
+ * $input = "   ";
+ * $output = _empty($input, 'No input provided');
+ * echo $output;
+ * // Выведет "No input provided", так как $input содержит только пробелы
+ */
+
+function _empty($value, $callBack)
+{
+    // Проверка на несуществующую переменную или null
+    if (!isset($value)) {
+        return is_callable($callBack) ? $callBack() : $callBack;
+    }
+
+    // Проверка на пустую строку или строку, содержащую только пробелы
+    if (is_string($value) && trim($value) === '') {
+        return is_callable($callBack) ? $callBack() : $callBack;
+    }
+
+    // Если значение не пустое, возвращаем его
+    return !empty($value) ? $value : (is_callable($callBack) ? $callBack() : $callBack);
+}

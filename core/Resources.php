@@ -43,9 +43,9 @@ const STORAGE_STATUS = ['smt' => 'In SMT Line', 'shelf' => 'On Shelf', 'work' =>
 
 //I DATABASE TABLES NAMES CONSTANTS
 const ORDERS = 'orders';
-const PROJECTS = 'projects';
+const PRODUCT_UNIT = 'projects';
 const PROJECT_STEPS = 'projectsteps';
-const PROJECT_BOM = 'projectbom';
+const UNITS_BOM = 'projectbom';
 const CLIENTS = 'customers';
 const USERS = 'users'; // users table
 const SUPPLIERS = 'suppliers';

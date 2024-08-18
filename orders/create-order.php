@@ -35,7 +35,7 @@ $btnSubmit['name'] = 'createOrder';
 
 /* creating new order */
 if (isset($_POST['createOrder'])) {
-    $project = R::load(PROJECTS, _E($_POST['project_id']));
+    $project = R::load(PRODUCT_UNIT, _E($_POST['project_id']));
     $client = R::load(CLIENTS, _E($_POST['customer_id']));
 
     $_SESSION['info'] = $result = Orders::createOrder($user, $client, $project, $_POST);
@@ -50,11 +50,11 @@ if (isset($_POST['createOrder'])) {
 
 /* TODO updating order information ?????? разобратся где оно берется! да я забыл поэтому и записываю */
 if (isset($_POST['editOrder'])) {
-    $project = R::load(PROJECTS, _E($_POST['project_id']));
+    $project = R::load(PRODUCT_UNIT, _E($_POST['project_id']));
     $client = R::load(CLIENTS, _E($_POST['customer_id']));
     $order = R::load(ORDERS, _E($_POST['order_id']));
 
-    $_SESSION['info'] = $res = Orders::updateOrder($user, _E($_POST['order_id']), $_POST, $project, $client);
+    $_SESSION['info'] = $res = Orders::updateOrderInformation($user, _E($_POST['order_id']), $_POST, $project, $client);
     if ($res) {
         redirectTo("check_bom?orid=$orderId&pid=$project->id");
     }
@@ -62,14 +62,14 @@ if (isset($_POST['editOrder'])) {
 
 // create new order from project list page
 if (isset($_GET['pid']) && isset($_GET['nord'])) {
-    $project = R::load(PROJECTS, _E($_GET['pid']));
+    $project = R::load(PRODUCT_UNIT, _E($_GET['pid']));
     $client = R::findOne(CLIENTS, 'name = ?', [$project->customername]);
 }
 
 // edit order from order view page
 if (isset($_GET['edit-order']) && isset($_GET['pid']) && isset($_GET['orid'])) {
     $order = R::load(ORDERS, _E($_GET['orid']));
-    $project = R::load(PROJECTS, $order->projects_id);
+    $project = R::load(PRODUCT_UNIT, $order->projects_id);
     $client = R::load(CLIENTS, $order->customers_id);
     $btnSubmit['text'] = 'Update this order';
     $btnSubmit['name'] = 'updateOrder';
@@ -79,7 +79,7 @@ if (isset($_GET['edit-order']) && isset($_GET['pid']) && isset($_GET['orid'])) {
 
 // call update order function
 if (isset($_POST['updateOrder']) && !empty($_POST['order-id'])) {
-    $result = Orders::updateOrder($user, _E($_POST['order-id']), $_POST, true, true);
+    $result = Orders::updateOrderInformation($user, _E($_POST['order-id']), $_POST, true, true);
     $_SESSION['info'] = $result;
     redirectTo("edit-order?edit-order&orid={$_GET['orid']}&pid={$result['pid']}");
 }

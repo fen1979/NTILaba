@@ -7,7 +7,7 @@ require_once 'result-view.php';
 if (isset($_POST['project_name']) && isset($_POST['verification'])) {
     $res = json_encode(['exists' => false]);
     $projectName = _E($_POST['project_name']);
-    $project = R::find(PROJECTS, 'projectname LIKE ?', [$projectName]);
+    $project = R::find(PRODUCT_UNIT, 'projectname LIKE ?', [$projectName]);
 
     if ($project) {
         $res = json_encode(['exists' => true]);
@@ -55,7 +55,7 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
             {
                 /* search project, for order creation page */
                 $col = ['projectname', 'customername', 'revision'];
-                viewLineProject(dynamicSearch(PROJECTS, $col, $mySearchString), $col, $mySearchString);
+                viewLineOfUnit(dynamicSearch(PRODUCT_UNIT, $col, $mySearchString), $col, $mySearchString);
             }
             break;
 
@@ -63,10 +63,10 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
             {
                 /* search for project view page */
                 $col = ['projectname', 'customername', 'date_in'];
-                viewFullProject(dynamicSearch(PROJECTS, $col, $mySearchString), $_SESSION['userBean']);
+                viewFullUnit(dynamicSearch(PRODUCT_UNIT, $col, $mySearchString), $_SESSION['userBean']);
 
                 if (!mb_strlen($mySearchString)) {
-                    viewFullProject(R::findAll(PROJECTS, 'ORDER BY date_in ASC'), $col);
+                    viewFullUnit(R::findAll(PRODUCT_UNIT, 'ORDER BY date_in ASC'), $col);
                 }
             }
             break;
@@ -89,7 +89,7 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
         case 'project_bom':
             {
                 /* search for project BOM filling  */
-                viewPartsForProjectBOM(SearchWarehouseItems($mySearchString, WH_ITEMS, WAREHOUSE));
+                viewPartsForUnitBOM(SearchWarehouseItems($mySearchString, WH_ITEMS, WAREHOUSE));
             }
             break;
 
@@ -106,6 +106,14 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
                 /* search for logs view page */
                 $col = ['date', 'user', 'action', 'object_type'];
                 viewLogs(dynamicSearch(LOGS, $col, $mySearchString));
+            }
+            break;
+
+        case 'resources_nav':
+            {
+                /* search for logs view page */
+                $col = ['group_name', 'key_name', 'value', 'detail'];
+                viewResources(dynamicSearch('resources', $col, $mySearchString));
             }
             break;
 

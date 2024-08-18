@@ -34,8 +34,8 @@ $viewButtons = $emptyProjectBom = false;
 /* выборка данных из БД для вывода пользователю */
 if (isset($_GET['orid']) && isset($_GET['pid'])) {
     $order = R::load(ORDERS, _E($_GET['orid']));
-    $project = R::load(PROJECTS, _E($_GET['pid']));
-    $projectBom = R::findAll(PROJECT_BOM, 'projects_id = ?', [_E($_GET['pid'])]);
+    $project = R::load(PRODUCT_UNIT, _E($_GET['pid']));
+    $projectBom = R::findAll(UNITS_BOM, 'projects_id = ?', [_E($_GET['pid'])]);
     $client = R::load(CLIENTS, _E($order->customers_id));
     // приходим из /order-details
     if (isset($_GET['tab'])) {
@@ -45,7 +45,7 @@ if (isset($_GET['orid']) && isset($_GET['pid'])) {
     /* настройки вывода от пользователя */
     if ($user) {
         foreach ($user['ownSettingsList'] as $item) {
-            if (isset($item['table_name']) && $item['table_name'] == PROJECT_BOM) {
+            if (isset($item['table_name']) && $item['table_name'] == UNITS_BOM) {
                 $settings = json_decode($item['setup']);
                 break;
             }

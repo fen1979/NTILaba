@@ -1,7 +1,7 @@
 <?php
 if (!empty($_GET['shared'])) {
     $linkToView = $_GET['shared'];
-    $project = R::findOne(PROJECTS, 'sharelink = ?', [$linkToView]);
+    $project = R::findOne(PRODUCT_UNIT, 'sharelink = ?', [$linkToView]);
     $projectData = R::findAll(PROJECT_STEPS, "projects_id LIKE ?", [$project->id]);
 }
 ?>

@@ -1,6 +1,6 @@
 <?php
 include_once 'warehouse/WareHouse.php';
-
+define('STATUS', SR::getAllResourcesInGroup('status'));
 class Orders
 {
     /* i============================ PROTECTED METHODS =============================== */
@@ -218,7 +218,7 @@ class Orders
         $unic_name = strtolower($p_name) . '_' . date('Ymd_is'); // project name/date/
         $order->order_folder = self::makeFolderInStorage($unic_name); // папка заказа для хранения информации
         $order->date_in = str_replace('T', ' ', $post['date_in']); // дата создания заказа
-        $order->date_out = str_replace('T', ' ', $post['date_out']); // дата отдачи заказа
+        $order->date_out = str_replace('T', ' ', $post['date_out']); // дата выдачи заказа
         $order->subtraction = 0; // нужна для понимания что заказ в работе и списание больше не нужно если вдруг что
 
         /* привязка к таблицам проекта и клиента
@@ -242,7 +242,7 @@ class Orders
         self::saveChatMessage($orderId, $user, ['messageText' => $msg, 'readonly' => 1]);
 
         /* [     LOGS FOR THIS ACTION     ] */
-        $details = "Order N: $orderId, Customer: $c_name, Amount: $amount, Project: $p_name";
+        $details = "Order N: $orderId, Customer: $c_name, Amount: $amount, ProductionUnit: $p_name";
         /* сохранение логов если успешно то переходим к БОМ */
         if (logAction($user['user_name'], 'ORDER_CREATED', OBJECT_TYPE[0], $details)) {
             return [true, $orderId];
@@ -260,7 +260,7 @@ class Orders
      * @return array
      * @throws //\RedBeanPHP\RedException\SQL
      */
-    public static function updateOrder($user, $order_id, $post, $project = null, $client = null): array
+    public static function updateOrderInformation($user, $order_id, $post, $project = null, $client = null): array
     {
         if ($project && $client) {
             $post = self::checkPostDataAndConvertToArray($post);
@@ -310,7 +310,7 @@ class Orders
                 $order->project_revision = $post['projectRevision']; // версия проекта
                 $order->projects_id = $post['project_id'];
                 // message to order log
-                $msg .= "Project name changed to: $p_name<br>";
+                $msg .= "ProductionUnit name changed to: $p_name<br>";
             }
 
             $amount = $order->order_amount;
@@ -388,7 +388,7 @@ class Orders
             $res['pid'] = $post['project_id'];
             $res[] = ['info' => 'Order details canged successfully', 'color' => 'success'];
 
-            $details = "Order N: $orderId, Customer: $c_name, Amount: $amount, Project: $p_name";
+            $details = "Order N: $orderId, Customer: $c_name, Amount: $amount, ProductionUnit: $p_name";
 
             /* [     LOGS FOR THIS ACTION     ] */
             if (!logAction($user['user_name'], 'EDITING', OBJECT_TYPE[0], $details)) {
@@ -414,17 +414,6 @@ class Orders
         /* check password */
         if (checkPassword($password)) {
             $order = R::load(ORDERS, $orderID);
-            /* putorder to archive */
-            if (isset($post['archivation']) && $order->status == 'st-111') {
-                $order->status = 'st-222';
-                R::store($order);
-                $res[] = ['info' => 'Order added to archive successfully', 'color' => 'success'];
-                /* log details */
-                $log_details = 'Order was added to archive, Order ID: ' . $orderID;
-                /* write readonly message to order chat */
-                $msg = ['readonly' => 1, 'messageText' => 'Order archivated<br>Transferred to status: Archivated.'];
-                $res[] = self::saveChatMessage($orderID, $user, $msg);
-            }
 
             /* extract order ftom archive */
             if (isset($post['archivation']) && $order->status == 'st-222') {
@@ -435,6 +424,18 @@ class Orders
                 $log_details = 'Order ID: ' . $orderID . ', Extracted from archive';
                 /* write readonly message to order chat */
                 $msg = ['readonly' => 1, 'messageText' => 'Order dearchivated<br>Transferred to status: Complited.'];
+                $res[] = self::saveChatMessage($orderID, $user, $msg);
+            }
+
+            /* putorder to archive */
+            if (isset($post['archivation']) && $order->status == 'st-111') {
+                $order->status = 'st-222';
+                R::store($order);
+                $res[] = ['info' => 'Order added to archive successfully', 'color' => 'success'];
+                /* log details */
+                $log_details = 'Order was added to archive, Order ID: ' . $orderID;
+                /* write readonly message to order chat */
+                $msg = ['readonly' => 1, 'messageText' => 'Order archivated<br>Transferred to status: Archivated.'];
                 $res[] = self::saveChatMessage($orderID, $user, $msg);
             }
 
@@ -462,9 +463,9 @@ class Orders
     {
         include_once 'libs/xlsxgen.php';
 
-        $titles = SR::getAllResourcesInGroup(PROJECT_BOM); // 12 titles
+        $titles = SR::getAllResourcesInGroup(UNITS_BOM); // 12 titles
         $order = R::load(ORDERS, $order_id);
-        $data = R::findAll(PROJECT_BOM, "projects_id = ?", [$order->projects_id]);
+        $data = R::findAll(UNITS_BOM, "projects_id = ?", [$order->projects_id]);
         $orderBOM[] = $titles;
 
         foreach ($data as $item) {
@@ -881,6 +882,7 @@ class Orders
      */
     private static function checkStockAndSubtract($project_id, $order, $storage_space, $user): array
     {
+        //
         // изменить списание в заказе сделать его через метод класса склада напрямую
         // в метод передать даннные БОМ проекта и еще что то для корректной работы
         // вынести всю работу со складом в класс склада
@@ -891,10 +893,14 @@ class Orders
             $order_amount = $order->order_amount;
             //include_once 'stock/WareHouse.php';
             $bom = array();
-            $projectBom = R::findAll(PROJECT_BOM, 'projects_id = ?', [$project_id]);
+            $projectBom = R::findAll(UNITS_BOM, 'projects_id = ?', [$project_id]);
             foreach ($projectBom as $item) {
+
+                // fixme переделать снятие с базы количества нужного для заказа по конкретной
+                // fixme запчасти и сделать привязку к статусам переведенным вручную
+
                 // просмотреть БОМ проекта и умножить количество в боме на количество в заказе,
-                $stock = WareHouse::GetActualQtyForItem($item['owner_pn'], true);
+                $stock = WareHouse::GetActualQtyForItem($item['owner_pn'], $item['item_id']);
                 // проверить наличие на складе:
                 if ($stock) {
                     // если больше чем нужно отнять нужное и сохранить остатки(записать в лог склада)
@@ -1044,7 +1050,7 @@ class Orders
 
             /* [     LOGS FOR THIS ACTION     ] */
             $s_c = count($steps);
-            $log_details = "Work started on Project: name-{$project['projectname']}, ID: $project->id<br>";
+            $log_details = "Work started on ProductionUnit: name-{$project['projectname']}, ID: $project->id<br>";
             $log_details .= "Step count: $s_c, creation date: $project->date_in, Creator: $project->creator<br>";
             $log_details .= "Executor Name: $project->executor, Order started time: $ws<br>";
             $log_details .= "Spare parts for the order were written off from the warehouse";
@@ -1152,7 +1158,7 @@ class Orders
 
 
             /* [     LOGS FOR THIS ACTION     ] */
-            $log_details = "Work started on Project: name-{$project['projectname']}, ID: $project->id<br>";
+            $log_details = "Work started on ProductionUnit: name-{$project['projectname']}, ID: $project->id<br>";
             $log_details .= "Step number: $step->step, taken date: $ws, Worker: {$user['user_name']}<br>";
             $log_details .= "Order ID: $orid<br>";
 
@@ -1211,7 +1217,7 @@ class Orders
             /* [     LOGS FOR THIS ACTION     ] */
             // page anchor id for back to needed step
             $res['step_id'] = $st_num = $assy_flow->current_step;
-            $log_details = "Work on Project: name-{$project['projectname']}, ID: $project->id<br>";
+            $log_details = "Work on ProductionUnit: name-{$project['projectname']}, ID: $project->id<br>";
             $log_details .= "Step number: $st_num, complite, date: $we, Worker: {$user['user_name']}<br>";
 
             $msg = "Step number $st_num was complited by employee: {$user['user_name']}";
@@ -1271,7 +1277,7 @@ class Orders
             /* [     LOGS FOR THIS ACTION     ] */
             $ws = date('Y-m-d H:i');
 
-            $log_details = "Work on Project: name-$project->projectname, ID: $project->id<br>";
+            $log_details = "Work on ProductionUnit: name-$project->projectname, ID: $project->id<br>";
             $log_details .= "Step number: $assy_flow->current_step, skipped date: $ws, Worker: {$user['user_name']}<br>";
             $log_details .= "Order ID: $orid<br>";
 
@@ -1354,7 +1360,7 @@ class Orders
 
         /* [     LOGS FOR THIS ACTION     ] */
         $s_c = count($steps);
-        $log_details = "Work started on Project: name-{$project['projectname']}, ID: $project->id<br>";
+        $log_details = "Work started on ProductionUnit: name-{$project['projectname']}, ID: $project->id<br>";
         $log_details .= "Step count: $s_c, creation date: $project->date_in, Creator: $project->creator<br>";
         $log_details .= "Executor Name: $project->executor, Order started time: $ws<br>";
         $log_details .= "Spare parts for the order were written off from the warehouse";

@@ -127,7 +127,7 @@ if (isset($_GET['pid'])) {
     }
 
     $projectid = $_GET['pid'];
-    $project = R::load(PROJECTS, $projectid);
+    $project = R::load(PRODUCT_UNIT, $projectid);
     $data = R::findAll(PROJECT_STEPS, "projects_id = ?", [$project->id]);
     list($date, $hours) = explode(' ', $project->date_in);
 
