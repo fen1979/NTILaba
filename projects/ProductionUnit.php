@@ -195,7 +195,7 @@ class ProductionUnit
      * @return array|string[]
      * @throws //\RedBeanPHP\RedException\SQL
      */
-    public static function createNewProject($post, $user, $files = null): array
+    public static function createNewProductionUnit($post, $user, $files = null): array
     {
         $log_details = '';
         /* Получаем данные из формы*/

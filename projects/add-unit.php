@@ -17,7 +17,7 @@ if (isset($_GET['orders'])) {
 /* СОЗДАЕМ НОВЫЙ ПРОЕКТ И СОХРАНЯЕМ В БД */
 if (isset($_POST['projectName']) && !isset($_SESSION['editmode'])) {
     /* создание нового проекта в БД */
-    $_SESSION['info'] = $args = ProductionUnit::createNewProject($_POST, $user, $_FILES);
+    $_SESSION['info'] = $args = ProductionUnit::createNewProductionUnit($_POST, $user, $_FILES);
 
     /* возврат на страницу добавления заказа с данными о новом проекте */
     if (!empty($args['id'])) {
@@ -245,13 +245,13 @@ DisplayMessage($args ?? null);
         <div class="mb-3">
             <div class="row">
                 <div class="col-7">
-                    <label for="pn" class="form-label" id="pn_label">Project Name <b class="text-danger">*</b></label>
+                    <label for="pn" class="form-label" id="pn_label">Unit Name <b class="text-danger">*</b></label>
                 </div>
                 <div class="col-3">
-                    <label for="pr" class="form-label">Project Version <b class="text-danger">*</b></label>
+                    <label for="pr" class="form-label">Unit Version <b class="text-danger">*</b></label>
                 </div>
                 <div class="col-2">
-                    <label for="date_in" class="form-label">Project start Date <b class="text-danger">*</b></label>
+                    <label for="date_in" class="form-label">Unit start Date <b class="text-danger">*</b></label>
                 </div>
             </div>
 
@@ -299,7 +299,7 @@ DisplayMessage($args ?? null);
         <div class="row mb-3">
             <div class="p-1 col">
                 <button type="button" class="btn btn-outline-primary form-control" id="pickFile"
-                        data-who="file">Upload Project Documentation (PDF Only)
+                        data-who="file">Upload Unit Documentation (PDF Only)
                 </button>
                 <input type="file" name="dockFile" id="pdf_file" accept=".pdf" hidden/>
             </div>
@@ -321,7 +321,7 @@ DisplayMessage($args ?? null);
                 ?>
                 <div class="p-1 col">
                     <a type="button" target="_blank" class="btn btn-outline-info form-control" href="<?= $href; ?>">
-                        View or Download Project Files
+                        View or Download Unit Files
                     </a>
                 </div>
             <?php } ?>

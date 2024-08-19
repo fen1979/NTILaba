@@ -15,35 +15,15 @@ if (isset($_POST['pioi']) && isset($_POST['projectName'])) {
         $_POST['customerId'] = $args['customer_id'];
     }
     // создаем новый проект заглушку
-    $args = ProductionUnit::createNewProject($_POST, $user, $_FILES);
+    $args = ProductionUnit::createNewProductionUnit($_POST, $user, $_FILES);
     // получаем данные для создания заказа заглушки
     $project = R::load(PRODUCT_UNIT, $args['id']);
     $client = R::load(CLIENTS, $args['customerId']);
     // создаем заказ заглушку что бы не забыть
     $args = Orders::createOrder($user, $client, $project, $_POST);
-    // $poi->n = $post['customerId'];
-    // $poi->n = $post['customerName'];
-    // $poi->n = $post['addCustomer'];
-    // $poi->n = $post['priorityMakat'];
-    // $poi->n = $post['headPay'];
-    // $poi->n = $post['projectName'];
-    // $poi->n = $post['projectRevision'];
-    // $poi->n = $post['dockFile'];
-    // $poi->n = $post['projects_files'];
-    // $poi->n = $post['serial-required'];
-    // $poi->n = $post['project_type'];
-    // $poi->n = $post['fai_qty'];
-    // $poi->n = $post['orderAmount'];
-    // $poi->n = $post['storageBox'];
-    // $poi->n = $post['storageShelf'];
-    // $poi->n = $post['date_in'];
-    // $poi->n = $post['date_out'];
-    // $poi->n = $post['orderWorkers'];
-    // $poi->n = $post['forwardedTo'];
-    // $poi->n = $post['prioritet'];
-    // $poi->n = $post['order-status'];
-    // $poi->n = $post['purchaseOrder'];
-    // $poi->n = $post['extra'];
+    if ($args[0]) {
+        redirectTo("order/preview?orid=$args[1]");
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -114,7 +94,7 @@ NavBarContent($navBarData);
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>
-<h3 class="mt-3 mb-3 text-center">Draft Project and Order Record</h3>
+<h3 class="mt-3 mb-3 text-center">Draft Production Unit and Order Record</h3>
 
 <div class="container mt-5 mb-5 px-3 py-3 rounded" style="background: beige;">
 
@@ -166,12 +146,12 @@ DisplayMessage($args ?? null);
             <!--i PROJECT NAME, INCOMING DATE, REVISION -->
             <tr>
                 <td>
-                    <label for="pn" class="form-label" id="pn_label">Project Name <b class="text-danger">*</b></label>
+                    <label for="pn" class="form-label" id="pn_label">Unit Name <b class="text-danger">*</b></label>
                     <input type="text" name="projectName" value="<?= set_value('projectName'); ?>"
                            class="form-control" id="pn" required>
                 </td>
                 <td>
-                    <label for="pr" class="form-label">Project Version <b class="text-danger">*</b></label>
+                    <label for="pr" class="form-label">Unit Version <b class="text-danger">*</b></label>
                     <input type="text" class="form-control" id="pr" name="projectRevision" required
                            value="<?= set_value('projectRevision'); ?>">
                 </td>
@@ -181,7 +161,7 @@ DisplayMessage($args ?? null);
             <tr class="border-bottom">
                 <td>
                     <button type="button" class="btn btn-outline-primary form-control" id="pickFile"
-                            data-who="file">Upload Project Documentation (PDF Only)
+                            data-who="file">Upload Unit Documentation (PDF Only)
                     </button>
                     <input type="file" name="dockFile" id="pdf_file" accept=".pdf" hidden/>
                 </td>
@@ -205,7 +185,7 @@ DisplayMessage($args ?? null);
                     <div class="form-switch">
                         <input class="form-check-input track-change" type="checkbox" id="project_type" name="project_type" value="1">
                         <label class="form-check-label" for="project_type">
-                            Project type SMT <br> surface mount assembly line.
+                            Product unit type SMT <br> surface mount assembly line.
                         </label>
                     </div>
                 </td>
@@ -320,8 +300,8 @@ DisplayMessage($args ?? null);
                         foreach (SR::getAllResourcesInGroup('status') as $key => $status) {
                             if ($key != '-1') {
                                 echo iff($key == 'st-333',
-                                '<option value="' . $key . '" selected>' . SR::getResourceValue('status', $key) . '</option>',
-                                '<option value="' . $key . '">' . SR::getResourceValue('status', $key) . '</option>');
+                                    '<option value="' . $key . '" selected>' . SR::getResourceValue('status', $key) . '</option>',
+                                    '<option value="' . $key . '">' . SR::getResourceValue('status', $key) . '</option>');
                                 ?>
                             <?php }
                         } ?>

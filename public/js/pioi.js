@@ -119,7 +119,8 @@ function handleSerialCheckboxChange() {
 
 function validateForm() {
     let isValid = true;
-    let projectNameValid = true;
+    let is_unit_name = true;
+    let unit_id = "";
 
     // Проверка текстовых инпутов и селектов
     $('input[type="text"][required], select[required]').each(function () {
@@ -130,32 +131,42 @@ function validateForm() {
         }
     });
 
-    // Проверка уникальности имени проекта
-    let projectName = dom.e("#pn").value.trim();
+    // Проверка уникальности имени юнита
+    let unit_name = dom.e("#pn").value.trim();
+    let unit_revision = dom.e("#pr").value.trim();
     let mode = dom.e("#pn").dataset.mode;
-    if (projectName.length >= 5 && mode !== "editmode") {
+
+    if (unit_name.length >= 5 && mode !== "editmode") {
         fetch("get_data", {
             method: "POST",
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: `project_name=${encodeURIComponent(projectName)}&verification=true`
+            body: `unit_name=${encodeURIComponent(unit_name)}&revision=${encodeURIComponent(unit_revision)}&verification=true`
         })
             .then(response => response.json())
             .then(data => {
-                projectNameValid = !data.exists;
+                is_unit_name = !data.exists;
+                unit_id = data.unit_id;
                 if (data.exists) {
                     dom.addClass('#pn', 'danger');
                     dom.removeClass('#pn', 'success');
-                    dom.e("#pn_label").innerHTML = "ProductionUnit Name <b class='danger blinking p-2'>This name is exist!</b>";
+                    dom.e("#pn_label").innerHTML = "Production Unit Name <b class='danger blinking p-2'>This name is exist!</b> &nbsp;";
+                    // Создаем новый элемент <a>
+                    let link = document.createElement("a");
+                    // Устанавливаем атрибуты href и текстовое содержимое для ссылки
+                    link.href = "/new_order?pid=" + unit_id + "&nord";
+                    link.textContent = "Create order for this project?";
+                    link.classList.add("fs-4");
+                    dom.e("#pn_label").appendChild(link);
                 } else {
                     dom.addClass('#pn', 'success');
                     dom.removeClass('#pn', 'danger');
-                    dom.e("#pn_label").textContent = "ProductionUnit Name";
+                    dom.e("#pn_label").textContent = "Production Unit Name";
                 }
-                updateSubmitButtonState(isValid && projectNameValid);
+                updateSubmitButtonState(isValid && is_unit_name);
             })
             .catch(error => console.error('Error:', error));
     } else {
-        updateSubmitButtonState(isValid && projectNameValid);
+        updateSubmitButtonState(isValid && is_unit_name);
     }
 }
 

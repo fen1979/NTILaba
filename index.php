@@ -33,6 +33,8 @@ $r->addRout('/check_bom', 'orders/order-bom.php');
 $r->addRout('/order/preview', 'orders/order-details.php');
 $r->addRout('/priority-out', 'pdfOut/priority-out.php');
 $r->addRout('/order_pdf', 'pdfOut/order-details.php');
+// спец страница для автоматического ввода данных
+$r->addRout('/pioi', 'orders/add-po.php');
 
 // production unit pages
 $r->addRout('/project', 'product-units-view.php');
@@ -87,8 +89,6 @@ $r->addRout('/task_list', 'task-manager.php');
 $r->addRout('/add-task', 'task-manager/add-task.php');
 $r->addRout('/update-task', 'task-manager/update-task.php');
 $r->addRout('/manage-list', 'task-manager/manage-list.php');
-// спец страница для автоматического ввода данных
-$r->addRout('/pioi', 'task-manager/add-po.php');
 
 
 // call the routing function to view page

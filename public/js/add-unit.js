@@ -74,6 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
         //let checkedCount = form.querySelectorAll('input[type="checkbox"]:checked').length;
         let requiredFieldsFilled = true;
         let projectNameValid = true; // По умолчанию предполагаем, что имя проекта валидно
+        let unit_id = "";
 
         // Проверяем, заполнены ли все обязательные поля
         form.querySelectorAll('input[required], textarea[required]').forEach(function (field) {
@@ -86,28 +87,37 @@ document.addEventListener("DOMContentLoaded", function () {
         if (requiredFieldsFilled) {
             let mode = dom.e("#pn").dataset.mode;
             let projectName = dom.e("#pn").value.trim();
-            if (projectName.length >= 5 && mode !== "editmode") {
+            let unit_revision = dom.e("#pr").value.trim();
 
+            if (projectName.length >= 5 && mode !== "editmode") {
                 // запрос на проверку уникальности имени проекта
                 fetch("get_data", {
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
-                    body: `project_name=${encodeURIComponent(projectName)}&verification=true`
+                    body: `unit_name=${encodeURIComponent(projectName)}&revision=${encodeURIComponent(unit_revision)}&verification=true`
                 })
                     .then(response => response.json())
                     .then(data => {
                         // console.log(data); // выводим ответ сервера в консоль для отладки
                         projectNameValid = !data.exists;
+                        unit_id = data.unit_id;
                         if (data.exists) {
                             dom.addClass('#pn', 'danger');
                             dom.removeClass('#pn', 'success');
-                            dom.e("#pn_label").innerHTML = "ProductionUnit Name <b class='danger blinking p-2'>This name is exist!</b>";
+                            dom.e("#pn_label").innerHTML = "Production Unit Name <b class='danger blinking p-2'>This name is exist!</b>";
+                            // Создаем новый элемент <a>
+                            let link = document.createElement("a");
+                            // Устанавливаем атрибуты href и текстовое содержимое для ссылки
+                            link.href = "/new_order?pid=" + unit_id + "&nord";
+                            link.textContent = "Create order for this project?";
+                            link.classList.add("fs-4");
+                            dom.e("#pn_label").appendChild(link);
                         } else {
                             dom.addClass('#pn', 'success');
                             dom.removeClass('#pn', 'danger');
-                            dom.e("#pn_label").textContent = "ProductionUnit Name";
+                            dom.e("#pn_label").textContent = "Production Unit Name";
                         }
                         // Проверка минимума чекбоксов и активация кнопки
                         // enableSubmitButton(requiredFieldsFilled && projectNameValid && checkedCount >= 3);
