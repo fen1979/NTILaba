@@ -4,17 +4,13 @@ EnsureUserIsAuthenticated($_SESSION, 'userBean');
 require_once 'result-view.php';
 
 // поиск совпадений имен проектов в БД
-// fixme добавить сравнение по ревизии проекта
-
-//if (isset($_POST['unit_name']) && isset($_POST['revision']) && isset($_POST['verification'])) {
-if (isset($_POST['unit_name']) && isset($_POST['verification'])) {
+if (isset($_POST['unit_name']) && isset($_POST['revision']) && isset($_POST['verification'])) {
     $res = json_encode(['exists' => false, 'unit_id' => '0']);
     $unit_name = _E($_POST['unit_name']);
     $unit_vers = _E($_POST['revision']);
     $unit = R::findOne(PRODUCT_UNIT, 'projectname LIKE ?', [$unit_name]);
 
-//    if ($unit && $unit['revision'] == $unit_vers) {
-    if ($unit) {
+    if ($unit && $unit['revision'] == $unit_vers) {
         $res = json_encode(['exists' => true, 'unit_id' => $unit['id']]);
     }
     exit($res);

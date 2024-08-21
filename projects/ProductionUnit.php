@@ -262,7 +262,7 @@ class ProductionUnit
             }
 
             // сохраняем другие файлы в папку
-            if (!empty($files['projects_files'])) {
+            if (isset($files['projects_files']) && is_array($files['projects_files']) && count($files['projects_files']) > 0) {
                 $result = self::saveProjectDocumentation($files, $projectName);
                 $args[] = (!empty($result['errors'])) ?
                     ['color' => 'danger', 'info' => $result['errors']] :

@@ -224,12 +224,20 @@ class Resources
      * @return void
      * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function updateResourceDetail($group, $key, $detail)
+    public static function updateResourceDetail($group, $key, $detail, $check = false)
     {
         $data = R::findOne(self::RESOURCES, 'group_name = ? AND key_name = ?', [$group, $key]);
-        if ($data) {
+        if ($data && !$check) {
             $data->detail = $detail;
             R::store($data);
+        } else {
+            if ($data->detail == '0') {
+                $_SESSION['info'] = ['color' => 'danger', 'info' => 'THIS BOX IS NOT EMPTY!'];
+            }
+
+            if ($data->detail == '1') {
+                $_SESSION['info'] = ['color' => 'danger', 'info' => 'THIS BOX IS NOT EMPTY!'];
+            }
         }
     }
 
@@ -309,6 +317,26 @@ class Resources
         return $o->detail;
     }
 
+
+    /**
+     * Get all details by group name
+     *
+     * SR::getAllResourceDetailsInGroup('group1');
+     * @param $group
+     * @return array
+     */
+    public static function getAllResourceDetailsInGroup($group): array
+    {
+        $result = [];
+        $o = self::getAllResourcesInGroup($group, true);
+        foreach ($o as $item) {
+            if ($item['value'] == 'in_use') {
+                $result[$item['key_name']] = $item['detail'];
+            }
+        }
+        return $result;
+    }
+
     /**
      * Get all records in groups
      *
@@ -352,5 +380,41 @@ class Resources
     public static function getAllResources(): array
     {
         return R::findAll(self::RESOURCES, 'ORDER BY group_name');
+    }
+
+    /**
+     * Переопределяет все значения в БД в поле ДЕТАЛИ для конкретной группы
+     * если передано значение то переопределение всех записей в БД будет приведено к данному значению
+     * если значение не передано то будет установлено значение по умолчанию "0"
+     * @param $group_name
+     * @param string $default
+     * @return void
+     * @throws \RedBeanPHP\RedException\SQL
+     */
+    public static function clearAllDetailsInGroup($group_name, string $default = '')
+    {
+        $res = self::getAllResourcesInGroup($group_name);
+        foreach ($res as $re) {
+            $re['detail'] = _empty($default, '0');
+            R::store($re);
+        }
+    }
+
+    /**
+     * Переопределяет все значения в БД в поле ЗНАЧЕНИЕ для конкретной группы
+     * если передано значение то переопределение всех записей в БД будет приведено к данному значению
+     * если значение не передано то будет установлено значение по умолчанию "null"
+     * @param $group_name
+     * @param string $default
+     * @return void
+     * @throws \RedBeanPHP\RedException\SQL
+     */
+    public static function clearAllValuesInGroup($group_name, string $default = '')
+    {
+        $res = self::getAllResourcesInGroup($group_name);
+        foreach ($res as $re) {
+            $re['value'] = _empty($default, '0');
+            R::store($re);
+        }
     }
 }

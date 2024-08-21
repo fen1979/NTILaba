@@ -453,7 +453,7 @@ function viewStorageItems($result, $searchString, $request, $user): void
                 }
                 ?>
                 <!-- это полный набор переменных выводимых из БД -->
-                <tr class="<?= $color; ?>" data-id="<?= $item['id']; ?>" id="row-<?= $item['id']; ?>">
+                <tr class="<?= $color; ?>" data-id="<?= $item['items_id']; ?>" id="row-<?= $item['items_id']; ?>">
                     <!--                    <td>--><?php //= $item['id']; ?><!--</td>-->
                     <td><?= $item['type_name']; ?></td>
                     <?php

@@ -8,13 +8,24 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     /* удаление данного шага с перестроением данных в БД */
-    dom.in("click", ".delete-button", function () {
-        dom.e("#dfProjectID").value = this.dataset.projectid;
-        dom.e("#pid").textContent = this.dataset.projectid;
-        dom.e('#dfstepId').value = this.dataset.stepid;
-        dom.e('#sid').textContent = this.dataset.stepid;
-        dom.show("#deleteModal", "fast", true);
-        dom.e("#password").focus();
+    dom.in("click", ".delete-button", function (event) {
+        // Проверяем, что клик был по кнопке или по иконке внутри кнопки с классом delete-button
+        let target = event.target;
+
+        // Если клик был по иконке, поднимаемся до родительского элемента button
+        if (target.tagName.toLowerCase() === 'i') {
+            target = target.closest('button');
+        }
+        // Проверяем, есть ли у элемента нужный класс
+        if (target && target.classList.contains('delete-button')) {
+            // Получаем значения data-атрибутов
+            dom.e("#dfProjectID").value = target.dataset.projectid;
+            dom.e("#pid").textContent = target.dataset.projectid;
+            dom.e('#dfstepId').value = target.dataset.stepid;
+            dom.e('#sid').textContent = target.dataset.stepid;
+            dom.show("#deleteModal", "fast", true);
+            dom.e("#password").focus();
+        }
     });
 
     /* step image full view expande */
@@ -44,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
     //         btn.title('Preview Video');
     //     }
     // });
-    document.addEventListener('click', function(event) {
+    document.addEventListener('click', function (event) {
         // Проверяем, что клик произошел по элементу с классом .video-button
         if (event.target.closest('.video-button')) {
             let button = event.target.closest('.video-button');

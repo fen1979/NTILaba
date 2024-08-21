@@ -1,10 +1,14 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
 require 'warehouse/WareHouse.php';
-/* получение пользователя из сессии */
-$user = $_SESSION['userBean'];
 $page = 'replenishment';
 $item = null;
+
+// check for not in use boxes in storage
+// called from ajax metod by clicking on storage box field
+if (isset($_POST['search-for-storage-box'])) {
+    exit(WareHouse::getEmptyBoxForItem($_POST));
+}
 
 // save new arrival data to DB
 if (isset($_POST['save-new-arrival']) && !empty($_POST['item_id'])) {
@@ -301,6 +305,16 @@ ScriptContent($page);
                 dom.hide('#custom-pn-box');
                 dom.e('#owner-pn-input').required = false;
             }
+        });
+
+        // Обработка клика по результату поиска для места хранения
+        dom.in("click", "#storage-box", function () {
+            // Отправляем POST-запрос на сервер
+            $.post('', {'search-for-storage-box': $(this).val()}, function (data) {
+                // При успешном получении ответа обновляем значение поля ввода
+                dom.e('#storage-box').value = data;
+                console.log(data);
+            });
         });
     });
 </script>

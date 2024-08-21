@@ -27,14 +27,12 @@ if (isset($_POST['projectName']) && !isset($_SESSION['editmode'])) {
                 "&projectName=" . urlencode($args['projectName']) .
                 "&projectRevision=" . urlencode($args['projectRevision']) .
                 "&project_id=" . urlencode($args['id']);
-            header("Location: /new_order?$url");
-            exit();
+            redirectTo("new_order?$url");
         }
 
         /* Переадресация на страницу добавления данных к проекту */
         $_SESSION['projectid'] = $args['id'];
-        header("Location: /check_part_list?pid={$args['id']}");
-        exit();
+        redirectTo("check_part_list?pid={$args['id']}");
     }
 }
 
@@ -64,6 +62,52 @@ if (isset($_GET["pid"]) && isset($_GET['mode']) && $_GET['mode'] == "editmode" &
     $disabled = '';
     $backButton = "order/preview?orid={$_GET['back-id']}&tab=tab3";
     $id = $project->id;
+}
+
+
+function copyFileToDirectory($filePath, $destinationDir): string
+{
+    // Проверяем, существует ли файл
+    if (!file_exists($filePath)) {
+        return "File does not exist: $filePath";
+    }
+
+    // Проверяем, существует ли целевая директория
+    if (!is_dir($destinationDir)) {
+        return "Destination directory does not exist: $destinationDir";
+    }
+
+    // Получаем имя файла из полного пути
+    $fileName = basename($filePath);
+
+    // Полный путь к новому расположению файла
+    $destinationFilePath = $destinationDir . DIRECTORY_SEPARATOR . $fileName;
+
+    // Копируем файл в целевую папку
+    if (copy($filePath, $destinationFilePath)) {
+        return "File copied successfully to $destinationFilePath";
+    } else {
+        return "Failed to copy file: $filePath";
+    }
+}
+
+$t40 = R::findAll(PROJECT_STEPS, 'projects_id = 40');
+foreach ($t40 as $item) {
+    //echo copyFileToDirectory($item['image'], 'storage/projects/ELC7038-B00/');
+    $t84 = R::dispense(PROJECT_STEPS);
+    $t84->projects_id = 84;
+    $t84->routeid = $item['routeid'];
+    $t84->step = $item['step'];
+    $t84->routeaction = $item['routeaction'];
+    $t84->validation = $item['validation'];
+    $t84->image = str_replace('A00', 'B00', $item['image']);
+    $t84->video = str_replace('A00', 'B00', $item['video']);
+    $t84->description = $item['description'];
+    $t84->tool = $item['tool'];
+    $t84->revision = $item['revision'];
+    $t84->front_pic = $item['front_pic'];
+
+     //R::store($t84);
 }
 ?>
 <!DOCTYPE html>

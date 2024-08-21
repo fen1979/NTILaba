@@ -228,11 +228,12 @@ ScriptContent($page);
         // переключатель вида вывода проектов (таблица/карточка)
         dom.doSubmit(".project_preview_mode", "#project_preview_switch");
 
-        // Выбираем таблицу с id searchAnswer
-        const table = document.getElementById('project-table');
+        // Выбираем таблицу в контейнере с id searchAnswer
+        const table = document.getElementById('searchAnswer');
 
         // Добавляем делегированный обработчик событий на таблицу
         table.addEventListener('click', function (event) {
+
             // Проверяем, был ли клик по ссылке
             if (event.target.tagName.toLowerCase() === 'button' || event.target.tagName.toLowerCase() === 'i') {
                 return; // Прекращаем выполнение функции, если клик был по ссылке

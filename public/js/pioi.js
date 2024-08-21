@@ -46,6 +46,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Обработчики изменения инпутов
     $('input[type="text"][required], select[required]').on('input', validateForm);
+
+    // Обработка клика по результату поиска для места хранения
+    dom.in("click", "#storageBox", function () {
+        // Отправляем POST-запрос на сервер
+        $.post('', {'search-for-storage-box': this.value}, function (data) {
+            // При успешном получении ответа обновляем значение поля ввода
+            dom.e('#storageBox').value = data;
+            console.log(data);
+        });
+    });
 });
 
 function handleFileInputChange() {
@@ -154,7 +164,7 @@ function validateForm() {
                     let link = document.createElement("a");
                     // Устанавливаем атрибуты href и текстовое содержимое для ссылки
                     link.href = "/new_order?pid=" + unit_id + "&nord";
-                    link.textContent = "Create order for this project?";
+                    link.textContent = "Create order for this Production Unit?";
                     link.classList.add("fs-4");
                     dom.e("#pn_label").appendChild(link);
                 } else {

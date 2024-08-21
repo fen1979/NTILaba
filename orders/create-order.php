@@ -1,37 +1,17 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean');
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 include_once 'Orders.php';
-
-// check for not in use boxes in storage
-if (isset($_POST['search-for-storage-box'])) {
-    // Получаем текущий номер из запроса
-    $key = _E($_POST['search-for-storage-box']);
-    $key = (int)$key + 1;
-    // Ищем следующий доступный номер, где in_use = 0, есть индексация по колонке box
-    $nextBox = SR::getResource('order_kit', $key);
-
-    // Если следующего номера нет (мы достигли конца списка), начинаем сначала
-    if (empty($nextBox)) {
-        $nextBox = SR::getResource('order_kit', '1');
-    }
-
-    // Возвращаем номер следующего доступного элемента
-    if (!empty($nextBox)) {
-        echo $nextBox['key_name'];
-    } else {
-        // Если не найдено ни одного доступного номера
-        echo "No available boxes found";
-    }
-    exit();
-}
-
-
-$user = $_SESSION['userBean'];
 $page = 'new_order';
 $titleText = 'Order Creation';
 $project = $order = $client = null;
 $btnSubmit['text'] = 'Create new order';
 $btnSubmit['name'] = 'createOrder';
+
+// check for not in use boxes in storage
+// called from ajax metod by clicking on storage box field
+if (isset($_POST['search-for-storage-box'])) {
+    exit(WareHouse::getEmptyBoxForItem($_POST, 'order_kit'));
+}
 
 /* creating new order */
 if (isset($_POST['createOrder'])) {
@@ -263,7 +243,11 @@ DisplayMessage($result ?? null);
                 <div class="col-2">
                     <input type="text" class="form-control" id="storageBox" name="storageBox"
                            value="<?= set_value('storageBox', $order['storage_box'] ?? ''); ?>"
-                           placeholder="Click here for new number" required>
+                           placeholder="Field for hand writing" required>
+
+                    <!--                    <input type="number" class="form-control" id="storageBox" name="storageBox" min="1"-->
+                    <!--                           value="--><?php //= set_value('storageBox', $order['storage_box'] ?? ''); ?><!--"-->
+                    <!--                           placeholder="Click here for new number" required>-->
                 </div>
 
                 <div class="col-2">
@@ -516,18 +500,16 @@ ScriptContent($page);
 
         });
 
+        //i определится в будущем пользуемся ли мы автоматом для установки коробок хранения???
         // Обработка клика по результату поиска для места хранения
-        $(document).on("click", "#storageBox", function () {
-            // Отправляем POST-запрос на сервер
-            $.post('', {
-                // Параметры, которые вы хотите отправить на сервер
-                'search-for-storage-box': $(this).val()
-            }, function (data) {
-                // При успешном получении ответа обновляем значение поля ввода
-                $('#storageBox').val(data);
-                console.log(data)
-            });
-        });
+        // dom.in("click", "#storageBox", function () {
+        //     // Отправляем POST-запрос на сервер
+        //     $.post('', {'search-for-storage-box': this.value}, function (data) {
+        //         // При успешном получении ответа обновляем значение поля ввода
+        //         dom.e('#storageBox').value = data;
+        //         console.log(data)
+        //     });
+        // });
 
         // отслеживание изменения в полях формы для работы в пхп над изменениями edit-order
         let changedFields = [];

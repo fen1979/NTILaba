@@ -1,33 +1,13 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
 require 'WareHouse.php';
+$page = 'arrivals';
 
 // check for not in use boxes in storage
+// called from ajax metod by clicking on storage box field
 if (isset($_POST['search-for-storage-box'])) {
-    // Получаем текущий номер из запроса
-    $key = _E($_POST['search-for-storage-box']);
-    $key = (int)$key + 1;
-    // Ищем следующий доступный номер, где in_use = 0, есть индексация по колонке box
-    $nextBox = SR::getResource('stock', $key);
-
-    // Если следующего номера нет (мы достигли конца списка), начинаем сначала
-    if (empty($nextBox)) {
-        $nextBox = SR::getResource('stock', '1');
-    }
-
-    // Возвращаем номер следующего доступного элемента
-    if (!empty($nextBox)) {
-        echo $nextBox['key_name'];
-    } else {
-        // Если не найдено ни одного доступного номера
-        echo "No available boxes found";
-    }
-    exit();
+    exit(WareHouse::getEmptyBoxForItem($_POST));
 }
-
-/* получение пользователя из сессии */
-$user = $_SESSION['userBean'];
-$page = 'arrivals';
 
 // ДОБАВЛЕНИЕ НОВОЙ ЗАПЧАСТИ В БД
 if (isset($_POST['save-new-item'])) {
@@ -36,15 +16,13 @@ if (isset($_POST['save-new-item'])) {
 
     // ЕСЛИ ДОБАВЛЕНИЕ ПРОИЗОШЛО ИЗ БОМА-ЗАКАЗА
     if (isset($_GET['orid']) && isset($_GET['pid'])) {
-        header("Location: /check_bom?orid=" . _E($_GET['orid']) . "&pid=" . _E($_GET['pid']));
-        exit();
+        redirectTo("check_bom?orid=" . _E($_GET['orid']) . "&pid=" . _E($_GET['pid']));
     }
 
     // переходим на страницу вывода информации о добавленной ITEM
     if ($args && !empty($args['item_id'])) {
         $_SESSION['info'] = $args;
-        header("Location: /wh/the_item?itemid=" . $args['item_id']);
-        exit();
+        redirectTo("wh/the_item?itemid=" . $args['item_id']);
     }
 }
 ?>
@@ -548,15 +526,12 @@ ScriptContent('arrivals');
         });
 
         // Обработка клика по результату поиска для места хранения
-        $(document).on("click", "#storage-box", function () {
+        dom.in("click", "#storage-box", function () {
             // Отправляем POST-запрос на сервер
-            $.post('', {
-                // Параметры, которые вы хотите отправить на сервер
-                'search-for-storage-box': $(this).val()
-            }, function (data) {
+            $.post('', {'search-for-storage-box': $(this).val()}, function (data) {
                 // При успешном получении ответа обновляем значение поля ввода
-                $('#storage-box').val(data);
-                console.log(data)
+                dom.e('#storage-box').value = data;
+                console.log(data);
             });
         });
     });

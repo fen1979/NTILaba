@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             let link = document.createElement("a");
                             // Устанавливаем атрибуты href и текстовое содержимое для ссылки
                             link.href = "/new_order?pid=" + unit_id + "&nord";
-                            link.textContent = "Create order for this project?";
+                            link.textContent = "Create order for this Production Unit?";
                             link.classList.add("fs-4");
                             dom.e("#pn_label").appendChild(link);
                         } else {

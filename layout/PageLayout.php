@@ -469,10 +469,17 @@ function EDIT_AND_ADD_STEP_BUTTONS($pid): void
 function WAREHOUSE_PAGE_BUTTONS($page, $pid, $page_tab = ''): void
 {
     if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) {
-        $pt = !empty($page_tab) ? "?page=$page_tab&#row-$pid" : null;
-        if ($page !== 'wh' && $page !== 'arrivals' && !empty($pt)) { ?>
+        $edit_url = _if(!empty($page_tab),
+            "edit-item?item_id=$pid&page=$page_tab&#row-$pid",
+            "edit-item?item_id=$pid");
+        $back_url = _if(!empty($page_tab),
+            "wh?page=$page_tab&#row-$pid",
+            "wh");
+        //$pt = !empty($page_tab) ? "?page=$page_tab&#row-$pid" : null;
+        /*value="edit-item<?= !empty($pt) ? "$pt&" : '?'; ?>item_id=<?= $pid; ?>"*/
+        if ($page !== 'wh' && $page !== 'arrivals' && !empty($page_tab)) { ?>
             <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-danger" value="wh<?= $pt ?? ''; ?>">
+                <button type="button" class="url btn btn-sm btn-outline-danger" value="<?= $back_url ?>">
                     Back To List
                 </button>
             </li>
@@ -482,7 +489,7 @@ function WAREHOUSE_PAGE_BUTTONS($page, $pid, $page_tab = ''): void
         if ($page == 'view_item' && $pid != null) {
             ?>
             <li class="nav-item">
-                <button type="button" class="url btn btn-sm btn-outline-warning" value="edit-item<?= !empty($pt) ? "$pt&" : '?'; ?>item_id=<?= $pid; ?>">
+                <button type="button" class="url btn btn-sm btn-outline-warning" value="<?= $edit_url ?>">
                     Edit Item <i class="bi bi-pen"></i>
                 </button>
             </li>

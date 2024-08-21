@@ -1,33 +1,15 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
-/**
- * СПИСОК ВАРИАНТОВ ВИДОВ ДЕТАЛЕЙ В БД
- */
-//const ITEM_TYPES = ["SMT", "TH", "CM", "PM", "SOLDER", "CRIMP", "LM"];
-//
-///**
-// * СПИСОК НАЗВАНИЙ ПАРТ НОМЕРОВ ДЛЯ NTI
-// */
-//const NTI_PN = ['NON' => 'Other', 'NCAP' => 'Capacitor', 'NRES' => 'Resistor', 'NDIO' => 'Diode', 'NIC' => 'Micro Chip', 'NTR' => 'Transistor',
-//    'NCR' => 'Oscilator', 'NFU' => 'Fuse', 'NFB' => 'Ferrite bead', 'NCON' => 'Connector', 'NIND' => 'Inductor', 'NPIN' => 'Pins',
-//    'NW' => 'Wires', 'NTUBE' => 'Shrink Tube'];
-//
-//for($i = 1; $i <= 86; $i++) {
-//    $pr = R::dispense('resources');
-//    $pr->resource_type = 'feeders';
-//    $pr->resource_num = 1;
-//    $pr->resource_state = 0;
-////$pr->resource_ = 0;
-//    //R::store($pr);
-//}
-
-
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
 require 'WareHouse.php';
-/* получение пользователя из сессии */
-$user = $_SESSION['userBean'];
 $page = 'edit_item';
 $pageMode = 'edit';
 $item = null;
+
+// check for not in use boxes in storage
+// called from ajax metod by clicking on storage box field
+if (isset($_POST['search-for-storage-box'])) {
+    exit(WareHouse::getEmptyBoxForItem($_POST));
+}
 
 // редактирование запчасти в БД
 if (isset($_POST['save-edited-item']) && !empty($_POST['item_id'])) {
@@ -37,6 +19,7 @@ if (isset($_POST['save-edited-item']) && !empty($_POST['item_id'])) {
 // EDITING ITEM DATA
 if (!empty($_GET['item_id'])) {
     $item = R::load(WH_ITEMS, _E($_GET['item_id']));
+    $whs = R::findAll(WAREHOUSE, 'items_id = ? AND quantity != 0', [$item->id]);
     $wh = R::findOne(WAREHOUSE, 'items_id = ?', [$item->id]);
     $lot = R::findOne(WH_DELIVERY, 'items_id = ?', [$item->id]);
 }
@@ -143,7 +126,6 @@ DisplayMessage($args ?? null);
 ?>
 <div class="container-fluid border-top">
     <div class="row">
-
         <div class="col-5">
             <!-- part image -->
             <?php $hide = !empty($item->item_image) ? '' : 'hidden' ?>
@@ -587,6 +569,16 @@ ScriptContent('arrivals');
         form.addEventListener('change', checkForm);
 
         checkForm(); // Проверить форму при загрузке страницы
+
+        // Обработка клика по результату поиска для места хранения
+        dom.in("click", "#storage-box", function () {
+            // Отправляем POST-запрос на сервер
+            $.post('', {'search-for-storage-box': $(this).val()}, function (data) {
+                // При успешном получении ответа обновляем значение поля ввода
+                dom.e('#storage-box').value = data;
+                console.log(data);
+            });
+        });
     });
 
     // Функция создания ссылок на новые парт номера

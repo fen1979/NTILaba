@@ -18,6 +18,8 @@ define("VIEW_MODE", $mode);
 /*
  * Список игнорируемых путей и файлов
  * требуется для правильного возврата пользователя после логина
+ * contains = если в путях содержится часть
+ * exact = если путь точно как есть
  **/
 const IGNORE_LIST = [
     ['type' => 'exact', 'value' => '/'],
@@ -26,6 +28,7 @@ const IGNORE_LIST = [
     ['type' => 'exact', 'value' => '/create_bom'],
     ['type' => 'exact', 'value' => '/is_change'],
     ['type' => 'exact', 'value' => '/6fef03d1aac6981d6c6eaa35fc9b46d1311b4b5425a305fc7da1b00c2'],
+    ['type' => 'contains', 'value' => '/order_pdf'],
     ['type' => 'contains', 'value' => '.ico'],
     ['type' => 'contains', 'value' => '.css'],
     ['type' => 'contains', 'value' => 'storage/projects/']

@@ -474,30 +474,39 @@ function _dirPath(array $params): string
 }
 
 /**
- * Выполняет проверку условия с поддержкой значений по умолчанию для необъявленных или пустых переменных.
+ * Executes a conditional check with support for default values for undefined or empty variables.
  *
- * @param mixed $condition Условие для проверки.
- * @param mixed $trueValue Возвращаемое значение, если условие истинно.
- * @param mixed $falseValue Возвращаемое значение, если условие ложно.
- * @param mixed $defaultValue Возвращаемое значение, если условие равно null или не определено.
- * @return mixed Результат проверки условия или значение по умолчанию.
+ * This function is designed to handle conditions that may not be properly defined or may have empty values,
+ * providing a default value in such cases. It also allows for dynamic computation of return values through
+ * callable functions.
+ *
+ * @param mixed $condition The condition to check. This can be any type, including arrays, objects, and null.
+ * @param mixed $trueValue The value to return if the condition evaluates to true. This can be a static value or a callable function that returns a value.
+ * @param mixed $falseValue (optional) The value to return if the condition evaluates to false. This can also be a static value or a callable function.
+ * Defaults to null.
+ * @param mixed $defaultValue (optional) The value to return if the condition is null or undefined. This can also be a static value or a callable function.
+ * Defaults to null.
+ * @return mixed The result of the condition check or the default value. Returns the trueValue if the condition is true, the falseValue if the condition is false,
+ * or the defaultValue if the condition is not set.
  */
-
-function iff($condition, $trueValue, $falseValue = null, $defaultValue = null)
+function _if($condition, $trueValue, $falseValue = null, $defaultValue = null)
 {
-    // Если условие равно null, undefined или другому "ложному" значению, используем default
+    // Check if the condition is null, undefined, or a "falsey" value
     if (!isset($condition)) {
+        // Return the default value, calling it if it's a function
         return is_callable($defaultValue) ? $defaultValue() : $defaultValue;
     }
 
-    // Если условие истинно (true), возвращаем trueValue, иначе falseValue
+    // If the condition is true, return the trueValue
     if ($condition) {
+        // Return the true value, calling it if it's a function
         return is_callable($trueValue) ? $trueValue() : $trueValue;
     } else {
+        // If the condition is false, return the falseValue
+        // Return the false value, calling it if it's a function
         return is_callable($falseValue) ? $falseValue() : $falseValue;
     }
 }
-
 
 /**
  * Проверяет переменную на пустоту с учетом различных сценариев, таких как null, несуществующие переменные,

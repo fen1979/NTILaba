@@ -218,8 +218,18 @@ class WareHouse
 
         // полученное кол-во нового товара
         $warehouse->quantity = $post['quantity'];
+
+        if (!empty($warehouse->storage_box) && $warehouse->storage_box != $post['storage-box']) {
+            // отменяем предыдущий ящик
+            SR::updateResourceDetail('stock', $warehouse->storage_box, '0', true);
+        }
+
+        // назначаем новый ящик
+        SR::updateResourceDetail('stock', $post['storage-box'], '1');
+        // сохраняем новое значение
         $warehouse->storage_box = $post['storage-box'];
         $warehouse->storage_shelf = $post['storage-shelf'];
+
         $warehouse->storage_state = $post['storage-state'];
         $mf_date = $warehouse->manufacture_date = str_replace('T', ' ', $post['manufactured-date']);
         // Создание срока годности для товара
@@ -308,16 +318,30 @@ class WareHouse
         // update item
         $item_id = R::store($item);
 
-        // обновление местоположения склада если его изменили
+        //i РАБОТАЕМ С ТАБЛИЦЕЙ СКЛАДОВ ИЛИ СКЛАДА ИЗ ПОСЛЕДНЕГО
+        //обновление местоположения склада если его изменили
         // fixme сделать лог для изменений 
         $warehouse = R::load(WAREHOUSE, $post['wh_id']);
+        if (!empty($warehouse->storage_box) && $warehouse->storage_box != $post['storage-box']) {
+            // отменяем предыдущий ящик
+            SR::updateResourceDetail('stock', $warehouse->storage_box, '0', true);
+        }
+
+        // назначаем новый ящик
+        SR::updateResourceDetail('stock', $post['storage-box'], '1');
+        // сохраняем новое значение
+        $warehouse->storage_box = $post['storage-box'];
+        $warehouse->storage_shelf = $post['storage-shelf'];
+        $warehouse->storage_state = $post['storage-state'];
+
         if ($warehouse->wh_types_id != $post['warehouse-type-id']) {
             // $itemDataBefore['wh_type_id'] = $warehouse->wh_types_id;
             // расположение склада физичеки
             $warehouse->wh_types_id = $post['warehouse-type-id'];
-            R::store($warehouse);
             // $itemDataAfter['wh_type_id'] = $post['warehouse-type-id'];
         }
+        R::store($warehouse);
+
 
         // проверяем если ранее было добавлено фото и удаляем старое если оно есть/было
         if (!empty($oldPhotoPath) && is_file($oldPhotoPath) && $needToDelete) {
@@ -371,6 +395,15 @@ class WareHouse
 
         // полученное кол-во нового товара
         $warehouse->quantity = $post['quantity'];
+
+        if (!empty($warehouse->storage_box) && $warehouse->storage_box != $post['storage-box']) {
+            // отменяем предыдущий ящик
+            SR::updateResourceDetail('stock', $warehouse->storage_box, '0', true);
+        }
+
+        // назначаем новый ящик
+        SR::updateResourceDetail('stock', $post['storage-box'], '1');
+        // сохраняем новое значение
         $warehouse->storage_box = $post['storage-box'];
         $warehouse->storage_shelf = $post['storage-shelf'];
         $warehouse->storage_state = $post['storage-state'];
@@ -776,4 +809,46 @@ class WareHouse
         return $res;
     }
 
+    /**
+     *
+     * @param $post
+     * @return int
+     */
+    public static function getEmptyBoxForItem($post, $group_name = ''): string
+    {
+        $group = _if(!empty($group_name), $group_name, 'stock');
+        // Получаем текущий номер ключа из запроса
+        $key = (int)_E($post['search-for-storage-box']);
+
+        // Получаем все записи в группе 'stock'
+        $allResources = SR::getAllResourceDetailsInGroup($group);
+
+        // Сортируем ключи по возрастанию
+        ksort($allResources);
+
+        // Инициализируем переменные
+        $maxKey = 100; // Максимальное значение ключа
+        $foundKey = null;
+
+        // Проходим по записям начиная с указанного ключа
+        for ($i = $key; $i <= $maxKey; $i++) {
+            if (isset($allResources[$i]) && $allResources[$i] == '0') {
+                $foundKey = $i;
+                break;
+            }
+        }
+
+        // Если ничего не найдено, начинаем поиск с начала списка до текущего ключа
+        if ($foundKey === null) {
+            for ($i = 1; $i < $key; $i++) {
+                if (isset($allResources[$i]) && $allResources[$i] == '0') {
+                    $foundKey = $i;
+                    break;
+                }
+            }
+        }
+
+        // Если нашли подходящий ключ, возвращаем его, иначе возвращаем сообщение о том, что свободных мест нет
+        return $foundKey !== null ? (string)$foundKey : "No available boxes found";
+    }
 }

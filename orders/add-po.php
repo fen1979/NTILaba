@@ -1,7 +1,14 @@
 <?php
 // check and return user if logged in
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
+require 'warehouse/WareHouse.php';
 $page = 'pioi';
+
+// check for not in use boxes in storage
+// called from ajax metod by clicking on storage box field
+if (isset($_POST['search-for-storage-box'])) {
+    exit(WareHouse::getEmptyBoxForItem($_POST));
+}
 
 /* СОЗДАЕМ НОВЫЙ ПРОЕКТ И ЗАКАЗ НА ОСНОВЕ ДАННЫХ И СОХРАНЯЕМ В БД */
 if (isset($_POST['pioi']) && isset($_POST['projectName'])) {
@@ -216,8 +223,8 @@ DisplayMessage($args ?? null);
             <tr>
                 <td>
                     <label for="storageBox" class="form-label">Storage Box</label>
-                    <input type="text" class="form-control" id="storageBox" name="storageBox"
-                           value="<?= set_value('storageBox'); ?>" placeholder="Click here for new number">
+                    <input type="number" class="form-control" id="storageBox" name="storageBox" min="1"
+                           value="<?= set_value('storageBox', 1); ?>" placeholder="Click here for new number">
                 </td>
                 <td>
                     <label for="storageShelf" class="form-label">Storage Shelf/Place </label>
@@ -299,7 +306,7 @@ DisplayMessage($args ?? null);
                         // если заказ на паузе то выводим только один статус для разблокировки
                         foreach (SR::getAllResourcesInGroup('status') as $key => $status) {
                             if ($key != '-1') {
-                                echo iff($key == 'st-333',
+                                echo _if($key == 'st-333',
                                     '<option value="' . $key . '" selected>' . SR::getResourceValue('status', $key) . '</option>',
                                     '<option value="' . $key . '">' . SR::getResourceValue('status', $key) . '</option>');
                                 ?>
