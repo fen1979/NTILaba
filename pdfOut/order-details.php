@@ -32,7 +32,7 @@ if (isset($_GET['pid']) && isset($_GET['orid'])) {
 
         public function Header()
         {
-            $this->SetFont('dejavusans', 'B', 25);
+            $this->SetFont('dejavusans', 'B', 20);
             $this->Cell(95, 18, 'Order ID: ' . $this->order_id, 0, 1, 'L');
             $this->Cell(95, 18, 'Unit: ' . $this->unit_name, 0, 1, 'L');
             $this->Cell(95, 18, 'Created: ' . $this->date, 0, 1, 'L');
@@ -67,6 +67,7 @@ if (isset($_GET['pid']) && isset($_GET['orid'])) {
     $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
 
     /*i получение данных из проекта */
+//    $settings = getUserSettings($_SESSION['userBean'], '');
     $projectid = _E($_GET['pid']);
     $orderid = _E($_GET['orid']);
     $project = R::load(PRODUCT_UNIT, $projectid);
@@ -92,6 +93,8 @@ if (isset($_GET['pid']) && isset($_GET['orid'])) {
     $pdf->Cell(180, 7, 'Order Amount: ' . $order->order_amount . ' pcs', 1, 1, 'L');
     $pdf->Cell(180, 7, 'FAI: ' . $order->fai_qty . ' pcs', 1, 1, 'L');
     $pdf->Cell(180, 7, 'Status: ' . SR::getResourceValue('status', $order->status), 1, 1, 'L');
+    $pdf->Cell(180, 7, 'Stor BOX: ' . $order->storage_box, 1, 1, 'L');
+    $pdf->Cell(180, 7, 'Stor Shelf: ' . $order->storage_shelf, 1, 1, 'L');
 
     /*Рисуем линию от левого края страницы до правого*/
 //    $y_position = 85;

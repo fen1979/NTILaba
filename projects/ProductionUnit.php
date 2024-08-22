@@ -509,18 +509,17 @@ class ProductionUnit
                             foreach ($columnIndexes as $dbField => $index) {
                                 $rowData[$dbField] = $data[$index];
                             }
-
                             //i сделать построчную проверку переменных по manufacture_pn и qty если номер тот же то пюсуем qty к тому что есть
                             //i а если manufacture_pn отличается то вносим как новый элемент
 
                             $goods = R::dispense(UNITS_BOM);
                             $goods->sku = (int)$rowData['sku'] ?? 0;
-                            $goods->part_name = $rowData['part_name'] ?? '0';
-                            $goods->part_value = $rowData['part_value'] ?? '0';
-                            $goods->mounting_type = $rowData['mounting_type'] ?? '0';
-                            $goods->footprint = $rowData['footprint'] ?? '0';
-                            $goods->manufacturer = $rowData['manufacturer'];
-                            $goods->manufacture_pn = $rowData['manufacture_pn'];
+                            $goods->part_name = $rowData['part_name'] ?? '';
+                            $goods->part_value = $rowData['part_value'] ?? '';
+                            $goods->mounting_type = $rowData['mounting_type'] ?? '';
+                            $goods->footprint = $rowData['footprint'] ?? '';
+                            $goods->manufacturer = $rowData['manufacturer'] ?? '';
+                            $goods->manufacture_pn = $rowData['manufacture_pn'] ?? '';
                             $goods->owner_pn = $rowData['owner_pn'] ?? '';
                             $goods->amount = trim($rowData['qty']);// требуемое кол-во на одну штуку
                             $goods->length_mm = self::isDigits(trim($rowData['length_mm'])); // ДЛИНА В ММ ЕСЛИ ЕСТЬ
@@ -549,6 +548,8 @@ class ProductionUnit
                         fclose($handle);
                     }
                 }
+
+                // deleting temp file
                 array_map('unlink', glob(TEMP_FOLDER . '*.*'));
                 if ($import) {
                     $args = ['info' => 'Import success', 'color' => 'success'];

@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-
     // добавляем путь к папке если она есть и в ней есть файлы
     // делаем видимой кнопку в навигации
     if (dom.e("#project_folder_path")) {
@@ -28,33 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    /* step image full view expande */
-    dom.inAll("click", ".expande", function () {
-        let cl = this.closest('.expanded-card');
-        if (cl) {
-            cl.classList.toggle("col-md-6");
-        }
-    });
-
-    // dom.in("click", ".video-button", function () {
-    //     // Находим ближайшие элементы изображения и видео относительно кнопки
-    //     let image = $(this).closest('.card').find('.image-preview');
-    //     let video = $(this).closest('.card').find('.video-preview');
-    //     let btn = $(this).closest('.card').find('.video-button i');
-    //
-    //     // Переключаем видимость
-    //     if (image.is(':visible')) {
-    //         image.hide();
-    //         video.show();
-    //         btn.removeClass("bi bi-camera-reels-fill").addClass("bi bi-camera-fill");
-    //         btn.title('Preview Image');
-    //     } else {
-    //         video.hide();
-    //         image.show();
-    //         btn.removeClass("bi bi-camera-fill").addClass("bi bi-camera-reels-fill");
-    //         btn.title('Preview Video');
-    //     }
-    // });
+    // Находим ближайшие элементы изображения и видео относительно кнопки
     document.addEventListener('click', function (event) {
         // Проверяем, что клик произошел по элементу с классом .video-button
         if (event.target.closest('.video-button')) {
@@ -82,7 +55,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-
     /* действиe архивировать проект  */
     dom.in("click", ".archive", function () {
         dom.e("#dnProjectID").value = this.dataset.projectid;
@@ -105,4 +77,36 @@ document.addEventListener("DOMContentLoaded", function () {
         dom.e("#pr_password").focus();
     });
 
+    //i ОБРАБОТКА РАБОТЫ СО СПИСКОМ ШАГОВ И ВЫВОДОМ В БОЛЬШУЮ КАРТОЧКУ
+    const cards = document.querySelectorAll('.small-card');
+    function updateLargeCard(card) {
+        // получаем все данные шага для вывода в большом окне
+        let info = JSON.parse(card.dataset.info);
+
+        // проверяем если для шага требуется валидация
+        if (info.validation === "0") {
+            // устанавливаем свойство прозрачности равное ноль
+            dom.e("#opacity").setAttribute("style", "opacity:0");
+        } else {
+            // если трребуется проверка то устанавливаем цвет бокса и добавляем мигание
+            const valid = dom.e("#validation-box");
+            valid.classList.add("valid", "blinking", "p-2")
+        }
+
+        // Добавляем нужные данные в большую карточку
+        dom.e('#step-number').textContent = info.step_num;
+        dom.e('#step-description').textContent = info.description;
+        dom.e("#image").setAttribute("src", info.image);
+    }
+
+    cards.forEach(card => {
+        card.addEventListener('mouseover', function () {
+            updateLargeCard(card);
+        });
+    });
+
+    // Инициализация первой карточки при загрузке страницы
+    if (cards.length > 0) {
+        updateLargeCard(cards[0]);
+    }
 }); // End document.ready
