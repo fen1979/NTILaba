@@ -12,7 +12,7 @@ if (isset($_POST['search-for-storage-box'])) {
 
 /* СОЗДАЕМ НОВЫЙ ПРОЕКТ И ЗАКАЗ НА ОСНОВЕ ДАННЫХ И СОХРАНЯЕМ В БД */
 if (isset($_POST['pioi']) && isset($_POST['projectName'])) {
-    require 'projects/ProductionUnit.php';
+    require 'projects/Project.php';
     require 'orders/Orders.php';
     require 'counterparties/CPController.php';
 
@@ -22,14 +22,17 @@ if (isset($_POST['pioi']) && isset($_POST['projectName'])) {
         $_POST['customerId'] = $args['customer_id'];
     }
     // создаем новый проект заглушку
-    $args = ProductionUnit::createNewProductionUnit($_POST, $user, $_FILES);
+    $args = Project::createNewProject($_POST, $user, $_FILES);
     // получаем данные для создания заказа заглушки
-    $project = R::load(PRODUCT_UNIT, $args['id']);
+    $project = R::load(PROJECTS, $args['id']);
     $client = R::load(CLIENTS, $args['customerId']);
     // создаем заказ заглушку что бы не забыть
     $args = Orders::createOrder($user, $client, $project, $_POST);
     if ($args[0]) {
-        redirectTo("order/preview?orid=$args[1]");
+        // переходим на странице деталей заказа
+        // redirectTo("order/preview?orid=$args[1]");
+        // переходим на страницу добавления приходных данных
+        redirectTo("po-replenishment?orid=$args[1]");
     }
 }
 ?>
@@ -66,7 +69,7 @@ if (isset($_POST['pioi']) && isset($_POST['projectName'])) {
             top: 0;
         }
 
-        th:last-child, td:last-child {
+        #po-form th:last-child, #po-form td:last-child {
             text-align: right;
             padding-right: 0;
         }
@@ -81,7 +84,7 @@ if (isset($_POST['pioi']) && isset($_POST['projectName'])) {
             color: #ffffff;
         }
 
-        td {
+        #po-form td {
             width: 50%;
         }
 
@@ -101,13 +104,13 @@ NavBarContent($navBarData);
 /* DISPLAY MESSAGES FROM SYSTEM */
 DisplayMessage($args ?? null);
 ?>
-<h3 class="mt-3 mb-3 text-center">Draft Production Unit and Order Record</h3>
+<h3 class="mt-3 mb-3 text-center">Draft Project and Order Record</h3>
 
 <div class="container mt-5 mb-5 px-3 py-3 rounded" style="background: beige;">
 
     <form action="" method="post" enctype="multipart/form-data" autocomplete="off" id="create-pioi">
         <input type="hidden" id="customerId" name="customerId" value="">
-        <table>
+        <table id="po-form">
             <tbody>
             <tr>
                 <!--i CUSTOMER NAME  -->
@@ -153,13 +156,13 @@ DisplayMessage($args ?? null);
             <!--i PROJECT NAME, INCOMING DATE, REVISION -->
             <tr>
                 <td>
-                    <label for="pn" class="form-label" id="pn_label">Unit Name <b class="text-danger">*</b></label>
+                    <label for="pn" class="form-label" id="project_label"><i class="bi bi-search"></i> Project Name <b class="text-danger">*</b></label>
                     <input type="text" name="projectName" value="<?= set_value('projectName'); ?>"
-                           class="form-control" id="pn" required>
+                           class="searchThis form-control" id="projectName" data-request="project" required>
                 </td>
                 <td>
-                    <label for="pr" class="form-label">Unit Version <b class="text-danger">*</b></label>
-                    <input type="text" class="form-control" id="pr" name="projectRevision" required
+                    <label for="projectRevision" class="form-label">Project Version <b class="text-danger">*</b></label>
+                    <input type="text" class="form-control" id="projectRevision" name="projectRevision" required
                            value="<?= set_value('projectRevision'); ?>">
                 </td>
             </tr>
@@ -168,7 +171,7 @@ DisplayMessage($args ?? null);
             <tr class="border-bottom">
                 <td>
                     <button type="button" class="btn btn-outline-primary form-control" id="pickFile"
-                            data-who="file">Upload Unit Documentation (PDF Only)
+                            data-who="file">Upload Project Drawing (PDF Only)
                     </button>
                     <input type="file" name="dockFile" id="pdf_file" accept=".pdf" hidden/>
                 </td>
@@ -192,7 +195,7 @@ DisplayMessage($args ?? null);
                     <div class="form-switch">
                         <input class="form-check-input track-change" type="checkbox" id="project_type" name="project_type" value="1">
                         <label class="form-check-label" for="project_type">
-                            Product unit type SMT <br> surface mount assembly line.
+                            Project type SMT <br> surface mount assembly line.
                         </label>
                     </div>
                 </td>

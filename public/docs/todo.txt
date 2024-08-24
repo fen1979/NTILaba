@@ -176,7 +176,7 @@ date_in
 // База Данных принадлежности Запасов (Accessory Database)
 items_id - Ссылка на товар.
 lot
-invoice
+consignment
 supplier // {name:name, id:id}
 owner_pn
 owner // {name:name, id:id}
@@ -227,6 +227,6 @@ storage-box
 storage-shelf
 manufactured-date
 part-lot
-invoice
+consignment
 supplier
 save-new-item // button submit

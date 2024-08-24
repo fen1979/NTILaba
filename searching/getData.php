@@ -8,7 +8,7 @@ if (isset($_POST['unit_name']) && isset($_POST['revision']) && isset($_POST['ver
     $res = json_encode(['exists' => false, 'unit_id' => '0']);
     $unit_name = _E($_POST['unit_name']);
     $unit_vers = _E($_POST['revision']);
-    $unit = R::findOne(PRODUCT_UNIT, 'projectname LIKE ?', [$unit_name]);
+    $unit = R::findOne(PROJECTS, 'projectname LIKE ?', [$unit_name]);
 
     if ($unit && $unit['revision'] == $unit_vers) {
         $res = json_encode(['exists' => true, 'unit_id' => $unit['id']]);
@@ -56,7 +56,7 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
             {
                 /* search project, for order creation page */
                 $col = ['projectname', 'customername', 'revision'];
-                viewLineOfUnit(dynamicSearch(PRODUCT_UNIT, $col, $mySearchString), $col, $mySearchString);
+                viewLineOfUnit(dynamicSearch(PROJECTS, $col, $mySearchString), $col, $mySearchString);
             }
             break;
 
@@ -64,10 +64,10 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
             {
                 /* search for project view page */
                 $col = ['projectname', 'customername', 'date_in'];
-                viewFullUnit(dynamicSearch(PRODUCT_UNIT, $col, $mySearchString), $_SESSION['userBean']);
+                viewFullUnit(dynamicSearch(PROJECTS, $col, $mySearchString), $_SESSION['userBean']);
 
                 if (!mb_strlen($mySearchString)) {
-                    viewFullUnit(R::findAll(PRODUCT_UNIT, 'ORDER BY date_in ASC'), $col);
+                    viewFullUnit(R::findAll(PROJECTS, 'ORDER BY date_in ASC'), $col);
                 }
             }
             break;
@@ -75,7 +75,7 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
         case 'order_nav':
             {
                 /* search for orders view page */
-                $col = ['id', 'project_name', 'customer_name', 'date_in'];
+                $col = ['id', 'project_name', 'customer_name', 'purchase_order', 'date_in'];
                 viewOrder(dynamicSearch(ORDERS, $col, $mySearchString), $_SESSION['userBean']);
             }
             break;

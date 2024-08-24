@@ -40,9 +40,9 @@ DisplayMessage($args ?? null);
                 <input type="hidden" name="table-name" id="table-name">
                 <input type="hidden" name="sel_tab" id="table-selector">
 
-                <button type="button" name="sel_tab" value="<?= PRODUCT_UNIT ?>" class="dob btn btn-outline-primary ms-2">Product Unit</button>
+                <button type="button" name="sel_tab" value="<?= PROJECTS ?>" class="dob btn btn-outline-primary ms-2">Product Unit</button>
                 <button type="button" name="sel_tab" value="<?= ORDERS ?>" class="dob btn btn-outline-primary ms-2">Orders</button>
-                <button type="button" name="sel_tab" value="<?= UNITS_BOM ?>" class="dob btn btn-outline-primary ms-2">Order and Units BOM</button>
+                <button type="button" name="sel_tab" value="<?= PROJECT_BOM ?>" class="dob btn btn-outline-primary ms-2">Order and Units BOM</button>
                 <button type="button" name="sel_tab" value="<?= TOOLS ?>" class="dob btn btn-outline-primary ms-2">Tools</button>
                 <button type="button" name="sel_tab" value="<?= CLIENTS ?>" class="dob btn btn-outline-primary ms-2">Customers</button>
                 <button type="button" name="sel_tab" value="<?= WH_ITEMS ?>" class="dob btn btn-outline-primary ms-2">Warehouse</button>
@@ -52,8 +52,9 @@ DisplayMessage($args ?? null);
                 <!--                    <button type="button" name="sel_tab" disabled value="history" class="dob btn btn-outline-secondary ms-2">Units History</button>-->
                 <!--                    <button type="button" name="sel_tab" id="da" value="" class=" btn btn-outline-secondary ms-2">Orders Data</button>-->
 
-                <button type="button" name="order_details" value="" class="dob btn btn-outline-secondary ms-2">Order Details</button>
-                <button type="button" name="priority" value="" class="btn btn-outline-primary ms-2">Priority Out</button>
+                <!--<button type="button" name="sel_tab" value="order_details" class="dob btn btn-outline-primary ms-2">Order Details</button>-->
+                <!--<button type="button" name="sel_tab" value="priority" class="dob btn btn-outline-primary ms-2">Priority Out</button>-->
+                <!--<button type="button" name="sel_tab" value="buttons" class="dob btn btn-outline-primary ms-2">Priority Out</button>-->
             </form>
         </div>
     </div>
@@ -120,7 +121,7 @@ DisplayMessage($args ?? null);
                                 $tableColumns = array_merge($tableColumns, getTableColumns($table));
                             }
                         } elseif ($post == 'order_details') {
-                            $tables = [ORDERS, PRODUCT_UNIT];
+                            $tables = [ORDERS, PROJECTS];
                             // Получаем данные о полях из нескольких таблиц и объединяем их
                             foreach ($tables as $table) {
                                 $tableColumns = array_merge($tableColumns, getTableColumns($table));

@@ -113,11 +113,6 @@ dom.addEventListener("DOMContentLoaded", function () {
         }, 'table');
     }
 
-    // скрываем ответ от сервера при клике на странице
-    dom.in('click', "body", function () {
-        dom.hide("#searchModal");
-    });
-
     function setActiveColorToNavLinkBtnList($listId) {
         // Получаем текущий URL
         const url = new URL(window.location.href);

@@ -64,16 +64,6 @@ dom.doClick = function (triggerSelector, targetSelector, callback = null) {
         }
     });
 };
-// dom.doClick = function (triggerSelector, targetSelector) {
-//     dom.addEventListener('click', function (event) {
-//         if (event.target.matches(triggerSelector)) {
-//             const targetElement = dom.querySelector(targetSelector);
-//             if (targetElement) {
-//                 targetElement.click();
-//             }
-//         }
-//     });
-// };
 
 /**
  * Добавляет обработчик события клика к документу, который отправляет форму, если источником события
@@ -218,7 +208,6 @@ dom.addEventListener("DOMContentLoaded", function () {
         }
     };
 
-
     /**
      * Плавно скрывает элемент, изменяя его CSS свойство `opacity` и затем `display`.
      * @param {string} selector - Селектор элемента, который будет скрыт.
@@ -235,11 +224,11 @@ dom.addEventListener("DOMContentLoaded", function () {
                 element.style.opacity = "0";
                 // После завершения транзиции скрываем элемент
                 setTimeout(() => {
-                    element.style.display = 'none';
+                    element.classList.add("hidden");
                 }, duration);
             } else {
                 // Мгновенное скрытие элемента
-                element.style.display = 'none';
+                element.classList.add("hidden");
             }
         }
     };
@@ -541,16 +530,34 @@ dom.addEventListener("DOMContentLoaded", function () {
     dom.in = function (types, selector, callback, parentSelector) {
         // Если родитель не задан, используем 'body' по умолчанию
         const parent = dom.querySelector(parentSelector || 'body');
+        const selectors = selector.split(',').map(s => s.trim()); // Разделяем селекторы и удаляем лишние пробелы
 
         parent.addEventListener(types, function (event) {
-            // Проверяем, что элемент, вызвавший событие, соответствует селектору
-            if (event.target.closest(selector)) {
-                if (typeof callback === 'function') {
-                    callback.call(event.target, event); // Устанавливаем контекст this в callback
+            // Проверяем, что элемент, вызвавший событие, соответствует хотя бы одному из селекторов
+            for (const sel of selectors) {
+                if (event.target.closest(sel)) {
+                    if (typeof callback === 'function') {
+                        callback.call(event.target, event); // Устанавливаем контекст this в callback
+                    }
+                    break; // Если нашли соответствие, выходим из цикла
                 }
             }
         });
     };
+
+    // dom.in = function (types, selector, callback, parentSelector) {
+    //     // Если родитель не задан, используем 'body' по умолчанию
+    //     const parent = dom.querySelector(parentSelector || 'body');
+    //
+    //     parent.addEventListener(types, function (event) {
+    //         // Проверяем, что элемент, вызвавший событие, соответствует селектору
+    //         if (event.target.closest(selector)) {
+    //             if (typeof callback === 'function') {
+    //                 callback.call(event.target, event); // Устанавливаем контекст this в callback
+    //             }
+    //         }
+    //     });
+    // };
 
     /**
      * Добавляет обработчик событий к каждому элементу из выборки, который реагирует на события, возникающие непосредственно на этих элементах.
@@ -620,7 +627,7 @@ dom.addEventListener("DOMContentLoaded", function () {
      */
     dom.makeRequest = function (selector, eventType, dataAttribute, args, callback) {
         dom.querySelectorAll(selector).forEach(input => {
-            input.addEventListener(eventType, function () {
+            input.addEventListener(eventType, function (event) { // Добавляем параметр event
                 let search = this.value;
                 let req = this.getAttribute(dataAttribute);
                 let body = (req !== undefined)
@@ -641,12 +648,12 @@ dom.addEventListener("DOMContentLoaded", function () {
                     })
                     .then(result => {
                         if (typeof callback === 'function') {
-                            callback(null, result, this);
+                            callback(null, result, event, this); // Передаем event в коллбек
                         }
                     })
                     .catch(error => {
                         if (typeof callback === 'function') {
-                            callback(error, null, this);
+                            callback(error, null, event, this); // Передаем event в коллбек при ошибке
                         }
                     });
             });
@@ -732,7 +739,7 @@ dom.addEventListener("DOMContentLoaded", function () {
                 // Сбор данных из формы
                 const form = e.target;
                 const formData = new FormData(form);
-               // console.log(formData);
+                // console.log(formData);
 
                 // Настройки для fetch-запроса
                 const requestOptions = {
@@ -781,312 +788,33 @@ dom.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    /* ===================================================================================================================== */
-    /* ===================================================================================================================== */
-    /* ===================================================================================================================== */
-    /* ===================================================================================================================== */
-    /* ========================= Инициализация всех глобальных функций применяемых на всех страницах ======================= */
+    dom.hideEmptyColumnsInTable = function (selector, callback) {
+        const table = dom.querySelector(selector);
+        const rows = table.rows;
+        const columnCount = rows[0].cells.length;
 
-    // очистка памяти окна страницы для корректного ввода данных в поля
-    win.cleanWindow();
+        for (let i = 0; i < columnCount; i++) {
+            let isEmptyColumn = true;
 
-    // навигация по сайту
-    dom.doRouting(".url", "routing");
+            // Проверяем только tbody, начиная со второй строки
+            for (let j = 1; j < rows.length; j++) {
+                const cell = rows[j].cells[i];
+                if (cell && cell.textContent.trim() !== '' && cell.textContent.trim() !== 'N/A') {
+                    isEmptyColumn = false;
+                    break;
+                }
+            }
 
-    // просмотр полей ввода паролей
-    dom.unhidePassword(".pi", ".eye");
-
-    /*
-    * стили для вывода контекста при наведении на выбранные кнопки
-    * data-title="..." можно вставлять в любой тег HTML
-    * текст появится справа/слева от верхнего левого угла тега в который вставлен титул!
-    * пример показан со стандартной бутстрап иконкой (знак информации)
-    * <i class="bi bi-info-circle" data-title="Here write all what you need to view to user"></i>
-    * function need required arguments {width: '', bg_color: '', color:'', padding:''}
-    */
-    dom.doTitleView("data-title", {
-        width: "350px",
-        height: "auto",
-        bg_color: "#595e59",
-        color: "#ffffff",
-        padding: "10px"
-    });
-
-    // анимированное удаление отчета о операциях
-    // used on all site pages
-    dom.doAnimation(".fade-out", 2000, 5000);
-
-    // добавление эффекта blur в нав бар при прокрутке страницы вверх
-    win.scrollController(".navbar", "blury");
-
-    // поисковая функция , подключена на всех страницах где есть поле для поиска
-    const args = {method: "POST", url: BASE_URL + "get_data", headers: null};
-    dom.makeRequest(".searchThis", "keyup", "data-request", args, function (error, result, _) {
-        // console.log(result);
-        if (error) {
-            console.error('Error during fetch:', error);
-            return;
-        }
-
-        // if pagination is exist on page
-        let pagination = dom.e("#pagination-container");
-        if (pagination) {
-            pagination.classList.add("hidden");
-        }
-
-        // вывод информации на разных страницах
-        // used on pages: project, order, warehouse, logs, wh_logs
-        let searchAnswer = dom.e("#searchAnswer");
-        if (searchAnswer) {
-            searchAnswer.innerHTML = result;
-
-            // обновление слушателей для страницы
-            if (dom.e("#wh_logs"))
-                dom.setAccordionListeners(".accordion-toggle", ".accordion-content", "click");
-        }
-
-        // вывод информации в модальное окно
-        // used on pages: arrival, create-order, create-project
-        let modalTable = dom.e("#searchModal");
-        if (modalTable && result !== 'EMPTY') {
-            dom.e("#search-responce").innerHTML = result;
-            dom.show("#searchModal", "", true);
-        } else {
-            dom.hide("#searchModal");
-        }
-
-        // вывод информации на странице заполнения BOM проекта
-        // used on pages: project-bom
-        let table = dom.e("#itemTable");
-        if (table) {
-            dom.e("#tbody-responce").innerHTML = result;
-        }
-    });
-
-    // слушатель события при изменениях в БД на сервере (временное решение переделать на соккеты и добавить чат)
-    dom.onDBChangeListener = function (trigger, sound, uid) {
-        const playSong = dom.e(trigger);
-        const id = dom.e(uid);
-        if (playSong) {
-            // Воспроизводим звук
-            let audio = dom.e(sound);
-            if (audio) {
-                audio.play().then(r => '');
+            // Если колонка пустая, скрываем её
+            if (isEmptyColumn) {
+                for (let j = 0; j < rows.length; j++) {
+                    rows[j].cells[i].style.display = 'none';
+                }
             }
         }
-
-        // Function to check for changes in the database
-        function checkForChanges() {
-            // Perform a fetch request to your PHP listener
-            fetch('is_change', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: 'uid=' + id.value
-            })
-                .then(response => response.text())  // Assuming the response is text
-                .then(text => {
-                    //console.log(text);
-                    // Check if the response indicates changes
-                    if (text === '1') {
-                        // If changes are detected, submit the hidden form
-                        dom.e('#has_changes').submit();
-                    }
-                })
-                .catch(error => console.error('Error checking for changes:', error));
-        }
-
-        // Set interval to check for changes every 120000 milliseconds (2 minutes)
-        setInterval(checkForChanges, 120000);
-        // setInterval(checkForChanges, 15000);
-    };
-
-    // слушатель колеса загрузки
-    dom.in("submit", "form", () => {
-        dom.e("#loading").style.display = "flex";
-    });
-
-
-    // переделать в свои методы как дойдем
-    // navigation butter toggle
-    let toggler = dom.e(".navbar-toggler");
-    let nav = dom.e("#navBarContent");
-
-    if (toggler && nav) {
-        toggler.addEventListener("click", function () {
-            nav.classList.toggle("show"); // Переключает класс "show"
-        });
     }
 
-    // установка цвета на активную кнопку в навбаре
-    // Получаем текущий URL
-    const url = new URL(window.location.href);
-    // получаем имя страницы из адресной строки
-    const routePage = url.pathname;
-    // получаем все кнопки у которых есть класс url
-    const navButtons = document.querySelectorAll('.url');
-    // Loop through the buttons and check their value
-    navButtons.forEach(function (button) {
-        if (button.value === routePage.replace("/", "")) {
-            // Add the active class to the button with the matching value
-            button.classList.remove('btn-outline-secondary');
-            button.classList.add('btn-outline-primary');
-        } else {
-            // Remove the active class from all other buttons
-            button.classList.remove('btn-outline-primary');
-            button.classList.add('btn-outline-secondary');
-        }
-    });
 }); // end dom loaded
-
-
-/*i =========================== google translate ============================= */
-function googleTranslateElementInit() {
-    new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
-}
-
-function triggerGoogleTranslate(lang) {
-    let selectField = document.querySelector(".goog-te-combo");
-    if (selectField) {
-        selectField.value = lang; // Здесь укажите код языка, на который хотите перевести страницу
-        selectField.dispatchEvent(new Event("change"));
-    }
-}
-
-// Функция для изменения стиля body google translate
-function adjustBodyStyle() {
-    const bodyStyle = document.body.style;
-    if (bodyStyle.top !== "0px") {
-        bodyStyle.top = "0px";
-    }
-}
-
-// Создание экземпляра MutationObserver google translate
-const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-        if (mutation.type === "attributes" && mutation.attributeName === "style") {
-            adjustBodyStyle();
-        }
-    });
-});
-// Настройка observer для отслеживания изменений атрибутов тега body
-observer.observe(document.body, {
-    attributes: true // Наблюдать только за изменениями атрибутов
-});
-// Не забудьте отключить observer, когда он больше не нужен, для избежания утечек памяти
-// observer.disconnect();
-/*i  ========================== end of google translate ========================= */
-
-// sorting tables columns functions
-const currentSort = {
-    column: null,
-    direction: 'asc'
-};
-
-// sort table by text char value
-function sortTable(columnIndex, table_id = 0) {
-    let tab_id = (table_id !== 0) ? table_id : "itemTable";
-    let table, rows, switching, i, x, y, shouldSwitch;
-    table = document.getElementById(tab_id);
-    switching = true;
-
-    // Определить направление сортировки
-    if (currentSort.column === columnIndex) {
-        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-    } else {
-        currentSort.direction = 'asc';
-        currentSort.column = columnIndex;
-    }
-
-    while (switching) {
-        switching = false;
-        rows = table.getElementsByTagName("TR");
-
-        for (i = 1; i < (rows.length - 1); i++) {
-            shouldSwitch = false;
-            x = rows[i].getElementsByTagName("TD")[columnIndex];
-            y = rows[i + 1].getElementsByTagName("TD")[columnIndex];
-
-            // Сравнение строк в зависимости от направления сортировки
-            if (currentSort.direction === 'asc') {
-                if (y) {
-                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                        shouldSwitch = true;
-                        break;
-                    }
-                }
-            } else if (currentSort.direction === 'desc') {
-                if (y) {
-                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                        shouldSwitch = true;
-                        break;
-                    }
-                }
-            }
-        }
-        if (shouldSwitch) {
-            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-            switching = true;
-        }
-    }
-}
-
-// sort table by number value
-function sortNum(columnIndex, table_id = 0) {
-    let table, rows, switching, i, x, y, shouldSwitch, xValue, yValue;
-    let tab_id = (table_id !== 0) ? table_id : "itemTable";
-    table = document.getElementById(tab_id);
-    switching = true;
-
-    // Определить направление сортировки
-    if (currentSort.column === columnIndex) {
-        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-    } else {
-        currentSort.direction = 'asc';
-        currentSort.column = columnIndex;
-    }
-
-    while (switching) {
-        switching = false;
-        rows = table.getElementsByTagName("TR");
-
-        for (i = 1; i < (rows.length - 1); i++) {
-            shouldSwitch = false;
-            x = rows[i].getElementsByTagName("TD")[columnIndex];
-            y = rows[i + 1].getElementsByTagName("TD")[columnIndex];
-
-            // Конвертация текста в числа для корректного сравнения
-            xValue = parseFloat(x.innerHTML);
-            yValue = parseFloat(y.innerHTML);
-
-            // Сравнение чисел в зависимости от направления сортировки
-            if (currentSort.direction === 'asc') {
-                if (xValue > yValue) {
-                    shouldSwitch = true;
-                    break;
-                }
-            } else if (currentSort.direction === 'desc') {
-                if (xValue < yValue) {
-                    shouldSwitch = true;
-                    break;
-                }
-            }
-        }
-        if (shouldSwitch) {
-            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-            switching = true;
-        }
-    }
-}
-
-// open global chat form
-function openForm() {
-    dom.show("#popup-window");
-}
-
-// close global chat form
-function closeForm() {
-    dom.hide("#popup-window");
-}
 
 // older version for code
 

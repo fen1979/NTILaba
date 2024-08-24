@@ -1,10 +1,10 @@
 <?php
 EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require 'projects/ProductionUnit.php';
+require 'projects/Project.php';
 $page = 'new_project';
 $user = $_SESSION['userBean'];
 $id = null;
-$buttonSave = 'Create ProductionUnit';
+$buttonSave = 'Create Project';
 $disabled = 'disabled';
 $backButton = '/';
 
@@ -17,7 +17,7 @@ if (isset($_GET['orders'])) {
 /* СОЗДАЕМ НОВЫЙ ПРОЕКТ И СОХРАНЯЕМ В БД */
 if (isset($_POST['projectName']) && !isset($_SESSION['editmode'])) {
     /* создание нового проекта в БД */
-    $_SESSION['info'] = $args = ProductionUnit::createNewProductionUnit($_POST, $user, $_FILES);
+    $_SESSION['info'] = $args = Project::createNewProject($_POST, $user, $_FILES);
 
     /* возврат на страницу добавления заказа с данными о новом проекте */
     if (!empty($args['id'])) {
@@ -40,14 +40,14 @@ if (isset($_POST['projectName']) && !isset($_SESSION['editmode'])) {
 if (isset($_POST['projectName']) && isset($_SESSION['editmode']) && $_SESSION['editmode'] == 'activated') {
     /* добавляем в пост id проекта */
     $_POST['projectid'] = $_SESSION['projectid'];
-    $args = ProductionUnit::editProjectInformation($_POST, $user, $_FILES);
+    $args = Project::editProjectInformation($_POST, $user, $_FILES);
 }
 
 /* АКТИВАЦИЯ EDITING MODE */
 if (isset($_GET["pid"]) && $_GET['pid'] == "editmode" || isset($_SESSION['editmode']) && !isset($_GET['back-id'])) {
     $_SESSION['editmode'] = 'activated';
-    $project = R::load(PRODUCT_UNIT, $_SESSION['projectid']);
-    $buttonSave = 'Update ProductionUnit';
+    $project = R::load(PROJECTS, $_SESSION['projectid']);
+    $buttonSave = 'Update Project';
     $disabled = '';
     $backButton = "edit_project?pid=" . $_SESSION['projectid'];
     $id = $project->id;
@@ -57,8 +57,8 @@ if (isset($_GET["pid"]) && $_GET['pid'] == "editmode" || isset($_SESSION['editmo
 if (isset($_GET["pid"]) && isset($_GET['mode']) && $_GET['mode'] == "editmode" && isset($_GET['back-id'])) {
     $_SESSION['editmode'] = 'activated';
     $_SESSION['projectid'] = $_GET["pid"];
-    $project = R::load(PRODUCT_UNIT, $_GET["pid"]);
-    $buttonSave = 'Update ProductionUnit';
+    $project = R::load(PROJECTS, $_GET["pid"]);
+    $buttonSave = 'Update Project';
     $disabled = '';
     $backButton = "order/preview?orid={$_GET['back-id']}&tab=tab3";
     $id = $project->id;
@@ -184,7 +184,7 @@ foreach ($t40 as $item) {
 <?php
 if ($backButton == '/') {
     // NAVIGATION BAR
-    $navBarData['title'] = 'ProductionUnit Creation';
+    $navBarData['title'] = 'Project Creation';
     $navBarData['active_btn'] = Y['N_PROJECT'];
     //$navBarData['page_tab'] = $_GET['page'] ?? null;
     //$navBarData['record_id'] = $item->id ?? null;
@@ -229,7 +229,7 @@ DisplayMessage($args ?? null);
 
 <div class="container mt-5 px-3 py-3 rounded" style="background: beige;">
     <div class="row">
-        <div class="col-8"><h3><?= (!$id) ? 'Create ProductionUnit' : 'Edit ProductionUnit'; ?></h3></div>
+        <div class="col-8"><h3><?= (!$id) ? 'Create Project' : 'Edit Project'; ?></h3></div>
         <?php $lastId = R::getCol("SELECT MAX(id) FROM projects"); ?>
         <div class="col-4"><h3>Project ID: &nbsp; <?= !$id ? $lastId[0] + 1 : $id; ?></h3></div>
     </div>
@@ -412,7 +412,7 @@ DisplayMessage($args ?? null);
                         <input class="form-check-input track-change" type="checkbox" id="project_type" name="project_type"
                                value="1" <?= $project_type; ?>>
                         <label class="form-check-label fs-5" for="project_type" style="font-size: large">
-                            Project type: CMT assembly line.
+                            Project type: SMT assembly line.
                         </label>
                     </div>
                 </div>

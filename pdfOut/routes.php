@@ -104,7 +104,7 @@ if (isset($_GET['pid']) && isset($_GET['orid'])) {
     /*i получение данных из проекта */
     $projectid = _E($_GET['pid']);
     $orderid = _E($_GET['orid']);
-    $project = R::load(PRODUCT_UNIT, $projectid);
+    $project = R::load(PROJECTS, $projectid);
     $order = R::load(ORDERS, $orderid);
     $assy_steps = R::findAll(PROJECT_STEPS, 'projects_id = ?', [$projectid]);
     $assy_progress = R::findAll(ASSY_PROGRESS, 'orders_id = ?', [$orderid]);

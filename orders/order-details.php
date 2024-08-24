@@ -63,9 +63,9 @@ if (isset($_POST['orid']) || isset($orderid)) {
     $amount = $order['order_amount'];
     $reserve = R::count(WH_RESERV, 'WHERE order_uid = ?', [$order->id]); // find if exist reserved BOM items
     $customer = R::load(CLIENTS, $order->customers_id);
-    $project = R::load(PRODUCT_UNIT, $projectid);
+    $project = R::load(PROJECTS, $projectid);
     $stepsData = R::findAll(PROJECT_STEPS, 'projects_id = ? ORDER BY step ASC', [$projectid]);
-    $projectBom = R::findAll(UNITS_BOM, 'projects_id = ?', [$projectid]);
+    $projectBom = R::findAll(PROJECT_BOM, 'projects_id = ?', [$projectid]);
     $orderChat = R::findAll(ORDER_CHATS, 'orders_id = ? ORDER BY time_in ASC', [$orderid]);
     $chatLastMsg = R::findOne(ORDER_CHATS, 'orders_id = ? ORDER BY time_in DESC', [$orderid]);
     $assy_in_progress = R::findOne(ASSY_PROGRESS, 'orders_id = ? AND users_id = ? AND workend = ?', [$orderid, $user['id'], '0']);
@@ -228,19 +228,19 @@ DisplayMessage($args ?? null);
         <!-- Таб 4 -->
         <li class="nav-item" role="presentation">
             <button class="nav-link <?= ($A_T == 'tab4') ? 'active' : '' ?>"
-                    data-bs-target="#tab4" id="nav-link-4" type="button" role="tab">Unit Docs
+                    data-bs-target="#tab4" id="nav-link-4" type="button" role="tab">Project Docs
             </button>
         </li>
         <!-- Таб 5 -->
         <li class="nav-item" role="presentation">
             <button class="nav-link <?= ($A_T == 'tab5') ? 'active' : '' ?>"
-                    data-bs-target="#tab5" id="nav-link-5" type="button" role="tab">Unit BOM
+                    data-bs-target="#tab5" id="nav-link-5" type="button" role="tab">Project BOM
             </button>
         </li>
         <!-- Таб 6 -->
         <li class="nav-item" role="presentation">
             <button class="nav-link <?= ($A_T == 'tab6') ? 'active' : '' ?>"
-                    data-bs-target="#tab6" id="nav-link-6" type="button" role="tab">Unit Steps
+                    data-bs-target="#tab6" id="nav-link-6" type="button" role="tab">Project Steps
             </button>
         </li>
         <!-- Таб 7 -->
@@ -276,7 +276,7 @@ DisplayMessage($args ?? null);
                     <thead>
                     <tr style="white-space: nowrap">
                         <?php list($tHead, $settings) = CreateTableHeadByUserSettings(
-                            $user, 'order-bom-table', UNITS_BOM, '<th>Shelf / Box</th><th>Aqtual QTY [PCS, M]</th>');
+                            $user, 'order-bom-table', PROJECT_BOM, '<th>Shelf / Box</th><th>Aqtual QTY [PCS, M]</th>');
                         echo $tHead;
                         ?>
                     </tr>
@@ -285,7 +285,7 @@ DisplayMessage($args ?? null);
                     <tbody>
                     <?php
                     foreach ($projectBom as $line) {
-                        $actual_qty = WareHouse::GetActualQtyForItem($line['customerid'], $line['item_id']);
+                        $actual_qty = WareHouse::GetActualQtyForItem($line['customerid'], $line['item_id'] ?? '');
                         $length = (double)$line['length_mm'] ?? 0;
                         $qty = (int)$line['amount'];
                         $oqty = (int)$order['order_amount'];
@@ -437,7 +437,7 @@ DisplayMessage($args ?? null);
                     <div class="mb-3">
                         <h3 class="mb-3 ps-2">Additional Information</h3>
                         <p class="ps-2"> <?= $project['extra']; ?></p>
-                        <p class="ps-2"><?= 'ProductionUnit Revision: ' . $project['revision']; ?></p>
+                        <p class="ps-2"><?= 'Project Revision: ' . $project['revision']; ?></p>
                         <p class="ps-2 text-primary"><?= 'Created in: ' . $project['date_in']; ?></p>
                     </div>
                     <div class="mb-3">
@@ -458,9 +458,9 @@ DisplayMessage($args ?? null);
                     <thead>
                     <tr>
                         <?php
-                        if ($settings = getUserSettings($user, UNITS_BOM)) {
+                        if ($settings = getUserSettings($user, PROJECT_BOM)) {
                             foreach ($settings as $item => $_) {
-                                echo '<th>' . SR::getResourceValue(UNITS_BOM, $item) . '</th>';
+                                echo '<th>' . SR::getResourceValue(PROJECT_BOM, $item) . '</th>';
                             }
                         } else {
                             ?>

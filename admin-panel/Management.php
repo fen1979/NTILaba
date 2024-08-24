@@ -171,7 +171,7 @@ class Management
                         }
 
                         // Проверка в таблице projects
-                        $projects = R::findAll(PRODUCT_UNIT, 'tools LIKE ?', ['%' . $id . '%']);
+                        $projects = R::findAll(PROJECTS, 'tools LIKE ?', ['%' . $id . '%']);
                         foreach ($projects as $project) {
                             $tools = explode(',', $project->tools);
                             if (in_array($id, $tools)) {

@@ -276,7 +276,7 @@ if (isset($_POST['importCsvFile'])) {
 //                            $goods->datasheet = $rowData['datasheet'] ?? '';
 //                            $goods->extra = $rowData['extra'] ?? '';
 //                            $goods->owner = $rowData['owner'];
-//                            $goods->invoice = $rowData['invoice'] ?? '';
+//                            $goods->consignment = $rowData['consignment'] ?? '';
 //                            $goods->manufacture_date = $rowData['manufacture_date'] ?? date('Y-m-d H:i');
 //                            $goods->exp_date = $rowData['exp_date'] ?? date('Y-m-d H:i');
 //                            $goods->date_in = $rowData['date_in'] ?? date('Y-m-d H:i');
@@ -304,7 +304,7 @@ if (isset($_POST['importCsvFile'])) {
     'storage-class', // 'notes',
     'storage-state', // 'owner',
     'owner', // 'supplier',
-    'owner-part-name', // 'invoice',
+    'owner-part-name', // 'consignment',
     'quantity', // 'lot',
     'storage-box', // 'manufacture_date',
     'storage-shelf', // 'date_in'
@@ -330,7 +330,7 @@ if (isset($_POST['importCsvFile'])) {
 //                                $goods->description = $rowData['description'] ?? '';
 //                                $goods->notes = $rowData['notes'] ?? '';
 //                                $goods->owner = $rowData['owner']; // required
-//                                $goods->invoice = $rowData['invoice'] ?? ''; // required/optional
+//                                $goods->consignment = $rowData['consignment'] ?? ''; // required/optional
 //                                //$goods->lots = getActualLotFromDB(); // хз как это сделать пока что но надо привязать этот параметр к инвойсам
 //                                $goods->manufacture_date = $rowData['manufacture_date'] ?? date('Y-m-d H:i');
 //                                $goods->exp_date = $rowData['exp_date'] ?? date('Y-m-d H:i');
@@ -344,14 +344,14 @@ if (isset($_POST['importCsvFile'])) {
 
 //                                $goods = R::load(WH_ITEMS, $result[1]);
 //                                $goods->actual_qty = $goods->actual_qty + (float)$rowData['actual_qty'] ?? 0.0;
-//                                if (!empty($goods->invoice)) {
-//                                    $in = explode(',', $goods->invoice);
-//                                    if (!empty($rowData['invoice']) && !in_array($rowData['invoice'], $in))
-//                                        $in[] = $rowData['invoice'];
+//                                if (!empty($goods->consignment)) {
+//                                    $in = explode(',', $goods->consignment);
+//                                    if (!empty($rowData['consignment']) && !in_array($rowData['consignment'], $in))
+//                                        $in[] = $rowData['consignment'];
 //
-//                                    $goods->invoice = implode(',', $in);
+//                                    $goods->consignment = implode(',', $in);
 //                                } else {
-//                                    $goods->invoice = $rowData['invoice'] ?? '';
+//                                    $goods->consignment = $rowData['consignment'] ?? '';
 //                                }
 // saving line in DB
 // R::store($goods);

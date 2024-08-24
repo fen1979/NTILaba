@@ -192,13 +192,13 @@ function viewFullUnit($result, $user)
 {
     if ($_SESSION['preview_mode']) {
         //i ВЫВОД ТАБЛИЧНОГО ВИДА ПРОЕКТА ПРИ ПОИСКЕ
-        $settings = getUserSettings($user, PRODUCT_UNIT);
+        $settings = getUserSettings($user, PROJECTS);
         ?>
         <table class="p-3" id="project-table">
             <!-- header -->
             <thead>
             <tr style="white-space: nowrap">
-                <?= CreateTableHeaderUsingUserSettings($settings, 'project-table', PRODUCT_UNIT, '<th>Share ProductionUnit</th>') ?>
+                <?= CreateTableHeaderUsingUserSettings($settings, 'project-table', PROJECTS, '<th>Share Project</th>') ?>
             </tr>
             </thead>
             <!-- table -->
@@ -243,7 +243,7 @@ function viewFullUnit($result, $user)
                 <div class="col-md-4">
 
                     <div class="card mb-4 shadow-sm">
-                        <!--  ProductionUnit Name and Share Link -->
+                        <!--  Project Name and Share Link -->
                         <h5 class="card-title position-relative"><b class="text-primary">Name:</b> <?= $projectName; ?>
                             <span class="text-primary share-project position-absolute end-0 me-3" data-share-link="<?= $shareLink; ?>">
 					<i class="bi bi-share-fill"></i>
@@ -251,7 +251,7 @@ function viewFullUnit($result, $user)
                         </h5>
 
                         <?php
-                        //ProductionUnit Documentation preview or Last step of project if Docs not exist
+                        //Project Documentation preview or Last step of project if Docs not exist
                         if ($user['preview'] == 'docs') {
                             if (!empty($value['projectdocs']) && strpos($value['projectdocs'], '.pdf') !== false) { ?>
                                 <iframe src="<?= $value['projectdocs']; ?>"></iframe>
@@ -529,10 +529,10 @@ function viewStorageItems($result, $searchString, $request, $user): void
                     'storage_box' => $item['storage_box'],
                     'storage_shelf' => $item['storage_shelf'],
                     'storage_state' => $item['storage_state']
-                    // invoice table fields
+                    // consignment table fields
                     // 'manufactured_date' => $item['manufacture_date'],
                     // 'part_lot' => $item['lots'],
-                    // 'delivery_note' => $item['delivery_note'], // was invoice
+                    // 'delivery_note' => $item['delivery_note'], // was consignment
                     // 'supplier' => $item['supplier']
                 ]);
                 ?>

@@ -496,7 +496,6 @@ function _if($condition, $trueValue, $falseValue = null, $defaultValue = null)
         // Return the default value, calling it if it's a function
         return is_callable($defaultValue) ? $defaultValue() : $defaultValue;
     }
-
     // If the condition is true, return the trueValue
     if ($condition) {
         // Return the true value, calling it if it's a function
@@ -547,7 +546,7 @@ function _if($condition, $trueValue, $falseValue = null, $defaultValue = null)
 function _empty($value, $callBack)
 {
     // Проверка на несуществующую переменную или null
-    if (!isset($value)) {
+    if (!isset($value) || is_null($value)) {
         return is_callable($callBack) ? $callBack() : $callBack;
     }
 
@@ -559,3 +558,4 @@ function _empty($value, $callBack)
     // Если значение не пустое, возвращаем его
     return !empty($value) ? $value : (is_callable($callBack) ? $callBack() : $callBack);
 }
+

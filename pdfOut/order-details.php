@@ -70,7 +70,7 @@ if (isset($_GET['pid']) && isset($_GET['orid'])) {
 //    $settings = getUserSettings($_SESSION['userBean'], '');
     $projectid = _E($_GET['pid']);
     $orderid = _E($_GET['orid']);
-    $project = R::load(PRODUCT_UNIT, $projectid);
+    $project = R::load(PROJECTS, $projectid);
     $order = R::load(ORDERS, $orderid);
 
 

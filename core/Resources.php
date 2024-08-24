@@ -38,14 +38,14 @@ const SHARE_LINK_ROUTE = BASE_URL . 'shared-project?shared='; // the path to sha
  * */
 const Y = ['ORDER' => 0, 'PROJECT' => 1, 'N_ORDER' => 2, 'N_PROJECT' => 3, 'CLIENT' => 4, 'STOCK' => 5,
     'LOG' => 6, 'WIKI' => 7, 'E_ORDER' => 8, 'SETTINGS' => 9, 'PO' => 10];
-const STORAGE_STATUS = ['smt' => 'In SMT Line', 'shelf' => 'On Shelf', 'work' => 'In Work'];
+const STORAGE_STATUS = ['smt' => 'In SMT Line', 'shelf' => 'On Shelf', 'work' => 'In Work', 'box' => 'Is in the received package'];
 
 
 //I DATABASE TABLES NAMES CONSTANTS
 const ORDERS = 'orders';
-const PRODUCT_UNIT = 'projects';
+const PROJECTS = 'projects';
 const PROJECT_STEPS = 'projectsteps';
-const UNITS_BOM = 'projectbom';
+const PROJECT_BOM = 'projectbom';
 const CLIENTS = 'customers';
 const USERS = 'users'; // users table
 const SUPPLIERS = 'suppliers';
@@ -57,6 +57,7 @@ const WH_LOGS = 'whlogs'; // логи склада и всех его опера
 const WH_RESERV = 'whreserv'; // созданный резерв запчастей для заказов
 const WH_TYPES = 'whtypes'; // СПИСОК ИМЕН И ТИПОВ СКЛАДОВ
 const WH_ORDERED_ITEMS = 'whordereditems'; // СПИСОК ЗАКАЗАННЫХ ЗАПЧАСТЕЙ
+const PO_AIRRVAL = 'whstaging'; // СПИСОК ВРЕМЕННО ХРАНИМЫХ ЧАСТЕЙ НЕ ПРОШЕДШИХ ТОЧНУЮ ПРОВЕРКУ
 const ASSY_PROGRESS = 'assyprogress'; // состояние работы над заказом
 const TOOLS = 'tools'; // таблица инструмента компании
 const ROUTE_ACTION = 'routeaction'; // рут карта список
@@ -221,10 +222,11 @@ class Resources
      * @param $group
      * @param $key
      * @param $detail
+     * @param bool $check
      * @return void
      * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function updateResourceDetail($group, $key, $detail, $check = false)
+    public static function updateResourceDetail($group, $key, $detail, bool $check = false)
     {
         $data = R::findOne(self::RESOURCES, 'group_name = ? AND key_name = ?', [$group, $key]);
         if ($data && !$check) {

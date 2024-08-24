@@ -1,6 +1,6 @@
 <?php
 EnsureUserIsAuthenticated($_SESSION, 'userBean');
-include_once 'projects/ProductionUnit.php';
+include_once 'projects/Project.php';
 
 $page = 'project_part_list';
 $user = $_SESSION['userBean'];
@@ -10,13 +10,13 @@ $formButton = ['name' => 'save-item-to-bom', 'text' => 'Save Item'];
 /* flow from create project */
 if (isset($_GET['pid']) && !isset($_GET['orid']) && !isset($_GET['bomid'])) {
     $backButton['url'] = '/add_step?pid=' . $_GET['pid'];
-    $backButton['text'] = 'Enter new ProductionUnit Details';
+    $backButton['text'] = 'Enter new Project Details';
 }
 
 /* flow from edit project steps */
 if (isset($_GET['pid']) && isset($_GET['orid'])) {
     $backButton['url'] = '/edit_project?pid=' . $_GET['pid'];
-    $backButton['text'] = 'Back to ProductionUnit Details';
+    $backButton['text'] = 'Back to Project Details';
 }
 
 /* flow from order details project/order bom creation */
@@ -29,15 +29,15 @@ if (isset($_GET['pid']) && isset($_GET['back-id']) && isset($_GET['mode'])) {
 /* saving the item to DB */
 if (isset($_POST['save-item-to-bom'])) {
     if (!isset($_FILES['import_csv']['name'][0])) {
-        $args = ProductionUnit::createProjectBomItem($_POST, $user, $_GET['pid']);
+        $args = Project::createProjectBomItem($_POST, $user, $_GET['pid']);
     } else {
-        $args = ProductionUnit::importProjectBomFromFile($_FILES, $_POST, $user, $_GET['pid']);
+        $args = Project::importProjectBomFromFile($_FILES, $_POST, $user, $_GET['pid']);
     }
 }
 
 /* delete item from project BOM */
 if (isset($_POST['password']) && isset($_POST['itemId']) && isset($_POST['delete-item'])) {
-    $args = ProductionUnit::deleteProjectBomItem($_POST, $user);
+    $args = Project::deleteProjectBomItem($_POST, $user);
 }
 
 /* undo delete item */
@@ -48,12 +48,12 @@ if (isset($_GET['undo']) && isset($_GET['bomid'])) {
 }
 
 // получаем проект в котором работаем
-$project = R::load(PRODUCT_UNIT, $_GET['pid']);
+$project = R::load(PROJECTS, $_GET['pid']);
 $p_name = $project->projectname;
 $c_name = $project->customername;
 
 // получение БОМа проекта для вывода в таблице
-$it = R::FindAll(UNITS_BOM, 'projects_id = ?', [$_GET['pid']]);
+$it = R::FindAll(PROJECT_BOM, 'projects_id = ?', [$_GET['pid']]);
 
 // уточнение кол-ва элементов в БОМе для вывода на странице
 $sku = ($it) ? (count($it) + 1) : 1;
@@ -61,7 +61,7 @@ $sku = ($it) ? (count($it) + 1) : 1;
 /* edit item from project bom */
 if (isset($_GET['edit-item'])) {
     if (isset($_POST['edit-item-btn'])) {
-        $args = ProductionUnit::updateProjectBomItem($_POST, $user, _E($_GET['pid']), _E($_GET['edit-item']));
+        $args = Project::updateProjectBomItem($_POST, $user, _E($_GET['pid']), _E($_GET['edit-item']));
 
         // обновляем адресную строку
         if ($args['args']) {
@@ -70,7 +70,7 @@ if (isset($_GET['edit-item'])) {
         }
     }
 
-    $itFedit = R::load(UNITS_BOM, _E($_GET['edit-item']));
+    $itFedit = R::load(PROJECT_BOM, _E($_GET['edit-item']));
     $formButton = ['name' => 'edit-item-btn', 'text' => 'Update Item'];
     $sku = $itFedit->sku;
 }
@@ -241,7 +241,7 @@ DisplayMessage($args ?? null);
 
     <!-- items table -->
     <div class="col-9 ps-3">
-        <h4 class="text-center"><?= "ProductionUnit: $p_name, Customer: $c_name, BOM items table."; ?></h4>
+        <h4 class="text-center"><?= "Project: $p_name, Customer: $c_name, BOM items table."; ?></h4>
         <div style="overflow-y: scroll; overflow-x: scroll; height: 100vh;">
             <table id="itemTable">
                 <thead>

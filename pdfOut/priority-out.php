@@ -4,7 +4,7 @@ const PROJECT_NAME = 1;
 const ASMAX_1 = 2;
 const ASMAX_2 = 3;
 const AMOUNT = 4;
-EnsureUserIsAuthenticated($_SESSION,'userBean');
+$user = EnsureUserIsAuthenticated($_SESSION,'userBean');
 //
 if (isset($_GET['order-ids'])) {
     if (isset($_POST['data'])) {

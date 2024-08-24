@@ -246,6 +246,7 @@ class WareHouse
         $invoice->quantity = $post['quantity']; // полученное кол-во товара в этой накладной
         $invoice->warehouses_id = $warehouse_id;
         $lot = $invoice->lot = !empty($post['part-lot']) ? $post['part-lot'] : 'N:' . date('m/Y') . ':TI~' . $item_id;
+        $invoice->consignment = $post['consignment']; // this airrval consignment document number
         $invoice->delivery_note = $post['delivery_note']; // this airrval delivery_note
         $invoice->supplier = '{"name":"' . ($post['supplier'] ?? '') . '","id":"' . ($post['supplier-id'] ?? '') . '"}'; // this airrval suplplier
         $invoice->owner = $owner_data; // this part owner
@@ -423,6 +424,7 @@ class WareHouse
         $delivery->quantity = $post['quantity']; // полученное кол-во товара в этой накладной
         $delivery->warehouses_id = $warehouse_id;
         $lot = $delivery->lot = !empty($post['part-lot']) ? $post['part-lot'] : 'N:' . date('m/Y') . ':TI~' . $item_id;
+        $delivery->consignment = $post['consignment']; // this airrval consignment document number
         $delivery->delivery_note = $post['delivery_note']; // this airrval delivery note
         $delivery->supplier = '{"name":"' . ($post['supplier'] ?? '') . '","id":"' . ($post['supplier-id'] ?? '') . '"}'; // this airrval suplplier
         $delivery->owner = $owner_data; // this part owner
@@ -522,8 +524,8 @@ class WareHouse
         // тут надо добавить новое поступление если запчасть есть в БД
         // а если нет то перейти к созданию новой запчасти
         $post = self::checkPostDataAndConvertToArray($postData);
-        $projectBomItem = R::load(UNITS_BOM, $postData['item_id']);
-        $project = R::load(PRODUCT_UNIT, $projectBomItem->projects_id);
+        $projectBomItem = R::load(PROJECT_BOM, $postData['item_id']);
+        $project = R::load(PROJECTS, $projectBomItem->projects_id);
         $owner_pn = $projectBomItem->owner_pn;
 
         $search = !empty($owner_pn) ? trim($owner_pn) : null;
@@ -543,7 +545,7 @@ class WareHouse
 
             // TODO log for warehouse logs
             /* [     LOGS FOR THIS ACTION     ] */
-            $details = "New QTY for Item №: $bo, in ProductionUnit: $project->projectname, was added";
+            $details = "New QTY for Item №: $bo, in Project: $project->projectname, was added";
             /* сохранение логов если успешно то переходим к БОМ */
             if (!logAction($user['user_name'], 'ITEM_CHANGED', OBJECT_TYPE[6], $details)) {
                 $res['info'] = 'Log creation failed.';
@@ -684,7 +686,7 @@ class WareHouse
             $manufacture_pn = '%' . $data['manufacture_pn'] . '%';
             $owner_pn = '%' . $data['owner_pn'] . '%';
         }
-        $invoice = '%' . $data['invoice'] . '%';
+        $invoice = '%' . $data['consignment'] . '%';
 
         // Имена таблиц для запроса
         $wh_item = WH_ITEMS;
@@ -694,7 +696,7 @@ class WareHouse
         // SQL-запрос для поиска полного совпадения
         $sqlFullMatch = "SELECT w.* FROM $warehouse w JOIN $wh_item wi ON wi.id = w.items_id
         JOIN $wh_delivery win ON win.id = w.invoice_id WHERE wi.part_value LIKE ? 
-        AND wi.manufacture_pn LIKE ? AND w.owner_pn LIKE ? AND win.invoice LIKE ?";
+        AND wi.manufacture_pn LIKE ? AND w.owner_pn LIKE ? AND win.consignment LIKE ?";
 
         // Выполнение запроса и получение результата
         $fullMatch = R::getRow($sqlFullMatch, [$part_value, $manufacture_pn, $owner_pn, $invoice]);
@@ -704,7 +706,7 @@ class WareHouse
             return [false];
         }
 
-        // SQL-запрос для поиска частичного совпадения (без учета invoice)
+        // SQL-запрос для поиска частичного совпадения (без учета consignment)
         $sqlPartialMatch = "SELECT w.* FROM $warehouse w JOIN $wh_item wi ON wi.id = w.items_id
         WHERE wi.part_value LIKE ? AND wi.manufacture_pn LIKE ? AND w.owner_pn LIKE ?";
 
@@ -812,9 +814,10 @@ class WareHouse
     /**
      *
      * @param $post
-     * @return int
+     * @param string $group_name
+     * @return string
      */
-    public static function getEmptyBoxForItem($post, $group_name = ''): string
+    public static function getEmptyBoxForItem($post, string $group_name = ''): string
     {
         $group = _if(!empty($group_name), $group_name, 'stock');
         // Получаем текущий номер ключа из запроса
@@ -850,5 +853,111 @@ class WareHouse
 
         // Если нашли подходящий ключ, возвращаем его, иначе возвращаем сообщение о том, что свободных мест нет
         return $foundKey !== null ? (string)$foundKey : "No available boxes found";
+    }
+
+    /**
+     * incoming invoice level 1 check qty and set storage place
+     * @param $post
+     * @param $user
+     * @param $order
+     * @param $project
+     * @return array
+     * @throws \RedBeanPHP\RedException\SQL
+     */
+    public static function createNewReplenishmentList($post, $user, $order, $project): array
+    {
+        // Convert POST data to array if necessary
+        $post = self::checkPostDataAndConvertToArray($post);
+
+        $po_invoice = R::dispense(PO_AIRRVAL);
+        $po_invoice->orders_id = $order['id']; // связи таблиц
+        $po_invoice->projects_id = $project['id']; // связи таблиц
+        $po_invoice->owner_id = $post['owner_id']; // связи таблиц
+
+        $po_invoice->owner_name = $post['owner']; // имя клиента
+        $po_invoice->consignment = $post['consignment']; // номер приходной накладной
+        $po_invoice->for_whom = $post['for_whom']; // для какого заказа/проекта приход
+        $po_invoice->date_in = $post['date_in']; // дата прихода
+
+        $po_invoice->part_number = $post['makat']; // парт номер клиента указанный в накладной
+        $po_invoice->manufacture_pn = $post['manufacture_pn'] ?? '';// парт номер производителя если есть
+        $po_invoice->notes = $post['notes'] ?? ''; // доп информация о поставке
+        $po_invoice->declared_qty = $post['declared_qty'];// заявленное кол-во в документе
+        $po_invoice->actual_qty = $post['actual_qty'];// фактическое кол-во в наличии при получении товара
+        $po_invoice->package_type = $post['package_type'] ?? '';// как была упакована или во что
+        $po_invoice->storage_place = $post['storage_place'] ?? '';// куда фактически поставили на хранение
+        $po_invoice->warehouse_type = $post['warehouse_type'];// тип помещения где поставили на хранение
+
+        $po_invoice->defects = $post['defects'] ?? ''; // описание проблемы с товаром
+        $po_invoice->user = '{"name":"' . $user['user_name'] . '" , "id":"' . $user['id'] . '" }'; // данные пользователя
+
+        // сохраняем данные
+        $id = R::store($po_invoice);
+
+        // Объединение данных в один массив
+        $logData = json_encode($po_invoice->export(), JSON_UNESCAPED_UNICODE);
+        // пишем лог по складу и возвращаем ответ пользователю
+        return WareHouseLog::poAirrvalAction($user, $logData, $id);
+    }
+
+    /**
+     * make XMLS and save to order folder
+     * @param $order_id
+     * @param $pathToSave
+     * @return bool
+     */
+    public static function makeXLSXfileAndSave($order_id): bool
+    {
+        include_once 'libs/xlsxgen.php';
+
+        $titles = SR::getAllResourcesInGroup(PO_AIRRVAL); // 12 titles
+        $order = R::load(ORDERS, $order_id);
+        $data = R::findAll(PO_AIRRVAL, "orders_id = ?", [$order->id]);
+        $orderBOM[] = $titles;
+
+        foreach ($data as $item) {
+            $tmpArr = [];
+            foreach ($titles as $key => $val) {
+                if ($key == 'difference') {
+                    list($_, $qty) = self::getQtyDifference($item['declared_qty'], $item['actual_qty']);
+                    $tmpArr[] = $qty;
+                } elseif ($key == 'user') {
+                    $tmpArr[] = json_decode($item[$key], true)['name'];
+                } else
+                    $tmpArr[] = _empty($item[$key], 'N/A');
+            }
+            $orderBOM[] = $tmpArr;
+        }
+
+        $pathToSave = 'storage/orders/' . $order->order_folder . '/staging_' . $order->id . '_.xlsx';
+        return XLSXGen::fromArray($orderBOM)->saveAs($pathToSave);
+    }
+
+    /**
+     * RETURN DEFFERENCE OF 2 VALUES AND COLORS
+     * > WARNING
+     * < DANGER
+     * = SUCCESS
+     * @param $declared_qty
+     * @param $actual_qty
+     * @return array|null[]
+     */
+    public static function getQtyDifference($declared_qty, $actual_qty): array
+    {
+        // if declared is bigger than actual
+        if ($declared_qty > $actual_qty) {
+            return ['danger', ($declared_qty - $actual_qty)];
+        }
+
+        // if actual is bigger than declared
+        if ($declared_qty < $actual_qty) {
+            return ['warning', ($actual_qty - $declared_qty)];
+        }
+
+        // if qty the same
+        if ($declared_qty == $actual_qty) {
+            return ['success', 0];
+        }
+        return [null];
     }
 }

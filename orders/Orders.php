@@ -1,6 +1,7 @@
 <?php
 include_once 'warehouse/WareHouse.php';
 define('STATUS', SR::getAllResourcesInGroup('status'));
+
 class Orders
 {
     /* i============================ PROTECTED METHODS =============================== */
@@ -242,7 +243,7 @@ class Orders
         self::saveChatMessage($orderId, $user, ['messageText' => $msg, 'readonly' => 1]);
 
         /* [     LOGS FOR THIS ACTION     ] */
-        $details = "Order N: $orderId, Customer: $c_name, Amount: $amount, ProductionUnit: $p_name";
+        $details = "Order N: $orderId, Customer: $c_name, Amount: $amount, Project: $p_name";
         /* сохранение логов если успешно то переходим к БОМ */
         if (logAction($user['user_name'], 'ORDER_CREATED', OBJECT_TYPE[0], $details)) {
             return [true, $orderId];
@@ -310,7 +311,7 @@ class Orders
                 $order->project_revision = $post['projectRevision']; // версия проекта
                 $order->projects_id = $post['project_id'];
                 // message to order log
-                $msg .= "ProductionUnit name changed to: $p_name<br>";
+                $msg .= "Project name changed to: $p_name<br>";
             }
 
             $amount = $order->order_amount;
@@ -388,7 +389,7 @@ class Orders
             $res['pid'] = $post['project_id'];
             $res[] = ['info' => 'Order details canged successfully', 'color' => 'success'];
 
-            $details = "Order N: $orderId, Customer: $c_name, Amount: $amount, ProductionUnit: $p_name";
+            $details = "Order N: $orderId, Customer: $c_name, Amount: $amount, Project: $p_name";
 
             /* [     LOGS FOR THIS ACTION     ] */
             if (!logAction($user['user_name'], 'EDITING', OBJECT_TYPE[0], $details)) {
@@ -463,9 +464,9 @@ class Orders
     {
         include_once 'libs/xlsxgen.php';
 
-        $titles = SR::getAllResourcesInGroup(UNITS_BOM); // 12 titles
+        $titles = SR::getAllResourcesInGroup(PROJECT_BOM); // 12 titles
         $order = R::load(ORDERS, $order_id);
-        $data = R::findAll(UNITS_BOM, "projects_id = ?", [$order->projects_id]);
+        $data = R::findAll(PROJECT_BOM, "projects_id = ?", [$order->projects_id]);
         $orderBOM[] = $titles;
 
         foreach ($data as $item) {
@@ -831,7 +832,7 @@ class Orders
         // то значение будет 1, при стандартном раскладе значение 0
         if ((int)$order['pre_assy'] == 0) {
             foreach ($projectBom as $item) {
-                $inShelf = WareHouse::GetActualQtyForItem($item, true);
+                $inShelf = WareHouse::GetActualQtyForItem($item['customerid'], $item['item_id'] ?? '');
                 if (!$inShelf || ($item['amount'] * $order['order_amount']) > $inShelf['actual_qty'])
                     return false;
             }
@@ -851,7 +852,7 @@ class Orders
         $minProductionAmount = PHP_INT_MAX; // Инициализируем максимально возможным числом
 
         foreach ($projectBom as $item) {
-            $inShelf = WareHouse::GetActualQtyForItem($item['owner_pn'], true);
+            $inShelf = WareHouse::GetActualQtyForItem($item['customerid'], $item['item_id'] ?? '');
 
             // Если какой-то компонент отсутствует на складе, возвращаем 0
             if (!$inShelf || $inShelf['actual_qty'] <= 0) {
@@ -893,14 +894,14 @@ class Orders
             $order_amount = $order->order_amount;
             //include_once 'stock/WareHouse.php';
             $bom = array();
-            $projectBom = R::findAll(UNITS_BOM, 'projects_id = ?', [$project_id]);
+            $projectBom = R::findAll(PROJECT_BOM, 'projects_id = ?', [$project_id]);
             foreach ($projectBom as $item) {
 
                 // fixme переделать снятие с базы количества нужного для заказа по конкретной
                 // fixme запчасти и сделать привязку к статусам переведенным вручную
 
                 // просмотреть БОМ проекта и умножить количество в боме на количество в заказе,
-                $stock = WareHouse::GetActualQtyForItem($item['owner_pn'], $item['item_id']);
+                $stock = WareHouse::GetActualQtyForItem($item['owner_pn'], $item['item_id'] ?? '');
                 // проверить наличие на складе:
                 if ($stock) {
                     // если больше чем нужно отнять нужное и сохранить остатки(записать в лог склада)
@@ -1050,7 +1051,7 @@ class Orders
 
             /* [     LOGS FOR THIS ACTION     ] */
             $s_c = count($steps);
-            $log_details = "Work started on ProductionUnit: name-{$project['projectname']}, ID: $project->id<br>";
+            $log_details = "Work started on Project: name-{$project['projectname']}, ID: $project->id<br>";
             $log_details .= "Step count: $s_c, creation date: $project->date_in, Creator: $project->creator<br>";
             $log_details .= "Executor Name: $project->executor, Order started time: $ws<br>";
             $log_details .= "Spare parts for the order were written off from the warehouse";
@@ -1158,7 +1159,7 @@ class Orders
 
 
             /* [     LOGS FOR THIS ACTION     ] */
-            $log_details = "Work started on ProductionUnit: name-{$project['projectname']}, ID: $project->id<br>";
+            $log_details = "Work started on Project: name-{$project['projectname']}, ID: $project->id<br>";
             $log_details .= "Step number: $step->step, taken date: $ws, Worker: {$user['user_name']}<br>";
             $log_details .= "Order ID: $orid<br>";
 
@@ -1217,7 +1218,7 @@ class Orders
             /* [     LOGS FOR THIS ACTION     ] */
             // page anchor id for back to needed step
             $res['step_id'] = $st_num = $assy_flow->current_step;
-            $log_details = "Work on ProductionUnit: name-{$project['projectname']}, ID: $project->id<br>";
+            $log_details = "Work on Project: name-{$project['projectname']}, ID: $project->id<br>";
             $log_details .= "Step number: $st_num, complite, date: $we, Worker: {$user['user_name']}<br>";
 
             $msg = "Step number $st_num was complited by employee: {$user['user_name']}";
@@ -1277,7 +1278,7 @@ class Orders
             /* [     LOGS FOR THIS ACTION     ] */
             $ws = date('Y-m-d H:i');
 
-            $log_details = "Work on ProductionUnit: name-$project->projectname, ID: $project->id<br>";
+            $log_details = "Work on Project: name-$project->projectname, ID: $project->id<br>";
             $log_details .= "Step number: $assy_flow->current_step, skipped date: $ws, Worker: {$user['user_name']}<br>";
             $log_details .= "Order ID: $orid<br>";
 
@@ -1360,7 +1361,7 @@ class Orders
 
         /* [     LOGS FOR THIS ACTION     ] */
         $s_c = count($steps);
-        $log_details = "Work started on ProductionUnit: name-{$project['projectname']}, ID: $project->id<br>";
+        $log_details = "Work started on Project: name-{$project['projectname']}, ID: $project->id<br>";
         $log_details .= "Step count: $s_c, creation date: $project->date_in, Creator: $project->creator<br>";
         $log_details .= "Executor Name: $project->executor, Order started time: $ws<br>";
         $log_details .= "Spare parts for the order were written off from the warehouse";

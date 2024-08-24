@@ -2,7 +2,7 @@
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
 require 'WareHouse.php';
 $page = 'arrivals';
-
+$bom_item = $consignment = $qty = $orid = $pid = null;
 // check for not in use boxes in storage
 // called from ajax metod by clicking on storage box field
 if (isset($_POST['search-for-storage-box'])) {
@@ -24,6 +24,18 @@ if (isset($_POST['save-new-item'])) {
         $_SESSION['info'] = $args;
         redirectTo("wh/the_item?itemid=" . $args['item_id']);
     }
+}
+
+// добавление новой запчасти при заполнении ВОМ для заказа !!!
+if (isset($_GET['consignment']) && isset($_GET['item-id']) && isset($_GET['qty']) && isset($_GET['orid']) && isset($_GET['pid'])) {
+    // new-item&consignment=SH198349183&item-id=69&qty=22&orid=1013&pid=85
+    // delivery_note
+    $bom_item = R::load(PROJECT_BOM, _E($_GET['item-id']));
+    $owner = R::load(CLIENTS, $bom_item->customerid);
+    $consignment = _E($_GET['consignment']);
+    $qty = _E($_GET['qty']);
+    $orid = _E($_GET['orid']);
+    $pid = _E($_GET['pid']);
 }
 ?>
 <!doctype html>
@@ -150,6 +162,8 @@ DisplayMessage($args ?? null);
                 <button type="button" id="db-image-btn" class="btn btn-outline-info input" data-request="get-images">Choose Item Picture</button>
             </div>
         </div>
+
+        <!-- item form -->
         <div class="col-5">
             <form action="" method="post" enctype="multipart/form-data" autocomplete="off" id="item-form">
                 <!--             hidden data -->
@@ -157,18 +171,18 @@ DisplayMessage($args ?? null);
                 <input type="hidden" name="imageData" id="imageData">
                 <input type="file" name="item-image" id="item-image-file" class="hidden">
                 <input type="hidden" name="image-path" id="item-image-path">
-                <input type="hidden" name="owner-id" id="owner-id"/>
+                <input type="hidden" name="owner-id" id="owner-id" value="<?= _empty($owner->id, '') ?>"/>
                 <input type="hidden" name="supplier-id" id="supplier-id"/>
 
                 <!--             item data -->
                 <label for="part-name">Part Name</label>
                 <input type="text" placeholder="Part name"
                        name="part-name" id="part-name" class="input searchThis" data-request="warehouse"
-                       value="<?= set_value('part-name'); ?>"/>
+                       value="<?= set_value('part-name', $bom_item->part_name ?? ''); ?>"/>
                 <label for="part-value">Part Value</label>
                 <input type="text" placeholder="Part value"
                        name="part-value" id="part-value" class="input searchThis" data-request="warehouse"
-                       value="<?= set_value('part-value'); ?>" required/>
+                       value="<?= set_value('part-value', $bom_item->part_value ?? ''); ?>" required/>
 
                 <?php $t = 'SMT = Surface mount, TH = Through holes, CM = Cable Mount, PM = Panel Mount,
                                     SOLDER = Soldering to wires, CRIMP = Crimping technic, LM = In line mount.
@@ -182,27 +196,27 @@ DisplayMessage($args ?? null);
                 <label for="manufacture-part-number">Manufacture P/N</label>
                 <input type="text" placeholder="MF P/N"
                        name="manufacture-part-number" id="manufacture-part-number" class="input searchThis" data-request="warehouse"
-                       value="<?= set_value('manufacture-part-number'); ?>" required/>
+                       value="<?= set_value('manufacture-part-number', $bom_item->manufacture_pn ?? ''); ?>" required/>
                 <label for="manufacturer">Manufacturer</label>
                 <input type="text" placeholder="MF"
                        name="manufacturer" id="manufacturer" class="input searchThis" data-request="manufacturer"
-                       value="<?= set_value('manufacturer'); ?>"/>
+                       value="<?= set_value('manufacturer', $bom_item->manufacturer ?? ''); ?>"/>
                 <label for="footprint">Footprint</label>
                 <input type="text" placeholder="F/P"
                        name="footprint" id="footprint" class="input"
-                       value="<?= set_value('footprint'); ?>"/>
+                       value="<?= set_value('footprint', $bom_item->footprint ?? ''); ?>"/>
                 <label for="minimun-quantity">Min QTY</label>
                 <input type="number" placeholder="Min QTY"
                        name="minimun-quantity" id="minimun-quantity" class="input"
-                       value="<?= set_value('minimun-quantity'); ?>" required/>
+                       value="<?= set_value('minimun-quantity', 1); ?>" required/>
                 <label for="description">Description</label>
                 <input type="text" placeholder="Desc"
                        name="description" id="description" class="input"
-                       value="<?= set_value('description'); ?>"/>
+                       value="<?= set_value('description', $bom_item->description ?? ''); ?>"/>
                 <label for="notes">Notes</label>
                 <input type="text" placeholder="Note"
                        name="notes" id="notes" class="input"
-                       value="<?= set_value('notes'); ?>"/>
+                       value="<?= set_value('notes', $bom_item->notes ?? ''); ?>"/>
                 <label for="datasheet">Datasheet</label>
                 <input type="text" placeholder="DataSheet"
                        name="datasheet" id="datasheet" class="input"
@@ -210,24 +224,28 @@ DisplayMessage($args ?? null);
                 <label for="shelf-life">Shelf Life</label>
                 <input type="text" placeholder="Shelf life"
                        name="shelf-life" id="shelf-life" class="input"
-                       value="<?= set_value('shelf-life'); ?>" required/>
+                       value="<?= set_value('shelf-life', 12); ?>" required/>
                 <label for="storage-class">Storage Class</label>
                 <input type="text" placeholder="Storage class"
                        name="storage-class" id="storage-class" class="input"
-                       value="<?= set_value('storage-class'); ?>" required/>
+                       value="<?= set_value('storage-class', 1); ?>" required/>
+
                 <label for="storage-state">Storage State</label>
                 <?php $t = 'Indicator of the working location of this part-device.'; ?>
                 <select name="storage-state" id="storage-state" class="input" data-title="<?= $t ?>" required>
-                    <?php foreach (STORAGE_STATUS as $val => $name): ?>
-                        <option value="<?= $val ?>" <?= $val == 'shelf' ? 'selected' : '' ?>><?= $name ?></option>
-                    <?php endforeach; ?>
+                    <?php
+                    foreach (STORAGE_STATUS as $val => $name) {
+                        $sel = _if($val == 'shelf', 'selected', _if(isset($bom_item) && $val = 'box', 'selected', ''));
+                        ?>
+                        <option value="<?= $val ?>" <?= $sel ?>><?= $name ?></option>
+                    <?php } ?>
                 </select>
 
-                <!--             warehouse data -->
+                <!--  i           warehouse data -->
                 <label for="owner">Owner</label>
                 <input type="text" placeholder="Owner"
                        name="owner" id="owner" class="input searchThis" data-request="owner"
-                       value="<?= set_value('owner'); ?>" required/>
+                       value="<?= set_value('owner', $owner->name ?? ''); ?>" required/>
 
                 <?php $t = 'Name of the spare part in the NTI company or custom owner name.
                             It is important to choose the appropriate name for the correct numbering of the incoming product/spare part.
@@ -236,10 +254,10 @@ DisplayMessage($args ?? null);
                 $query = "SELECT DISTINCT REGEXP_REPLACE(owner_pn, '[0-9]+$', '') AS unique_part_name FROM warehouse";
                 ?>
                 <label for="owner-part-key">Owner P/N</label>
+                <?php if (!$bom_item || _empty($bom_item->owner_pn, true)){ ?>
                 <div class="input-group">
                     <select name="owner-pn-list" id="owner-pn-list" class="form-select" data-title="<?= $t ?>" required>
                         <?php foreach (NTI_PN as $val => $name): ?>
-                            <?php //foreach (R::getCol($query) as $name): ?>
                             <option value="<?= $val ?>"><?= $name ?></option>
                         <?php endforeach; ?>
                     </select>
@@ -247,33 +265,49 @@ DisplayMessage($args ?? null);
                         <label for="owner-pn-input" class="text-primary">Write custom P/N</label>
                         <input type="text" name="owner-pn-input" id="owner-pn-input" class="input" placeholder="Enter custom P/N"/>
                     </div>
+                    <?php } else { ?>
+                        <div class="mt-2 input-group" id="custom-pn-box">
+                            <label for="owner-pn-input" class="text-primary">Write custom P/N</label>
+                            <input type="text" name="owner-pn-input" id="owner-pn-input" class="input" value="<?= $bom_item->owner_pn ?>"/>
+                        </div>
+                    <?php } ?>
                 </div>
 
                 <label for="quantity">Quantity</label>
                 <input type="number" placeholder="QTY"
                        name="quantity" id="quantity" class="input"
-                       value="<?= set_value('quantity'); ?>" required/>
+                       value="<?= set_value('quantity', $qty ?? ''); ?>" required/>
+
                 <label for="storage-box">Storage Box</label>
                 <input type="number" placeholder="Storage box"
                        name="storage-box" id="storage-box" class="input"
                        value="<?= set_value('storage-box'); ?>" required/>
+
                 <label for="storage-shelf">Storage Shelf</label>
                 <input type="text" placeholder="Storage shelf"
                        name="storage-shelf" id="storage-shelf" class="input"
                        value="<?= set_value('storage-shelf'); ?>" required/>
 
-                <!--             invoice - lot data -->
+                <!-- i consignment =  invoice - lot data -->
                 <label for="manufactured-date">Manufactured Date</label>
                 <input type="datetime-local" placeholder="MF date"
                        name="manufactured-date" id="manufactured-date" class="input"
                        value="<?= set_value('manufactured-date', date('Y-m-d H:i')); ?>" required/>
+
                 <label for="part-lot">Lot</label>
                 <input type="text" placeholder="Lot"
                        name="part-lot" id="part-lot" value="<?= set_value('part-lot'); ?>" class="input"/>
 
+                <label for="consignment">Consignment document number</label>
+                <input type="text" placeholder="Consignment document number"
+                       name="consignment" id="consignment" value="<?= set_value('consignment', $consignment ?? ''); ?>"
+                       class="input" required/>
+
                 <label for="delivery_note">Delivery Note</label>
-                <input type="text" placeholder="Delivery Note [ by default value is 'base flooding' ]"
-                       name="delivery_note" id="delivery_note" value="<?= set_value('delivery_note'); ?>" class="input" required/>
+                <?php $note = _if(isset($_GET['pid']), "For Project ID: {$pid} and Order ID: {$orid}", ''); ?>
+                <input type="text" placeholder="Delivery Note optional"
+                       name="delivery_note" id="delivery_note" value="<?= set_value('delivery_note', $note); ?>"
+                       class="input"/>
 
                 <label for="supplier">Supplier</label>
                 <input type="text" placeholder="Supplier" class="input searchThis" data-request="supplier"

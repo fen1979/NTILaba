@@ -299,9 +299,13 @@ DisplayMessage($args ?? null);
                        name="part-lot" id="part-lot" value="<?= $lot->lot ?? '' ?>" class="input"/>
 
                 <?php if ($pageMode != 'edit') { ?>
+                    <label for="consignment">Consignment document number <b class="text-danger">*</b></label>
+                    <input type="text" placeholder="Delivery note"
+                           name="consignment" id="consignment" value="<?= $lot['consignment'] ?>" class="input" required/>
+
                     <label for="delivery_note">Delivery note <b class="text-danger">*</b></label>
                     <input type="text" placeholder="Delivery note"
-                           name="delivery_note" id="delivery_note" value="<?= $lot['delivery_note'] ?>" class="input" required/>
+                           name="delivery_note" id="delivery_note" value="<?= $lot['delivery_note'] ?>" class="input"/>
                 <?php } ?>
 
                 <label for="supplier">Supplier</label>

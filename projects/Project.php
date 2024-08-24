@@ -1,7 +1,7 @@
 <?php
 require 'warehouse/WareHouse.php';
 
-class ProductionUnit
+class Project
 {
     /* ============================ PROTECTED METHODS =============================== */
     private static function checkPostDataAndConvertToArray($post): array
@@ -129,7 +129,7 @@ class ProductionUnit
     private static function changeProjectName($id, $newName): array
     {
         // Загрузка проекта
-        $project = R::load(PRODUCT_UNIT, $id);
+        $project = R::load(PROJECTS, $id);
         $orders = R::findAll(ORDERS, 'project_name = ?', [$project->projectname]);
 
         // изменяем имена проектов в заказах как старых так и новых
@@ -195,7 +195,7 @@ class ProductionUnit
      * @return array|string[]
      * @throws //\RedBeanPHP\RedException\SQL
      */
-    public static function createNewProductionUnit($post, $user, $files = null): array
+    public static function createNewProject($post, $user, $files = null): array
     {
         $log_details = '';
         /* Получаем данные из формы*/
@@ -219,7 +219,7 @@ class ProductionUnit
 
         $log_details .= '<br> folders for project creted';
 
-        $project = R::dispense(PRODUCT_UNIT);
+        $project = R::dispense(PROJECTS);
         $project->projectname = $projectName;
         $project->priority = $post['priorityMakat'] ?? '0';
         $project->headpay = $post['headPay'] ?? '0';
@@ -270,7 +270,7 @@ class ProductionUnit
             }
 
         } else {
-            $args[] = ['color' => 'warning', 'info' => 'ProductionUnit documentation not added!'];
+            $args[] = ['color' => 'warning', 'info' => 'Project documentation not added!'];
         }
 
         // сохраняем данные в БД и формируем обратные данные для возврата на страницу создания заказа
@@ -283,7 +283,7 @@ class ProductionUnit
         $log_details .= "<br> Data: $customerName, $projectName, Rev-$vers";
 
         /* [     LOGS FOR THIS ACTION     ] */
-        $details = "ProductionUnit id:$id,| $log_details";
+        $details = "Project id:$id,| $log_details";
         if (!logAction($user['user_name'], 'CREATION', OBJECT_TYPE[3], $details)) {
             $args = ['info' => 'Log creation failed.', 'color' => 'danger'];
         }
@@ -319,13 +319,13 @@ class ProductionUnit
         $changNameNeeded = false;
 
         /* заполняем таблицу в БД и создаем логи действий */
-        $project = R::load(PRODUCT_UNIT, $post['projectid']);
+        $project = R::load(PROJECTS, $post['projectid']);
 
         // change folders name and path names in DB
         if ($project->projectname != $projectName) {
             $changNameNeeded = true;
         } else {
-            $log_details .= "<br> ProductionUnit name not Changed:  $projectName";
+            $log_details .= "<br> Project name not Changed:  $projectName";
         }
 
         $log_details .= "<br> Priority Before: $project->priority -> After  $priorityMakat";
@@ -395,12 +395,12 @@ class ProductionUnit
         // if name changed than changing folders and path names
         if ($changNameNeeded) {
             $args[] = self::changeProjectName($project->id, $projectName);
-            $log_details .= "<br> ProductionUnit Name Before: $project->projectname -> After:  $projectName";
+            $log_details .= "<br> Project Name Before: $project->projectname -> After:  $projectName";
         }
         $args[] = ['color' => 'success', 'info' => $log_details];
         $args['hide'] = 'manual';
         /* [     LOGS FOR THIS ACTION     ] */
-        $details = "ProductionUnit id:$id,| $log_details";
+        $details = "Project id:$id,| $log_details";
         if (!logAction($user['user_name'], 'EDITING', OBJECT_TYPE[3], $details)) {
             $args[] = ['info' => 'Log creation failed.', 'color' => 'danger'];
         }
@@ -418,9 +418,9 @@ class ProductionUnit
     public static function createProjectBomItem($post, $user, $project_id): array
     {
         $post = self::checkPostDataAndConvertToArray($post);
-        $project = R::load(PRODUCT_UNIT, $project_id);
+        $project = R::load(PROJECTS, $project_id);
 
-        $partList = R::dispense(UNITS_BOM);
+        $partList = R::dispense(PROJECT_BOM);
         $partList->customerid = $post['owner_id'];  // customer id hidden val
         $partList->sku = $post['sku'];  // sku makat
         $partList->part_name = $post['part_name'];  // part name
@@ -472,7 +472,7 @@ class ProductionUnit
      */
     public static function importProjectBomFromFile($files, $post, $user, $project_id): array
     {
-        $project = R::load(PRODUCT_UNIT, $project_id);
+        $project = R::load(PROJECTS, $project_id);
         // converting post to assoc array
         $fieldsMapping = [];
         foreach ($post as $key => $name) {
@@ -512,7 +512,7 @@ class ProductionUnit
                             //i сделать построчную проверку переменных по manufacture_pn и qty если номер тот же то пюсуем qty к тому что есть
                             //i а если manufacture_pn отличается то вносим как новый элемент
 
-                            $goods = R::dispense(UNITS_BOM);
+                            $goods = R::dispense(PROJECT_BOM);
                             $goods->sku = (int)$rowData['sku'] ?? 0;
                             $goods->part_name = $rowData['part_name'] ?? '';
                             $goods->part_value = $rowData['part_value'] ?? '';
@@ -582,7 +582,7 @@ class ProductionUnit
     public static function updateProjectBomItem($post, $user, $project_id, $item_id): array
     {
         $post = self::checkPostDataAndConvertToArray($post);
-        $item = R::load(UNITS_BOM, $item_id);
+        $item = R::load(PROJECT_BOM, $item_id);
         $item->sku = $post['sku'];  // sku makat
         $item->part_name = $post['part_name'];  // part name
         $item->part_value = $post['part_value'];  // part value
@@ -619,12 +619,12 @@ class ProductionUnit
     {
         $post = self::checkPostDataAndConvertToArray($post);
         if (checkPassword($post['password'], true, $user)) {
-            $it = R::load(UNITS_BOM, $post['itemId']);
-            $details = 'Item ID=' . $it->id . ', Deleted from ProductionUnit ID=' . $it->projects_id . '<br>';
+            $it = R::load(PROJECT_BOM, $post['itemId']);
+            $details = 'Item ID=' . $it->id . ', Deleted from Project ID=' . $it->projects_id . '<br>';
             $details .= 'Item bla bla bla add some description letter';
             $res[] = ['info' => 'Item deleted!', 'color' => 'success'];
 
-            $bomid = Undo::StoreDeletedRecord(UNITS_BOM, $it->id);
+            $bomid = Undo::StoreDeletedRecord(PROJECT_BOM, $it->id);
             $url = '<a href="/check_part_list?undo=true&bomid=' . $bomid . '&pid=' . $it->projects_id . '" class="btn btn-outline-dark fs-5">Undo Delete Item</a>';
             $res[] = ['info' => $url, 'color' => 'dark'];
 
@@ -652,15 +652,15 @@ class ProductionUnit
     {
         $log_details = '';
         $res = [];
-        /* ProductionUnit archivation */
+        /* Project archivation */
         if (isset($post['archive'])) {
             if (checkPassword(_E($post['password']))) {
                 $projectid = _E($post['projectid']);
-                $project = R::load(PRODUCT_UNIT, $projectid);
+                $project = R::load(PROJECTS, $projectid);
                 $project->archivation = ARCHIVATED; // in archive = 0
                 R::store($project);
-                $res = ['info' => "ProductionUnit added to archive successfully!", 'color' => 'success'];
-                $log_details = "ProductionUnit name: $project->projectname was added to archive.<br>
+                $res = ['info' => "Project added to archive successfully!", 'color' => 'success'];
+                $log_details = "Project name: $project->projectname was added to archive.<br>
                                 For extract project from archive go to 'SETTINGS/PROJECTS' 
                                 and find project by ID: $project->id";
             } else {
@@ -668,15 +668,15 @@ class ProductionUnit
             }
         }
 
-        /* ProductionUnit extraction */
+        /* Project extraction */
         if (isset($post['archive-extract'])) {
             if (checkPassword(_E($post['password']))) {
                 $projectid = _E($post['projectid']);
-                $project = R::load(PRODUCT_UNIT, $projectid);
+                $project = R::load(PROJECTS, $projectid);
                 $project->archivation = !ARCHIVATED; // not in archive = 1
                 R::store($project);
-                $res = ['info' => "ProductionUnit extracted from archive successfully!", 'color' => 'success'];
-                $log_details = "ProductionUnit name: $project->projectname was extracted from archive.";
+                $res = ['info' => "Project extracted from archive successfully!", 'color' => 'success'];
+                $log_details = "Project name: $project->projectname was extracted from archive.";
             } else {
                 $res = ['info' => "Incorrect password writed!", 'color' => 'danger'];
             }
@@ -698,7 +698,7 @@ class ProductionUnit
     {
         if (checkPassword(_E($post['password']))) {
             $projectid = _E($post['projectid']);
-            $pTmp = $project = R::load(PRODUCT_UNIT, $projectid);
+            $pTmp = $project = R::load(PROJECTS, $projectid);
             $projectData = R::find(PROJECT_STEPS, "projects_id LIKE ?", [$projectid]);
             $history = R::find(HISTORY, "projects_id LIKE ?", [$projectid]);
 
@@ -729,7 +729,7 @@ class ProductionUnit
                 /* удаляем папку */
                 rmdir($projectdir);
 
-                $log_details = "ProductionUnit name: {$pTmp['projectname']}, Customer name: {$pTmp['customername']}<br>";
+                $log_details = "Project name: {$pTmp['projectname']}, Customer name: {$pTmp['customername']}<br>";
 
                 /* удаляем все данные из БД */
                 R::trashAll($projectData);
@@ -737,7 +737,7 @@ class ProductionUnit
                 R::trash($project);
             }
 
-            $res = ['info' => "ProductionUnit deleted successfully!", 'color' => 'success'];
+            $res = ['info' => "Project deleted successfully!", 'color' => 'success'];
 
             if (!logAction($user['user_name'], 'DELETING', OBJECT_TYPE[3], $log_details)) {
                 $res = ['info' => 'Log creation failed.', 'color' => 'danger'];
@@ -762,7 +762,7 @@ class ProductionUnit
     public static function addNewStepToProject($post, $user, $files, $project_id): array
     {
         $uploadDir = TEMP_FOLDER;
-        $project = R::load(PRODUCT_UNIT, $project_id);
+        $project = R::load(PROJECTS, $project_id);
         $projectDir = $project->projectdir;
         /* Получаем данные из формы */
         $post = self::checkPostDataAndConvertToArray($post);
@@ -896,7 +896,7 @@ class ProductionUnit
         }
 
         /* [     LOGS FOR THIS ACTION     ] */
-        $details = "ProductionUnit id:$id,| $log_details";
+        $details = "Project id:$id,| $log_details";
         if (!logAction($user['user_name'], 'CREATING', OBJECT_TYPE[4], $details)) {
             $displayInfo .= '<br>Log creation failed.';
             $args[] = ['info' => $displayInfo, 'color' => 'danger'];
@@ -916,7 +916,7 @@ class ProductionUnit
     {
         $post = self::checkPostDataAndConvertToArray($post);
         $toHistory = $stepToChange = R::load(PROJECT_STEPS, $step_id);
-        $project = R::load(PRODUCT_UNIT, $stepToChange->projects_id);
+        $project = R::load(PROJECTS, $stepToChange->projects_id);
         $project_id = $stepToChange->projects_id;
         $res = $log_details = array();
         /* 1=validation, 2=step num, 3=revision, 4=decription, 5=route act, 6=tool, 7=image, 8=video */
@@ -1050,7 +1050,7 @@ class ProductionUnit
     private static function changeImageFile($files, $step_id, $project_id): array
     {
         $step = R::load(PROJECT_STEPS, $step_id);
-        $project = R::load(PRODUCT_UNIT, $project_id);
+        $project = R::load(PROJECTS, $project_id);
         $res = $path = [];
         $file = $files['imageFile'];
         $pathToImage = $step->image;
@@ -1129,7 +1129,7 @@ class ProductionUnit
     private static function changeVideoFile($files, $step_id, $project_id): array
     {
         $step = R::load(PROJECT_STEPS, $step_id);
-        $project = R::load(PRODUCT_UNIT, $project_id);
+        $project = R::load(PROJECTS, $project_id);
         $file = $files['videoFile'];
         $pathToVideo = $step->video;
         $res = $path = [];
@@ -1184,7 +1184,7 @@ class ProductionUnit
         // создаем галлерею на главной странице
         $query = "UPDATE " . PROJECT_STEPS . " SET front_pic = ? WHERE id = ?";
         R::exec($query, [$post['front-picture'] ?? 0, $step_id]);
-        return ['info' => 'ProductionUnit front image changed successfuly', 'color' => 'success', 'log' => 'front-picture'];
+        return ['info' => 'Project front image changed successfuly', 'color' => 'success', 'log' => 'front-picture'];
     }
 
     private static function changePartNumber($step_id, $post): array
@@ -1254,7 +1254,7 @@ class ProductionUnit
 
         $args = ['info' => 'History and Log saved Successfully', 'color' => 'success'];
         /* [     LOGS FOR THIS ACTION     ] */
-        $details = "ProductionUnit name: $project->projectname, Step N: $step->step, updated, <br>";
+        $details = "Project name: $project->projectname, Step N: $step->step, updated, <br>";
         $details .= "Changes in: [" . implode(', ', $changes) . ']';
         $details .= "<br>Press icon eye on step editing page.";
         if (!logAction($user['user_name'], 'UPDATING', OBJECT_TYPE[4], $details)) {
@@ -1274,7 +1274,7 @@ class ProductionUnit
     public static function deleteProjectStep($post, $user): array
     {
         if (checkPassword(_E($post['password']))) {
-            $project = R::load(PRODUCT_UNIT, _E($post['projectid']));
+            $project = R::load(PROJECTS, _E($post['projectid']));
             $step_id = _E($post['stepId']);
             $tmpStep = $step = R::load(PROJECT_STEPS, $step_id);
             $history = R::find(HISTORY, "steps_id = ?", [$step_id]);
@@ -1318,7 +1318,7 @@ class ProductionUnit
 
                 } else {
                     /* не найдена папка проекта  */
-                    $args = ['info' => "ProductionUnit folder not found, step isn`t deleted!", 'color' => 'danger'];
+                    $args = ['info' => "Project folder not found, step isn`t deleted!", 'color' => 'danger'];
                 }
             } else {
                 /* не найден шаг в БД */
@@ -1329,7 +1329,7 @@ class ProductionUnit
             $args = ['info' => "Incorrect password writed!", 'color' => 'danger'];
         }
 
-        $details = 'ProductionUnit name: ' . $project->projectname . ', Step number: ' . $tmpStep->step . '<br>';
+        $details = 'Project name: ' . $project->projectname . ', Step number: ' . $tmpStep->step . '<br>';
         $details .= 'Step deleted by administrator or not :)<br>';
         if (!logAction($user['user_name'], 'DELETING', OBJECT_TYPE[4], $details)) {
             $args = ['info' => 'Log creation failed', 'color' => 'danger'];

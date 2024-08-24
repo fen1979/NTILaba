@@ -32,6 +32,31 @@ document.addEventListener("DOMContentLoaded", function () {
     // Обработчик клика по результату поиска клиента
     dom.in("click", "#search-responce tr.customer", handleCustomerSearchClick);
 
+    // Обработка клика по результату поиска project
+    dom.in("click", "#search-responce tr.project", function () {
+        if (this.parentElement.dataset.info) {
+            // Извлекаем и парсим данные из атрибута data-info
+            let info = JSON.parse(this.parentElement.dataset.info);
+
+            const href = "/new_order?pid=" + info.projectID + "&nord";
+
+            // Используем confirm для подтверждения
+            const userConfirmed = confirm("Project already exists. You will be redirected to the order creation page. Do you want to proceed?");
+
+            if (userConfirmed) {
+                // Если пользователь подтвердил, перенаправляем на новую страницу
+                window.location.href = href;
+            } else {
+                // Если пользователь отказался, очищаем поля ввода
+                dom.e("#projectName").value = "";
+                dom.e("#projectRevision").value = "";
+
+                // Очищаем результаты поиска
+                dom.hide("#searchModal");
+            }
+        }
+    });
+
     // Обработчик изменения списка работников
     $('#workers .form-check-input').on('change', handleWorkersChange);
 
@@ -70,7 +95,7 @@ function handlePDFInputChange() {
     if (fileCount > 0) {
         dom.e("#pickFile").textContent = this.files[0].name;
     } else {
-        dom.e("#pickFile").textContent = "Upload ProductionUnit Documentation (PDF Only)";
+        dom.e("#pickFile").textContent = "Upload Project Documentation (PDF Only)";
     }
 }
 
@@ -142,9 +167,9 @@ function validateForm() {
     });
 
     // Проверка уникальности имени юнита
-    let unit_name = dom.e("#pn").value.trim();
-    let unit_revision = dom.e("#pr").value.trim();
-    let mode = dom.e("#pn").dataset.mode;
+    let unit_name = dom.e("#projectName").value.trim();
+    let unit_revision = dom.e("#projectRevision").value.trim();
+    let mode = dom.e("#projectName").dataset.mode;
 
     if (unit_name.length >= 5 && mode !== "editmode") {
         fetch("get_data", {
@@ -157,20 +182,20 @@ function validateForm() {
                 is_unit_name = !data.exists;
                 unit_id = data.unit_id;
                 if (data.exists) {
-                    dom.addClass('#pn', 'danger');
-                    dom.removeClass('#pn', 'success');
-                    dom.e("#pn_label").innerHTML = "Production Unit Name <b class='danger blinking p-2'>This name is exist!</b> &nbsp;";
+                    dom.addClass('#projectName', 'danger');
+                    dom.removeClass('#projectName', 'success');
+                    dom.e("#project_label").innerHTML = "Project Name <b class='danger blinking p-2'>This name is exist!</b> &nbsp;";
                     // Создаем новый элемент <a>
                     let link = document.createElement("a");
                     // Устанавливаем атрибуты href и текстовое содержимое для ссылки
                     link.href = "/new_order?pid=" + unit_id + "&nord";
-                    link.textContent = "Create order for this Production Unit?";
+                    link.textContent = "Create order for this Project?";
                     link.classList.add("fs-4");
-                    dom.e("#pn_label").appendChild(link);
+                    dom.e("#project_label").appendChild(link);
                 } else {
-                    dom.addClass('#pn', 'success');
-                    dom.removeClass('#pn', 'danger');
-                    dom.e("#pn_label").textContent = "Production Unit Name";
+                    dom.addClass('#projectName', 'success');
+                    dom.removeClass('#projectName', 'danger');
+                    dom.e("#project_label").textContent = "Project Name";
                 }
                 updateSubmitButtonState(isValid && is_unit_name);
             })

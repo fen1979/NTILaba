@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
             dom.e("#pickFile").textContent = this.files[0].name;
         } else {
             // Если файлы не выбраны, возвращаем базовый текст
-            dom.e("#pickFile").textContent = "Upload ProductionUnit Documentation (PDF Only)";
+            dom.e("#pickFile").textContent = "Upload Project Documentation (PDF Only)";
         }
     });
     // Использование функции dom.in для делегирования событий клика на элементы .tools-row
@@ -106,18 +106,18 @@ document.addEventListener("DOMContentLoaded", function () {
                         if (data.exists) {
                             dom.addClass('#pn', 'danger');
                             dom.removeClass('#pn', 'success');
-                            dom.e("#pn_label").innerHTML = "Production Unit Name <b class='danger blinking p-2'>This name is exist!</b>";
+                            dom.e("#pn_label").innerHTML = "Project Name <b class='danger blinking p-2'>This name is exist!</b>";
                             // Создаем новый элемент <a>
                             let link = document.createElement("a");
                             // Устанавливаем атрибуты href и текстовое содержимое для ссылки
                             link.href = "/new_order?pid=" + unit_id + "&nord";
-                            link.textContent = "Create order for this Production Unit?";
+                            link.textContent = "Create order for this Project?";
                             link.classList.add("fs-4");
                             dom.e("#pn_label").appendChild(link);
                         } else {
                             dom.addClass('#pn', 'success');
                             dom.removeClass('#pn', 'danger');
-                            dom.e("#pn_label").textContent = "Production Unit Name";
+                            dom.e("#pn_label").textContent = "Project Name";
                         }
                         // Проверка минимума чекбоксов и активация кнопки
                         // enableSubmitButton(requiredFieldsFilled && projectNameValid && checkedCount >= 3);

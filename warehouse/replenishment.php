@@ -132,7 +132,6 @@ DisplayMessage($args ?? null);
                     <div class="input-group">
                         <select name="owner-pn-list" id="owner-pn-list" class="form-select" data-title="<?= $t ?>" required>
                             <?php foreach (NTI_PN as $val => $name): ?>
-                                <?php //foreach (R::getCol($query) as $name): ?>
                                 <option value="<?= $val ?>"><?= $name ?></option>
                             <?php endforeach; ?>
                         </select>
@@ -146,9 +145,15 @@ DisplayMessage($args ?? null);
                     <input type="number" placeholder="QTY"
                            name="quantity" id="quantity" class="input"
                            value="<?= set_value('quantity'); ?>" required/>
-                    <label for="invoice">Invoice</label>
-                    <input type="text" placeholder="Invoice"
-                           name="invoice" id="invoice" value="<?= set_value('invoice', 'base flooding'); ?>" class="input" required/>
+
+                    <label for="consignment">Consignment document number</label>
+                    <input type="text" placeholder="consignment"
+                           name="consignment" id="consignment" value="<?= set_value('consignment'); ?>" class="input" required/>
+
+                    <label for="delivery_note">Delivery note</label>
+                    <input type="text" placeholder="Delivery note [optional]"
+                           name="delivery_note" id="delivery_note" value="<?= set_value('delivery_note'); ?>" class="input"/>
+
                     <label for="supplier">Supplier</label>
                     <input type="text" placeholder="Supplier" class="input searchThis" data-request="supplier"
                            name="supplier" id="supplier" value="<?= set_value('supplier'); ?>"/>

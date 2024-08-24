@@ -1,5 +1,5 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION,'userBean');
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 include_once 'Orders.php';
 
 /*
@@ -28,14 +28,13 @@ include_once 'Orders.php';
  *
  * */
 $page = 'order_bom';
-$user = $_SESSION['userBean'];
 $order = $project = $projectBom = $client = $settings = null;
 $viewButtons = $emptyProjectBom = false;
 /* выборка данных из БД для вывода пользователю */
 if (isset($_GET['orid']) && isset($_GET['pid'])) {
     $order = R::load(ORDERS, _E($_GET['orid']));
-    $project = R::load(PRODUCT_UNIT, _E($_GET['pid']));
-    $projectBom = R::findAll(UNITS_BOM, 'projects_id = ?', [_E($_GET['pid'])]);
+    $project = R::load(PROJECTS, _E($_GET['pid']));
+    $projectBom = R::findAll(PROJECT_BOM, 'projects_id = ?', [_E($_GET['pid'])]);
     $client = R::load(CLIENTS, _E($order->customers_id));
     // приходим из /order-details
     if (isset($_GET['tab'])) {
@@ -45,7 +44,7 @@ if (isset($_GET['orid']) && isset($_GET['pid'])) {
     /* настройки вывода от пользователя */
     if ($user) {
         foreach ($user['ownSettingsList'] as $item) {
-            if (isset($item['table_name']) && $item['table_name'] == UNITS_BOM) {
+            if (isset($item['table_name']) && $item['table_name'] == PROJECT_BOM) {
                 $settings = json_decode($item['setup']);
                 break;
             }
@@ -63,8 +62,7 @@ if (isset($_POST['approved-for-work'])) {
     $order = R::load(ORDERS, _E($_POST['approved-for-work']));
     $order->pre_assy = 1; // Partial Assembly Allowed
     R::store($order);
-    header("Location: /order/preview?orid={$_GET['orid']}&tab=tab1");
-    exit();
+    redirectTo("order/preview?orid={$_GET['orid']}&tab=tab1");
 }
 
 /* добавка части к ВОМ и составление таблицы материалов которые есть для ЗАКАЗ НАРЯДА */
@@ -76,13 +74,15 @@ if (isset($_POST['import_qty']) && isset($_POST['item_id'])) {
     $item_id = _E($_POST['item_id']);
     $args = WareHouse::updateQuantityForItem($_POST, $user);
     if ($args['args']) {
-        $invoice = "invoice={$_POST['invoice']}";
+        $consignment = "consignment={$_POST['consignment']}";
         $item_id = "item-id={$_POST['item_id']}";
         $qty = "qty={$_POST['import_qty']}";
         $backLink = "orid={$_GET['orid']}&pid={$_GET['pid']}";
-        header("Location: /arrivals?new-item&$invoice&$item_id&$qty&$backLink");
+        redirectTo("arrivals?new-item&$consignment&$item_id&$qty&$backLink");
     }
 }
+
+$settings = getUserSettings($user, PROJECT_BOM);
 ?>
 <!doctype html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
@@ -100,7 +100,6 @@ if (isset($_POST['import_qty']) && isset($_POST['item_id'])) {
             width: 100%;
             border-collapse: collapse;
             margin-top: .8em;
-            /*white-space: nowrap;*/
         }
 
         table thead tr th {
@@ -116,7 +115,7 @@ if (isset($_POST['import_qty']) && isset($_POST['item_id'])) {
         td {
             cursor: pointer;
             padding-left: 3px;
-            text-align: left;
+            text-align: center;
             vertical-align: middle;
             word-break: break-word; /* Обеспечивает перенос слов внутри ячейки */
         }
@@ -146,10 +145,6 @@ if (isset($_POST['import_qty']) && isset($_POST['item_id'])) {
 <body>
 <?php
 // NAVIGATION BAR
-//$navBarData['title'] = 'Warehouse Information';
-//$navBarData['active_btn'] = Y['LOG'];
-//$navBarData['page_tab'] = $_GET['page'] ?? null;
-//$navBarData['record_id'] = null;
 $navBarData['user'] = $user;
 $navBarData['page_name'] = $page;
 NavBarContent($navBarData);
@@ -206,40 +201,32 @@ DisplayMessage($args ?? null);
         <table id="itemTable">
             <!-- header -->
             <thead>
-            <tr>
-                <th class="sortable" onclick="sortTable(0)"><i class="bi bi-filter"></i> Note</th>
-                <th>Description</th>
-                <th class="sortable" onclick="sortTable(2)"><i class="bi bi-filter"></i> Owner P/N</th>
-                <th>Manufacture P/N</th>
-                <th class="sortable" onclick="sortNum(4)"><i class="bi bi-filter"></i> Actual QTY</th>
-                <th class="sortable" onclick="sortNum(5)"><i class="bi bi-filter"></i> Required QTY</th>
-                <th>InvoiceID and Incoming QTY <b class="text-danger">Required Fields!!!</b></th>
+            <tr class="border-bottom info-1" style="white-space: nowrap">
+                <?= CreateTableHeaderUsingUserSettings($settings, 'itemTable', PROJECT_BOM,
+                    '<th>Actual QTY</th>' .
+                    '<th>Consignment ID and Incoming QTY <b class="text-danger">Required Fields!!!</b></th>') ?>
             </tr>
             </thead>
             <!-- table -->
-<!--   TODO         СДЕЛАТЬ НОРМАЛЬНЫЙ ВЫВОД ДЛЯ БОМА И ЕЩЕ ЧТО ТО -->
             <tbody>
             <?php
-            if ($projectBom) {
+            if ($projectBom && $settings) {
                 foreach ($projectBom as $line) {
                     $required_qty = $line['amount'] * $order['order_amount'];
-                    $actual_qty = WareHouse::GetActualQtyForItem($line['customerid'], $line['item_id']);
+                    $actual_qty = WareHouse::GetActualQtyForItem($line['customerid'], $line['item_id'] ?? '');
                     if ($actual_qty > $required_qty) {
                         $color = 'success';
                     } elseif ($actual_qty < $required_qty) {
                         $color = 'danger';
-                    }
-                    ?>
+                    } ?>
                     <tr class="<?= $color ?> border-bottom">
-                        <td><?= $line['notes']; ?></td>
-                        <td><?= $line['description']; ?></td>
-                        <td><?= $line['owner_pn']; ?></td>
-                        <td><?= $line['manufacture_pn']; ?></td>
+                        <?php foreach ($settings as $item => $_) {
+                            echo "<td>$line[$item]</td>";
+                        } ?>
                         <td><?= $actual_qty ?? 0; ?></td>
-                        <td><?= $required_qty; ?></td>
                         <td>
                             <form action="" method="post">
-                                <input type="text" name="invoice" value="<?= set_value('invoice') ?>" placeholder="Write invoice ID" required>
+                                <input type="text" name="consignment" value="<?= set_value('consignment') ?>" placeholder="Write consignment ID" required>
                                 <input type="number" name="import_qty" required placeholder="Write Quantity">
                                 <button type="submit" class="btn btn-outline-primary" name="item_id" value="<?= $line['id']; ?>">Add</button>
                             </form>
@@ -268,5 +255,11 @@ DisplayMessage($args ?? null);
 
 </main>
 <?php ScriptContent($page); ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // скрываем столбцы в которых нет данных
+        dom.hideEmptyColumnsInTable("#itemTable");
+    });
+</script>
 </body>
 </html>

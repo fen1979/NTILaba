@@ -9,7 +9,7 @@ $item = null;
 // tab by default
 $A_T = $_GET['tab'] ?? 'tab1'; // Active Tab
 
-// updating information in to table warehouse, invoice, reserve, movement
+// updating information in to table warehouse, consignment, reserve, movement
 if (isset($_POST['item_id']) && isset($_POST['table-name'])) {
     $args = WareHouse::updateRelatedTables($_POST, $user);
 }
@@ -533,7 +533,7 @@ DisplayMessage($args ?? null);
 </div>
 
 <?php
-// если пользователю разрешено редактировать данные таблиц warehouse, invoice, reserve, movements
+// если пользователю разрешено редактировать данные таблиц warehouse, consignment, reserve, movements
 //  присвоение данного статуса требует повторной авторизации пользователя!!!
 if ($user['can_change_data']) {
     echo '<div id="isUserCanChangeData" class="hidden">approved</div>';

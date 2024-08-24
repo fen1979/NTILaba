@@ -36,14 +36,14 @@ $r->addRout('/order_pdf', 'pdfOut/order-details.php');
 // спец страница для автоматического ввода данных
 $r->addRout('/pioi', 'orders/add-po.php');
 
-// production unit pages
+// projects pages
 $r->addRout('/project', 'product-units-view.php');
-$r->addRout('/new_project', 'projects/add-unit.php');
-$r->addRout('/edit_project', 'projects/edit-unit.php');
+$r->addRout('/new_project', 'projects/create-project.php');
+$r->addRout('/edit_project', 'projects/edit-project.php');
 $r->addRout('/add_step', 'projects/add-step.php');
 $r->addRout('/edit_step', 'projects/edit-step.php');
 $r->addRout('/step_history', 'projects/history-view.php');
-$r->addRout('/check_part_list', 'projects/unit-bom.php');
+$r->addRout('/check_part_list', 'projects/project-bom.php');
 
 // admin-panel pages
 $r->addRout('/setup', 'admin-panel.php');
@@ -61,6 +61,7 @@ $r->addRout('/movement-log', 'warehouse/wh-log.php');
 $r->addRout('/arrivals', 'warehouse/arrivals.php');
 $r->addRout('/edit-item', 'warehouse/edit-item.php');
 $r->addRout('/replenishment', 'warehouse/replenishment.php');
+$r->addRout('/po-replenishment', 'warehouse/po-arrivals.php');
 
 // wiki storage page
 $r->addRout('/wiki', 'wiki.php');
@@ -72,6 +73,8 @@ $r->addRout('/docs', 'public/docs/docs.php');
 $r->addRout('/assy_flow_pdf', 'pdfOut/assyStepFlow.php');
 // вывод рут карты в ПДФ для заказа
 $r->addRout('/route_card', 'pdfOut/routes.php');
+// вывод таблицы для распечатки приходной накладной
+$r->addRout('/po-arrival-print', 'pdfOut/po-arrivals-table.php');
 // создание БОМ файла на скачивание для проекта/заказа
 $r->addRout('/create_bom', 'orders/order-details.php');
 // Data Base changes listeners use for: Order, Chat

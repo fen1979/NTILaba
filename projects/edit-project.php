@@ -1,6 +1,6 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require_once 'projects/ProductionUnit.php';
+require_once 'projects/Project.php';
 $page = 'edit_project';
 $role = $user['app_role'];
 $_SESSION['editmode'] = $args = $unit_for_view = $projectID = null;
@@ -9,23 +9,23 @@ $_SESSION['editmode'] = $args = $unit_for_view = $projectID = null;
 if (isset($_POST['projectid']) && isset($_POST['password'])) {
     /* adding project to archive */
     if (isset($_POST['archive'])) {
-        $args = ProductionUnit::archiveOrExstractProject($_POST, $_SESSION['userBean']);
+        $args = Project::archiveOrExstractProject($_POST, $_SESSION['userBean']);
     }
     /* удаление проекта и всех его данных включая фотографии и папку проекта */
     if (isset($_POST['delete'])) {
-        $args = ProductionUnit::deleteProject($_POST, $_SESSION['userBean']);
+        $args = Project::deleteProject($_POST, $_SESSION['userBean']);
     }
 }
 
 /* delete one step from table and restruct the table */
 if (isset($_POST['projectid']) && isset($_POST['stepId']) && isset($_POST['delete-step'])) {
-    $args = ProductionUnit::deleteProjectStep($_POST, $user);
+    $args = Project::deleteProjectStep($_POST, $user);
 }
 
 /* вывод проекта для редактирования в режиме админа  и просмотра в режиме пользователя */
 if (isset($_GET['pid']) || isset($_SESSION['projectid'])) {
     $projectID = $_SESSION['projectid'] = $_GET['pid'];
-    $unit_for_view = R::Load(PRODUCT_UNIT, $projectID);
+    $unit_for_view = R::Load(PROJECTS, $projectID);
 }
 // getting unit steps from DB
 $unit_staps = R::find(PROJECT_STEPS, "projects_id LIKE ? ORDER BY CAST(step AS UNSIGNED) ASC", [$unit_for_view->id]);
@@ -235,7 +235,7 @@ DisplayMessage($args);
     </div>
 </div>
 
-
+<!--i old code refresh and delete -->
 <div class="ms-3 me-3 mt-4 hidden">
 
 

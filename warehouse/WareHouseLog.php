@@ -30,7 +30,7 @@ class WareHouseLog
         //  ["id"], ["items_id"], ["owner"]->"{"name":"NTI", "id":""}", ["owner_pn"], ["quantity"], ["storage_box"],
         // ["storage_shelf"], ["storage_state"], ["manufacture_date"], ["fifo"], ["date_in"]
         // $invoiceData
-        //  ["id"], ["items_id"], ["quantity"], ["warehouses_id"], ["lot"], ["invoice"],
+        //  ["id"], ["items_id"], ["quantity"], ["warehouses_id"], ["lot"], ["consignment"],
         // ["supplier"]=>"{"name":"Toshiba Electronic Devices & Storage","id":""}"
         // ["owner"]=> string(23) "{"name":"NTI", "id":""}", ["date_in"]
 
@@ -46,8 +46,8 @@ class WareHouseLog
         $log->warehouse_id = $warehouseData['id']; // идентификатор документа (warehouse).
         $log->warehouse_data = json_encode($warehouseData, JSON_UNESCAPED_UNICODE);
 
-        // invoice
-        $log->invoice_id = $invoiceData['id']; // идентификатор документа (invoice).
+        // consignment
+        $log->invoice_id = $invoiceData['id']; // идентификатор документа (consignment).
         $log->invoice_data = json_encode($invoiceData, JSON_UNESCAPED_UNICODE);
 
         $log->user_id = $user['id']; // идентификатор пользователя
@@ -149,7 +149,7 @@ class WareHouseLog
         R::store($log);
         return ['info' => 'Item was changed successfully', 'color' => 'success'];
         /*
-         * вывод массива из БД yf cnhfybwe
+         * вывод массива из БД на страницу
          *
          * // Преобразование JSON-строки обратно в массив
          * $logData = json_decode($log->items_data, true);
@@ -159,5 +159,27 @@ class WareHouseLog
          * // Доступ к данным после изменений
          * $itemDataAfter = $logData['item_data_after'];
          * */
+    }
+
+    /**
+     * @param $user
+     * @param $logData
+     * @param $item_id
+     * @return string[]
+     * @throws \RedBeanPHP\RedException\SQL
+     */
+    public static function poAirrvalAction($user, $logData, $item_id): array
+    {
+        // Должна записать в лог:
+        $log = R::dispense(WH_LOGS);
+        $log->action = 'PO_ITEM_ADDED'; // тип операции
+        $log->date_in = date('Y-m-d H:i'); // дату и время
+        $log->user_id = $user['id']; // идентификатор пользователя
+        $log->user_name = $user['user_name']; // идентификатор пользователя
+        $log->items_id = $item_id; // идентификатор товара
+        $log->items_data = $logData;
+
+        R::store($log);
+        return ['info' => 'Item was added successfully', 'color' => 'success'];
     }
 }

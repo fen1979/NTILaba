@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
     /* действиe архивировать проект  */
     dom.in("click", ".archive", function () {
         dom.e("#dnProjectID").value = this.dataset.projectid;
-        dom.e("#modal-title").textContent = "Add ProductionUnit to Archive";
+        dom.e("#modal-title").textContent = "Add Project to Archive";
         dom.show("#archive-btn");
         dom.hide("#delete-btn");
         dom.show("#deleteProjectModal", "fast", true);
@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
     /* действиe удалить проект  */
     dom.in("click", ".deleteProjectButton", function () {
         dom.e("#dnProjectID").value = this.dataset.projectid;
-        dom.e("#modal-title").innerHTML = "Delete ProductionUnit<br><b class=\"text-danger\">Please be advised:" +
+        dom.e("#modal-title").innerHTML = "Delete Project<br><b class=\"text-danger\">Please be advised:" +
             "<br>This action is irreversible and requires thorough consideration." +
             "<br>Once initiated, there is no turning back, so weigh your decision carefully.</b>";
         dom.show("#delete-btn");

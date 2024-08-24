@@ -3,7 +3,7 @@ $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 include_once 'Orders.php';
 $page = 'new_order';
 $titleText = 'Order Creation';
-$project = $order = $client = null;
+$project = $order = $client = $result = null;
 $btnSubmit['text'] = 'Create new order';
 $btnSubmit['name'] = 'createOrder';
 
@@ -15,22 +15,22 @@ if (isset($_POST['search-for-storage-box'])) {
 
 /* creating new order */
 if (isset($_POST['createOrder'])) {
-    $project = R::load(PRODUCT_UNIT, _E($_POST['project_id']));
+    $project = R::load(PROJECTS, _E($_POST['project_id']));
     $client = R::load(CLIENTS, _E($_POST['customer_id']));
 
     $_SESSION['info'] = $result = Orders::createOrder($user, $client, $project, $_POST);
-
-    if ($result[0]) {
-        $orderId = $result[1];
-        redirectTo("check_bom?orid=$orderId&pid=$project->id");
-    } else {
+    $orderId = $result[1];
+    if (!$result[0]) {
+//        $orderId = $result[1];
+//        redirectTo("check_bom?orid=$orderId&pid=$project->id");
+//    } else {
         $result = ['color' => 'danger', 'info' => 'Can not write log information^ '];
     }
 }
 
 /* TODO updating order information ?????? разобратся где оно берется! да я забыл поэтому и записываю */
 if (isset($_POST['editOrder'])) {
-    $project = R::load(PRODUCT_UNIT, _E($_POST['project_id']));
+    $project = R::load(PROJECTS, _E($_POST['project_id']));
     $client = R::load(CLIENTS, _E($_POST['customer_id']));
     $order = R::load(ORDERS, _E($_POST['order_id']));
 
@@ -42,14 +42,14 @@ if (isset($_POST['editOrder'])) {
 
 // create new order from project list page
 if (isset($_GET['pid']) && isset($_GET['nord'])) {
-    $project = R::load(PRODUCT_UNIT, _E($_GET['pid']));
+    $project = R::load(PROJECTS, _E($_GET['pid']));
     $client = R::findOne(CLIENTS, 'name = ?', [$project->customername]);
 }
 
 // edit order from order view page
 if (isset($_GET['edit-order']) && isset($_GET['pid']) && isset($_GET['orid'])) {
     $order = R::load(ORDERS, _E($_GET['orid']));
-    $project = R::load(PRODUCT_UNIT, $order->projects_id);
+    $project = R::load(PROJECTS, $order->projects_id);
     $client = R::load(CLIENTS, $order->customers_id);
     $btnSubmit['text'] = 'Update this order';
     $btnSubmit['name'] = 'updateOrder';
@@ -120,8 +120,6 @@ if (isset($_POST['updateOrder']) && !empty($_POST['order-id'])) {
 // NAVIGATION BAR
 $navBarData['title'] = $titleText;
 $navBarData['active_btn'] = Y['N_ORDER'];
-//$navBarData['page_tab'] = $_GET['page'] ?? null;
-//$navBarData['record_id'] = null;
 $navBarData['user'] = $user;
 $navBarData['page_name'] = $page;
 NavBarContent($navBarData);
@@ -131,267 +129,299 @@ DisplayMessage($result ?? null);
 ?>
 
 <div class="container mt-4 px-3 py-3 rounded" style="background: aliceblue;">
-    <div class="row">
-        <?php $t = 'To search, click on the field and start writing. Search fields are marked with a search sign'; ?>
-        <div class="col-8"><h3><small><i class="bi bi-info-circle" data-title="<?= $t; ?>"></i> </small>&nbsp; <?= $titleText ?></h3></div>
-        <?php if (!isset($_GET['edit-order'])): ?>
-            <div class="col-4"><h3>Order ID: &nbsp; <?= R::count(ORDERS) + 1; ?></h3></div>
-        <?php else: ?>
-            <div class="col-4"><h3>Order ID: &nbsp; <?= $order->id; ?></h3></div>
-        <?php endif; ?>
-    </div>
-
-    <form id="createOrderForm" action="" method="post" enctype="multipart/form-data" autocomplete="off">
-        <input type="hidden" name="order-id" value="<?= $order['id'] ?? ''; ?>">
-        <input type="hidden" name="changed-fields" id="changedFields">
-        <div class="mb-3">
-            <div class="row g-3 align-items-center">
-                <div class="col-5">
-                    <label for="clientName" class="form-label"><i class="bi bi-search"></i>&nbsp;Customer Name <b class="text-danger">*</b></label>
-                </div>
-                <div class="col-2">
-                    <label for="customer_id" class="form-label">Customer ID</label>
-                </div>
-                <div class="col-3">
-                    <label for="priorityMakat" class="form-label"><i class="bi bi-search"></i>&nbsp;Priority <b class="text-danger">*</b></label>
-                </div>
-                <div class="col-auto"></div>
-            </div>
-
-            <div class="row g-3 align-items-center">
-                <div class="col-5">
-                    <input type="text" class="searchThis form-control" id="clientName" name="customerName" data-request="customer"
-                           value="<?= set_value('customerName', $client->name ?? ''); ?>" required>
-                </div>
-                <div class="col-2">
-                    <input type="text" class="form-control" id="customer_id" name="customer_id"
-                           value="<?= set_value('customer_id', $client->id ?? '0'); ?>" readonly>
-                </div>
-                <div class="col-3">
-                    <input type="text" class="searchThis form-control track-change" id="priorityMakat" name="priority" data-request="priority"
-                           value="<?= set_value('priority', $client->priority ?? '0'); ?>" required data-field-id="priority">
-                </div>
-                <div class="col-auto">
-                    <button type="button" value="create_client?routed-from=create-order" class="url btn btn-outline-primary">Add Customer</button>
-                </div>
-            </div>
+    <?php if ($result == null) { ?>
+        <!-- форма добавления нового заказа -->
+        <div class="row">
+            <?php $t = 'To search, click on the field and start writing. Search fields are marked with a search sign'; ?>
+            <div class="col-8"><h3><small><i class="bi bi-info-circle" data-title="<?= $t; ?>"></i> </small>&nbsp; <?= $titleText ?></h3></div>
+            <?php if (!isset($_GET['edit-order'])): ?>
+                <div class="col-4"><h3>Order ID: &nbsp; <?= R::getCell('SELECT MAX(id) FROM ' . ORDERS) + 1; ?></h3></div>
+            <?php else: ?>
+                <div class="col-4"><h3>Order ID: &nbsp; <?= $order->id; ?></h3></div>
+            <?php endif; ?>
         </div>
 
-        <div class="mb-3">
-            <div class="row g-3 align-items-center">
-                <div class="col-6">
-                    <label for="projectName" class="form-label"><i class="bi bi-search"></i>&nbsp;Project Name <b class="text-danger">*</b></label>
+        <form id="createOrderForm" action="" method="post" enctype="multipart/form-data" autocomplete="off">
+            <input type="hidden" name="order-id" value="<?= $order['id'] ?? ''; ?>">
+            <input type="hidden" name="changed-fields" id="changedFields">
+            <div class="mb-3">
+                <div class="row g-3 align-items-center">
+                    <div class="col-5">
+                        <label for="clientName" class="form-label"><i class="bi bi-search"></i>&nbsp;Customer Name <b class="text-danger">*</b></label>
+                    </div>
+                    <div class="col-2">
+                        <label for="customer_id" class="form-label">Customer ID</label>
+                    </div>
+                    <div class="col-3">
+                        <label for="priorityMakat" class="form-label"><i class="bi bi-search"></i>&nbsp;Priority <b class="text-danger">*</b></label>
+                    </div>
+                    <div class="col-auto"></div>
                 </div>
-                <div class="col-2">
-                    <label for="project_id" class="form-label">Project ID</label>
-                </div>
-                <div class="col-2">
-                    <label for="projectRevision" class="form-label">Project Version</label>
-                </div>
-            </div>
-            <div class="row g-3 align-items-center">
-                <div class="col-6">
-                    <input type="text" class="searchThis form-control" id="projectName" name="projectName" data-request="project"
-                           value="<?= set_value('projectName', $project->projectname ?? ''); ?>" required>
-                </div>
-                <div class="col-2">
-                    <input type="text" class="form-control" id="project_id" name="project_id"
-                           value="<?= set_value('project_id', $project->id ?? '0'); ?>" readonly>
-                </div>
-                <div class="col-2">
-                    <input type="text" class="form-control" id="projectRevision" name="projectRevision" readonly
-                           value="<?= set_value('projectRevision', $project->revision ?? '0'); ?>">
-                </div>
-                <div class="col-auto">
-                    <button type="button" value="new_project?orders" class="url btn btn-outline-primary">Create Project</button>
-                </div>
-            </div>
-        </div>
 
-        <div class="mb-3">
-            <div class="row g-3 align-items-center">
-                <div class="col-2">
-                    <label for="orderAmount" class="form-label">Order Amount <b class="text-danger">*</b></label>
-                </div>
-                <div class="col-2">
-                    <label for="fai_qty" class="form-label">FAI Qty</label>
-                </div>
-                <div class="col-2">
-                    <label for="storageBox" class="form-label">Storage Box <b class="text-danger">*</b></label>
-                </div>
-                <div class="col-2">
-                    <label for="storageShelf" class="form-label">Storage Shelf/Place </label>
-                </div>
-                <div class="col-2">
-                    <label for="date_in" class="form-label">Application date <b class="text-danger">*</b></label>
-                </div>
-                <div class="col-2">
-                    <label for="date_out" class="form-label">Delivery time <b class="text-danger">*</b></label>
+                <div class="row g-3 align-items-center">
+                    <div class="col-5">
+                        <input type="text" class="searchThis form-control" id="clientName" name="customerName" data-request="customer"
+                               value="<?= set_value('customerName', $client->name ?? ''); ?>" required>
+                    </div>
+                    <div class="col-2">
+                        <input type="text" class="form-control" id="customer_id" name="customer_id"
+                               value="<?= set_value('customer_id', $client->id ?? '0'); ?>" readonly>
+                    </div>
+                    <div class="col-3">
+                        <input type="text" class="searchThis form-control track-change" id="priorityMakat" name="priority" data-request="priority"
+                               value="<?= set_value('priority', $client->priority ?? '0'); ?>" required data-field-id="priority">
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" value="create_client?routed-from=create-order" class="url btn btn-outline-primary">Add Customer</button>
+                    </div>
                 </div>
             </div>
 
-            <div class="row g-3 align-items-center">
-                <div class="col-2">
-                    <input type="number" class="form-control track-change" id="orderAmount" name="orderAmount"
-                           value="<?= set_value('orderAmount', $order['order_amount'] ?? '10') ?>" min="1" required data-field-id="qty">
+            <div class="mb-3">
+                <div class="row g-3 align-items-center">
+                    <div class="col-6">
+                        <label for="projectName" class="form-label"><i class="bi bi-search"></i>&nbsp;Project Name <b class="text-danger">*</b></label>
+                    </div>
+                    <div class="col-2">
+                        <label for="project_id" class="form-label">Project ID</label>
+                    </div>
+                    <div class="col-2">
+                        <label for="projectRevision" class="form-label">Project Version</label>
+                    </div>
                 </div>
-                <div class="col-2">
-                    <input type="number" class="form-control track-change" id="fai_qty" name="fai_qty"
-                           value="<?= set_value('fai_qty', $order['fai_qty'] ?? '3') ?>" min="0" data-field-id="fai_qty">
-                </div>
-
-                <div class="col-2">
-                    <input type="text" class="form-control" id="storageBox" name="storageBox"
-                           value="<?= set_value('storageBox', $order['storage_box'] ?? ''); ?>"
-                           placeholder="Field for hand writing" required>
-
-                    <!--                    <input type="number" class="form-control" id="storageBox" name="storageBox" min="1"-->
-                    <!--                           value="--><?php //= set_value('storageBox', $order['storage_box'] ?? ''); ?><!--"-->
-                    <!--                           placeholder="Click here for new number" required>-->
-                </div>
-
-                <div class="col-2">
-                    <input type="text" class="form-control track-change" id="storageShelf" name="storageShelf"
-                           value="<?= set_value('storageShelf', $order['storage_shelf'] ?? ''); ?>" placeholder="Write your shelf here" data-field-id="shelf">
-                </div>
-
-                <div class="col-2">
-                    <input type="datetime-local" class="form-control track-change" id="date_in" name="date_in"
-                           value="<?= $order['date_in'] ?? date('Y-m-d H:i'); ?>" required data-field-id="date_in">
-                </div>
-
-                <div class="col-2">
-                    <input type="datetime-local" class="form-control track-change" id="date_out" name="date_out"
-                           value="<?= $order['date_out'] ?? date('Y-m-d H:i'); ?>" required data-field-id="date_out">
-                </div>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <div class="row g-3 align-items-center">
-                <div class="col">
-                    <label for="purchaseOrder" class="form-label">Purchase Order</label>
-                </div>
-                <div class="col">
-                    <label for="orderWorkers" class="form-label">Workers to Order <b class="text-danger">*</b></label>
-                </div>
-                <div class="col">
-                    <label for="forwardTo" class="form-label">Forward To <b class="text-danger">*</b></label>
-                </div>
-                <div class="col">
-                    <?php $t = 'To improve effectiveness, keep your mind clear.'; ?>
-                    <label for="prioritet" class="form-label"><i class="bi bi-info-circle" data-title="<?= $t; ?>"></i> &nbsp;Prioritet</label>
-                </div>
-                <div class="col">
-                    <label for="order-status" class="form-label">Order Status</label>
+                <div class="row g-3 align-items-center">
+                    <div class="col-6">
+                        <input type="text" class="searchThis form-control" id="projectName" name="projectName" data-request="project"
+                               value="<?= set_value('projectName', $project->projectname ?? ''); ?>" required>
+                    </div>
+                    <div class="col-2">
+                        <input type="text" class="form-control" id="project_id" name="project_id"
+                               value="<?= set_value('project_id', $project->id ?? '0'); ?>" readonly>
+                    </div>
+                    <div class="col-2">
+                        <input type="text" class="form-control" id="projectRevision" name="projectRevision" readonly
+                               value="<?= set_value('projectRevision', $project->revision ?? '0'); ?>">
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" value="new_project?orders" class="url btn btn-outline-primary">Create Project</button>
+                    </div>
                 </div>
             </div>
 
-            <div class="row g-3 align-items-center">
-                <div class="col">
-                    <input type="text" class="form-control track-change" id="purchaseOrder" name="purchaseOrder"
-                           value="<?= set_value('purchaseOrder', $client->head_pay ?? '0'); ?>" data-field-id="head_pay">
-                </div>
-
-                <div class="col">
-                    <!-- i выбор работников для заказа -->
-                    <div class="dropdown" id="workers">
-                        <input type="text" name="orderWorkers" id="orderWorkers" class="form-control" placeholder="Choose the workers"
-                               data-bs-toggle="dropdown" aria-expanded="false" readonly required value="<?= $order['workers'] ?? ''; ?>">
-                        <ul class="dropdown-menu ps-3 ajeco-bg-aqua  w-100" aria-labelledby="orderWorkers">
-                            <?php $allUsers = R::find(USERS);
-                            $workers = array();
-                            if (!empty($order['workers'])) {
-                                // Разделяем строку на массив и удаляем пробелы вокруг каждого элемента
-                                $workers = array_map('trim', explode(',', $order['workers']));
-                            }
-                            foreach ($allUsers as $key => $u) {
-                                if ($u['id'] != '1') {
-                                    $checked = !empty($workers) && in_array($u['user_name'], $workers) ? 'checked' : '';
-                                    ?>
-                                    <li class="form-check dropdown-item">
-                                        <input type="checkbox" id="u-<?= $key; ?>" value="<?= $u['user_name']; ?>" class="form-check-input" <?= $checked ?>>
-                                        <label class="form-check-label w-100" for="u-<?= $key; ?>"><?= $u['user_name']; ?></label>
-                                    </li>
-                                <?php }
-                            } ?>
-                        </ul>
+            <div class="mb-3">
+                <div class="row g-3 align-items-center">
+                    <div class="col-2">
+                        <label for="orderAmount" class="form-label">Order Amount <b class="text-danger">*</b></label>
+                    </div>
+                    <div class="col-2">
+                        <label for="fai_qty" class="form-label">FAI Qty</label>
+                    </div>
+                    <div class="col-2">
+                        <label for="storageBox" class="form-label">Kit Storage Box <b class="text-danger">*</b></label>
+                    </div>
+                    <div class="col-2">
+                        <label for="storageShelf" class="form-label">Kit Storage Shelf/Place </label>
+                    </div>
+                    <div class="col-2">
+                        <label for="date_in" class="form-label">Application date <b class="text-danger">*</b></label>
+                    </div>
+                    <div class="col-2">
+                        <label for="date_out" class="form-label">Delivery time <b class="text-danger">*</b></label>
                     </div>
                 </div>
 
-                <div class="col">
-                    <!-- переведено на ... -->
-                    <div class="dropdown" id="forwarded">
-                        <input type="text" name="forwardedTo" id="forwardTo" class="form-control" placeholder="Forward To"
-                               data-bs-toggle="dropdown" aria-expanded="false" value="<?= $order['forwarded_to'] ?? '' ?>" readonly required>
-                        <ul class="dropdown-menu ajeco-bg-aqua  w-100" aria-labelledby="forwardTo">
-                            <?php foreach ($allUsers as $user) {
-                                if ($user['user_name'] != 'amir-nti-laba') { ?>
-                                    <li class="dropdown-item"><?= $user['user_name']; ?></li>
-                                <?php }
-                            } ?>
-                        </ul>
+                <div class="row g-3 align-items-center">
+                    <div class="col-2">
+                        <input type="number" class="form-control track-change" id="orderAmount" name="orderAmount"
+                               value="<?= set_value('orderAmount', $order['order_amount'] ?? '10') ?>" min="1" required data-field-id="qty">
+                    </div>
+                    <div class="col-2">
+                        <input type="number" class="form-control track-change" id="fai_qty" name="fai_qty"
+                               value="<?= set_value('fai_qty', $order['fai_qty'] ?? '3') ?>" min="0" data-field-id="fai_qty">
+                    </div>
+
+                    <div class="col-2">
+                        <input type="text" class="form-control" id="storageBox" name="storageBox"
+                               value="<?= set_value('storageBox', $order['storage_box'] ?? ''); ?>"
+                               placeholder="Field for hand writing" required>
+
+                        <!--                    <input type="number" class="form-control" id="storageBox" name="storageBox" min="1"-->
+                        <!--                           value="--><?php //= set_value('storageBox', $order['storage_box'] ?? ''); ?><!--"-->
+                        <!--                           placeholder="Click here for new number" required>-->
+                    </div>
+
+                    <div class="col-2">
+                        <input type="text" class="form-control track-change" id="storageShelf" name="storageShelf"
+                               value="<?= set_value('storageShelf', $order['storage_shelf'] ?? ''); ?>" placeholder="Write your shelf here" data-field-id="shelf">
+                    </div>
+
+                    <div class="col-2">
+                        <input type="datetime-local" class="form-control track-change" id="date_in" name="date_in"
+                               value="<?= $order['date_in'] ?? date('Y-m-d H:i'); ?>" required data-field-id="date_in">
+                    </div>
+
+                    <div class="col-2">
+                        <input type="datetime-local" class="form-control track-change" id="date_out" name="date_out"
+                               value="<?= $order['date_out'] ?? date('Y-m-d H:i'); ?>" required data-field-id="date_out">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="row g-3 align-items-center">
+                    <div class="col">
+                        <label for="purchaseOrder" class="form-label">Purchase Order</label>
+                    </div>
+                    <div class="col">
+                        <label for="orderWorkers" class="form-label">Workers to Order <b class="text-danger">*</b></label>
+                    </div>
+                    <div class="col">
+                        <label for="forwardTo" class="form-label">Forward To <b class="text-danger">*</b></label>
+                    </div>
+                    <div class="col">
+                        <?php $t = 'To improve effectiveness, keep your mind clear.'; ?>
+                        <label for="prioritet" class="form-label"><i class="bi bi-info-circle" data-title="<?= $t; ?>"></i> &nbsp;Prioritet</label>
+                    </div>
+                    <div class="col">
+                        <label for="order-status" class="form-label">Order Status</label>
                     </div>
                 </div>
 
-                <div class="col">
-                    <?php
-                    if (!empty($order['prioritet'])) {
-                        $pri = ['DO FIRST' => 'danger', 'HIGH' => 'danger', 'MEDIUM' => 'warning', 'LOW' => 'success'];
-                        echo '<select class="form-control ' . $pri[$order['prioritet']] . '" name="prioritet" id="prioritet">';
-                        echo "<option value='{$order['prioritet']}'>{$order['prioritet']}</option>";
-                        foreach ($pri as $p => $c) {
-                            if ($p != $order['prioritet']) {
-                                echo "<option value='$p'>$p</option>";
-                            }
-                        }
-                        echo '</select>';
-                    } else {
-                        ?>
-                        <select class="form-control success" name="prioritet" id="prioritet">
-                            <option value="LOW">LOW</option>
-                            <option value="MEDIUM">MEDIUM</option>
-                            <option value="HIGH">HIGH</option>
-                            <option value="DO FIRST">DO FIRST</option>
-                        </select>
-                    <?php } ?>
-                </div>
+                <div class="row g-3 align-items-center">
+                    <div class="col">
+                        <input type="text" class="form-control track-change" id="purchaseOrder" name="purchaseOrder"
+                               value="<?= set_value('purchaseOrder', $client->head_pay ?? '0'); ?>" data-field-id="head_pay">
+                    </div>
 
-                <div class="col">
-                    <select class="form-control" name="order-status">
+                    <div class="col">
+                        <!-- i выбор работников для заказа -->
+                        <div class="dropdown" id="workers">
+                            <input type="text" name="orderWorkers" id="orderWorkers" class="form-control" placeholder="Choose the workers"
+                                   data-bs-toggle="dropdown" aria-expanded="false" readonly required value="<?= $order['workers'] ?? ''; ?>">
+                            <ul class="dropdown-menu ps-3 ajeco-bg-aqua  w-100" aria-labelledby="orderWorkers">
+                                <?php $allUsers = R::find(USERS);
+                                $workers = array();
+                                if (!empty($order['workers'])) {
+                                    // Разделяем строку на массив и удаляем пробелы вокруг каждого элемента
+                                    $workers = array_map('trim', explode(',', $order['workers']));
+                                }
+                                foreach ($allUsers as $key => $u) {
+                                    if ($u['id'] != '1') {
+                                        $checked = !empty($workers) && in_array($u['user_name'], $workers) ? 'checked' : '';
+                                        ?>
+                                        <li class="form-check dropdown-item">
+                                            <input type="checkbox" id="u-<?= $key; ?>" value="<?= $u['user_name']; ?>" class="form-check-input" <?= $checked ?>>
+                                            <label class="form-check-label w-100" for="u-<?= $key; ?>"><?= $u['user_name']; ?></label>
+                                        </li>
+                                    <?php }
+                                } ?>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <!-- переведено на ... -->
+                        <div class="dropdown" id="forwarded">
+                            <input type="text" name="forwardedTo" id="forwardTo" class="form-control" placeholder="Forward To"
+                                   data-bs-toggle="dropdown" aria-expanded="false" value="<?= $order['forwarded_to'] ?? '' ?>" readonly required>
+                            <ul class="dropdown-menu ajeco-bg-aqua  w-100" aria-labelledby="forwardTo">
+                                <?php foreach ($allUsers as $user) {
+                                    if ($user['user_name'] != 'amir-nti-laba') { ?>
+                                        <li class="dropdown-item"><?= $user['user_name']; ?></li>
+                                    <?php }
+                                } ?>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col">
                         <?php
-                        // если заказ на паузе то выводим только один статус для разблокировки
-                        foreach (SR::getAllResourcesInGroup('status') as $key => $status) {
-                            if ($key != '-1') { ?>
-                                <option value="<?= $key ?>"> <?= SR::getResourceValue('status', $key); ?></option>
-                            <?php }
-                        } ?>
-                    </select>
+                        if (!empty($order['prioritet'])) {
+                            $pri = ['DO FIRST' => 'danger', 'HIGH' => 'danger', 'MEDIUM' => 'warning', 'LOW' => 'success'];
+                            echo '<select class="form-control ' . $pri[$order['prioritet']] . '" name="prioritet" id="prioritet">';
+                            echo "<option value='{$order['prioritet']}'>{$order['prioritet']}</option>";
+                            foreach ($pri as $p => $c) {
+                                if ($p != $order['prioritet']) {
+                                    echo "<option value='$p'>$p</option>";
+                                }
+                            }
+                            echo '</select>';
+                        } else {
+                            ?>
+                            <select class="form-control success" name="prioritet" id="prioritet">
+                                <option value="LOW">LOW</option>
+                                <option value="MEDIUM">MEDIUM</option>
+                                <option value="HIGH">HIGH</option>
+                                <option value="DO FIRST">DO FIRST</option>
+                            </select>
+                        <?php } ?>
+                    </div>
+
+                    <div class="col">
+                        <select class="form-control" name="order-status">
+                            <?php
+                            // если заказ на паузе то выводим только один статус для разблокировки
+                            foreach (SR::getAllResourcesInGroup('status') as $key => $status) {
+                                if ($key != '-1') { ?>
+                                    <option value="<?= $key ?>"> <?= SR::getResourceValue('status', $key); ?></option>
+                                <?php }
+                            } ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="checkbox mb-3">
+                <?php $serial = (!empty($order['serial_required']) && $order['serial_required'] == 1) ? 'checked' : ''; ?>
+                <div class="form-check form-switch fs-3">
+                    <input class="form-check-input track-change" type="checkbox" id="serial-required" name="serial-required"
+                           value="1" data-field-id="se_ed" <?= $serial; ?>>
+                    <label class="form-check-label" for="serial-required" style="font-size: large">
+                        Each unit in this project must be serialized with a mandatory serial number.
+                    </label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <?php $t = 'Here write some additional information for Worker or any reasons.'; ?>
+                <label for="extra" class="form-label"><i class="bi bi-info-circle" data-title="<?= $t; ?>"></i> &nbsp; Additional Information</label>
+                <textarea class="form-control track-change" id="extra" name="extra" data-field-id="extra"><?= set_value('extra', $order['extra'] ?? ''); ?></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary form-control mt-3 mb-2" id="createOrderFBtn" name="<?= $btnSubmit['name'] ?>">
+                <?= $btnSubmit['text'] ?>
+            </button>
+        </form>
+
+    <?php } elseif ($result[0]) { ?>
+        <!-- модальное окно для перехода между страницами ВОМ и печать деталей-->
+        <div class="modal" tabindex="-1" style="display: contents;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">The order number is: <?= $result[1] ?></h5>
+                    </div>
+
+                    <div class="modal-body">
+                        <p class="p-2">Order for Project number: <?= $project->id ?? '' ?>,
+                            <br>
+                            Name: <?= $project->projectname ?? '' ?>,
+                            <br>
+                            was created successfully!
+                            <br>
+                            Do you want to fill out the receiving invoice?
+                            <br>
+                            Or print out general information about the order?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <a type="button" class="btn btn-info" href="<?= "/order_pdf?pid=$project->id&orid=$orderId" ?>">Print Order details</a>
+                        <a type="button" class="btn btn-primary" href="<?= "/check_bom?orid=$orderId&pid=$project->id" ?>">Add BOM Details</a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="checkbox mb-3">
-            <?php $serial = (!empty($order['serial_required']) && $order['serial_required'] == 1) ? 'checked' : ''; ?>
-            <div class="form-check form-switch fs-3">
-                <input class="form-check-input track-change" type="checkbox" id="serial-required" name="serial-required"
-                       value="1" data-field-id="se_ed" <?= $serial; ?>>
-                <label class="form-check-label" for="serial-required" style="font-size: large">
-                    Each unit in this project must be serialized with a mandatory serial number.
-                </label>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <?php $t = 'Here write some additional information for Worker or any reasons.'; ?>
-            <label for="extra" class="form-label"><i class="bi bi-info-circle" data-title="<?= $t; ?>"></i> &nbsp; Additional Information</label>
-            <textarea class="form-control track-change" id="extra" name="extra" data-field-id="extra"><?= set_value('extra', $order['extra'] ?? ''); ?></textarea>
-        </div>
-
-        <button type="submit" class="btn btn-primary form-control mt-3 mb-2" id="createOrderFBtn" name="<?= $btnSubmit['name'] ?>">
-            <?= $btnSubmit['text'] ?>
-        </button>
-    </form>
+    <?php } ?>
 </div>
 <!-- prompt text for serialization switch -->
 <span class="hidden" id="prompt-text">Please note:
@@ -443,11 +473,6 @@ ScriptContent($page);
                 // Очищаем результаты поиска
                 dom.hide("#searchModal");
             }
-        });
-
-        // скрываем ответ от сервера при клике на странице
-        dom.in('click', "body", function () {
-            dom.hide("#searchModal");
         });
 
         // Обработчик события ввода для обновления состояния кнопки

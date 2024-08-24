@@ -1,4 +1,4 @@
-<?php /** @noinspection ALL */
+<?php /** @noinspection PhpUnused */
 
 /** @noinspection UnknownInspectionInspection */
 /* PHP5.6 */
@@ -14,9 +14,9 @@
 /** @noinspection PhpMissingReturnTypeInspection */
 /** @noinspection PhpStrFunctionsInspection */
 /** @noinspection AccessModifierPresentedInspection */
+
 /**
  * Class SimpleXLSXGen
- * https://github.com/shuchkin/simplexlsxgen/blob/master/src/SimpleXLSXGen.php
  * Export data to MS Excel. PHP XLSX generator
  * Author: sergey.shuchkin@gmail.com
  */
@@ -713,7 +713,7 @@ class XLSXGen
                 $CUR_ROW++;
                 $row = '';
                 $CUR_COL = 0;
-                $RH = 0; // route height
+                $RH = 0; // row height
                 foreach ($r as $v) {
                     $CUR_COL++;
                     if (!isset($COL[$CUR_COL])) {
@@ -725,7 +725,7 @@ class XLSXGen
                         continue;
                     }
                     $ct = $cv = $cf = null;
-                    $N = $A = $F = $FL = $C = $BG = $FS = 0;
+                    $N = $A = $F = $FL = $C = $BG = $FS = $FR = 0;
                     $BR = '';
                     if (is_string($v)) {
                         if ($v[0] === "\0") { // RAW value as string
@@ -771,7 +771,7 @@ class XLSXGen
                                     }
                                     if (preg_match('/ font-size="([^"]+)"/', $m[1], $m2)) {
                                         $FS = (int)$m2[1];
-                                        if ($RH === 0) { // fix route height
+                                        if ($RH === 0) { // fix row height
                                             $RH = ($FS > $this->defaultFontSize) ? round($FS * 1.50, 1) : 0;
                                         }
                                     }
@@ -813,8 +813,11 @@ class XLSXGen
                                         $this->sheets[$idx]['hyperlinks'][] = ['ID' => 'rId' . $this->extLinkId, 'R' => $cname, 'H' => $h[0], 'L' => $h[1]];
                                     }
                                 }
-
-                                if (preg_match('/<f([^>]*)>/', $v, $m)) {
+                                // formatted raw?
+                                if (preg_match('/<raw>(.*)<\/raw>/', $v, $m)) {
+                                    $FR = 1;
+                                    $v = $m[1];
+                                } elseif (preg_match('/<f([^>]*)>/', $v, $m)) {
                                     $cf = strip_tags($v);
                                     $v = 'formula';
                                     if (preg_match('/ v="([^"]+)"/', $m[1], $m2)) {
@@ -823,9 +826,12 @@ class XLSXGen
                                 } else {
                                     $v = strip_tags($v);
                                 }
-                            } // tags
+                            } // \tags
                             $vl = mb_strlen($v);
-                            if ($N) {
+                            if ($FR) {
+                                $v = htmlspecialchars_decode($v);
+                                $vl = mb_strlen($v);
+                            } elseif ($N) {
                                 $cv = ltrim($v, '+');
                             } elseif ($v === '0' || preg_match('/^[-+]?[1-9]\d{0,14}$/', $v)) { // Integer as General
                                 $cv = ltrim($v, '+');
@@ -948,7 +954,7 @@ class XLSXGen
                         . ($cf ? '<f>' . $cf . '</f>' : '')
                         . ($ct === 'inlineStr' ? '<is><t>' . $cv . '</t></is>' : '<v>' . $cv . '</v>') . "</c>\r\n";
                 }
-                $ROWS[] = '<route r="' . $CUR_ROW . '"' . ($RH ? ' customHeight="1" ht="' . $RH . '"' : '') . '>' . $row . "</route>";
+                $ROWS[] = '<row r="' . $CUR_ROW . '"' . ($RH ? ' customHeight="1" ht="' . $RH . '"' : '') . '>' . $row . "</row>";
             }
             foreach ($COL as $k => $max) {
                 $w = isset($this->sheets[$idx]['colwidth'][$k]) ? $this->sheets[$idx]['colwidth'][$k] : min($max + 1, 60);
