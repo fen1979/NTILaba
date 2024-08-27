@@ -194,8 +194,6 @@ if (isset($_POST['do-unreserve-bom'])) {
 <form action="" id="routing" method="post" class="hidden"></form>
 <?php
 /* DISPLAY MESSAGES FROM SYSTEM */
-FlashMessages();
-// redurant  prepare for delete
 DisplayMessage($args ?? null);
 ?>
 
