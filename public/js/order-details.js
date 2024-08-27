@@ -288,14 +288,24 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     });
-
 });// end of onload
 
 // Функция проверки состояния чекбоксов
 function checkCheckboxes() {
+    // Проверяем, есть ли отмеченные чекбоксы
+    const checkedCheckboxes = dom.e('.workflow:checked');
+    const allCheckboxes = dom.e('.workflow');
+
+    // Если отмеченных чекбоксов нет, устанавливаем длину в 0
+    const checkedLength = checkedCheckboxes ? checkedCheckboxes.length : 0;
+
     // Проверяем, отмечены ли все чекбоксы
-    const allChecked = dom.e('.workflow') != null && dom.e('.workflow').length === dom.e('.workflow:checked').length;
+    const allChecked = allCheckboxes != null && allCheckboxes.length === checkedLength;
+
     // Включаем или отключаем кнопку в зависимости от результатов проверки
-    if (dom.e('#order-progress-init'))
-        dom.e('#order-progress-init').disabled = !allChecked;
+    const initButton = dom.e('#order-progress-init');
+    if (initButton) {
+        initButton.disabled = !allChecked;
+    }
 }
+

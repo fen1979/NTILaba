@@ -107,7 +107,7 @@ foreach ($t40 as $item) {
     $t84->revision = $item['revision'];
     $t84->front_pic = $item['front_pic'];
 
-     //R::store($t84);
+    //R::store($t84);
 }
 ?>
 <!DOCTYPE html>
@@ -186,8 +186,6 @@ if ($backButton == '/') {
     // NAVIGATION BAR
     $navBarData['title'] = 'Project Creation';
     $navBarData['active_btn'] = Y['N_PROJECT'];
-    //$navBarData['page_tab'] = $_GET['page'] ?? null;
-    //$navBarData['record_id'] = $item->id ?? null;
     $navBarData['user'] = $user;
     $navBarData['page_name'] = $page;
     NavBarContent($navBarData);
@@ -315,7 +313,6 @@ DisplayMessage($args ?? null);
             </div>
         </div>
         <!--i EXECUTOR PROJECT NAME, ROUTE CARD NAMES  -->
-
         <div class="mb-4">
             <div class="row">
                 <div class="col-6">
@@ -338,7 +335,6 @@ DisplayMessage($args ?? null);
             </div>
 
         </div>
-
         <!--i PROJECT FILES -->
         <div class="row mb-3">
             <div class="p-1 col">
@@ -430,6 +426,12 @@ DisplayMessage($args ?? null);
         <!--i CHOOSE TOOL TO PROJECT AND CREATE PROJECT BUTTONS -->
         <div class="row mt-5">
             <div class="col-8">
+                <label for="tools">Choose Tools</label>
+                <input type="text" name="tools" id="tools" class="searchThis form-control" placeholder="Write here for choose tools" data-request="tools">
+            </div>
+
+            <!-- fixme hidden tag -->
+            <div class="col hidden">
                 <button class="btn btn-outline-dark form-control dropdown-toggle" type="button" id="dropdownMenuTools" data-bs-toggle="dropdown" aria-expanded="false">
                     Choose Tools to Project
                 </button>
@@ -468,10 +470,18 @@ DisplayMessage($args ?? null);
                     </div>
                 </div>
             </div>
+            <!-- fixme hidden tag -->
+
             <div class="col-4">
                 <button type="submit" class="btn btn-outline-success form-control" id="createProjectBtn" <?= $disabled; ?>>
                     <?= $buttonSave; ?>
                 </button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-auto" id="tool_preview">
+
             </div>
         </div>
     </form>

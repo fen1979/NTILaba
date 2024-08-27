@@ -213,7 +213,7 @@ DisplayMessage($args ?? null);
             if ($projectBom && $settings) {
                 foreach ($projectBom as $line) {
                     $required_qty = $line['amount'] * $order['order_amount'];
-                    $actual_qty = WareHouse::GetActualQtyForItem($line['customerid'], $line['item_id'] ?? '');
+                    echo $actual_qty = WareHouse::GetActualQtyForItem($line['customerid'], $line['item_id'] ?? '');
                     if ($actual_qty > $required_qty) {
                         $color = 'success';
                     } elseif ($actual_qty < $required_qty) {

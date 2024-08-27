@@ -433,10 +433,10 @@ DisplayMessage($args ?? null);
         <div class="tab-pane fade show <?= ($A_T == 'tab4') ? 'active' : '' ?>" id="tab4" role="tabpanel" aria-labelledby="tab4-tab">
             <table class="p-3">
                 <!-- header -->
-<!--                | Order Number | Order Date | Order Status | Customer Name | Customer Phone | Customer Email        | Part Name    | Quantity | Total Cost | Payment Method | Shipping Method | Tracking Number | Delivery Date | Seller ID |-->
-<!--                |--------------|------------|--------------|---------------|----------------|-----------------------|--------------|----------|------------|----------------|-----------------|-----------------|---------------|-----------|-->
-<!--                | 123456       | 01/01/2024 | In Progress  | John Doe      | (123) 456-7890 | johndoe@example.com   | Capacitor    | 50       | $21.50     | Credit Card    | Courier         | ABC1234567890   | 01/07/2024    | 789       |-->
-<!--                | 789012       | 02/02/2024 | Shipped      | Jane Smith    | (234) 567-8901 | janesmith@example.com | Resistor     | 100      | $35.75     | PayPal         | Postal Service  | XYZ9876543210   | 02/09/2024    | 456       |-->
+                <!--                | Order Number | Order Date | Order Status | Customer Name | Customer Phone | Customer Email        | Part Name    | Quantity | Total Cost | Payment Method | Shipping Method | Tracking Number | Delivery Date | Seller ID |-->
+                <!--                |--------------|------------|--------------|---------------|----------------|-----------------------|--------------|----------|------------|----------------|-----------------|-----------------|---------------|-----------|-->
+                <!--                | 123456       | 01/01/2024 | In Progress  | John Doe      | (123) 456-7890 | johndoe@example.com   | Capacitor    | 50       | $21.50     | Credit Card    | Courier         | ABC1234567890   | 01/07/2024    | 789       |-->
+                <!--                | 789012       | 02/02/2024 | Shipped      | Jane Smith    | (234) 567-8901 | janesmith@example.com | Resistor     | 100      | $35.75     | PayPal         | Postal Service  | XYZ9876543210   | 02/09/2024    | 456       |-->
 
                 <?php
                 // ссылки на которых можно просто поискать
@@ -613,7 +613,7 @@ ScriptContent($page);
                 });
 
                 // Отправка формы
-                //form.submit();
+                form.submit();
             } else {
                 // Пользователь нажал отмена, форма не отправляется
                 alert("Changes will not be saved!");

@@ -2,9 +2,9 @@
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
 require 'warehouse/WareHouse.php';
 $page = 'po_replenishment';
-$order = $project = $v = null;
+$order = $project = $v = $consignment = $items = null;
 
-// попадаем сюда после создания заказа РО
+// попадаем сюда после создания заказа или заглушки Р.О.
 if (isset($_GET['orid'])) {
     $order = R::load(ORDERS, _E($_GET['orid']));
     $project = R::load(PROJECTS, $order->projects_id);
@@ -13,18 +13,19 @@ if (isset($_GET['orid'])) {
 
 // save replenishment data
 if (isset($_POST['save-list-items'])) {
-    $args = WareHouse::createNewReplenishmentList($_POST, $user, $order, $project);
+    $consignment = WareHouse::createNewReplenishmentList($_POST, $user, $order, $project);
 }
 
 // get all items for order
-if ($order) {
-    $items = R::findAll(PO_AIRRVAL, 'orders_id = ?', [$order->id]);
+if ($order || $consignment) {
+    $items = R::findAll(PO_AIRRVAL, 'orders_id = ? OR consignment = ?', [$order->id, $consignment]);
 }
 
 // make XML and save in order folder
 if (isset($_POST['make-xmls'])) {
     if (WareHouse::makeXLSXfileAndSave($order->id)) {
-        $args = ['color' => 'success', 'info' => 'File was created successfully you can download file or print'];
+        // message collector (text/ color/ auto_hide = true)
+        _flashMessage('File was created successfully you can download file or print');
     }
 }
 ?>
@@ -70,14 +71,14 @@ if (isset($_POST['make-xmls'])) {
 
         input[type="text"], select {
             width: 45%;
-            padding: 5px;
+            padding: 2px 5px;
             font-size: 12px;
             border-radius: 5px;
         }
 
         input[type="datetime-local"], input[type="number"] {
             width: 20%;
-            padding: 5px;
+            padding: 2px 5px;
             font-size: 12px;
             border-radius: 5px;
         }
@@ -157,14 +158,11 @@ if (isset($_POST['make-xmls'])) {
 $navBarData['title'] = 'Preliminary check of arrival';
 $navBarData['user'] = $user;
 $navBarData['page_name'] = $page;
-NavBarContent($navBarData);
-
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
+NavBarContent($navBarData); ?>
 
 <div class="container-r">
     <div class="header">Incoming invoice</div>
+    <!-- ФОРМА ВНЕСЕНИЯ ПРЕДМЕТА В ПОСЫЛКЕ -->
     <form action="" method="post">
         <input type="hidden" id="owner_id" name="owner_id" value="<?= set_value('owner_id') ?>">
 
@@ -288,6 +286,7 @@ DisplayMessage($args ?? null);
         </div>
     </form>
 
+    <!-- ТАБЛИЦА ВНЕСЕННЫХ ПРЕДМЕТОВ ИЗ ПОСЫЛКИ -->
     <div class="table-container">
         <table>
             <thead>

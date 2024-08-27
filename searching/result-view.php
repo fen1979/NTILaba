@@ -781,3 +781,40 @@ function viewWarehouseLogs(array $result): void
     }
 }
 
+function viewToolsTable($result, $mySearchString)
+{
+    if ($result) { ?>
+        <h2>Search result for Tools</h2>
+        <table>
+            <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Model</th>
+                <th scope="col">Type</th>
+                <th scope="col">Location</th>
+                <th scope="col">Calibration</th>
+                <th scope="col">SN:</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($result as $row) {
+                $infoData = json_encode([
+                    'group_name' => $row['id'],
+                    'key_name' => $row['manufacturer_name'],
+                    'value' => $row['device_type']]);  ?>
+                <tr class="item-list" data-info="<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>">
+                    <td class="border-end"><?= $row['manufacturer_name']; ?></td>
+                    <td class="border-end"><?= $row['device_model']; ?></td>
+                    <td class="border-end"><?= $row['device_type']; ?></td>
+                    <td class="border-end"><?= $row['calibration']; ?></td>
+                    <td class="border-end"><?= $row['serial_num']; ?></td>
+                </tr>
+            <?php } ?>
+            </tbody>
+        </table>
+        <?php
+    } else {
+        echo 'EMPTY';
+    }
+}
+

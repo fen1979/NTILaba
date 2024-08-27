@@ -138,6 +138,13 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
                 }
             }
             break;
+
+        case 'tools':
+            {
+                $col = ['manufacturer_name', 'device_model', 'device_type'];
+                viewToolsTable(dynamicSearch(TOOLS, $col, $mySearchString), $mySearchString);
+            }
+            break;
         default:
             echo '<h3 data-info="text from search engine">No results were found for your search query.</h3>';
             break;

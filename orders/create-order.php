@@ -24,7 +24,7 @@ if (isset($_POST['createOrder'])) {
 //        $orderId = $result[1];
 //        redirectTo("check_bom?orid=$orderId&pid=$project->id");
 //    } else {
-        $result = ['color' => 'danger', 'info' => 'Can not write log information^ '];
+        $result = ['color' => 'danger', 'info' => 'Can not write log information'];
     }
 }
 
@@ -129,7 +129,11 @@ DisplayMessage($result ?? null);
 ?>
 
 <div class="container mt-4 px-3 py-3 rounded" style="background: aliceblue;">
-    <?php if ($result == null) { ?>
+    <?php
+
+    //i ПРОВЕРЯЕМ ЕСЛИ ОЗАКАЗ БЫЛ СОХРАНЕН ИЛИ ТОЛЬКО ПРИШЛИ НА СТРАНИЦУ
+    //если только пришли на страницу то выводим форму для заполнения заказа
+    if ($result == null) { ?>
         <!-- форма добавления нового заказа -->
         <div class="row">
             <?php $t = 'To search, click on the field and start writing. Search fields are marked with a search sign'; ?>
@@ -237,17 +241,13 @@ DisplayMessage($result ?? null);
                     </div>
                     <div class="col-2">
                         <input type="number" class="form-control track-change" id="fai_qty" name="fai_qty"
-                               value="<?= set_value('fai_qty', $order['fai_qty'] ?? '3') ?>" min="0" data-field-id="fai_qty">
+                               value="<?= set_value('fai_qty', $order['fai_qty'] ?? '1') ?>" min="0" data-field-id="fai_qty">
                     </div>
 
                     <div class="col-2">
                         <input type="text" class="form-control" id="storageBox" name="storageBox"
-                               value="<?= set_value('storageBox', $order['storage_box'] ?? ''); ?>"
+                               value="<?= set_value('storageBox', $order['storage_box'] ?? '1'); ?>"
                                placeholder="Field for hand writing" required>
-
-                        <!--                    <input type="number" class="form-control" id="storageBox" name="storageBox" min="1"-->
-                        <!--                           value="--><?php //= set_value('storageBox', $order['storage_box'] ?? ''); ?><!--"-->
-                        <!--                           placeholder="Click here for new number" required>-->
                     </div>
 
                     <div class="col-2">
@@ -393,7 +393,14 @@ DisplayMessage($result ?? null);
             </button>
         </form>
 
-    <?php } elseif ($result[0]) { ?>
+        <?php
+
+        // i ПРОВЕРЯЕМ ЕСЛИ ЗАКАЗ БЫЛ СОХРАНЕН
+        // если заказ был сохранен успешно то выводим модальное окно для переходов по желанию пользователя
+        // действия: распечатать детали заказа
+        // перейти к заполнению нового прихода запчастей/товаров
+        // перейти к предварительному внесению полученного от клиента
+    } elseif ($result[0]) { ?>
         <!-- модальное окно для перехода между страницами ВОМ и печать деталей-->
         <div class="modal" tabindex="-1" style="display: contents;">
             <div class="modal-dialog">
@@ -414,8 +421,9 @@ DisplayMessage($result ?? null);
                             Or print out general information about the order?</p>
                     </div>
                     <div class="modal-footer">
-                        <a type="button" class="btn btn-info" href="<?= "/order_pdf?pid=$project->id&orid=$orderId" ?>">Print Order details</a>
-                        <a type="button" class="btn btn-primary" href="<?= "/check_bom?orid=$orderId&pid=$project->id" ?>">Add BOM Details</a>
+                        <a type="button" class="btn btn-outline-warning" href="<?= "/po-replenishment?orid=$orderId" ?>">Add Incoming Invoice</a>
+                        <a type="button" class="btn btn-outline-info" href="<?= "/order_pdf?pid=$project->id&orid=$orderId" ?>">Print Order details</a>
+                        <a type="button" class="btn btn-outline-primary" href="<?= "/check_bom?orid=$orderId&pid=$project->id" ?>">Fill Order BOM</a>
                     </div>
                 </div>
             </div>
@@ -527,14 +535,15 @@ ScriptContent($page);
 
         //i определится в будущем пользуемся ли мы автоматом для установки коробок хранения???
         // Обработка клика по результату поиска для места хранения
-        // dom.in("click", "#storageBox", function () {
-        //     // Отправляем POST-запрос на сервер
-        //     $.post('', {'search-for-storage-box': this.value}, function (data) {
-        //         // При успешном получении ответа обновляем значение поля ввода
-        //         dom.e('#storageBox').value = data;
-        //         console.log(data)
-        //     });
-        // });
+        dom.in("click", "#storageBox", function () {
+            // Отправляем POST-запрос на сервер
+            console.log(this.value)
+            $.post('', {'search-for-storage-box': this.value}, function (data) {
+                // При успешном получении ответа обновляем значение поля ввода
+                dom.e('#storageBox').value = data;
+                console.log(data)
+            });
+        });
 
         // отслеживание изменения в полях формы для работы в пхп над изменениями edit-order
         let changedFields = [];

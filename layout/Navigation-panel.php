@@ -169,7 +169,42 @@ function NavBarContent($navBarData): void
             </div>
         </nav>
     </header>
-<?php }
+    <?php
+
+    /**
+     * This method accepts an associative array,
+     * where the “color” key sets colors using classes,
+     * and the “info” key is information in text form that should be displayed on the page.
+     * how to use $args = ['color'=>'some_class_witch_color_settings', 'info'=>'some text to preview on page'];
+     * and if was redirect got ingo from $_SESSION['info']
+     * when exist arg 'hide' then message isnt close automaticaly
+     */
+
+    // Получаем сообщения из сессии
+    if (!empty($_SESSION['flash_messages'])) {
+        $messages = $_SESSION['flash_messages'];
+        // Очищаем сессионные сообщения после их использования
+        unset($_SESSION['flash_messages']);
+    } else {
+        return; // Если сообщений нет, ничего не выводим
+    }
+
+    // Иконка для закрытия сообщения
+    $icon = '<i class="bi bi-x-square hide-service-msg" onclick="dom.hide(\'.global-notification\', \'slow\')"></i>';
+
+    // Вывод сообщений
+    ?>
+    <div class="global-notification">
+        <?php foreach ($messages as $message): ?>
+            <div class="p-2 mb-2 rounded <?= $message['color'] ?? 'hidden'; ?> <?= (bool)$message['auto_hide'] ? 'fade-out' : ''; ?>">
+                <?= empty($message['auto_hide']) ? $icon : ''; ?>
+                <?= $message['text'] ?? ''; ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    <?php
+
+} // END NAVBAR CONTENNT FUNCTION
 
 /**
  * MAIN NAVIGATION BUTTONS

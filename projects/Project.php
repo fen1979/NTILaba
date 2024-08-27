@@ -423,25 +423,20 @@ class Project
         $partList = R::dispense(PROJECT_BOM);
         $partList->customerid = $post['owner_id'];  // customer id hidden val
         $partList->sku = $post['sku'];  // sku makat
-        $partList->part_name = $post['part_name'];  // part name
-        $partList->part_value = $post['part_value'];  // part value
-        $partList->mounting_type = $post['mounting_type'];  // part type
-        $partList->footprint = $post['footprint'];  // footprint
-        $partList->manufacturer = $post['manufacturer'];  // manufacturer
-        $partList->manufacture_pn = $post['manufacture_pn'];  // manufacturer p/n
+        $partList->part_name = $post['part_name'] ?? '';  // part name
+        $partList->part_value = $post['part_value'] ?? '';  // part value
+        $partList->mounting_type = $post['mounting_type'] ?? '';  // part type
+        $partList->footprint = $post['footprint'] ?? '';  // footprint
+        $partList->manufacturer = $post['manufacturer'] ?? '';  // manufacturer
+        $partList->manufacture_pn = $post['manufacture_pn'] ?? '';  // manufacturer p/n
         $partList->owner_pn = $post['owner_pn'] ?? '';  // customer p/n && our p/n
 
         // добавляем ID детали из БД если она есть в БД
         // если детали нет то оставляем пустое поле
-//        if (!empty($post['item_id'])) {
-        $partList->item_id = $post['item_id'] ?? null;  // warehouse item id
-//        } else {
-//            $wh = WareHouse::GetOneItemFromWarehouse($post['manufacture_pn'], $post['owner_pn']);  // warehouse item id
-//            if ($wh)
-//                $partList->item_id = $wh->id;
-//            else
-//                $partList->item_id = null;
-//        }
+        if (!empty($post['item_id'])) {
+            $partList->item_id = $post['item_id'];  // warehouse item id
+        }
+
         $partList->description = $post['description'];  // description
         $partList->notes = $post['note'];  // note
         // before set number to DB check if this digit amount for one peace can be double!!!
@@ -526,7 +521,8 @@ class Project
                             $goods->description = $rowData['description'] ?? '';
                             $goods->notes = $rowData['note'] ?? '';
                             $goods->projects_id = $project->id;
-                            $goods->customerid = $project->customerid;
+
+
 
                             // добавляем ID детали из БД если она есть в БД
                             // если детали нет то оставляем пустое поле
@@ -534,11 +530,10 @@ class Project
 //                                $partList->item_id = $rowData['item_id'];  // warehouse item id
 //                            } else {
                             $wh = WareHouse::GetOneItemFromWarehouse($rowData['manufacture_pn'], $rowData['owner_pn']);  // warehouse item id
-                            if ($wh)
+                            if ($wh) {
                                 $partList->item_id = $wh->id;
-                            else
-                                $partList->item_id = null;
-//                            }
+                                $goods->customerid = $project->customerid;
+                            }
 
                             $goods->date_in = date("Y-m-d H:i");
 

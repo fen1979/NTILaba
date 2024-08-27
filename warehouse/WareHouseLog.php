@@ -103,10 +103,9 @@ class WareHouseLog
      * @param mixed $to
      * @param mixed $quantity
      * @param mixed $user
-     * @return string[]
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    public static function registerMovement($item_id, $from, $to, $quantity, $user): array
+    public static function registerMovement($item_id, $from, $to, $quantity, $user)
     {
         $item = R::findOne(WH_ITEMS, 'id = ?', [$item_id]);
         // Должна записывать в лог:
@@ -123,8 +122,8 @@ class WareHouseLog
         $log->invoice = $item->invoice ?? ''; // идентификатор документа (накладная).
         $log->lot = $item->lot ?? ''; // идентификатор запчасти на складе LOT:num.
         R::store($log);
-        return ['info' => 'The write-off has been completed, the part quantity: ' . $quantity . ' pieces has been written off successfully', 'color' => 'success'];
 
+        _flashMessage('The write-off has been completed, the part quantity: ' . $quantity . ' pieces has been written off successfully');
     }
 
     /**
@@ -165,10 +164,9 @@ class WareHouseLog
      * @param $user
      * @param $logData
      * @param $item_id
-     * @return string[]
      * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function poAirrvalAction($user, $logData, $item_id): array
+    public static function poAirrvalAction($user, $logData, $item_id)
     {
         // Должна записать в лог:
         $log = R::dispense(WH_LOGS);
@@ -180,6 +178,7 @@ class WareHouseLog
         $log->items_data = $logData;
 
         R::store($log);
-        return ['info' => 'Item was added successfully', 'color' => 'success'];
+        // message collector (text/ color/ auto_hide = true)
+        _flashMessage('Item was added successfully');
     }
 }

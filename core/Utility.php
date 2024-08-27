@@ -546,7 +546,7 @@ function _if($condition, $trueValue, $falseValue = null, $defaultValue = null)
 function _empty($value, $callBack)
 {
     // Проверка на несуществующую переменную или null
-    if (!isset($value) || is_null($value)) {
+    if (!isset($value)) {
         return is_callable($callBack) ? $callBack() : $callBack;
     }
 
@@ -559,3 +559,25 @@ function _empty($value, $callBack)
     return !empty($value) ? $value : (is_callable($callBack) ? $callBack() : $callBack);
 }
 
+/**
+ * Message collector
+ * Data output, if any, occurs automatically on the pages where the function is located
+ * @param $text
+ * @param string $color
+ * @param bool $auto_hide
+ * @return void
+ */
+function _flashMessage($text, string $color = 'success', bool $auto_hide = true): void
+{
+    // Инициализируем массив сообщений, если он не существует
+    if (empty($_SESSION['flash_messages'])) {
+        $_SESSION['flash_messages'] = [];
+    }
+
+    // Добавляем новое сообщение в массив
+    $_SESSION['flash_messages'][] = [
+        'text' => $text,
+        'color' => $color,
+        'auto_hide' => $auto_hide
+    ];
+}

@@ -6,11 +6,10 @@ if (isset($_POST['suggest'])) {
 }
 
 // rest page functions and includes
-EnsureUserIsAuthenticated($_SESSION, 'userBean', null, 'order');
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean', null, 'order');
 include_once 'orders/Orders.php';
 
 /* получение пользователя из сессии */
-$user = $_SESSION['userBean'];
 $role = $user['app_role'];
 $page = 'order_details';
 
@@ -21,12 +20,12 @@ $orderid = $_GET['orid'];
 
 /* set list users and status to order */
 if (isset($_POST['set-order-status']) || isset($_POST['set-order-user'])) {
-    $args = Orders::setStatusOrUserInOrder($user, $orderid, $_POST);
+    Orders::setStatusOrUserInOrder($user, $orderid, $_POST);
 }
 
 /* editing or deleteng message from chat */
 if (isset($_POST['editChatMessage']) || isset($_POST['deleteChatMessage'])) {
-    $args = Orders::editOrDeleteMessage($_POST, $user, $orderid);
+    Orders::editOrDeleteMessage($_POST, $user, $orderid);
     $A_T = 'tab7';
 }
 
@@ -35,17 +34,19 @@ if (isset($_POST['save-message']) && isset($_POST['messageText'])) {
     /* checking if user uploaded good file */
     if (!empty($_FILES['chatFile']['name'][0])) {
         if (!Orders::getFileExtension($_FILES['chatFile'])) {
-            $args = ['color' => 'danger', 'info' => 'File format is wrong! Only jpg, png, webp, mp4, pdf, csv, xls, xlsx, doc, txt, zip, rar, 7z 
-             files is approved!'];
+            // message collector (text/ color/ auto_hide = true)
+            _flashMessage('File format is wrong! Only jpg, png, webp, mp4, pdf, csv, xls, xlsx, doc, txt, zip, rar, 7z 
+             files is approved!', 'danger');
         } else {
             if (Orders::checkSizeOfFile($_FILES['chatFile'])) {
-                $args = Orders::saveChatMessage($orderid, $user, $_POST, $_FILES['chatFile']);
+                Orders::saveChatMessage($orderid, $user, $_POST, $_FILES['chatFile']);
             } else {
-                $args = ['color' => 'danger', 'info' => 'File wery big! try another file.'];
+                // message collector (text/ color/ auto_hide = true)
+                _flashMessage('File wery big! try another file.', 'danger');
             }
         }
     } else {
-        $args = Orders::saveChatMessage($orderid, $user, $_POST);
+        Orders::saveChatMessage($orderid, $user, $_POST);
     }
     $A_T = 'tab7';
 }
@@ -64,7 +65,12 @@ if (isset($_POST['orid']) || isset($orderid)) {
     $reserve = R::count(WH_RESERV, 'WHERE order_uid = ?', [$order->id]); // find if exist reserved BOM items
     $customer = R::load(CLIENTS, $order->customers_id);
     $project = R::load(PROJECTS, $projectid);
+
+    // tab 6 steps old
     $stepsData = R::findAll(PROJECT_STEPS, 'projects_id = ? ORDER BY step ASC', [$projectid]);
+    // tab 6 steps new
+    $unit_staps = R::find(PROJECT_STEPS, "projects_id LIKE ? ORDER BY CAST(step AS UNSIGNED) ASC", [$projectid]);
+
     $projectBom = R::findAll(PROJECT_BOM, 'projects_id = ?', [$projectid]);
     $orderChat = R::findAll(ORDER_CHATS, 'orders_id = ? ORDER BY time_in ASC', [$orderid]);
     $chatLastMsg = R::findOne(ORDER_CHATS, 'orders_id = ? ORDER BY time_in DESC', [$orderid]);
@@ -105,6 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST)) {
         case 'repite_order':
             $action = 'initiation';
             break;
+
         case 'backToWork':
         case 'take-a-step-to-work':
         case 'next_step':
@@ -115,6 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST)) {
         case 'smt_component':
             $action = 'continue';
             break;
+
         case 'set_on_pause':
             if ($_POST['set_on_pause'] == $orderid) {
                 // worker set order assembling to pause by some reasons
@@ -125,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST)) {
                 // возврат в работу должен быть в статус st-8 !!!!
                 $data['status'] = 'st-6';
                 $data['set-order-status'] = '1';
-                $_SESSION['info'] = Orders::setStatusOrUserInOrder($user, $orderid, $data);
+                Orders::setStatusOrUserInOrder($user, $orderid, $data);
                 // reload page
                 redirectTo('order');
             }
@@ -138,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST)) {
                 // возвращаем пользователя на страницу заказов
                 $data['status'] = 'st-4';
                 $data['set-order-status'] = '1';
-                $_SESSION['info'] = Orders::setStatusOrUserInOrder($user, $orderid, $data);
+                Orders::setStatusOrUserInOrder($user, $orderid, $data);
                 // reload page
                 redirectTo('order');
             }
@@ -157,20 +165,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST)) {
         $tab = $args['tab']; // переход на страницу для действий
         $sid = !empty($args['step_id']) ? '&#sid-' . $args['step_id'] : ''; // возврат к последнему шагу
 
-        $_SESSION['info'] = $args['errors']; // вывод информации об ошибках и успехах
-        redirectTo("order/preview?orid=$orderid&tab=tab$tab" . $sid);
+        // вывод информации об ошибках и успехах
+        redirectTo("order/preview?orid=$orderid&tab=tab$tab" . $sid, $args);
     }
 }
 
 // reserving bom for order
 if (isset($_POST['do-reserve-bom'])) {
-    $args = Orders::ReserveBomForOrder($user, $_GET, $projectBom, $reserve);
+    Orders::ReserveBomForOrder($user, $_GET, $projectBom, $reserve);
     $reserve = $reserve == 0 ? 1 : $reserve;
 }
 
 // unreserving bom for order
 if (isset($_POST['do-unreserve-bom'])) {
-    $args = Orders::UnReserveBomForOrder($user, $_GET, $projectBom);
+    Orders::UnReserveBomForOrder($user, $_GET, $projectBom);
     $reserve = 0;
 }
 ?>
@@ -183,9 +191,11 @@ if (isset($_POST['do-unreserve-bom'])) {
     ?>
 </head>
 <body>
-
+<form action="" id="routing" method="post" class="hidden"></form>
 <?php
 /* DISPLAY MESSAGES FROM SYSTEM */
+FlashMessages();
+// redurant  prepare for delete
 DisplayMessage($args ?? null);
 ?>
 
@@ -261,10 +271,7 @@ DisplayMessage($args ?? null);
     <div class="tab-content" id="myTabContent">
         <!--  Контент Таба 1 order information -->
         <div class="tab-pane fade show <?= ($A_T == 'tab1') ? 'active' : '' ?>" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
-            <?php
-            include_once 'order-info.php';
-            getOrderInformationHTML($orderid, $order, $customer, $project, $projectBom, $assy_in_progress, $chatLastMsg, $amount);
-            ?>
+            <?php include_once 'work-flow/tab_1.php'; ?>
         </div>
         <!-- end tab 1 -->
 
@@ -507,7 +514,8 @@ DisplayMessage($args ?? null);
 
         <!-- Контент для Таба 6 project steps -->
         <div class="tab-pane fade show <?= ($A_T == 'tab6') ? 'active' : '' ?>" id="tab6" role="tabpanel" aria-labelledby="tab6-tab">
-            <div class="step-box mt-3">
+            <?php include_once 'work-flow/tab_6_steps.php'; ?>
+            <div class="step-box mt-3 hidden">
                 <?php
                 if ($stepsData) {
                     $stepCount = 0;
@@ -621,149 +629,26 @@ and click the “ok” button to complete the operation.
 
         <!-- Контент для Таба 7 order chat -->
         <div class="tab-pane fade show <?= ($A_T == 'tab7') ? 'active' : '' ?>" id="tab7" role="tabpanel" aria-labelledby="tab7-tab">
-            <div class="row" style="margin: 0">
-                <!-- chat messages window -->
-                <div class="col-9">
-                    <div id="chatWindow" style="overflow: scroll; height: 65vh;">
-                        <?php
-                        $ext_arr = ['zip', 'rar', '7z'];
-                        foreach ($orderChat as $msg) {
-                            $edited = ($msg->edited) ? 'darker' : '';
-                            $f_disp = !empty($f = $msg['file_path']);
-                            $if_disp = !empty($if = $msg['image_file_path']);
-                            $vf_disp = !empty($vf = $msg['video_file_path']);
-                            $af_disp = !empty($af = $msg['audio_file_path']);
-                            /* сообщение с файлом видео или картинкой */
-                            if ($f) {
-                                $f_ext = strtolower(pathinfo(basename($f), PATHINFO_EXTENSION));
-                                $icon_style = (in_array($f_ext, $ext_arr)) ? "file-zip" : "filetype-$f_ext";
-                            } ?>
-                            <div class="container <?= $edited; ?>">
-                                <span><?= $msg['user_name']; ?></span>
-
-                                <?php if ($if_disp): ?>
-                                    <img src="/<?= $if; ?>" alt="Avatar" class="right">
-                                <?php endif; ?>
-
-                                <?php if ($vf_disp): ?>
-                                    <video controls class="right">
-                                        <source src='/<?= $vf; ?>' type='video/mp4'>
-                                        <!--Your browser does not support the video tag.-->
-                                        Go to hell video not sponsored by me!
-                                    </video>
-                                <?php endif; ?>
-
-                                <?php if ($af_disp): ?>
-                                    <audio controls class="right">
-                                        <source src='/<?= $af; ?>' type='audio/m4a'>
-                                        <source src='/<?= $af; ?>' type='audio/mp3'>
-                                        <!--Your browser does not support the audio element.-->
-                                        Go to hell audio not sponsored by me!
-                                    </audio>
-                                <?php endif;
-
-                                if ($f_disp) {
-                                    if ($f_ext != 'pdf') { ?>
-                                        <a href="/<?= $f; ?>" class="btn btn-primary right" download>
-                                            <i class="bi bi-<?= $icon_style; ?>"></i> Download
-                                        </a>
-                                    <?php } else { ?>
-                                        <a href="/<?= $f; ?>" class="btn btn-primary right" target="_blank">
-                                            <i class="bi bi-<?= $icon_style; ?>"></i> Preview
-                                        </a>
-                                    <?php }
-                                } ?>
-                                <p data-msgid="<?= $msg->id; ?>" class="msg-url"> <?= $msg['message']; ?></p>
-                                <span class="time-left"><?= $msg['date_in']; ?></span>
-                                <?php if ($f_disp) { ?>
-                                    <span class="time-left"><?= basename($f); ?></span>
-                                <?php } ?>
-                            </div>
-                        <?php } ?>
-                    </div>
-                    <div class="gear-container" id="gear-container">
-                        <i class="bi bi-gear-wide-connected gear" id="gear1"></i>
-                        <i class="bi bi-gear-wide-connected gear" id="gear2"></i>
-                    </div>
-                    <form action="" method="post" class="mt-4" enctype="multipart/form-data">
-                        <div class="d-flex">
-                            <?php $t = 'A message written here can be edited or deleted only within 15 minutes from the moment it was saved!'; ?>
-                            <textarea name="messageText" id="chatTextArea" class="form-control" style="flex-grow: 1; max-width: 75%;" rows="3"
-                                      placeholder="<?= $t; ?>" required></textarea>
-
-                            <div class="d-flex flex-row justify-content-between">
-                                <input type="file" name="chatFile" class="hidden" id="fileToTake">
-                                <!-- write and send audio message -->
-                                <button id="recordButton" type="button" class="btn btn-outline-primary ms-2 btn-rounded">
-                                    <i class="bi bi-mic-fill fs-3"></i>
-                                </button>
-                                <!-- add file to message -->
-                                <button type="button" id="getFileContent" class="btn btn-outline-primary ms-2 btn-rounded">
-                                    <i class="bi bi-folder-plus fs-2"></i>
-                                </button>
-                                <!-- send message btn -->
-                                <button type="submit" name="save-message" id="chat-send-button" class="btn btn-outline-info ms-2 btn-rounded">
-                                    <i class="bi bi-send fs-2"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- chat rules notice and file name preview -->
-                <div class="col-3 border-start">
-                    <i class="bi bi-info-circle text-info"></i>
-                    <p class="chat-notes">
-                        <b>NOTICE</b>
-                        <br>
-                        <b class="info">Audio Recording:</b> <i class="bi bi-mic-fill info"></i>
-                        <br>
-                        Press and hold the record button to create a voice message.
-                        <br>
-                        After recording the audio, make sure to write a note on the recording.
-                        <br>
-                        After sending the message, please be patient! Saving recordings and files takes time, which depends on your Internet connection.
-                        <br>
-                        <b class="info">File Uploading:</b>
-                        <br>
-                        Only jpg, png, webp, mp4, pdf, csv, xls, xlsx, doc, txt, zip, rar, 7z can be uploaded!
-                        <br>
-                        Max size 300MB!!!
-                        <br>
-                        <b class="info">Message Edit/Delete:</b>
-                        <br>
-                        <?= $t; ?>
-                    </p>
-                    <br>
-                    <br>
-                    <!-- file name preview -->
-                    <div id="fileNamePreviewContainer" class="p-2 hidden warning rounded">
-                        <h3>Choosen file:</h3>
-                        <p class="text-primary" id="fileNamePreview"></p>
-                    </div>
-                </div>
-            </div>
+            <?php include_once 'work-flow/tab_7_chat.php'; ?>
         </div>
         <!-- end tab 7 -->
 
         <!-- Контент для Таба 8 ORDER WORK FLOW -->
         <div class="tab-pane fade show <?= ($A_T == 'tab8') ? 'active' : '' ?>" id="tab8" role="tabpanel" aria-labelledby="tab8-tab">
             <?php
-            require_once 'assembly-type.php';
+            // STANDARD assembling flow
             if ($project->project_type == 0) {
-                standardAssemblyProjectType($order, $stepsData, $assy_in_progress, $amount);
+                include_once 'work-flow/tab_8.php';
             }
+            // SMT assembling flow
             if ($project->project_type == 1) {
-                smtAssemblyProjectType($order, $amount, $projectBom);
+                include_once 'work-flow/tab_8_smt.php';
             }
             ?>
         </div>
         <!-- end tab 8 -->
     </div>
 </div>
-
-<form action="" id="routing" method="post" class="hidden"></form>
-
 <!-- EDIT OR DELETE CHAT MESSAGE MODAL DIALOG -->
 <div id="chatModalDialog" class="chatModalDialog">
     <!-- back button to edit-project or home -->

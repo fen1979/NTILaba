@@ -44,7 +44,7 @@ class Orders
             $u->filterby_status = implode(',', $post['status'] ?? ['']);
             $_SESSION['userBean'] = R::load(USERS, R::store($u));
             $res['user'] = $_SESSION['userBean'];
-            $res = ['color' => 'success', 'info' => 'Filter by status changed'];
+            _flashMessage('Filter by status changed');
         }
 
         /* filter by user updating */
@@ -53,7 +53,7 @@ class Orders
             $u->filterby_user = implode(',', $post['users'] ?? ['all']);
             $_SESSION['userBean'] = R::load(USERS, R::store($u));
             $res['user'] = $_SESSION['userBean'];
-            $res = ['color' => 'success', 'info' => 'Filter by User changed'];
+            _flashMessage('Filter by User changed');
         }
 
         /* filter by client updating */
@@ -62,7 +62,7 @@ class Orders
             $u->filterby_client = _E($post['clients'] ?? '');
             $_SESSION['userBean'] = R::load(USERS, R::store($u));
             $res['user'] = $_SESSION['userBean'];
-            $res = ['color' => 'success', 'info' => 'Filter by Customer changed'];
+            _flashMessage('Filter by Customer changed');
         }
         return $res;
     }
@@ -122,10 +122,9 @@ class Orders
      * @param $user
      * @param $order_id
      * @param $post
-     * @return array
      * @throws /\RedBeanPHP\RedException\SQL
      */
-    public static function setStatusOrUserInOrder($user, $order_id, $post): array
+    public static function setStatusOrUserInOrder($user, $order_id, $post)
     {
         $post = self::checkPostDataAndConvertToArray($post);
         $order = R::load(ORDERS, $order_id);
@@ -136,23 +135,22 @@ class Orders
             $log_details = $newUsers . ', This users was added to order production, ( OLD Users - ' . $oldUsers . ' )';
             $args['messageText'] = 'Workers changed: ' . $newUsers;
             $log_action = 'USER_CHANGED';
-            $res[] = ['info' => 'Users changed successfully', 'color' => 'success'];
+            _flashMessage('Users changed successfully');
         } else {
             $order->status = $post['status'];
             $log_details = 'Order status hase be changed to ' . SR::getResourceValue('status', $post['status']);
-            $res[] = ['info' => 'Status changed successfully', 'color' => 'success'];
+            _flashMessage('Status changed successfully');
             $args['messageText'] = 'Transferred to status: ' . SR::getResourceValue('status', $post['status']);
             $log_action = 'STATUS_CHANGED';
         }
         $args['readonly'] = 1;
         R::store($order);
-        $res[] = self::saveChatMessage($order_id, $user, $args);
+        self::saveChatMessage($order_id, $user, $args);
 
         /* [     LOGS FOR THIS ACTION     ] */
         if (!logAction($user['user_name'], $log_action, OBJECT_TYPE[0], $log_details)) {
-            $res[] = ['info' => 'Log creation failed.', 'color' => 'danger'];
+            _flashMessage('Log creation failed.', 'danger');
         }
-        return $res;
     }
 
     /**
@@ -210,11 +208,14 @@ class Orders
         // LOW, MEDIUM, HIGH, DO FIRST
         $order->prioritet = $post['prioritet']; // приоритет выполнения заказа
         $shelf = $order->storage_shelf = $post['storageShelf'] ?? 'A0'; // место хранения коробки с запчастями к заказу
-        $box = $order->storage_box = $post['storageBox']; // номер коробки для запчастей к заказу
 
-        // обновляем значение в нумерации указывая что данный номер занят
-        // TODO  сделать сброс после завершения проекта или на одном из статусов например когда ушел в упаковку
-        SR::updateResourceDetail('order_kit', $post['storageBox'], '1');
+        if (ctype_digit($post['storageBox'])) {
+            // обновляем значение в нумерации указывая что данный номер занят
+            SR::updateResourceDetail('order_kit', $post['storageBox'], '1');
+        }
+
+        // присваиваем новый номер коробки для запчастей к заказу
+        $box = $order->storage_box = $post['storageBox']; // номер коробки для запчастей к заказу
 
         $unic_name = strtolower($p_name) . '_' . date('Ymd_is'); // project name/date/
         $order->order_folder = self::makeFolderInStorage($unic_name); // папка заказа для хранения информации
@@ -235,7 +236,7 @@ class Orders
             . 'Order Prioritet: ' . $post['prioritet'] . ',<br>'
             . 'Order Workers: ' . $post['orderWorkers'] . ',<br>'
             . 'Forwarded to: ' . $post['forwardedTo'] . ',<br>'
-            . 'Вудшмукн вфеу: ' . $post['date_out'] . ',<br>'
+            . 'Delivery Date: ' . $post['date_out'] . ',<br>'
             . $firstQty
             . 'Storage Shelf: ' . $shelf . ' / '
             . 'Box: ' . $box;
@@ -316,22 +317,31 @@ class Orders
 
             $amount = $order->order_amount;
             $order->order_amount = $post['orderAmount']; // полное количество к выполнению
-            $order->fai_qty = $post['fai_qty'] ?? 0; // тестовое количество для проверки
+            $order->fai_qty = $post['fai_qty'] ?? 1; // тестовое количество для проверки
             $order->extra = $post['extra']; // дополнительная игформация по заказу
 
             $order->serial_required = $post['serial-required'] ?? 0; // требуется сериализация всей партии
 
             $shelf = $order->storage_shelf;
             $order->storage_shelf = $post['storageShelf'] ?? 'A0'; // место хранения коробки с запчастями к заказу
+
             // если коробка была изменена поизводим обновления в БД
             if (!empty($order->storage_box) && $order->storage_box != $post['storageBox']) {
                 $box = $order->storage_box;
-                // возвращаем коробку обратно в систему если коробка была изменена
-                R::exec("UPDATE storage SET in_use = 0 WHERE id = ?", [$order->storage_box]);
+
+                if (ctype_digit($box)) {
+                    // возвращаем коробку обратно в систему если коробка была изменена
+                    SR::updateResourceDetail('order_kit', $box, '0');
+                }
+
+                if (ctype_digit($post['storageBox'])) {
+                    // обновляем значение в нумерации указывая что данный номер занят
+                    SR::updateResourceDetail('order_kit', $post['storageBox'], '1');
+                }
+
                 // присваиваем новый номер коробки для запчастей к заказу
                 $order->storage_box = $post['storageBox'];
-                // обновляем значение в нумерации указывая что данный номер занят
-                R::exec("UPDATE storage SET in_use = 1 WHERE id = ?", [$post['storageBox']]);
+
                 // message to order log
                 $msg .= "<b class='text-primary'>Storage box changet FROM: $box -> TO: {$post['storageBox']}</b><br>";
             }
@@ -383,17 +393,17 @@ class Orders
             }
 
             /* записываем в чат сообщение о изменениях в заказе */
-            $res[] = self::saveChatMessage($orderId, $user, ['messageText' => $msg, 'readonly' => 1]);
+            self::saveChatMessage($orderId, $user, ['messageText' => $msg, 'readonly' => 1]);
 
             // display message for user
             $res['pid'] = $post['project_id'];
-            $res[] = ['info' => 'Order details canged successfully', 'color' => 'success'];
+            _flashMessage('Order details canged successfully');
 
             $details = "Order N: $orderId, Customer: $c_name, Amount: $amount, Project: $p_name";
 
             /* [     LOGS FOR THIS ACTION     ] */
             if (!logAction($user['user_name'], 'EDITING', OBJECT_TYPE[0], $details)) {
-                $res[] = ['info' => 'Log creation failed.', 'color' => 'danger'];
+                _flashMessage('Log creation failed.', 'danger');
             }
         }
         return $res ?? [null];
@@ -420,32 +430,32 @@ class Orders
             if (isset($post['archivation']) && $order->status == 'st-222') {
                 $order->status = 'st-111';
                 R::store($order);
-                $res[] = ['info' => 'Order extracte from archive successfully', 'color' => 'success'];
+                _flashMessage('Order extracte from archive successfully');
                 /* log details */
                 $log_details = 'Order ID: ' . $orderID . ', Extracted from archive';
                 /* write readonly message to order chat */
                 $msg = ['readonly' => 1, 'messageText' => 'Order dearchivated<br>Transferred to status: Complited.'];
-                $res[] = self::saveChatMessage($orderID, $user, $msg);
+                self::saveChatMessage($orderID, $user, $msg);
             }
 
             /* putorder to archive */
             if (isset($post['archivation']) && $order->status == 'st-111') {
                 $order->status = 'st-222';
                 R::store($order);
-                $res[] = ['info' => 'Order added to archive successfully', 'color' => 'success'];
+                _flashMessage('Order added to archive successfully');
                 /* log details */
                 $log_details = 'Order was added to archive, Order ID: ' . $orderID;
                 /* write readonly message to order chat */
                 $msg = ['readonly' => 1, 'messageText' => 'Order archivated<br>Transferred to status: Archivated.'];
-                $res[] = self::saveChatMessage($orderID, $user, $msg);
+                self::saveChatMessage($orderID, $user, $msg);
             }
 
             /* [     LOGS FOR THIS ACTION     ] */
             if (!logAction($user['user_name'], 'ARCHIVATION', OBJECT_TYPE[0], $log_details)) {
-                $res[] = ['info' => 'Log creation failed.', 'color' => 'danger'];
+                _flashMessage('Log creation failed.', 'danger');
             }
         } else {
-            $res[] = ['info' => 'Incorrect password writed!', 'color' => 'danger'];
+            _flashMessage('Incorrect password writed!', 'danger');
         }
 
         return $res;
@@ -610,7 +620,7 @@ class Orders
                 if (is_uploaded_file($tmp_name)) {
                     // Перемещаем файл в целевую директорию
                     if (move_uploaded_file($tmp_name, $uploadToTemp)) {
-                        $res[] = ['info' => "File uploaded successfully: " . $uploadToTemp, 'color' => 'success'];
+                        _flashMessage("File uploaded successfully: " . $uploadToTemp);
                         // Проверяем, является ли файл видео MP4 с кодеком H.264
                         if (Converter::isMp4H264($uploadToTemp)) {
                             // Файл уже в нужном формате, переименуем и переместим его
@@ -625,10 +635,10 @@ class Orders
                         $log_action = 'VIDEO_SAVED';
                         $details = "Order N: $order->id, Was saved video file to Chat, File Placed: " . $res['video'];
                     } else {
-                        $res[] = ['info' => 'Error! uploading video file!<br>', 'color' => 'danger'];
+                        _flashMessage('Error! uploading video file!<br>', 'danger');
                     }
                 } else {
-                    $res[] = ['info' => 'Notice: Video file not exist!<br>', 'color' => 'danger'];
+                    _flashMessage('Notice: Video file not exist!<br>', 'danger');
                 }
             }
 
@@ -641,13 +651,13 @@ class Orders
 
                     if ($returnVar === 0) {
                         $res['audio'] = $fileNameToSave . '.m4a'; // ААС формат на выходе
-                        $res[] = ['info' => 'File oploaded successfully!', 'color' => 'success'];
+                        _flashMessage('File oploaded successfully!');
                         // Удаление исходного файла
                         array_map('unlink', glob(TEMP_FOLDER . "*.*"));
                         $log_action = 'AUDIO_SAVED';
                         $details = "Order N: $order->id, Was saved audio to Chat, File Placed: " . $fileNameToSave;
                     } else {
-                        $res[] = ['info' => 'Error while file upload!', 'color' => 'danger'];
+                        _flashMessage('Error while file upload!', 'danger');
                     }
                 }
             }
@@ -682,10 +692,9 @@ class Orders
      * @param $user
      * @param $post
      * @param $files
-     * @return array
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    public static function saveChatMessage($order_id, $user, $post, $files = null): array
+    public static function saveChatMessage($order_id, $user, $post, $files = null)
     {
         $result = [null];
         $order = R::load(ORDERS, $order_id);
@@ -716,18 +725,16 @@ class Orders
         /* saving relatives to order */
         $order->ownChatList[] = $chat;
         R::store($order);
-        /* notifications for user */
-        $res['info'] = 'Message saved successfully';
-        $res['color'] = 'success';
+
+        // message collector (text/ color/ auto_hide = true)
+        _flashMessage('Message saved successfully');
 
         /* [     LOGS FOR THIS ACTION     ] */
         $details = "MSG in Order №:$order_id, MSG: " . _E($post['messageText']);
         /* сохранение логов если успешно то переходим к БОМ */
         if (!logAction($user['user_name'], 'NEW_MESSAGE', OBJECT_TYPE[2], $details)) {
-            $res['info'] = 'The log not created all actions be canceled.';
-            $res['color'] = 'danger';
+            _flashMessage('The log not created all actions be canceled.', 'danger');
         }
-        return $res;
     }
 
     /**
@@ -735,10 +742,9 @@ class Orders
      * @param $post
      * @param $user
      * @param $order_id
-     * @return array
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    public static function editOrDeleteMessage($post, $user, $order_id): array
+    public static function editOrDeleteMessage($post, $user, $order_id)
     {
         $log_details = $log_action = null;
         if (isset($post['editChatMessage'])) {
@@ -754,17 +760,16 @@ class Orders
                 $msg->edited = 1;
                 R::store($msg);
 
-                $res['info'] = 'Message edited successfully';
-                $res['color'] = 'success';
+                // message collector (text/ color/ auto_hide = true)
+                _flashMessage('Message edited successfully');
             } else {
                 /* если кто то другой пытается поменять сообщение */
                 if ($user['user_name'] != $msg['user_name'])
-                    $res['info'] = 'The message cannot be edited by another user! contact the administrator.';
+                    _flashMessage('The message cannot be edited by another user! contact the administrator.', 'warning');
                 elseif ($msg->readonly)
-                    $res['info'] = 'The message read only.';
+                    _flashMessage('The message read only.', 'warning');
                 else
-                    $res['info'] = 'The message cannot be edited, the time limit has passed, contact the administrator.';
-                $res['color'] = 'warning';
+                    _flashMessage('The message cannot be edited, the time limit has passed, contact the administrator.', 'warning');
             }
         }
 
@@ -789,29 +794,25 @@ class Orders
                 $log_action = 'MSG_DELETED';
                 $log_details = "MSG for Order №:$order_id was deleted, MSG: " . $msg->message;
                 R::trash($msg);
-                $res['info'] = 'Message deleted successfully';
-                $res['color'] = 'success';
+                // message collector (text/ color/ auto_hide = true)
+                _flashMessage('Message deleted successfully');
             } else {
                 /* если кто то другой пытается поменять сообщение */
                 if ($user['user_name'] != $msg['user_name'])
-                    $res['info'] = 'The message cannot be deleted by another user! contact the administrator.';
+                    _flashMessage('The message cannot be deleted by another user! contact the administrator.', 'warning');
                 elseif ($msg->readonly)
-                    $res['info'] = 'The message read only.';
+                    _flashMessage('The message read only.', 'warning');
                 else
-                    $res['info'] = 'The message cannot be deleted, the time limit has passed, contact the administrator.';
-                $res['color'] = 'warning';
+                    _flashMessage('The message cannot be deleted, the time limit has passed, contact the administrator.', 'warning');
             }
         }
 
         /* [     LOGS FOR THIS ACTION     ] */
         if ($log_action != null && $log_details != null) {
             if (!logAction($user['user_name'], $log_action, OBJECT_TYPE[2], $log_details)) {
-                $res['info'] = 'The log not created all actions be canceled.';
-                $res['color'] = 'danger';
+                _flashMessage('The log not created all actions be canceled.', 'danger');
             }
         }
-
-        return $res;
     }
 
     /* i============================ ORDER WORK FLOW ACTIONS =============================== */
@@ -833,7 +834,7 @@ class Orders
         if ((int)$order['pre_assy'] == 0) {
             foreach ($projectBom as $item) {
                 $inShelf = WareHouse::GetActualQtyForItem($item['customerid'], $item['item_id'] ?? '');
-                if (!$inShelf || ($item['amount'] * $order['order_amount']) > $inShelf['actual_qty'])
+                if (!$inShelf || ($item['amount'] * $order['order_amount']) > $inShelf)
                     return false;
             }
             return true;
@@ -855,13 +856,13 @@ class Orders
             $inShelf = WareHouse::GetActualQtyForItem($item['customerid'], $item['item_id'] ?? '');
 
             // Если какой-то компонент отсутствует на складе, возвращаем 0
-            if (!$inShelf || $inShelf['actual_qty'] <= 0) {
+            if (!$inShelf || $inShelf <= 0) {
                 return 0;
             }
 
             // Вычисляем, сколько единиц продукции можно собрать на основании текущего компонента и его количества в заказе
             $needs = $item['amount'] * $order['order_amount']; // Требуемое количество данного компонента для заказа
-            $possibleAmount = intdiv($inShelf['actual_qty'], $needs);
+            $possibleAmount = intdiv($inShelf, $needs);
 
             // Обновляем минимальное количество, если текущее меньше предыдущего
             if ($possibleAmount < $minProductionAmount) {
@@ -879,70 +880,110 @@ class Orders
      * @param $order
      * @param $storage_space
      * @param $user
-     * @return array
+     * @return bool
      */
-    private static function checkStockAndSubtract($project_id, $order, $storage_space, $user): array
+    private static function checkStockAndSubtract($project_id, $order, $storage_space, $user): bool
     {
-        //
-        // изменить списание в заказе сделать его через метод класса склада напрямую
-        // в метод передать даннные БОМ проекта и еще что то для корректной работы
-        // вынести всю работу со складом в класс склада
-        // логирование организовать в самом складе при работе методов
-        // добавить отчисттку резерва для заказа
-
         if ($order->subtraction == 0) {
-            $order_amount = $order->order_amount;
-            //include_once 'stock/WareHouse.php';
-            $bom = array();
-            $projectBom = R::findAll(PROJECT_BOM, 'projects_id = ?', [$project_id]);
-            foreach ($projectBom as $item) {
+            $no_reserved = true;
+            $reserv = R::findAll(WH_RESERV, 'order_uid = ?', [$order['id']]); // получаем резерв
+            if ($reserv) {  // если резерв существует
+                try {
+                    R::begin(); // Начинаем транзакцию
+                    // делаем списание и удаляем резерв
+                    foreach ($reserv as $item) {
+                        $qty = WareHouse::GetActualQtyForItem($item['client_uid'], $item['items_id'] ?? '');
+                        // отнимаем от склада то что зарезервировано и сохраняем остаток
+                        // test message
+                        _flashMessage($remainder = $qty - $item['reserved_qty'], 'dark');
+                        // обходим масив и обновляем данные на складе
+                        $wh_item = R::load(WAREHOUSE, $item['wh_uid']);
+                        _flashMessage($wh_item->owner, 'warning');
+                        //R::exec("UPDATE warehouse SET quantity = ? WHERE id = ?", [$remainder, $item['wh_uid']]);
+                        //$args[] = WareHouseLog::registerMovement($item['items_id'], $item['client_uid'], $storage_space, $item['reserved_qty'], $user);
+                    }
 
-                // fixme переделать снятие с базы количества нужного для заказа по конкретной
-                // fixme запчасти и сделать привязку к статусам переведенным вручную
+                    // удаляем резервированные данные
+                    R::trashAll($reserv);
+                    $no_reserved = false;
+                    // Завершаем транзакцию если все проверки прошли успешно
+                    R::commit();
+                } catch (Exception $e) {
+                    R::rollback(); // Откатываем транзакцию в случае исключения
+                    _flashMessage('An error occurred: ' . $e->getMessage(), 'danger', false);
+                }
 
-                // просмотреть БОМ проекта и умножить количество в боме на количество в заказе,
-                $stock = WareHouse::GetActualQtyForItem($item['owner_pn'], $item['item_id'] ?? '');
-                // проверить наличие на складе:
-                if ($stock) {
-                    // если больше чем нужно отнять нужное и сохранить остатки(записать в лог склада)
-                    $needed = $item['amount'] * $order_amount;
-                    if ($needed < $stock->actual_qty) {
-                        $bom[] = [
-                            'id' => $stock->id,
-                            'sub' => ($stock->actual_qty - $needed),
-                            'from' => $stock->storage_shelf . '/' . $stock->storage_box
-                        ];
+                // произвести списание только если все позиции находятся в наличии на складе и имеют какое то количество в наличии
+                _flashMessage('The parts for the production of this order were successfully written off from the warehouse. '
+                    . 'A complete list of required parts can be found in the project BOM.');
+                return true;
+            }
 
-                    } else {
-                        // если меньше чем нужно но стоит разрешение на сборку то отнять то количество которое есть (записать в лог склада)
-                        if ($order->pre_assy && $stock->actual_qty > 0) {
-                            $bom[] = ['id' => $stock->id, 'sub' => $stock->actual_qty];
+            if ($no_reserved) { // на случай если резервирования не было получаем БОМ проекта
+                $order_amount = $order->order_amount;
+                $projectBom = R::findAll(PROJECT_BOM, 'projects_id = ?', [$project_id]);
+                if ($projectBom) {
+                    $bom = array();
+                    // обходим БОМ
+                    foreach ($projectBom as $item) {
+                        // требуемое кол-во
+                        $needed = $item['amount'] * $order_amount;
+                        // получаем актуальное кол-во по запчасти/товару
+                        $qty = WareHouse::GetActualQtyForItem($item['customerid'], $item['item_id'] ?? '');
+                        // получаем запчасть/товар
+                        $wh_item = WareHouse::GetOneItemFromWarehouse($item['manufacture_pn'], $item['owner_pn'], $item['item_id'] ?? '');
+                        if (!empty($qty)) {
+                            if ($qty >= $needed) {
+                                // если больше чем нужно отнять нужное и сохранить остатки(записать в лог склада)
+                                $bom[] = [
+                                    'id' => $wh_item->id,
+                                    'sub' => ($wh_item->quantity - $needed),
+                                    'from' => $wh_item->storage_shelf . '/' . $wh_item->storage_box
+                                ];
+
+                            } else {
+                                // если меньше чем нужно но стоит разрешение на сборку то отнять то количество которое есть (записать в лог склада)
+                                if ($order->pre_assy && $wh_item->quantity > 0) {
+                                    $bom[] = ['id' => $wh_item->id, 'sub' => $wh_item->quantity];
+                                }
+                            }
+                        } else {
+                            // при отсутствии записи хотя бы об одном товаре или количество равно 0 : прервать операцию!
+                            _flashMessage('One or more parts are out of stock! The number of parts may not be sufficient to produce a complete order! '
+                                . 'Contact the administrator to clarify the issue. '
+                                . 'The operation was aborted!', 'danger', false);
+                            return false;
                         }
                     }
-                } else {
-                    // при отсутствии записи хотя бы об одном товаре или количество равно 0 : прервать операцию!
-                    $i = 'One or more parts are out of stock! The number of parts may not be sufficient to produce a complete order! 
-                    Contact the administrator to clarify the issue. 
-                    The operation was aborted!';
-                    return [false, ['info' => $i, 'color' => 'danger', 'hide' => 'hand']];
+
+                    // обновляем данные на складе
+                    try {
+                        R::begin(); // Начинаем транзакцию
+                        // обходим созданный массив склада и обновляем количество компонентов на складе
+                        foreach ($bom as $item) {
+                            //i Обновляем поле status для каждого ID в массиве
+                            R::exec("UPDATE warehouse SET quantity = ? WHERE id = ?", [$item['sub'], $item['id']]);
+                            WareHouseLog::registerMovement($item['id'], $item['from'], $storage_space, $item['sub'], $user);
+                        }
+                        // Завершаем транзакцию если все проверки прошли успешно
+                        R::commit();
+                    } catch (Exception $e) {
+                        R::rollback(); // Откатываем транзакцию в случае исключения
+                        _flashMessage('An error occurred: ' . $e->getMessage(), 'danger', false);
+                    }
+
+                    // произвести списание только если все позиции находятся в наличии на складе и имеют какое то количество в наличии
+                    _flashMessage('The parts for the production of this order were successfully written off from the warehouse. '
+                        . 'A complete list of required parts can be found in the project BOM.');
+                    return true;
                 }
             }
-
-            // обходим созданный массив склада и обновляем количество компонентов на складе
-            foreach ($bom as $item) {
-                //i Обновляем поле status для каждого ID в массиве
-                R::exec("UPDATE warehouse SET actual_qty = ? WHERE id = ?", [$item['sub'], $item['id']]);
-                WareHouseLog::registerMovement($item['id'], $item['from'], $storage_space, $item['sub'], $user);
-            }
-            // произвести списание только если все позиции находятся в наличии на складе и имеют какое то количество в наличии
-            $i = 'The parts for the production of this order were successfully written off from the warehouse. 
-            A complete list of required parts can be found in the project BOM.';
-            return [true, ['info' => $i, 'color' => 'success']];
-        } else {
-            $i = 'The parts were written off from the warehouse earlier, 
-            perhaps something went wrong, the operation was stopped, reload the page and try again!';
-            return [false, ['info' => $i, 'color' => 'danger', 'hide' => 'hand']];
         }
+
+        // если ранее было списание то сразу отправляем возврат и оповещение
+        _flashMessage('The parts were written off from the warehouse earlier, '
+            . 'perhaps something went wrong, the operation was stopped, reload the page and try again!', 'danger', false);
+        return false;
     }
 
     /**
@@ -957,7 +998,8 @@ class Orders
      */
     public static function OrderAssemblyProcess($order, $project, $steps, $user, $post, $action): array
     {
-        $res = [];
+
+        $res = ['tab' => '2', 'step_id' => '', 'errors' => ''];
         $post = self::checkPostDataAndConvertToArray($post);
         switch ($action) {
             case 'initiation':
@@ -1026,8 +1068,10 @@ class Orders
         $storage_space = $order->storage_shelf . '/' . $order->storage_box;
         // проверяем если все запчасти в наличии и перемещаем к заказу если проект не СМТ
         if ($order->subtraction == 0 && $project->project_type == 0) {
+            // списываем запчасти со склада
             $stockCheck = self::checkStockAndSubtract($project->id, $order, $storage_space, $user);
         } elseif ($project->project_type == 1) {
+            // переходим к инициализации процесса для СМТ
             $res[] = self::smtAssemblingOrderInitiation($order, $project, $user, $steps);
             // если одной из запчастей нет то выводим ошибку и отменяем все операции
             $res['tab'] = '6';
@@ -1035,10 +1079,8 @@ class Orders
         }
 
         // если операция прошла успшно то создаем запись в заказе
-        if ($stockCheck[0]) {
-            // информация о операции списания ЗЧ.
-            $res[] = $stockCheck[1];
-            // go to choose step for work or go to assemble the line
+        if ($stockCheck) {
+            // устанавливает вкладку 6 для дальнейшего выбора сборочного шага в работу
             $res['tab'] = '6';
 
             // сохраняем в БД данные для заказа
@@ -1059,18 +1101,18 @@ class Orders
             $msg = "Work on this order was started by: {$user['user_name']}<br>";
             $msg .= "Spare parts for the order were written off from the warehouse";
             // пишем в чат заказа о данной операции
-            $res[] = self::saveChatMessage($orid, $user, ['messageText' => $msg, 'readonly' => 1]);
+            self::saveChatMessage($orid, $user, ['messageText' => $msg, 'readonly' => 1]);
 
-            $res[] = ['info' => 'Creation Started Successfully', 'color' => 'success'];
+            // message collector (text/ color/ auto_hide = true)
+            _flashMessage('Creation Started Successfully');
 
             /*   LOG ACTIONS   */
             if (!logAction($user['user_name'], 'WORK_STARTED', OBJECT_TYPE[0], $log_details)) {
-                $res[] = ['info' => 'The log not created all actions be canceled.', 'color' => 'danger'];
+                _flashMessage('The log not created all actions be canceled.', 'danger');
             }
 
         } else {
             // усли одной из запчастей нет то выводим ошибку и отменяем все операции
-            $res = $stockCheck[1];
             $res['tab'] = '1';
         }
         return $res;
@@ -1164,12 +1206,12 @@ class Orders
             $log_details .= "Order ID: $orid<br>";
 
             $msg = "Step number $step->step was taken by employee: {$user['user_name']}";
-            $res[] = self::saveChatMessage($orid, $user, ['messageText' => $msg, 'readonly' => 1]);
-            $res[] = ['info' => $msg, 'color' => 'success'];
+            self::saveChatMessage($orid, $user, ['messageText' => $msg, 'readonly' => 1]);
+            _flashMessage($msg);
 
             /*   LOG ACTIONS   */
             if (!logAction($user['user_name'], 'ASSEMBLING', OBJECT_TYPE[0], $log_details)) {
-                $res[] = ['info' => 'The log not created all actions be canceled.', 'color' => 'danger'];
+                _flashMessage('The log not created all actions be canceled.', 'danger');
             }
             return $res;
         }
@@ -1222,12 +1264,12 @@ class Orders
             $log_details .= "Step number: $st_num, complite, date: $we, Worker: {$user['user_name']}<br>";
 
             $msg = "Step number $st_num was complited by employee: {$user['user_name']}";
-            $res[] = self::saveChatMessage($orid, $user, ['messageText' => $msg, 'readonly' => 1]);
-            $res[] = ['info' => $msg, 'color' => 'success'];
+            self::saveChatMessage($orid, $user, ['messageText' => $msg, 'readonly' => 1]);
+            _flashMessage($msg);
 
             /*   LOG ACTIONS   */
             if (!logAction($user['user_name'], 'ASSEMBLING', OBJECT_TYPE[0], $log_details)) {
-                $res[] = ['info' => 'The log not created all actions be canceled.', 'color' => 'danger'];
+                _flashMessage('The log not created all actions be canceled.', 'danger');
             }
             return $res;
         }
@@ -1238,7 +1280,7 @@ class Orders
             //$res['tab'] = '8';
             //$post['back_to_previos']; // prev step id
 
-            return ['info' => 'Временно не понятно что именно надо делать при таком варианте', 'color' => 'success'];
+            _flashMessage('Временно не понятно что именно надо делать при таком варианте');
         }
 
         // worker pressed on skip this step button
@@ -1283,12 +1325,12 @@ class Orders
             $log_details .= "Order ID: $orid<br>";
 
             $msg = "Step number $assy_flow->current_step was skipped by employee: {$user['user_name']}";
-            $res[] = self::saveChatMessage($orid, $user, ['messageText' => $msg, 'readonly' => 1]);
-            $res[] = ['info' => $msg, 'color' => 'success'];
+            self::saveChatMessage($orid, $user, ['messageText' => $msg, 'readonly' => 1]);
+            _flashMessage($msg);
 
             /*   LOG ACTIONS   */
             if (!logAction($user['user_name'], 'ASSEMBLING', OBJECT_TYPE[0], $log_details)) {
-                $res[] = ['info' => 'The log not created all actions be canceled.', 'color' => 'danger'];
+                _flashMessage('The log not created all actions be canceled.', 'danger');
             }
             return $res;
         }
@@ -1296,9 +1338,11 @@ class Orders
         // worker forwarded this step to another person
         // создать копию асси шага под новым пользователем а для этого написать что не справился
         if (isset($post['forward_step_to_user'])) {
+            $res['tab'] = 1;
             //$post['step_id']; // step id
             //$post['workers']; // user id
-            return ['info' => 'return to work function кнопка forward', 'color' => 'success'];
+            _flashMessage('return to work function кнопка forward');
+            return $res;
         }
 
         // worker proceed validation procedure
@@ -1307,7 +1351,7 @@ class Orders
             // i устанавливаем статус st-5   Waiting for Step Validation
             //$post['validate_step']; // step id
             //$post['qty_done_for_step']; // assy id
-            $res[] = ['info' => 'return to work function кнопка validate_step', 'color' => 'success'];
+            _flashMessage('return to work function кнопка validate_step');
             return $res;
         }
 
@@ -1332,11 +1376,12 @@ class Orders
             R::exec("UPDATE smtline SET feeder_state = ? WHERE id = ?", [1, $post['feeder']]);
 
             //$post['order_id']; // order id
-            $res['errors'] = ['info' => 'return to work function кнопка smt_component', 'color' => 'success'];
+            _flashMessage('return to work function кнопка smt_component');
             return $res;
         }// end of smt component
 
-        return ['info' => 'No Action was choosed but some how you get this message', 'color' => 'warning', 'hide' => '1'];
+        _flashMessage('No Action was choosed but some how you get this message', 'warning', false);
+        return $res;
     }
 
     /**
@@ -1368,13 +1413,13 @@ class Orders
 
         $msg = "Work on this order was started by: {$user['user_name']}<br>";
         $msg .= "Spare parts for the order were written off from the warehouse";
-        $res[] = self::saveChatMessage($orid, $user, ['messageText' => $msg, 'readonly' => 1]);
+        self::saveChatMessage($orid, $user, ['messageText' => $msg, 'readonly' => 1]);
 
-        $res[] = ['info' => 'Creation Started Successfully', 'color' => 'success'];
+        _flashMessage('Creation Started Successfully');
 
         /*   LOG ACTIONS   */
         if (!logAction($user['user_name'], 'WORK_STARTED', OBJECT_TYPE[0], $log_details)) {
-            $res[] = ['info' => 'The log not created all actions be canceled.', 'color' => 'danger'];
+            _flashMessage('The log not created all actions be canceled.', 'danger');
         }
         return $res;
     }
@@ -1385,9 +1430,8 @@ class Orders
      * @param array $get
      * @param array|null $projectBom
      * @param $reserve
-     * @return string[]
      */
-    public static function ReserveBomForOrder($user, array $get, ?array $projectBom, $reserve): array
+    public static function ReserveBomForOrder($user, array $get, ?array $projectBom, $reserve)
     {
         $order = R::load(ORDERS, _E($get['orid']));
         $reservations = [];
@@ -1398,36 +1442,44 @@ class Orders
                 R::begin(); // Начинаем транзакцию
                 foreach ($projectBom as $item) {
                     // Ищем записи в БД на данную деталь
-                    $result = self::searchItemsAndWarehouse($item['part_name'], $item['part_value'], $item['manufacture_pn'],
-                        $order->customers_id, $item['owner_pn']);
+                    $result = self::searchInItemsAndWarehouse($item['part_name'], $item['part_value'], $item['manufacture_pn'],
+                        $item->customerid, $item['owner_pn']);
 
                     if (!empty($result['items']['id']) && !empty($result['warehouse'])) {
+                        $length = (double)$item['length_mm'] ?? 0;
+                        $qty = (int)$item['amount'];
+                        $oqty = (int)$order['order_amount'];
+
                         $reserv = R::dispense(WH_RESERV);
                         $reserv->items_id = $result['items']['id'];
                         $reserv->wh_uid = $result['warehouse']['id'];
                         $reserv->order_uid = $order->id;
                         $reserv->project_uid = $order->projects_id;
-                        $reserv->client_uid = $order->customers_id;
-                        $reserv->reserved_qty = ((int)$item['amount'] * (int)$order->order_amount);
+                        $reserv->client_uid = $item->customerid;
+                        $reserv->reserved_qty = empty($length) ? $qty * $oqty : (($qty * $length) / 1000) * $oqty;
                         $reservations[] = $reserv;
                     } else {
                         R::rollback(); // Откатываем транзакцию в случае ошибки
-                        return ['info' => 'Some Item not found in Stock, all operation is aborted', 'color' => 'warning', 'hide' => 'hand'];
+                        // message collector (text/ color/ auto_hide = true)
+                        _flashMessage('Some Item not found in Stock, all operation is aborted', 'warning', false);
                     }
                 }
 
                 // Сохраняем все записи в конце, если все проверки прошли успешно
                 R::storeAll($reservations);
                 R::commit(); // Завершаем транзакцию
-
-                return ['info' => 'BOM for this order was reserved. To undo this action, press the unreserve button below the BOM table', 'color' => 'success'];
+                // message collector (text/ color/ auto_hide = true)
+                _flashMessage('BOM for this order was reserved. To undo this action, press the unreserve button below the BOM table');
             } catch (Exception $e) {
                 R::rollback(); // Откатываем транзакцию в случае исключения
-                return ['info' => 'An error occurred: ' . $e->getMessage(), 'color' => 'danger', 'hide' => 'hand'];
-            }
-        }
 
-        return ['info' => 'No BOM to reserve or already reserved', 'color' => 'warning'];
+                // message collector (text/ color/ auto_hide = true)
+                _flashMessage('An error occurred: ' . $e->getMessage(), 'danger', false);
+            }
+        } else {
+            // message collector (text/ color/ auto_hide = true)
+            _flashMessage('No BOM to reserve or already reserved', 'warning');
+        }
     }
 
     /**
@@ -1436,12 +1488,11 @@ class Orders
      * @param array $get
      * @param array|null $projectBom
      * @param $reserve
-     * @return string[]
      */
-    public static function UnReserveBomForOrder($user, array $get, $reserve): array
+    public static function UnReserveBomForOrder($user, array $get, $reserve)
     {
         $order = R::load(ORDERS, _E($get['orid']));
-        $reserv = R::findAll(WH_RESERV, 'order_uid = ? AND project_uid = ? AND client_uid = ?', [$order->id, $order->projects_id, $order->customers_id]);
+        $reserv = R::findAll(WH_RESERV, 'order_uid = ? AND project_uid = ?', [$order->id, $order->projects_id]);
 
         // Начинаем транзакцию
         R::begin();
@@ -1454,16 +1505,18 @@ class Orders
             }
             // Фиксируем транзакцию
             R::commit();
-            return ['info' => 'BOM for this order was unreserved', 'color' => 'success'];
+            // message collector (text/ color/ auto_hide = true)
+            _flashMessage('BOM for this order was unreserved');
         } catch (Exception $e) {
             // Откатываем транзакцию в случае ошибки
             R::rollback();
-            return ['info' => 'An error occurred: ' . $e->getMessage(), 'color' => 'danger'];
+            // message collector (text/ color/ auto_hide = true)
+            _flashMessage('An error occurred: ' . $e->getMessage(), 'danger', false);
         }
     }
 
     // функция поиска запчасти в БД при резервировании БОМА для заказа
-    private static function searchItemsAndWarehouse($partName, $partValue, $manufacturePn, $owner_id, $owner_pn): array
+    private static function searchInItemsAndWarehouse($partName, $partValue, $manufacturePn, $owner_id, $owner_pn): array
     {
         $pn = (empty($partName) || $partName == 0) ? null : $partName;
         $pv = (empty($partValue) || $partValue == 0) ? null : $partValue;

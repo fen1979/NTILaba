@@ -30,11 +30,11 @@ $r->addRout('/order', 'order-view.php');
 $r->addRout('/new_order', 'orders/create-order.php');
 $r->addRout('/edit-order', 'orders/create-order.php');
 $r->addRout('/check_bom', 'orders/order-bom.php');
-$r->addRout('/order/preview', 'orders/order-details.php');
+$r->addRout('/order/preview', 'orders/order-work-flow.php');
 $r->addRout('/priority-out', 'pdfOut/priority-out.php');
-$r->addRout('/order_pdf', 'pdfOut/order-details.php');
+$r->addRout('/order_pdf', 'pdfOut/order-work-flow.php');
 // спец страница для автоматического ввода данных
-$r->addRout('/pioi', 'orders/add-po.php');
+$r->addRout('/pioi', 'orders/creating-po.php');
 
 // projects pages
 $r->addRout('/project', 'product-units-view.php');
@@ -76,7 +76,7 @@ $r->addRout('/route_card', 'pdfOut/routes.php');
 // вывод таблицы для распечатки приходной накладной
 $r->addRout('/po-arrival-print', 'pdfOut/po-arrivals-table.php');
 // создание БОМ файла на скачивание для проекта/заказа
-$r->addRout('/create_bom', 'orders/order-details.php');
+$r->addRout('/create_bom', 'orders/order-work-flow.php');
 // Data Base changes listeners use for: Order, Chat
 $r->addRout('/is_change', 'core/listeners.php');
 

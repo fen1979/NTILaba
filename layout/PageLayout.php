@@ -303,3 +303,8 @@ function SearchResponceModalDialog($page, $answer_id): void
     </div>
     <?php
 }
+
+function PageBottomLayoutHTML($page, $modalWindow = true, $footer = true, $spinner = true): void
+{
+
+}

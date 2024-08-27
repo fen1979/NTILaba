@@ -163,6 +163,7 @@ dom.addEventListener("DOMContentLoaded", function () {
                         // проверяем класслист элемента
                         if (element.classList && element.classList.contains('hidden')) {
                             element.classList.remove("hidden");
+                            element.style.display = 'block';
                         } else {
                             // Элемент не содержит класс 'hidden'
                             // Показываем элемент, если он был скрыт
@@ -225,10 +226,12 @@ dom.addEventListener("DOMContentLoaded", function () {
                 // После завершения транзиции скрываем элемент
                 setTimeout(() => {
                     element.classList.add("hidden");
+                    element.style.display = "none";
                 }, duration);
             } else {
                 // Мгновенное скрытие элемента
                 element.classList.add("hidden");
+                element.style.display = "none";
             }
         }
     };

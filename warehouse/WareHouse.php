@@ -821,7 +821,7 @@ class WareHouse
     {
         $group = _if(!empty($group_name), $group_name, 'stock');
         // Получаем текущий номер ключа из запроса
-        $key = (int)_E($post['search-for-storage-box']);
+        $key = _E($post['search-for-storage-box']);
 
         // Получаем все записи в группе 'stock'
         $allResources = SR::getAllResourceDetailsInGroup($group);
@@ -861,24 +861,28 @@ class WareHouse
      * @param $user
      * @param $order
      * @param $project
-     * @return array
+     * @return string
      * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function createNewReplenishmentList($post, $user, $order, $project): array
+    public static function createNewReplenishmentList($post, $user, $order, $project): string
     {
         // Convert POST data to array if necessary
         $post = self::checkPostDataAndConvertToArray($post);
 
         $po_invoice = R::dispense(PO_AIRRVAL);
-        $po_invoice->orders_id = $order['id']; // связи таблиц
-        $po_invoice->projects_id = $project['id']; // связи таблиц
-        $po_invoice->owner_id = $post['owner_id']; // связи таблиц
+        if (!empty($order['id']) && !empty($project['id'])) {
+            $po_invoice->orders_id = $order['id']; // связи таблиц
+            $po_invoice->projects_id = $project['id']; // связи таблиц
+        }
 
+        $po_invoice->owner_id = $post['owner_id']; // связи таблиц
         $po_invoice->owner_name = $post['owner']; // имя клиента
-        $po_invoice->consignment = $post['consignment']; // номер приходной накладной
+
+        $c_num = $po_invoice->consignment = $post['consignment']; // номер приходной накладной
         $po_invoice->for_whom = $post['for_whom']; // для какого заказа/проекта приход
         $po_invoice->date_in = $post['date_in']; // дата прихода
 
+        // дополнительная информация
         $po_invoice->part_number = $post['makat']; // парт номер клиента указанный в накладной
         $po_invoice->manufacture_pn = $post['manufacture_pn'] ?? '';// парт номер производителя если есть
         $po_invoice->notes = $post['notes'] ?? ''; // доп информация о поставке
@@ -897,7 +901,9 @@ class WareHouse
         // Объединение данных в один массив
         $logData = json_encode($po_invoice->export(), JSON_UNESCAPED_UNICODE);
         // пишем лог по складу и возвращаем ответ пользователю
-        return WareHouseLog::poAirrvalAction($user, $logData, $id);
+        // message collector (text/ color/ auto_hide = true)
+        WareHouseLog::poAirrvalAction($user, $logData, $id);
+        return $c_num;
     }
 
     /**
