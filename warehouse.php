@@ -81,10 +81,6 @@ $settings = getUserSettings($thisUser, WH_ITEMS);
             background: #0739ff;
         }
 
-        .notice {
-            white-space: pre-wrap;
-        }
-
         .active-filter {
             background-color: #0d6efd;
             color: white;
