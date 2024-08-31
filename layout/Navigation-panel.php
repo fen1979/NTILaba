@@ -294,7 +294,7 @@ function ALL_PAGES_BUTTONS($page, $btn_title): void
 
     <!-- SETTINGS BUTTON DROPDOWN LIST -->
     <div class="btn-group nav-item" style="align-items: flex-start;">
-        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="margin: .3rem;">
+        <button class="m-03 btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             Settings
         </button>
         <ul class="dropdown-menu">
@@ -560,11 +560,11 @@ function WAREHOUSE_PAGE_BUTTONS($page, $pid, $page_tab = ''): void
             </button>
         </li>
 
-<!--        <li class="nav-item">-->
-<!--            <button type="button" class="url act btn btn-sm btn-outline-diliny" value="import-csv" disabled>-->
-<!--                Import Items From File <i class="bi bi-filetype-csv"></i>-->
-<!--            </button>-->
-<!--        </li>-->
+        <!--        <li class="nav-item">-->
+        <!--            <button type="button" class="url act btn btn-sm btn-outline-diliny" value="import-csv" disabled>-->
+        <!--                Import Items From File <i class="bi bi-filetype-csv"></i>-->
+        <!--            </button>-->
+        <!--        </li>-->
 
         <li class="nav-item">
             <button type="button" class="url act btn btn-sm btn-outline-diliny" value="test?import=warehouse">
