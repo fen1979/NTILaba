@@ -69,13 +69,13 @@ $r->addRout('/wiki', 'wiki.php');
 
 // системные операции для внутренних нужд сайта //
 // переход к документации о сайте
-$r->addRout('/docs', 'public/docs/docs.php');
+$r->addRout('/docs', 'public/docs/docs.php', true);
 // вывод сборочной документации в ПДФ для проекта
 $r->addRout('/assy_flow_pdf', 'pdfOut/assyStepFlow.php', true);
 // вывод рут карты в ПДФ для заказа
-$r->addRout('/route_card', 'pdfOut/routes.php');
+$r->addRout('/route_card', 'pdfOut/routes.php', true);
 // вывод таблицы для распечатки приходной накладной
-$r->addRout('/po-arrival-print', 'pdfOut/incoming-tables.php');
+$r->addRout('/po-arrival-print', 'pdfOut/incoming-tables.php', true);
 // создание БОМ файла на скачивание для проекта/заказа
 $r->addRout('/create_bom', 'orders/order-work-flow.php', true);
 // Data Base changes listeners use for: Order, Chat

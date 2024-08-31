@@ -110,3 +110,22 @@ img {
     margin: 0 auto 20px;
     overflow: hidden;
 }
+
+.magnifier {
+    position: absolute;
+    border: 1px solid #000;
+    width: 350px;
+    height: 350px;
+    overflow: hidden;
+    display: none;
+    pointer-events: none;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.magnifier img {
+    position: absolute;
+    width: auto;
+    height: auto;
+    max-width: none;
+}

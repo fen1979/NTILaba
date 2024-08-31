@@ -10,6 +10,31 @@
 
 // STANDARD PROJECT ASSEMBLY TYPE
 ?>
+<style>
+    .image-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .magnifier {
+        position: absolute;
+        border: 1px solid #000;
+        width: 350px;
+        height: 350px;
+        overflow: hidden;
+        display: none;
+        pointer-events: none;
+        border-radius: 50%;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .magnifier img {
+        position: absolute;
+        width: auto;
+        height: auto;
+        max-width: none;
+    }
+</style>
 <div class="step-box mt-3">
     <?php if ($order->status == 'st-8' && $assy_in_progress) {
 
@@ -20,7 +45,7 @@
                 ?>
                 <div class="row">
                     <div class="col-8">
-                        <img class="step-image rounded shrincable" src="/<?= $step['image']; ?>" alt="Hello asshole">
+                        <img class="step-image rounded magnify-image" src="/<?= $step['image']; ?>" alt="Hello asshole">
                         <?php if ($step['video'] != 'none') { ?>
                             <video src="<?= $step['video']; ?>" controls width="100%" height="auto">
                                 Your browser not support video
@@ -187,4 +212,59 @@
             you need to go to the "Project Steps" tab and select the required step to work on!
         </h3>
     <?php } else echo '<h3 class="mt-3">The status of this order does not allow you to start working on the order!</h3>'; ?>
+
+    <div class="magnifier"></div>
 </div>
+
+<script>
+    const magnifier = document.querySelector('.magnifier');
+    const img = document.querySelector('.magnify-image');
+    const magnifyImg = document.createElement('img');
+    magnifyImg.src = img.src;
+    magnifier.appendChild(magnifyImg);
+
+    // Устанавливаем увеличенные размеры
+    const zoomFactor = 2;
+    magnifyImg.style.width = `${img.width * zoomFactor}px`;
+    magnifyImg.style.height = `${img.height * zoomFactor}px`;
+
+    img.addEventListener('mousemove', function(e) {
+        const imgRect = img.getBoundingClientRect();
+        const magnifierRect = magnifier.getBoundingClientRect();
+        const x = e.clientX - imgRect.left;
+        const y = e.clientY - imgRect.top;
+
+        if (x > 0 && x < img.width && y > 0 && y < img.height) {
+            magnifier.style.display = 'block';
+            magnifier.style.left = `${e.pageX - magnifierRect.width / 2}px`;
+            magnifier.style.top = `${e.pageY - magnifierRect.height / 2}px`;
+
+            // Рассчитываем положение изображения внутри увеличительного стекла
+            let rx = (x / imgRect.width * magnifyImg.width) - magnifierRect.width / 2;
+            let ry = (y / imgRect.height * magnifyImg.height) - magnifierRect.height / 2;
+
+            magnifyImg.style.left = `-${rx}px`;
+            magnifyImg.style.top = `-${ry}px`;
+
+            // Проверка на приближение к краям страницы
+            if (e.pageX + magnifierRect.width / 2 > window.innerWidth) {
+                magnifier.style.left = `${window.innerWidth - magnifierRect.width}px`;
+            }
+            if (e.pageY + magnifierRect.height / 2 > window.innerHeight) {
+                magnifier.style.top = `${window.innerHeight - magnifierRect.height}px`;
+            }
+            if (e.pageX - magnifierRect.width / 2 < 0) {
+                magnifier.style.left = `0px`;
+            }
+            if (e.pageY - magnifierRect.height / 2 < 0) {
+                magnifier.style.top = `0px`;
+            }
+        } else {
+            magnifier.style.display = 'none';
+        }
+    });
+
+    img.addEventListener('mouseleave', function() {
+        magnifier.style.display = 'none';
+    });
+</script>

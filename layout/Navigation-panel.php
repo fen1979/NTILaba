@@ -11,47 +11,6 @@ const NO_VIEW_PAGES = [
     'new_project', 'edit_project', 'edit_step', 'add_step',
     'import_csv', 'view_item', 'arrivals', 'edit_item', 'replenishment', 'po_replenishment',
     'task_manager', 'pioi'];
-const BUTNS = ['main' => [
-    'order' => "Orders",
-    'project' => "Projects",
-    'pioi' => "Create PO",
-    'new_order' => "Create order",
-    'new_project' => "Create Project",
-    'create_client' => "Add Client",
-    'wh' => "Warehouse",
-    'task_list' => "Tasks",
-    'wiki' => "Wiki",
-    'logs' => "Logs"
-],
-    ''];
-
-//
-//$jsonString = '{
-//    "main": [
-//        {
-//            "value": "order",
-//            "text": "Orders",
-//            "role": "users"
-//        },
-//        {
-//            "value": "project",
-//            "text": "Projects",
-//            "role": "users"
-//        }
-//    ],
-//
-//}';
-//
-//$array = json_decode($jsonString, true);
-//
-//foreach ($array['main'] as $item) {
-//
-//    echo $item['value'];
-//    echo $item['text'];
-//    echo $item['role'];
-//}
-
-
 /**
  *
  * NAVIGATION BAR
@@ -279,12 +238,13 @@ function ALL_PAGES_BUTTONS($page, $btn_title): void
                 value="staging">P.O.S
         </button>
     </li>
+<?php } ?>
+
     <li class="nav-item">
         <button type="button" class="url act btn btn-sm btn-outline-secondary"
                 value="task_list">Tasks
         </button>
     </li>
-<?php } ?>
 
     <li class="nav-item">
         <button type="button" class="url act btn btn-sm btn-outline-secondary"
@@ -298,18 +258,23 @@ function ALL_PAGES_BUTTONS($page, $btn_title): void
             Settings
         </button>
         <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="setup?route-page=7" target="_blank">Search</a></li>
             <li><a class="dropdown-item" href="setup?route-page=1" target="_blank">Columns</a></li>
-            <li><a class="dropdown-item" href="setup?route-page=2" target="_blank">Rout's</a></li>
-            <li><a class="dropdown-item" href="setup?route-page=3" target="_blank">Tools</a></li>
-            <li><a class="dropdown-item" href="setup?route-page=4" target="_blank">Users</a></li>
-            <li><a class="dropdown-item" href="setup?route-page=5" target="_blank">Projects</a></li>
-            <li><a class="dropdown-item" href="setup?route-page=6" target="_blank">Orders</a></li>
             <li><a class="dropdown-item" href="setup?route-page=8" target="_blank">Profile</a></li>
-            <li><a class="dropdown-item" href="setup?route-page=9" target="_blank">Warehouses</a></li>
-            <li><a class="dropdown-item" href="setup?route-page=9" target="_blank">C.O.N.</a></li>
-            <li><a class="dropdown-item" href="resources" target="_blank">Resources</a></li>
-            <li><a class="dropdown-item" href="logs" target="_blank">Logs</a></li>
+            <?php if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="setup?route-page=7" target="_blank">Search</a></li>
+                <li><a class="dropdown-item" href="setup?route-page=2" target="_blank">Rout's</a></li>
+                <li><a class="dropdown-item" href="setup?route-page=3" target="_blank">Tools</a></li>
+                <li><a class="dropdown-item" href="setup?route-page=4" target="_blank">Users</a></li>
+                <li><a class="dropdown-item" href="setup?route-page=5" target="_blank">Projects</a></li>
+                <li><a class="dropdown-item" href="setup?route-page=6" target="_blank">Orders</a></li>
+                <li><a class="dropdown-item" href="setup?route-page=9" target="_blank">Warehouses</a></li>
+                <!--            <li><a class="dropdown-item" href="setup?route-page=9" target="_blank">C.O.N</a></li>-->
+                <li><a class="dropdown-item" href="resources" target="_blank">Resources</a></li>
+                <li><a class="dropdown-item" href="logs" target="_blank">Logs</a></li>
+            <?php } ?>
         </ul>
     </div>
     <?php
@@ -657,6 +622,10 @@ function DROPDOWN_BUTTONS($user)
             <li class="nav-item">
                 <a href="/project" class="dropdown-item">Projects</a>
             </li>
+            <li class="nav-item">
+                <a href="/task_list" target="_blank" class="dropdown-item">Tasks</a>
+            </li>
+
             <li class="nav-item">
                 <a href="/wiki" target="_blank" class="dropdown-item">Wiki</a>
             </li>

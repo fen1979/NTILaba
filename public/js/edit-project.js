@@ -107,4 +107,56 @@ document.addEventListener("DOMContentLoaded", function () {
         dom.show("#deleteProjectModal", "fast", true);
         dom.e("#pr_password").focus();
     });
+
+    // увеличительное стекло для фотографий
+    const imageContainers = document.querySelectorAll('.img-video-container');
+    imageContainers.forEach(container => {
+        const img = container.querySelector('.magnify-image');
+        const magnifier = container.querySelector('.magnifier');
+        const magnifyImg = document.createElement('img');
+        magnifyImg.src = img.src;
+        magnifier.appendChild(magnifyImg);
+
+        const zoomFactor = 2;
+        magnifyImg.style.width = `${img.width * zoomFactor}px`;
+        magnifyImg.style.height = `${img.height * zoomFactor}px`;
+
+        img.addEventListener('mousemove', function(e) {
+            const imgRect = img.getBoundingClientRect();
+            const magnifierRect = magnifier.getBoundingClientRect();
+            const x = e.clientX - imgRect.left;
+            const y = e.clientY - imgRect.top;
+
+            if (x > 0 && x < img.width && y > 0 && y < img.height) {
+                magnifier.style.display = 'block';
+                magnifier.style.left = `${e.pageX - magnifierRect.width / 2}px`;
+                magnifier.style.top = `${e.pageY - magnifierRect.height / 2}px`;
+
+                let rx = (x / imgRect.width * magnifyImg.width) - magnifierRect.width / 2;
+                let ry = (y / imgRect.height * magnifyImg.height) - magnifierRect.height / 2;
+
+                magnifyImg.style.left = `-${rx}px`;
+                magnifyImg.style.top = `-${ry}px`;
+
+                if (e.pageX + magnifierRect.width / 2 > window.innerWidth) {
+                    magnifier.style.left = `${window.innerWidth - magnifierRect.width}px`;
+                }
+                if (e.pageY + magnifierRect.height / 2 > window.innerHeight) {
+                    magnifier.style.top = `${window.innerHeight - magnifierRect.height}px`;
+                }
+                if (e.pageX - magnifierRect.width / 2 < 0) {
+                    magnifier.style.left = `0px`;
+                }
+                if (e.pageY - magnifierRect.height / 2 < 0) {
+                    magnifier.style.top = `0px`;
+                }
+            } else {
+                magnifier.style.display = 'none';
+            }
+        });
+
+        img.addEventListener('mouseleave', function() {
+            magnifier.style.display = 'none';
+        });
+    });
 }); // End document.ready

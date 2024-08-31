@@ -3,7 +3,7 @@ $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 require_once 'projects/Project.php';
 $page = 'edit_project';
 $role = $user['app_role'];
-$_SESSION['editmode'] = $args = $unit_for_view = $projectID = null;
+$_SESSION['editmode'] = $args = $project_for_edit = $projectID = null;
 
 /* delete or archive project */
 if (isset($_POST['projectid']) && isset($_POST['password'])) {
@@ -25,10 +25,10 @@ if (isset($_POST['projectid']) && isset($_POST['stepId']) && isset($_POST['delet
 /* вывод проекта для редактирования в режиме админа  и просмотра в режиме пользователя */
 if (isset($_GET['pid']) || isset($_SESSION['projectid'])) {
     $projectID = $_SESSION['projectid'] = $_GET['pid'];
-    $unit_for_view = R::Load(PROJECTS, $projectID);
+    $project_for_edit = R::Load(PROJECTS, $projectID);
 }
 // getting unit steps from DB
-$unit_staps = R::find(PROJECT_STEPS, "projects_id LIKE ? ORDER BY CAST(step AS UNSIGNED) ASC", [$unit_for_view->id]);
+$unit_staps = R::find(PROJECT_STEPS, "projects_id LIKE ? ORDER BY CAST(step AS UNSIGNED) ASC", [$project_for_edit->id]);
 ?>
 <!DOCTYPE html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
@@ -41,7 +41,7 @@ $unit_staps = R::find(PROJECT_STEPS, "projects_id LIKE ? ORDER BY CAST(step AS U
 <body>
 <?php
 // NAVIGATION BAR
-$title = '<b class="text-primary fs-4"> Assembly steps for Unit: ' . str_replace('_', ' ', $unit_for_view['projectname']) . '</b>';
+$title = '<b class="text-primary fs-4"> Assembly steps for Unit: ' . str_replace('_', ' ', $project_for_edit['projectname']) . '</b>';
 NavBarContent(['title' => $title, 'record_id' => $projectID ?? null, 'user' => $user, 'page_name' => $page, 'style' => ' ']); ?>
 
 <!-- Thumbnail Section -->
@@ -85,12 +85,14 @@ NavBarContent(['title' => $title, 'record_id' => $projectID ?? null, 'user' => $
             <p><?= $s['description'] ?></p>
             <div class="img-video-container">
                 <!-- image -->
-                <img src="<?= $s['image'] ?>" alt="Image Placeholder">
+                <img src="<?= $s['image'] ?>" alt="Image Placeholder" class="magnify-image">
                 <?php list($src, $act) = _if((strpos($s['video'], '.mp4') !== false), [$s['video'], ''], ['', 'hidden']); ?>
                 <!-- video -->
                 <video controls class="video <?= $act ?>" width="640" height="480" src="<?= $src ?>" id="video-file">
                     Your browser isn't support video!
                 </video>
+
+                <div class="magnifier"></div>
             </div>
             <?php if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
                 <div class="buttons-container">
@@ -109,19 +111,18 @@ NavBarContent(['title' => $title, 'record_id' => $projectID ?? null, 'user' => $
             <?php } ?>
             <p class="description"><?= $s['note']; ?></p>
             <div class="input-fields">
-                <label for="pn">Part Number</label>
-                <input type="text" placeholder="Part Number" value="<?= $s['part_number']; ?>" readonly id="pn">
+                <label>Part Number</label>
+                <input type="text" placeholder="Part Number" value="<?= $s['part_number']; ?>" readonly>
 
-                <label for="ra">Route Action</label>
-                <input type="text" placeholder="Route Action" value="<?= $s['routeaction'] ?>" readonly id="ra">
+                <label>Route Action</label>
+                <input type="text" placeholder="Route Action" value="<?= $s['routeaction'] ?>" readonly>
             </div>
             <div class="input-fields">
-                <label for="rev">Revision</label>
-                <input type="text" placeholder="Revision" value="<?= $s['revision']; ?>" readonly id="rev">
+                <label>Revision</label>
+                <input type="text" placeholder="Revision" value="<?= $s['revision']; ?>" readonly>
 
-                <label for="tool">Tool for step</label>
-                <input type="text" placeholder="Tool Nmae" value="<?= $s['tool']; ?>" readonly id="tool">
-
+                <label>Tool for step</label>
+                <input type="text" placeholder="Tool Name" value="<?= $s['tool']; ?>" readonly>
             </div>
         </div>
     <?php } ?>
@@ -192,9 +193,11 @@ NavBarContent(['title' => $title, 'record_id' => $projectID ?? null, 'user' => $
     </div>
 </div>
 <?php
+if (isUserRole([ROLE_SUPERADMIN, ROLE_SUPERVISOR, ROLE_ADMIN])) {
 // проверяем если в папке есть файлы и она не затычка в БД
-if (isDirEmpty($unit_for_view->docsdir) && $unit_for_view->docsdir != 'storage/projects/') {
-    echo '<span class="hidden" id="project_folder_path">wiki?pr_dir=' . $unit_for_view->docsdir . '</span>';
+    if (isDirEmpty($project_for_edit->docsdir) && $project_for_edit->docsdir != 'storage/projects/') {
+        echo '<span class="hidden" id="project_folder_path">wiki?pr_dir=' . $project_for_edit->docsdir . '</span>';
+    }
 }
 
 // FOOTER AND SCRIPTS
