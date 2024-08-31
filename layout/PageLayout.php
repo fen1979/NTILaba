@@ -26,8 +26,10 @@ function HeadContent($page)
         case 'project':
         case 'add_step':
         case 'edit_step':
+            echo '<link rel="stylesheet" href="/public/css/projects-view.css">';
+            break;
         case 'edit_project':
-            echo '<link rel="stylesheet" href="/public/css/units-view.css">';
+            echo '<link rel="stylesheet" href="/public/css/edit-project.css">';
             break;
         case 'admin-panel':
             echo '<link rel="stylesheet" href="/public/css/admin-panel.css">';
@@ -49,6 +51,8 @@ function HeadContent($page)
             display: none;
         }
     </style>
+    <form action="" id="routing" class="hidden" method="post"></form>
+
     <?php
 }
 
@@ -112,35 +116,62 @@ function PaginationForPages($get, $page, $table, int $limit = 25, array $conditi
     return [$pagination, $paginationButtons];
 }
 
-/* FOOTER FOR PAGES */
-function footer($page = '', $blur = '')
-{ ?>
-    <footer class="d-none d-md-block d-flex flex-wrap justify-content-between align-items-center border-top mt-auto <?= $blur; ?>">
-        <div class="row py-3">
-            <!-- Копирайт -->
-            <div class="col-md-8 text-left ms-3">
-                <?= '2016 - ' . date('Y') . '&nbsp; Created by &copy; Ajeco.ltd'; ?>
-            </div>
+/**
+ * Функция PAGE_FOOTER
+ *
+ * Эта функция генерирует HTML-код для нижнего колонтитула (footer) страницы,
+ * - а также подключает необходимые JavaScript библиотеки и дополнительные скрипты, специфичные для текущей страницы.
+ * - В зависимости от переданных параметров, функция также может отображать элемент загрузки (spinner).
+ * - И окно быстрых сообщений (chat)
+ *
+ * Параметры:
+ *
+ * @param string $page (по умолчанию '')
+ * - Определяет, какой JavaScript файл должен быть подключен в зависимости от текущей страницы.
+ * - Возможные значения: 'admin-panel', 'order', 'order_details', 'priority'. Если значение не указано, специфический скрипт не подключается.
+ * @param bool $footer (по умолчанию true)
+ * - Определяет, показывать нижний колонтитул на странице или нет.
+ * @param bool $spinner (по умолчанию true)
+ * - Определяет, должен ли отображаться элемент загрузки (spinner) на странице. Если передано значение true, то элемент загрузки отображается.
+ */
+function PAGE_FOOTER($page = '', $footer = true, $spinner = true)
+{
+    // вывод адресной формы для страницы приорити
+    if ($page == 'priority') {
+        echo '<form action="" id="routing" class="hidden" method="post"></form>';
+    }
 
-            <!-- Счетчик проектов -->
-            <div class="col-md-3 text-right">
-                <?= 'NTI Group Projects Live - ' . R::count(PROJECTS); ?>
+    // SPINNER SECTION
+    if ($spinner) { ?>
+        <div class="spinner-box" id="loading">
+            <span class="spinner-text fs-4 blinking">Loading...</span>
+            <div class="coloring">
+                <div class="spinner-border" role="status"></div>
             </div>
         </div>
-    </footer>
+        <?php
+    }
 
-<?php }
+    // FOOTER SECTION
+    if ($footer) { ?>
+        <footer class="border-top mt-auto">
+            <div class="row py-3">
+                <!-- Копирайт -->
+                <div class="col-md-8 text-left ms-3">
+                    <?= '2016 - ' . date('Y') . '&nbsp; Created by &copy; Ajeco.ltd'; ?>
+                </div>
 
-/* JAVASCRIPTS */
-function ScriptContent($page = null, $data = null)
-{ ?>
-    <div class="loading-element" id="loading">
-        <span style="position: absolute" class="fs-4 blinking">Loading...</span>
-        <div class="coloring">
-            <div class="spinner-border" role="status"></div>
-        </div>
-    </div>
+                <!-- Счетчик проектов -->
+                <div class="col-md-3 text-right">
+                    <?= 'NTI Group Projects Live - ' . R::count(PROJECTS); ?>
+                </div>
+            </div>
+        </footer>
+        <?php
+    }
 
+    // JAVASCRIPTS SECTION
+    ?>
     <!-- Bootstrap JS & Popper.js & Jquery.js -->
     <script src="/libs/jQuery3.7.1.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
@@ -161,63 +192,8 @@ function ScriptContent($page = null, $data = null)
         case 'order_details':
             echo '<script src="/public/js/order-view.js"></script>';
             break;
-        case 'priority':
-            echo '<form action="" id="routing" class="hidden" method="post"></form>';
-            break;
     }
-}
-
-/**
- * This method accepts an associative array,
- * where the “color” key sets colors using classes,
- * and the “info” key is information in text form that should be displayed on the page.
- * how to use $args = ['color'=>'some_class_witch_color_settings', 'info'=>'some text to preview on page'];
- * and if was redirect got ingo from $_SESSION['info']
- * when exist arg 'hide' then message isnt close automaticaly
- * @param $args
- * @return void
- */
-function DisplayMessage($args)
-{
-    $icon = '<i class="bi bi-x-square hide-service-msg" onclick="dom.hide(\'.global-notification\', \'slow\')"></i>';
-    if (!empty($_SESSION['info']) && ($args == [null] || $args == null)) {
-        $args = $_SESSION['info'];
-        $_SESSION['info'] = null;
-    } else {
-        if (!empty($_SESSION['info']))
-            $args[] = $_SESSION['info'];
-    }
-
-    // вывод сообщения на экран
-    if ($args && array_key_exists('info', $args)) {
-        /* one message for view */
-        $hideType = empty($args['hide']) ? 'fade-out' : '';
-        ?>
-        <div class="global-notification <?= $hideType . ' ' . $args['color'] ?? 'hidden'; ?>">
-            <?= ($hideType == '') ? $icon : ''; ?>
-            <?= $args['info'] ?? ''; ?>
-        </div>
-        <?php
-    } else {
-
-        /* multyple information or error messages for view */
-        if ($args) {
-            $hideType = empty($args['hide']) ? 'fade-out' : '';
-            ?>
-            <div class="global-notification <?= $hideType; ?>">
-                <?php
-                // icon button close message
-                echo ($hideType == '') ? $icon : '';
-                foreach ($args as $info) : ?>
-                    <div class="p-2 mb-2 rounded  <?= $info['color'] ?? 'hidden'; ?>">
-                        <?= $info['info'] ?? ''; ?>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-            <?php
-        }
-    }
-}
+} // end of PAGE FOOTER
 
 /**
  * THE CHAT FUNCTION FOR ALL USERS
@@ -304,7 +280,5 @@ function SearchResponceModalDialog($page, $answer_id): void
     <?php
 }
 
-function PageBottomLayoutHTML($page, $modalWindow = true, $footer = true, $spinner = true): void
-{
-
-}
+//$jsonString = '{"page_name": "", "modal": true, "loading": true, "main_chat": false, "page_blur": ""}';
+//$page_setup = json_decode($jsonString, true);

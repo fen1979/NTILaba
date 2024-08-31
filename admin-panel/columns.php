@@ -15,14 +15,7 @@
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Columns';
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
-
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
+NavBarContent(['title' => 'Columns', 'user' => $user, 'page_name' => $page]); ?>
 
 <div class="container-fluid content">
     <?php $t = 'In the table display settings, fields can be moved using drag and drop. 
@@ -40,9 +33,9 @@ DisplayMessage($args ?? null);
                 <input type="hidden" name="table-name" id="table-name">
                 <input type="hidden" name="sel_tab" id="table-selector">
 
-                <button type="button" name="sel_tab" value="<?= PROJECTS ?>" class="dob btn btn-outline-primary ms-2">Product Unit</button>
+                <button type="button" name="sel_tab" value="<?= PROJECTS ?>" class="dob btn btn-outline-primary ms-2">Project</button>
                 <button type="button" name="sel_tab" value="<?= ORDERS ?>" class="dob btn btn-outline-primary ms-2">Orders</button>
-                <button type="button" name="sel_tab" value="<?= PROJECT_BOM ?>" class="dob btn btn-outline-primary ms-2">Order and Units BOM</button>
+                <button type="button" name="sel_tab" value="<?= PROJECT_BOM ?>" class="dob btn btn-outline-primary ms-2">Order and Project BOM</button>
                 <button type="button" name="sel_tab" value="<?= TOOLS ?>" class="dob btn btn-outline-primary ms-2">Tools</button>
                 <button type="button" name="sel_tab" value="<?= CLIENTS ?>" class="dob btn btn-outline-primary ms-2">Customers</button>
                 <button type="button" name="sel_tab" value="<?= WH_ITEMS ?>" class="dob btn btn-outline-primary ms-2">Warehouse</button>
@@ -197,9 +190,6 @@ DisplayMessage($args ?? null);
 // MODAL WINDOW WITH ROUTE FORM
 deleteModalRouteForm();
 // Футер
-footer($page);
-// SCRIPTS
-ScriptContent($page);
-?>
+PAGE_FOOTER($page); ?>
 </body>
 </html>

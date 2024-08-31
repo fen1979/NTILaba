@@ -1,14 +1,13 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean');
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 require 'TaskManager.php';
-$user = $_SESSION['userBean'];
 $page = 'task_manager';
 $task = null;
-$args = TaskManager::deleteTaskOrList($_GET, $_POST, $user);
+TaskManager::deleteTaskOrList($_GET, $_POST, $user);
 
 // update task information or status
 if (isset($_POST['task-id']) && isset($_POST['update'])) {
-    $args = TaskManager::updateTask($_POST, $user);
+    TaskManager::updateTask($_POST, $user);
     redirectTo('task_list', $args);
 }
 
@@ -28,14 +27,7 @@ if (isset($_GET['task_id']) && isset($_GET['update'])) {
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Task Manager';
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
-
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
+NavBarContent(['title' => 'Task Manager', 'user' => $user, 'page_name' => $page]); ?>
 <div class="wrapper mt-3">
     <form method="POST" action="">
         <div class="row">
@@ -150,7 +142,7 @@ DisplayMessage($args ?? null);
     </form>
 </div>
 
-<?php ScriptContent(); ?>
+<?php PAGE_FOOTER($page, false); ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const db = <?= json_encode(json_decode($task['sub_tasks'], true)) ?>;

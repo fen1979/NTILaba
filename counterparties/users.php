@@ -69,15 +69,7 @@ if (isset($_POST['edit'])) {
 }
 
 // NAVIGATION BAR
-$navBarData['title'] = 'User ' . $title;
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-$navBarData['btn_title'] = 'worker';
-NavBarContent($navBarData);
-
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
+NavBarContent(['title' => 'User ' . $title, 'user' => $user, 'page_name' => $page, 'btn_title' => 'worker']); ?>
 <div class="main-container">
     <main class="container-fluid content">
         <?php if (!isset($_POST['edit']) && !isset($_POST['create'])) { ?>
@@ -239,9 +231,7 @@ DisplayMessage($args ?? null);
 // MODAL WINDOW WITH ROUTE FORM
 deleteModalRouteForm();
 // Футер
-footer($page);
-// SCRIPTS
-ScriptContent($page);
+PAGE_FOOTER($page);
 ?>
 </body>
 </html>

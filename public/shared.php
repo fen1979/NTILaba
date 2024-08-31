@@ -8,7 +8,6 @@ if (!empty($_GET['shared'])) {
 <!DOCTYPE html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
 <head>
-
     <?php HeadContent('shared'); ?>
 </head>
 <body>
@@ -99,7 +98,7 @@ if (!empty($_GET['shared'])) {
     </div>
 </div>
 <!-- JAVASCRIPTS -->
-<?php ScriptContent('shared'); ?>
+<?php PAGE_FOOTER('shared'); ?>
 </body>
 </html>
 

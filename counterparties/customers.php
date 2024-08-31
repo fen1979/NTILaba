@@ -1,7 +1,6 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean');
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 require 'CPController.php';
-$user = $_SESSION['userBean'];
 $page = 'customers';
 $client = null;
 $saveButtonText = 'Save New Customer';
@@ -15,10 +14,10 @@ if (isset($_GET['routed-from']) || isset($_GET['search'])) {
 if (isset($_POST['createCstomer'])) {
     // if customer was edited
     if (isset($_POST['cuid'])) {
-        $args = CPController::updateCustomerData($_POST, $user);
+        CPController::updateCustomerData($_POST, $user);
     } else {
         // if customer was created
-        $args = CPController::createCustomer($_GET, $_POST, $user);
+        CPController::createCustomer($_GET, $_POST, $user);
     }
     if (!empty($args['location'])) {
         $_SESSION['info'] = $args;
@@ -63,12 +62,7 @@ $navBarData['title'] = 'Customers';
 $navBarData['active_btn'] = Y['CLIENT'];
 $navBarData['user'] = $user;
 $navBarData['page_name'] = $page;
-NavBarContent($navBarData);
-
-
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
+NavBarContent($navBarData); ?>
 <div class="container-fluid">
     <div class="row">
         <!-- CUSTOMER ADDING FORM -->
@@ -283,7 +277,7 @@ DisplayMessage($args ?? null);
     </form>
 </div>
 
-<?php ScriptContent($page); ?>
+<?php PAGE_FOOTER($page); ?>
 <script>
     // функция добавляется в ряд таблицы при формировании страницы на сервере
     function changeClientInformation(id) {

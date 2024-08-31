@@ -1,49 +1,57 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean');
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 /* class для работы с таблицами */
 require 'admin-panel/Management.php';
 
 $page = 'admin-panel';
-/* переменные для общего пользования */
-$user = $_SESSION['userBean'];
 $role = $user['app_role'];
 /* удаление rout card/user/tools и всех его данных ---------------------------- */
 if (isset($_POST['idForUse']) && isset($_POST['password'])) {
-    $args = Management::deletingAnItem($_POST, $user);
+    Management::deletingAnItem($_POST, $user);
 }
 /* ROUT ACTIONS CODE ---------------------------------------------------------- */
 if (isset($_POST['rout-action-saving']) || isset($_POST['rout-action-editing'])) {
-    $args = Management::createUpdateRoutAction($_POST, $user);
+    Management::createUpdateRoutAction($_POST, $user);
 }
 /* WAREHOUSE ACTIONS CODE ---------------------------------------------------------- */
 if (isset($_POST['wh-action-saving']) || isset($_POST['wh-action-editing'])) {
-    $args = Management::createUpdateWarehouseType($_POST, $user);
+    Management::createUpdateWarehouseType($_POST, $user);
 }
 /* USERS ACTIONS CODE --------------------------------------------------------- */
 if (isset($_POST['update-user-data']) || isset($_POST['add-new-user'])) {
-    $args = Management::addOrUpdateUsersData($_POST, $user);
+    try {
+        Management::addOrUpdateUsersData($_POST, $user);
+    } catch (\RedBeanPHP\RedException\SQL $e) {
+        // message collector (text/ color/ auto_hide = true)
+        _flashMessage('Error: ' . $e->getMessage(), 'danger');
+    }
 }
 /* TOOLS ACTIONS CODE --------------------------------------------------------- */
 if (isset($_POST['tools-saving']) || isset($_POST['tools-editing'])) {
-    $args = Management::createUpdateTools($_POST, $_FILES['imageFile'], $user);
+    Management::createUpdateTools($_POST, $_FILES['imageFile'], $user);
 }
-if(isset($_POST['import-from-csv-file']) && isset($_FILES['csvFile'])){
-    $args = Management::importToolsListByCsvFile($_POST, $_FILES, $user);
+if (isset($_POST['import-from-csv-file']) && isset($_FILES['csvFile'])) {
+    try {
+        Management::importToolsListByCsvFile($_POST, $_FILES, $user);
+    } catch (\RedBeanPHP\RedException\SQL $e) {
+        // message collector (text/ color/ auto_hide = true)
+        _flashMessage('Error: ' . $e->getMessage(), 'danger');
+    }
 }
 /* TABLE COLUMNS ACTIONS CODE ------------------------------------------------- */
 if (isset($_POST['rowOrder']) && isset($_POST['save-settings'])) {
-    $args = Management::columnsRedirection($_POST, $user['id']);
+    Management::columnsRedirection($_POST, $user['id']);
 }
 /* USER ACCOUNT SETTINGS ACTIONS CODE ------------------------------------------ */
 if (isset($_POST['user-account-settings'])) {
-    $args = Management::accountSettings($_POST, $user['id']);
+    Management::accountSettings($_POST, $user['id']);
     $user = $_SESSION['userBean'];
 }
 /* UPDATE USER PASSWORD CODE ------------------------------------------ */
 if (isset($_POST['update-user-password'])) {
-    $args = Management::updatePasswordForUsers($user['id'], $_POST);
+    Management::updatePasswordForUsers($user['id'], $_POST);
     $timer = '<meta http-equiv="refresh" content="6;url=/sign-out">';
-    $args[] = ['info' => 'The password has been changed! Re-authorization required! You will be redirected to the login page. Wait!', 'color' => 'danger'];
+    _flashMessage('The password has been changed! Re-authorization required! You will be redirected to the login page. Wait!', 'danger');
 }
 function deleteModalRouteForm($createFormAction = '')
 { ?>

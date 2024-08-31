@@ -14,6 +14,7 @@ class Converter
     public static function convertToWebP($inputImagePath, $outputImagePath, int $quality = 100): bool
     {
         error_log(print_r($inputImagePath, true));
+        _flashMessage(print_r($inputImagePath, true));
         // Команда для конвертации изображения в WebP с использованием ffmpeg
         $command = "ffmpeg -i " . escapeshellarg($inputImagePath) . " -quality " . escapeshellarg($quality) . " " . escapeshellarg($outputImagePath);
 

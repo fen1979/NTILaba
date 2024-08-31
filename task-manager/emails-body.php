@@ -21,7 +21,7 @@ function emailTaskBody($task, $salt)
             <?php
             $subTask = json_decode($task['sub_tasks'], true); // Используем $task вместо $row для sub_tasks
             if (!empty($subTask)) {
-                foreach ($subTask as $k => $sTask) {
+                foreach ($subTask as $sTask) {
                     if (isset($sTask['done']) && $sTask['done'] == 'checked') {
                         ?>
                         <div style="display: flex; align-items: center;">

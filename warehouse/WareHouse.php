@@ -44,7 +44,7 @@ class WareHouse
             $uploadSuccess = move_uploaded_file($tmp_name, $uploadedFile);
         } else {
             $uploadSuccess = move_uploaded_file($tmp_name, $outputFile);
-            $args[] = ['color' => 'success', 'info' => 'Image saved successfully'];
+            _flashMessage('Image saved successfully');
             $toSave = 1;
         }
         /* when file uploaded then converting to webp format if need */
@@ -54,12 +54,12 @@ class WareHouse
                 if ($convert) {
                     array_map('unlink', glob("$uploadDir*.*"));
                     $toSave = 1;
-                    $args[] = ['color' => 'success', 'info' => 'Image saved successfully'];
+                    _flashMessage('Image saved successfully');
                 } else {
-                    $args[] = ['color' => 'danger', 'info' => 'Conversion error, image format not supported!'];
+                    _flashMessage('Conversion error, image format not supported!', 'danger');
                 }
             } catch (Exception $e) {
-                $args[] = ['color' => 'danger', 'info' => print($e)];
+                _flashMessage(print($e), 'danger');
             }
 
             if ($toSave) {
@@ -69,7 +69,7 @@ class WareHouse
             if ($toSave) {
                 $args['file-path'] = $outputFile;
             } else {
-                $args[] = ['color' => 'danger', 'info' => 'Error! image uploading file!'];
+                _flashMessage('Error! image uploading file!', 'danger');
             }
         }
 
@@ -105,7 +105,8 @@ class WareHouse
             // Путь для сохранения конвертированного изображения
             $filePathWebp = STOCK_FOLDER . $partName . ".webp";
             // Вызываем метод конвертации
-            $res = Converter::convertToWebp($filePathRaw, $filePathWebp);
+            Converter::convertToWebp($filePathRaw, $filePathWebp);
+            // удаляем временный файл
             array_map('unlink', glob(TEMP_FOLDER . "*.*"));
         } else {
             // Если изображение уже в webp, формируем путь для сохранения
@@ -177,13 +178,11 @@ class WareHouse
         if (!empty($_FILES['item-image']['name'][0])) {
             $result = self::convertAndSaveImageForItem($_FILES['item-image'], $post['manufacture-part-number']); // return url path for image or null
             $item->item_image = $result['file-path'] ?? null;
-            $res = $result;
         }
         // если фото было где то скопированно а не выбрано физически
         if ($imageExist) {
             $result = self::convertAndSavePastedImageForItem($imageData, $post['manufacture-part-number']);
             $item->item_image = $result['file-path'] ?? null;
-            $res = $result;
         }
 
         //если фото было выбрано из существующих на сервере
@@ -261,10 +260,10 @@ class WareHouse
      * FUNCTION UPDATING ITEM DATA AND INVOICE-LOT DATA
      * @param $post
      * @param $user
-     * @return string[]
+     * @return void
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    public static function UpdateNomenclatureItem($post, $user): array
+    public static function UpdateNomenclatureItem($post, $user)
     {
         // fixme доработать данную функцию на предмет сохранения изменений в других таблицах!
         $needToDelete = $imageExist = false;
@@ -302,14 +301,12 @@ class WareHouse
         if (!empty($_FILES['item-image']['name'][0])) {
             $result = self::convertAndSaveImageForItem($_FILES['item-image'], $post['manufacture-part-number']);
             $item->item_image = $result['file-path'] ?? null;
-            $res = $result;
             $needToDelete = true;
         }
         // если фото было где то скопированно а не выбрано физически
         if ($imageExist) {
             $result = self::convertAndSavePastedImageForItem($imageData, $post['manufacture-part-number']);
             $item->item_image = $result['file-path'] ?? null;
-            $res = $result;
             $needToDelete = true;
         }
         //если фото было выбрано из существующих на сервере
@@ -356,7 +353,7 @@ class WareHouse
         // Объединение данных в один массив
         $logData = ['item_data_before' => json_decode($itemDataBefore, true),
             'item_data_after' => json_decode($itemDataAfter, true)];
-        return WareHouseLog::updatingSomeData($item_id, $logData, $user);
+        WareHouseLog::updatingSomeData($item_id, $logData, $user);
     }
 
     /**
@@ -364,6 +361,7 @@ class WareHouse
      * @param $post
      * @param $user
      * @return array
+     * @throws \RedBeanPHP\RedException\SQL
      */
     public static function ReplenishInventory($post, $user): array
     {
@@ -411,10 +409,16 @@ class WareHouse
         $mf_date = $warehouse->manufacture_date = str_replace('T', ' ', $post['manufactured-date']);
 
         // Создание срока годности для товара
-        $datetime = new DateTime($mf_date);
-        $datetime->add(new DateInterval("P{$item->shelf_life}M"));
-        $warehouse->fifo = $datetime->format('Y-m-d H:i');
-        $warehouse->date_in = date('Y-m-d H:i');
+        try {
+            $datetime = new DateTime($mf_date);
+            $datetime->add(new DateInterval("P{$item->shelf_life}M"));
+            $warehouse->fifo = $datetime->format('Y-m-d H:i');
+            $warehouse->date_in = date('Y-m-d H:i');
+        } catch (Exception $e) {
+            // message collector (text/ color/ auto_hide = true)
+            _flashMessage('Error ' . $e->getMessage(), 'danger');
+        }
+
         $warehouse_id = R::store($warehouse);
 
 
@@ -444,9 +448,10 @@ class WareHouse
      *
      * @param array $post Data from the POST request, containing table name, item ID, and fields to update.
      * @param array $user Information about the current user making the request.
-     * @return array An array with the result of the update operation.
+     * @return void
+     * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function updateRelatedTables($post, $user): array
+    public static function updateRelatedTables(array $post, array $user)
     {
         // Convert POST data to array if necessary
         $post = self::checkPostDataAndConvertToArray($post);
@@ -504,8 +509,8 @@ class WareHouse
             R::store($item);
         }
 
-        // Return the log data for further processing or auditing
-        return WareHouseLog::updatingSomeData($itemId, $logData, $user);
+        // write the log data for further processing or auditing
+        WareHouseLog::updatingSomeData($itemId, $logData, $user);
     }
 
 
@@ -514,47 +519,51 @@ class WareHouse
      * ADD ITEM QTY TO STORAGE ITEM FROM ORDER-BOM
      * @param $postData
      * @param $user
-     * @return array
-     * @throws /\RedBeanPHP\RedException\SQL
+     * @return bool
      */
     // fixme ПЕРЕДЕЛАТЬ ЗАПОЛНЕНИЕ БОМА ДЛЯ ЗАКАЗА
-    public static function updateQuantityForItem($postData, $user): array
+    public static function updateQuantityForItem($postData, $user): bool
     {
-        // что то сделать для правильной работы кейса
-        // тут надо добавить новое поступление если запчасть есть в БД
-        // а если нет то перейти к созданию новой запчасти
-        $post = self::checkPostDataAndConvertToArray($postData);
-        $projectBomItem = R::load(PROJECT_BOM, $postData['item_id']);
-        $project = R::load(PROJECTS, $projectBomItem->projects_id);
-        $owner_pn = $projectBomItem->owner_pn;
+        /** что то сделать для правильной работы кейса
+         * тут надо добавить новое поступление если запчасть есть в БД
+         * создаем документ на складе заносим новые данные и кол во
+         * а если нет то перейти к созданию новой запчасти
+         *
+         * пока что провто переходим к созданию новой детали
+         */
 
-        $search = !empty($owner_pn) ? trim($owner_pn) : null;
-        if ($search != null) {
-            $stock = R::findOne(WAREHOUSE, 'owner_pn = ?', [$search]);
-            if ($stock) {
-                $am = $stock->actual_qty;
-                $stock->actual_qty = $am + (float)$postData['import_qty'];
-                $res['args'] = false;
-            } else {
-                return ['args' => true];
-            }
 
-            $bo = R::store($stock);
-            $res['info'] = 'QTY for Item №' . $bo . ' successfully updated';
-            $res['color'] = 'success';
+//        $post = self::checkPostDataAndConvertToArray($postData);
+//        $projectBomItem = R::load(PROJECT_BOM, $postData['item_id']);
+//        $project = R::load(PROJECTS, $projectBomItem->projects_id);
+//        $owner_pn = $projectBomItem->owner_pn;
+//
+//        $search = !empty($owner_pn) ? trim($owner_pn) : null;
+//        $item_id = !empty($projectBomItem['item_id']) ? $projectBomItem['item_id'] : null;
+//        if ($search != null) {
+//            $stock = R::findOne(WAREHOUSE, 'owner_pn = ? OR items_id', [$search, $item_id]);
+//            if ($stock) {
+//                $am = $stock->quantity;
+//                $stock->quantity = $am + (float)$postData['import_qty'];
+//                $res = false;
+//            } else {
+//                $res = true;
+//            }
+//
+//            $bo = R::store($stock);
+//            _flashMessage('QTY for Item №' . $bo . ' successfully updated');
+//
+//            // TODO log for warehouse logs
+//            /* [     LOGS FOR THIS ACTION     ] */
+//            $details = "New QTY for Item №: $bo, in Project: $project->projectname, was added";
+//            /* сохранение логов если успешно то переходим к БОМ */
+//            if (!logAction($user['user_name'], 'ITEM_CHANGED', OBJECT_TYPE[6], $details)) {
+//                _flashMessage('Log creation failed.', 'danger');
+//            }
+//        } else {
 
-            // TODO log for warehouse logs
-            /* [     LOGS FOR THIS ACTION     ] */
-            $details = "New QTY for Item №: $bo, in Project: $project->projectname, was added";
-            /* сохранение логов если успешно то переходим к БОМ */
-            if (!logAction($user['user_name'], 'ITEM_CHANGED', OBJECT_TYPE[6], $details)) {
-                $res['info'] = 'Log creation failed.';
-                $res['color'] = 'danger';
-            }
-        } else {
-            return ['args' => true];
-        }
-        return $res;
+//        }
+        return true;
     }
 
     /**
@@ -724,15 +733,15 @@ class WareHouse
 
     // функция возвращает данные из таблицы склада warehouse
     //$wh_item = findClosestShelfLifeItem($item);
-    public static function findClosestShelfLifeItem($item): mixed
-    {
-        // Вычисление даты, от которой мы будем искать записи
-        $x_day = strtotime("-{$item['shelf_life']} months");
-        // Конвертация $x_day в формат даты для сравнения с полем fifo
-        $x_day_date = date('Y-m-d H:i', $x_day);
-        // Выполнение запроса и получение результата
-        return R::findOne(WAREHOUSE, 'items_id = ? AND fifo > ? ORDER BY fifo ASC LIMIT 1', [$item['id'], $x_day_date]);
-    }
+//    public static function findClosestShelfLifeItem($item): mixed
+//    {
+//        // Вычисление даты, от которой мы будем искать записи
+//        $x_day = strtotime("-{$item['shelf_life']} months");
+//        // Конвертация $x_day в формат даты для сравнения с полем fifo
+//        $x_day_date = date('Y-m-d H:i', $x_day);
+//        // Выполнение запроса и получение результата
+//        return R::findOne(WAREHOUSE, 'items_id = ? AND fifo > ? ORDER BY fifo ASC LIMIT 1', [$item['id'], $x_day_date]);
+//    }
 
     /**
      * RESERVE ITEM FOR ORDER DECREACE ITEM QTY AND CHANGE STORAGE PLACE
@@ -740,42 +749,42 @@ class WareHouse
      * @param $user
      * @return null[]
      */
-    public static function reserveItemForOrder($post, $user): array
-    {
-        $post = self::checkPostDataAndConvertToArray($post);
-        $goods = R::load(WH_ITEMS, $post['save-item']);
-        $stored_qty = $goods->actual_qty;
-        // если кол-во отличается от сохраненного и имеет знак минус то отнимаем
-        if (strpos($post['amount'], '-') !== false)
-            $goods->actual_qty = $stored_qty - (int)str_replace('-', '', $post['amount']);
-        elseif ($post['amount'] != $stored_qty)
-            $goods->actual_qty = $stored_qty + $post['amount'];
-        // использовать это значение для расчета частичной сборки тоже
-        $goods->min_qty = $post['minQTY'];
-
-        $goods->storage_box = $post['storBox'];
-        $goods->storage_shelf = $post['storShelf'];
-
-        $goods->manufacture_date = str_replace('T', ' ', $post['manufacturedDate']);
-        $goods->exp_date = str_replace('T', ' ', $post['expDate']);
-        $goods->date_in = date('Y-m-d H:i');
-        // мысль такая списание для заказа производить тут
-        // брать самую первую или ближайшую деталь к дате просрочки
-        // и из нее рать нужное кол-во если таая есть
-        // если деталь одна то просто брать кол-во нужное
-        // возвращаем массив с данными для заказа
-        // какая полка, какой лот и прочее нужное для работы
-        // отнимаем кол-во под заказ из кол-ва в лоте к которому привязываем заказ
-        // отнимаем от общего кол-ва тоже сумму для заказа
-        // проследить частичное выполнение заказа !!!!
-        // пишем лог о перемещении детали в заказ и сохраняем нужную инфу
-
-        $stor_place = $goods->storage_shelf . '/' . $goods->storage_box;
-        /* writing warehouse log */
-        //return WareHouseLog::registerWriteOff($log_data, $user);
-        return WareHouseLog::registerWriteOff($id, $post['new-amount'], $supplier, $stor_place, $supplier, $invoice, $lot, $user);
-
-    }
+//    public static function reserveItemForOrder($post, $user): array
+//    {
+//        $post = self::checkPostDataAndConvertToArray($post);
+//        $goods = R::load(WH_ITEMS, $post['save-item']);
+//        $stored_qty = $goods->actual_qty;
+//        // если кол-во отличается от сохраненного и имеет знак минус то отнимаем
+//        if (strpos($post['amount'], '-') !== false)
+//            $goods->actual_qty = $stored_qty - (int)str_replace('-', '', $post['amount']);
+//        elseif ($post['amount'] != $stored_qty)
+//            $goods->actual_qty = $stored_qty + $post['amount'];
+//        // использовать это значение для расчета частичной сборки тоже
+//        $goods->min_qty = $post['minQTY'];
+//
+//        $goods->storage_box = $post['storBox'];
+//        $goods->storage_shelf = $post['storShelf'];
+//
+//        $goods->manufacture_date = str_replace('T', ' ', $post['manufacturedDate']);
+//        $goods->exp_date = str_replace('T', ' ', $post['expDate']);
+//        $goods->date_in = date('Y-m-d H:i');
+//        // мысль такая списание для заказа производить тут
+//        // брать самую первую или ближайшую деталь к дате просрочки
+//        // и из нее рать нужное кол-во если таая есть
+//        // если деталь одна то просто брать кол-во нужное
+//        // возвращаем массив с данными для заказа
+//        // какая полка, какой лот и прочее нужное для работы
+//        // отнимаем кол-во под заказ из кол-ва в лоте к которому привязываем заказ
+//        // отнимаем от общего кол-ва тоже сумму для заказа
+//        // проследить частичное выполнение заказа !!!!
+//        // пишем лог о перемещении детали в заказ и сохраняем нужную инфу
+//
+//        $stor_place = $goods->storage_shelf . '/' . $goods->storage_box;
+//        /* writing warehouse log */
+//        //return WareHouseLog::registerWriteOff($log_data, $user);
+//        return WareHouseLog::registerWriteOff($id, $post['new-amount'], $supplier, $stor_place, $supplier, $invoice, $lot, $user);
+//
+//    }
 
 //i================================================= staff code ==================
 
@@ -805,8 +814,7 @@ class WareHouse
 //                $res['color'] = 'danger';
 //            }
         } else {
-            $res['color'] = 'danger';
-            $res['info'] = 'Password wrong! try again.';
+            _flashMessage('Password wrong! try again.', 'danger');
         }
         return $res;
     }
@@ -875,6 +883,8 @@ class WareHouse
             $po_invoice->projects_id = $project['id']; // связи таблиц
         }
 
+        $po_invoice->staging_id = $post['staging_id'] . '-' . date('Ymdhm');
+
         $po_invoice->owner_id = $post['owner_id']; // связи таблиц
         $po_invoice->owner_name = $post['owner']; // имя клиента
 
@@ -909,7 +919,6 @@ class WareHouse
     /**
      * make XMLS and save to order folder
      * @param $order_id
-     * @param $pathToSave
      * @return bool
      */
     public static function makeXLSXfileAndSave($order_id): bool

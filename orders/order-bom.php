@@ -72,13 +72,17 @@ if (isset($_POST['approved-for-work'])) {
 // изменить данные для работы с существующими запчастями
 if (isset($_POST['import_qty']) && isset($_POST['item_id'])) {
     $item_id = _E($_POST['item_id']);
-    $args = WareHouse::updateQuantityForItem($_POST, $user);
-    if ($args['args']) {
-        $consignment = "consignment={$_POST['consignment']}";
-        $item_id = "item-id={$_POST['item_id']}";
-        $qty = "qty={$_POST['import_qty']}";
-        $backLink = "orid={$_GET['orid']}&pid={$_GET['pid']}";
-        redirectTo("arrivals?new-item&$consignment&$item_id&$qty&$backLink");
+    try {
+        if (WareHouse::updateQuantityForItem($_POST, $user)) {
+            $consignment = "consignment={$_POST['consignment']}";
+            $item_id = "item-id={$_POST['item_id']}";
+            $qty = "qty={$_POST['import_qty']}";
+            $backLink = "orid={$_GET['orid']}&pid={$_GET['pid']}";
+            redirectTo("arrivals?new-item&$consignment&$item_id&$qty&$backLink");
+        }
+    } catch (\RedBeanPHP\RedException\SQL $e) {
+        // message collector (text/ color/ auto_hide = true)
+        _flashMessage('Something is gone wrong! ' . $e->getMessage(), 'danger');
     }
 }
 
@@ -145,13 +149,8 @@ $settings = getUserSettings($user, PROJECT_BOM);
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
+NavBarContent(['user' => $user, 'page_name' => $page]); ?>
 
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
 <main class="container-fluid">
     <!-- PROJECT/ ORDER INFORMATION -->
     <div class="row p-3" style="background: #5f9ea0a1;">
@@ -254,7 +253,7 @@ DisplayMessage($args ?? null);
     </div>
 
 </main>
-<?php ScriptContent($page); ?>
+<?php PAGE_FOOTER($page); ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // скрываем столбцы в которых нет данных

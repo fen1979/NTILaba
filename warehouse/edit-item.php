@@ -13,7 +13,7 @@ if (isset($_POST['search-for-storage-box'])) {
 
 // редактирование запчасти в БД
 if (isset($_POST['save-edited-item']) && !empty($_POST['item_id'])) {
-    $args = WareHouse::UpdateNomenclatureItem($_POST, $user);
+    WareHouse::UpdateNomenclatureItem($_POST, $user);
 }
 
 // EDITING ITEM DATA
@@ -114,16 +114,13 @@ if (!empty($_GET['item_id'])) {
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Edit Part Information';
-$navBarData['page_tab'] = $_GET['page'] ?? null;
-$navBarData['record_id'] = $item->id;
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
+NavBarContent(['title' => 'Edit Part Information',
+    'page_tab' => $_GET['page'] ?? null,
+    'record_id' => $item->id,
+    'user' => $user,
+    'page_name' => $page]); ?>
 
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
+
 <div class="container-fluid border-top">
     <div class="row">
         <div class="col-5">
@@ -258,7 +255,7 @@ DisplayMessage($args ?? null);
                             select the custom option and write new name by upper letters!!!';
                 $query = "SELECT DISTINCT REGEXP_REPLACE(owner_pn, '[0-9]+$', '') AS unique_part_name FROM warehouse";
                 ?>
-                <label for="owner-part-key">Owner P/N</label>
+                <label for="owner-pn-list">Owner P/N</label>
                 <div class="input-group">
                     <select name="owner-pn-list" id="owner-pn-list" class="form-select" data-title="<?= $t ?>" required>
                         <?php foreach (NTI_PN as $val => $name): ?>
@@ -337,8 +334,8 @@ DisplayMessage($args ?? null);
 // MODAL DIALOG FOR VIEW RESPONCE FROM SERVER IF SEARCHED VALUE EXIST
 SearchResponceModalDialog($page, 'search-responce');
 
-/* SCRIPTS */
-ScriptContent('arrivals');
+/* FOOTER AND SCRIPTS */
+PAGE_FOOTER($page, false);
 ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {

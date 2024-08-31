@@ -1,222 +1,109 @@
-<style>
-    .left-column {
-        height: 87VH;
-        overflow-y: auto;
-        background-color: #f8f9fa;
-    }
+<div class="step-box mt-3">
+    <?php
+    if ($stepsData) {
+        $stepCount = 0;
+        /* выводим все шаги для просмотра и выбора в работу */
+        foreach ($stepsData as $step) {
+            // проверяем если шаг был завершен то не выводим его
+            if (!Orders::isStepComplite($order->status, $step['id'])) {
+                $stepCount++;
+                echo ($step['validation']) ? '<p class="text-white bg-danger">' . $step['validation'] . '</p>' : '';
+                ?>
+                <div class="row row-side" id="sid-<?= $step['step']; ?>" style="margin: 0">
+                    <div class="col-5">
 
-    .right-column {
-        height: 100%;
-        background-color: #ffffff;
-        position: relative;
-    }
+                        <?php
+                        // на случай если в проекте нет шагов с фото или видео
+                        if (!empty($step['image'])) {
+                            echo '<img class="step-image" src="/' . $step['image'] . '" alt="Hello asshole">';
+                        } else {
+                            echo '<h3>' . $step['routeaction'] . '</h3>';
+                        }
 
-    .card-list {
-        padding: 10px;
-    }
-
-    .small-card {
-        margin-bottom: 10px;
-        padding: 10px;
-        background-color: #ffffff;
-        border: 1px solid #ddd;
-        cursor: pointer;
-        transition: transform 0.3s;
-    }
-
-    .large-card {
-        position: absolute;
-        overflow: auto;
-        top: 31rem;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        padding: 20px;
-        background-color: #ffffff;
-        border: 1px solid #ddd;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        height: 87vh;
-    }
-
-    .small-card:hover {
-        transform: scale(1.05);
-    }
-
-    .valid {
-        background: #ff000033;
-        border-radius: 10px;
-    }
-
-    .image-container {
-        position: relative;
-        display: inline-block;
-        max-width: 50rem; /* Ограничение по ширине */
-        width: 100%; /* Делает контейнер адаптивным */
-    }
-
-    .image-container img {
-        display: block;
-        width: 100%;
-        height: auto;
-    }
-
-    /*.image-container::before {*/
-    /*    content: "ONLY FOR EDITING"; !* Текст водяного знака *!*/
-    /*    position: absolute;*/
-    /*    top: 0;*/
-    /*    left: 0;*/
-    /*    padding: 35px;*/
-    /*    font-size: 30px; !* Размер текста водяного знака *!*/
-    /*    color: rgba(255, 255, 255, 0.5); !* Цвет текста с прозрачностью *!*/
-    /*    z-index: 2; !* Водяной знак будет поверх изображения *!*/
-    /*    pointer-events: none; !* Чтобы водяной знак не мешал кликам по изображению *!*/
-    /*    background: rgba(255, 0, 0, 0.35);*/
-    /*}*/
-
-    /*.image-container::after {*/
-    /*    content: "";*/
-    /*    position: absolute;*/
-    /*    top: 0;*/
-    /*    left: 0;*/
-    /*    width: 100%;*/
-    /*    height: 100%;*/
-    /*    background: rgba(0, 0, 0, 0.1); !* Полупрозрачный слой над изображением *!*/
-    /*    z-index: 1; !* Слой водяного знака *!*/
-    /*    pointer-events: none;*/
-    /*}*/
-
-    /* Стили для полноэкранного изображения */
-    .full-screen-image {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.9); /* Фон для полноэкранного изображения */
-        z-index: 1000;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .full-screen-image img {
-        max-width: 100%;
-        max-height: 100%;
-        height: auto;
-    }
-
-    /* Класс для скрытия элемента */
-    .hidden {
-        display: none;
-    }
-</style>
-
-<div class="container-fluid ">
-    <div class="row">
-        <!-- Левая колонка с карточками -->
-        <div class="col-3 left-column">
-            <div class="card-list">
-                <!-- Карточки, которые будут вертикально расположены -->
-                <?php foreach ($unit_staps as $step) {
-                    $infoData = json_encode(['unit_id' => $step['projects_id'], 'step_id' => $step['id'], 'image' => $step['image'],
-                        'video' => (strpos($step['video'], '.mp4') !== false) ? $step['video'] : 'none',
-                        'description' => $step['description'], 'step_num' => $step['step'],
-                        'revision' => $step['revision'], 'validation' => $step['validation']]); ?>
-
-                    <div class="card small-card" id="card-<?= $step['id'] ?>" data-info='<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>'>
-                        <h4>Step <?= $step['step'] ?></h4>
-                        <p>
-                            <small class="text-primary">Part Number</small>
-                            <?= $step['part_number'] ?? 'N/A' ?>
-                        </p>
-                        <p>
-                            <small class="text-primary">Description</small>
-                            <br>
-                            <?= $step['description'] ?>
-                        </p>
+                        if ($step['video'] != 'none') {
+                            echo '<video src="/' . $step['video'] . '" controls width="100%" height="auto">';
+                            echo 'Your browser not support video';
+                            echo '</video>';
+                        }
+                        ?>
                     </div>
-                <?php } ?>
-            </div>
-        </div>
 
-        <!-- Правая колонка для отображения выбранной карточки -->
-        <div class="col-9 right-column">
-            <div class="card large-card" id="large-card-display">
-                <!-- Здесь будет отображаться выбранная карточка -->
-                <h3 class="mb-2" id="validation-box">Assembly Step
-                    <span id="step-number"></span> &nbsp;
-                    <span class="text-danger ms-2 mt-2 mb-2" id="opacity"><i class="bbi bi-check2-square"></i> &nbsp; Step needs validation!</span>
-                </h3>
-                <div class="image-container" id="image-container">
-                    <img src="" alt="<?= $step['projects_id']??''; ?>" id="image">
+                    <div class="col-7 info-side">
+                        <h5 class="mb-3">Step Number: <?= $step['step']; ?></h5>
+                        <p class="text-primary"><?= $step['description']; ?></p>
+                        <pre class="warning rounded border p-2">
+WARNING!
+Before you start this step, read the rules for transitioning between steps!
+1) Execute step:
+After completing the step completely.
+IMPORTANT!
+Click on the "step completed" button
+This will prevent the possibility of taking a step into work by mistake!
+2) Partial execution:
+In case of partial or serial execution of the order.
+IMPORTANT!
+After completing the step, click on the “next step” button.
+This button will appear if a serial number is included in the order!
+3) Transferring a step to another worker:
+If you need to transfer a step to another worker.
+IMPORTANT!
+Select an employee from the list and click the “transfer step” button.
+This action will open up the opportunity for another worker to choose a step to work on!
+4) Step verification by administrator:
+If this step is verified, the “request step verification” button will be presented on the page.
+IMPORTANT!
+Click on this button after making the first copy of the product in your order!
+If serial numbering is set, the action is performed for all copies of the product at this step!
+5) Stop order fulfillment:
+In a situation where a stop is required while executing an order.
+IMPORTANT!
+Press the "order to pause" button
+Next, in the dialog that opens, you need to write the reason for stopping the order in any language
+and click the “ok” button to complete the operation.
+                                </pre>
+                        <?php
+                        // если пользователь взял в работу один шаг то отключаем возможность взять другой в работу
+                        if (!$assy_in_progress && $order->status == 'st-8') { ?>
+                            <form action="" method="post">
+                                <?php $assy_work_flow = R::findOne(ASSY_PROGRESS, 'current_stepid = ?', [$step['id']]); ?>
+                                <input type="hidden" name="assyid" value="<?= $assy_work_flow->id; ?>">
+                                <input type="hidden" name="stepid" value="<?= $step['id']; ?>">
+                                <button type="submit" class="btn btn-outline-primary" name="take-a-step-to-work">
+                                    Take a step to work
+                                </button>
+                            </form>
+                        <?php } ?>
+                    </div>
                 </div>
+            <?php }
+        }
+        // завершение заказа или повтор если требуется серийный номер или поштучное изготовление
+        if ($stepCount == 0) {
+            ?>
+            <div class="mb-3 mt-3 p3 text-center">
+                <h3>All project steps have been completed, complete the order or repeat all steps.</h3>
+                <form action="" method="post">
+                    <button type="submit" name="complete_order" value="<?= $order->id; ?>" class="btn btn-outline-dark">
+                        Order assembly complete, move on to the next order?
+                    </button>
 
-                <!-- Полноэкранный контейнер -->
-                <div class="full-screen-image hidden" id="full-screen-image">
-                    <img src="" alt="<?= $step['projects_id']; ?>">
-                </div>
-
-                <h4 class="mb-2" id="step-description">Description will appear here.</h4>
+                    <h4>For orders where a serial number is required.</h4>
+                    <input type="text" name="serial_number_for_assy_flow" class="form-control" placeholder="Write next serial number">
+                    <button type="submit" name="repite_order" value="<?= $order->id; ?>" class="btn btn-outline-dark">
+                        Repeat the assembly procedure step by step for the new serial number
+                    </button>
+                </form>
             </div>
+            <?php
+        }
+
+        // если нет шагов по сборке, выводим предложение добавить шаги в проекты
+    } else { ?>
+        <div class="mb-3">
+            <h4>It seems there are no assembly instructions for this project yet. Would you like to add assembly instructions to this project?</h4>
+            <a role="button" href="/add_step?pid=<?= $project->id; ?>" target="_blank" class="btn btn-outline-info">
+                Add Project steps
+            </a>
         </div>
-    </div>
+    <?php } ?>
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        //i ОБРАБОТКА РАБОТЫ СО СПИСКОМ ШАГОВ И ВЫВОДОМ В БОЛЬШУЮ КАРТОЧКУ
-        const cards = document.querySelectorAll('.small-card');
-
-        function updateLargeCard(card) {
-            // получаем все данные шага для вывода в большом окне
-            let info = JSON.parse(card.dataset.info);
-
-            // проверяем если для шага требуется валидация
-            if (info.validation === "0") {
-                // устанавливаем свойство прозрачности равное ноль
-                // dom.e("#opacity").setAttribute("style", "opacity:0");
-                document.querySelector("#opacity").setAttribute("style", "opacity:0");
-            } else {
-                // если трребуется проверка то устанавливаем цвет бокса и добавляем мигание
-                const valid = dom.e("#validation-box");
-                valid.classList.add("valid", "blinking", "p-2")
-            }
-
-            // Добавляем нужные данные в большую карточку
-            // dom.e('#step-number').textContent = info.step_num;
-            // dom.e('#step-description').textContent = info.description;
-            // dom.e("#image").setAttribute("src", info.image);
-
-            document.querySelector('#step-number').textContent = info.step_num;
-            document.querySelector('#step-description').textContent = info.description;
-            document.querySelector("#image").setAttribute("src", info.image);
-        }
-
-        cards.forEach(card => {
-            card.addEventListener('mouseover', function () {
-                updateLargeCard(card);
-            });
-        });
-
-        // Инициализация первой карточки при загрузке страницы
-        if (cards.length > 0) {
-            updateLargeCard(cards[0]);
-        }
-
-        // full view actions
-        document.getElementById('image').addEventListener('click', function () {
-            const screenContainer = document.getElementById('image-container');
-            const fullScreenContainer = document.getElementById('full-screen-image');
-            const fullScreenImage = fullScreenContainer.querySelector('img');
-            fullScreenImage.src = this.src;
-            fullScreenContainer.classList.remove('hidden');
-            screenContainer.classList.add('hidden');
-        });
-
-        document.getElementById('full-screen-image').addEventListener('click', function () {
-            const screenContainer = document.getElementById('image-container');
-            this.classList.add('hidden');
-            screenContainer.classList.remove('hidden');
-        });
-    });
-</script>

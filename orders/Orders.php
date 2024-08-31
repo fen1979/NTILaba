@@ -590,7 +590,7 @@ class Orders
                         logAction($user['user_name'], $log_action, OBJECT_TYPE[2], $details);
                         return $res;
                     }
-                    $res['info'] .= 'Error! image uploading file!<br>';
+                    _flashMessage('Error! image uploading file!');
                 } else {
                     /*  если картинка требует конвертации сохраняем в ТЕМП папку */
                     if (move_uploaded_file($tmp_name, $uploadToTemp)) {
@@ -602,16 +602,15 @@ class Orders
                                 $log_action = 'IMAGE_SAVED';
                                 $details = "Order N: $order->id, Was saved video file to Chat, File Placed: " . $res['image'];
                             } else {
-                                $res['info'] .= 'Conversion error, image format not supported!<br>';
+                                _flashMessage('Conversion error, image format not supported!');
                             }
                         } catch (Exception $e) {
-                            $res['info'] .= print($e) . '<br>';
+                            _flashMessage(print($e), 'danger');
                         }
                     } else {
-                        $res['info'] .= 'Error! image uploading file!<br>';
+                        _flashMessage('Error! image uploading file!s', 'danger');
                     }
                 }
-                $res['color'] = 'danger';
             }
 
             /*  если был загружен видео файл конвертируем его и сохраняем в папку заказа */
@@ -670,16 +669,14 @@ class Orders
                     $log_action = 'FILE_SAVED';
                     $details = "Order N: $order->id, Was saved file to Chat, File Placed: " . $docsFileToSave;
                 } else {
-                    $res['info'] .= 'Error! uploading file!<br>';
-                    $res['color'] = 'danger';
+                    _flashMessage('Error! uploading file!', 'danger');
                 }
             }
 
 
             /* [     LOGS FOR THIS ACTION     ] */
             if (!logAction($user['user_name'], $log_action, OBJECT_TYPE[2], $details)) {
-                $res['info'] .= 'Error! log creation!<br>';
-                $res['color'] = 'danger';
+                _flashMessage('Error! log creation!', 'danger');
             }
             return $res;
         } // end is file exist at ol

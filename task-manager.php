@@ -1,7 +1,6 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean');
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 require 'task-manager/TaskManager.php';
-$user = $_SESSION['userBean'];
 $page = 'task_manager';
 $preview_archive = false;
 // preview all tasks
@@ -27,14 +26,8 @@ if (isset($_GET['archive'])) {
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Task Manager';
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
+NavBarContent(['title' => 'Task Manager', 'user' => $user, 'page_name' => $page]); ?>
 
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
 <div class="wrapper mt-3">
     <!-- Menu Starts Here -->
     <div class="menu">
@@ -138,9 +131,8 @@ DisplayMessage($args ?? null);
 </div>
 
 <?php
-footer();
-ScriptContent($page);
-?>
+// footer and scripts
+PAGE_FOOTER(); ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         dom.in("click", ".routing", function (event) {

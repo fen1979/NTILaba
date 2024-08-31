@@ -96,7 +96,7 @@
 </div>
 <?php
 /* JAVASCRIPTS */
-ScriptContent();
+PAGE_FOOTER();
 ?>
 <script>
     // jQuery для переключения табов и обработки кнопки закрыть

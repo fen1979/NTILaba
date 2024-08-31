@@ -13,7 +13,12 @@ if (isset($_GET['orid'])) {
 
 // save replenishment data
 if (isset($_POST['save-list-items'])) {
-    $consignment = WareHouse::createNewReplenishmentList($_POST, $user, $order, $project);
+    try {
+        $consignment = WareHouse::createNewReplenishmentList($_POST, $user, $order, $project);
+    } catch (\RedBeanPHP\RedException\SQL $e) {
+        // message collector (text/ color/ auto_hide = true)
+        _flashMessage($e->getMessage(), 'danger', false);
+    }
 }
 
 // get all items for order
@@ -155,16 +160,24 @@ if (isset($_POST['make-xmls'])) {
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Preliminary check of arrival';
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData); ?>
+NavBarContent(['title' => 'Preliminary check of arrival', 'user' => $user, 'page_name' => $page]); ?>
 
 <div class="container-r">
     <div class="header">Incoming invoice</div>
     <!-- ФОРМА ВНЕСЕНИЯ ПРЕДМЕТА В ПОСЫЛКЕ -->
     <form action="" method="post">
         <input type="hidden" id="owner_id" name="owner_id" value="<?= set_value('owner_id') ?>">
+
+        <div class="form-group">
+            <label for="staging_id">Document type</label>
+            <select id="staging_id" name="staging_id">
+                <?php foreach (SR::getAllResourcesInGroup('staging', true) as $u) { ?>
+                    <option value="<?= $u['key_name'] ?>">
+                        <?= $u['value'] ?>
+                    </option>
+                <?php } ?>
+            </select>
+        </div>
 
         <div class="form-group">
             <label for="owner">Owner/Customer</label>
@@ -346,10 +359,7 @@ NavBarContent($navBarData); ?>
 SearchResponceModalDialog($page, 'search-responce');
 
 // FOOTER
-footer($page);
-
-// SCRIPTS
-ScriptContent($page);
+PAGE_FOOTER($page);
 
 // если мы пришли сюда после создания РО то открываем доп вкладку для печати данных о заказе
 if (isset($_GET['orid']) && $order && !isset($_SESSION['pdf_printed'])) {

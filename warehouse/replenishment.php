@@ -12,11 +12,17 @@ if (isset($_POST['search-for-storage-box'])) {
 
 // save new arrival data to DB
 if (isset($_POST['save-new-arrival']) && !empty($_POST['item_id'])) {
-    $args = WareHouse::ReplenishInventory($_POST, $user);
-    if (!empty($args['action']) && $args['action'] == 'success') {
-        redirectTo('wh/the_item?item_id=' . $_POST['item_id']);
-        exit($args);
+    try {
+        $args = WareHouse::ReplenishInventory($_POST, $user);
+        if (!empty($args['action']) && $args['action'] == 'success') {
+            redirectTo('wh/the_item?item_id=' . $_POST['item_id']);
+            exit($args);
+        }
+    } catch (\RedBeanPHP\RedException\SQL $e) {
+        // message collector (text/ color/ auto_hide = true)
+        _flashMessage('Error: ' . $e->getMessage(), 'danger');
     }
+
 }
 
 if (isset($_GET['item_id'])) {
@@ -94,19 +100,14 @@ if (isset($_GET['item_id'])) {
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Replenishment of Warehouse';
-$navBarData['page_tab'] = $_GET['page'] ?? null;
-$navBarData['record_id'] = $item->id ?? null;
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
-
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
+NavBarContent([
+    'title' => 'Replenishment of Warehouse',
+    'page_tab' => $_GET['page'] ?? null,
+    'record_id' => $item->id ?? null,
+    'user' => $user,
+    'page_name' => $page]); ?>
 
 <div class="container-fluid">
-
     <div class="row mt-2 mb-2">
         <div class="col-6">
             <?php
@@ -128,7 +129,7 @@ DisplayMessage($args ?? null);
                             select the custom option and write new name by upper letters!!!';
                     $query = "SELECT DISTINCT REGEXP_REPLACE(owner_pn, '[0-9]+$', '') AS unique_part_name FROM warehouse";
                     ?>
-                    <label for="owner-part-key">Owner P/N</label>
+                    <label for="owner-pn-list">Owner P/N</label>
                     <div class="input-group">
                         <select name="owner-pn-list" id="owner-pn-list" class="form-select" data-title="<?= $t ?>" required>
                             <?php foreach (NTI_PN as $val => $name): ?>
@@ -222,12 +223,8 @@ DisplayMessage($args ?? null);
 // MODAL FOR SEARCH RESPONCE ANSWER
 SearchResponceModalDialog($page, 'search-responce');
 
-// FOOTER
-footer($page);
-
-// SCRIPTS
-ScriptContent($page);
-?>
+// FOOTER and SCRIPTS
+PAGE_FOOTER($page); ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // Получаем элемент page_data

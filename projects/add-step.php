@@ -1,15 +1,14 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean');
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 require_once 'projects/Project.php';
 $page = 'add_step';
-$user = $_SESSION['userBean'];
 $project = $projectName = $projectDir = $args = null;
 $nextStepNumber = 1;
 
 /* сохранение данных в БД и переход к новому шагу */
 if (isset($_POST['next-button'])) {
     $project_id = _E($_GET['pid']);
-    $args = Project::addNewStepToProject($_POST, $user, $_FILES, $project_id);
+    Project::addNewStepToProject($_POST, $user, $_FILES, $project_id);
 }
 
 /* выбираем данные о проекте из БД для показа  */
@@ -89,7 +88,8 @@ $nextStepNumber = R::count(PROJECT_STEPS, 'projects_id = ?', [$project->id]) + 1
             .resource-box img, .resource-box video {
                 height: 150px; /* уменьшенная высота для мобильных устройств */
             }
-            .title{
+
+            .title {
                 font-size: 17px;
                 color: #0d6efd;
                 padding-bottom: 1rem;
@@ -100,15 +100,8 @@ $nextStepNumber = R::count(PROJECT_STEPS, 'projects_id = ?', [$project->id]) + 1
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Add New';
-$navBarData['record_id'] = $_GET['pid'] ?? null;
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
+NavBarContent(['title' => 'Add New', 'record_id' => $_GET['pid'] ?? null, 'user' => $user, 'page_name' => $page]); ?>
 
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args);
-?>
 <div class="container mt-5">
     <div class="row">
         <div class="col">
@@ -251,7 +244,7 @@ DisplayMessage($args);
     </div>
 </div>
 
-<?php ScriptContent($page); ?>
+<?php PAGE_FOOTER($page, false); ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // поиск по списку элементов рут карты

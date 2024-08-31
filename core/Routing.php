@@ -22,13 +22,7 @@ define("VIEW_MODE", $mode);
  * exact = если путь точно как есть
  **/
 const IGNORE_LIST = [
-    ['type' => 'exact', 'value' => '/'],
-    ['type' => 'exact', 'value' => '/sign-out'],
-    ['type' => 'exact', 'value' => '/get_data'],
-    ['type' => 'exact', 'value' => '/create_bom'],
-    ['type' => 'exact', 'value' => '/is_change'],
-    ['type' => 'exact', 'value' => '/6fef03d1aac6981d6c6eaa35fc9b46d1311b4b5425a305fc7da1b00c2'],
-    ['type' => 'contains', 'value' => '/order_pdf'],
+//    ['type' => 'exact', 'value' => '/'],
     ['type' => 'contains', 'value' => '.ico'],
     ['type' => 'contains', 'value' => '.css'],
     ['type' => 'contains', 'value' => 'storage/projects/']
@@ -48,16 +42,19 @@ require_once 'Undo.php';
 class Routing
 {
     private array $pages = array();
+    private array $ignore_list = array();
 
     /**
      * ДОБАВЛЕНИЕ НОВЫХ АДРЕСОВ ДЛЯ ПЕРЕГАПРАВЛЕНИЯ
      * @param $url
      * @param $path
+     * @param bool $ignore_keeping
      * @return void
      */
-    public function addRout($url, $path)
+    public function addRout($url, $path, bool $ignore_keeping = false)
     {
         $this->pages[$url] = $path;
+        $this->ignore_list[$url] = $ignore_keeping;
     }
 
     /**
@@ -66,9 +63,6 @@ class Routing
      */
     public function getUrl(): string
     {
-        // call user action keeper
-        self::UserActionKeeper($_SERVER['REQUEST_URI'] ?? null, $_SESSION['userBean']['id'] ?? null);
-
         $arr = explode('?', $_SERVER['REQUEST_URI']);
         if (empty($arr)) {
             return (count_chars($_SERVER['REQUEST_URI'], 1)[47] > 1) ?
@@ -87,18 +81,25 @@ class Routing
 
     public function route($url)
     {
-        $path = $this->pages[$url];
+        // getting the path url for file location
+        $fileDir = $this->pages[$url];
 
-        if (empty($path)) {
+        // call user action keeper
+        if (!$this->ignore_list[$url])
+            self::UserActionKeeper($_SERVER['REQUEST_URI'] ?? null, $_SESSION['userBean']['id'] ?? null);
+
+        // calling the 404 page
+        if (empty($fileDir)) {
             require 'public/404.php';
             die();
         }
 
+        // calling the log out action
         if ($url == '/sign-out') {
             $this->logOut();
         }
 
-        $fileDir = $path;
+        // calling the file
         if (file_exists($fileDir)) {
             require $fileDir;
         } else {

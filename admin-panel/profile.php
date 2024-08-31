@@ -39,13 +39,7 @@
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Profile Settings';
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
-
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
+NavBarContent(['title' => 'Profile Settings', 'user' => $user, 'page_name' => $page]);
 const START_PAGE = ['order' => 'Orders', 'project' => 'Projects', 'wh' => 'Warehouse', 'wiki' => 'Wiki', 'task_list' => 'Task Manager'];
 ?>
 
@@ -154,10 +148,7 @@ const START_PAGE = ['order' => 'Orders', 'project' => 'Projects', 'wh' => 'Wareh
 <?php
 // MODAL WINDOW WITH ROUTE FORM
 deleteModalRouteForm();
-// Футер
-footer($page);
-// SCRIPTS
-ScriptContent($page);
-?>
+// Футер // SCRIPTS
+PAGE_FOOTER($page); ?>
 </body>
 </html>

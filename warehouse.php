@@ -1,8 +1,6 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'order');
+$thisUser = EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'order');
 require 'warehouse/WareHouse.php';
-/* получение пользователя из сессии */
-$thisUser = $_SESSION['userBean'];
 $page = 'wh';
 
 // SQL-запрос для получения всех записей из nomenclature (whitems) с прикрепленными записями из warehouse
@@ -96,14 +94,7 @@ $settings = getUserSettings($thisUser, WH_ITEMS);
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['active_btn'] = Y['STOCK'];
-$navBarData['user'] = $thisUser;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
-
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
+NavBarContent(['active_btn' => Y['STOCK'], 'user' => $thisUser, 'page_name' => $page]); ?>
 
 <div class="container-fluid">
     <!-- кнопки фильтрации по складам -->
@@ -134,10 +125,10 @@ DisplayMessage($args ?? null);
                 }
                 ?>
             </tr>
-<!--            <tr style="white-space: nowrap">-->
-<!--                <th>Warehouse</th>-->
-<!--                --><?php //= CreateTableHeaderUsingUserSettings($settings, 'warehouse-table', WH_ITEMS) ?>
-<!--            </tr>-->
+            <!--            <tr style="white-space: nowrap">-->
+            <!--                <th>Warehouse</th>-->
+            <!--                --><?php //= CreateTableHeaderUsingUserSettings($settings, 'warehouse-table', WH_ITEMS) ?>
+            <!--            </tr>-->
             </thead>
 
             <tbody id="searchAnswer">
@@ -151,7 +142,7 @@ DisplayMessage($args ?? null);
                     } ?>
 
                     <tr class="<?= $color; ?>" data-id="<?= $item['id']; ?>" data-page="<?= $_GET['page'] ?? null; ?>" id="row-<?= $item['id']; ?>">
-                    
+
                     <td><?= $item['type_name']; ?></td>
                     <?php
                     // выводим таблицу согласно настройкам пользователя
@@ -197,12 +188,8 @@ DisplayMessage($args ?? null);
 
 <button type="button" class="url hidden" value="" id="routing-btn"></button>
 <?php
-// Футер
-footer($page);
-
-/* SCRIPTS */
-ScriptContent($page);
-?>
+// Футер and SCRIPTS
+PAGE_FOOTER($page); ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // Выбираем таблицу с id searchAnswer

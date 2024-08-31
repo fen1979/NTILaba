@@ -164,14 +164,7 @@ if (isset($_POST['suggest'])) {
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Searching';
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
-
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
+NavBarContent(['title' => 'Searching', 'user' => $user, 'page_name' => $page]); ?>
 
 <div class="main-container">
     <main class="container-fluid content">
@@ -188,10 +181,7 @@ DisplayMessage($args ?? null);
 <?php
 // MODAL WINDOW WITH ROUTE FORM
 deleteModalRouteForm();
-// Футер
-footer($page);
-// SCRIPTS
-ScriptContent($page);
-?>
+// Футер // SCRIPTS
+PAGE_FOOTER($page); ?>
 </body>
 </html>

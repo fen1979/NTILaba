@@ -21,23 +21,23 @@ mb_internal_encoding('UTF-8');
 $r = new Routing();
 
 // login
-$r->addRout('/', 'auth/login.php');
+$r->addRout('/', 'auth/login.php', true);
 // logout
-$r->addRout('/sign-out', 'auth/login.php');
+$r->addRout('/sign-out', 'auth/login.php', true);
 
 // orders pages
-$r->addRout('/order', 'order-view.php');
+$r->addRout('/order', 'orders-view.php');
 $r->addRout('/new_order', 'orders/create-order.php');
 $r->addRout('/edit-order', 'orders/create-order.php');
 $r->addRout('/check_bom', 'orders/order-bom.php');
 $r->addRout('/order/preview', 'orders/order-work-flow.php');
 $r->addRout('/priority-out', 'pdfOut/priority-out.php');
-$r->addRout('/order_pdf', 'pdfOut/order-work-flow.php');
+$r->addRout('/order_pdf', 'pdfOut/order-work-flow.php', true);
 // спец страница для автоматического ввода данных
 $r->addRout('/pioi', 'orders/creating-po.php');
 
 // projects pages
-$r->addRout('/project', 'product-units-view.php');
+$r->addRout('/project', 'projects-view.php');
 $r->addRout('/new_project', 'projects/create-project.php');
 $r->addRout('/edit_project', 'projects/edit-project.php');
 $r->addRout('/add_step', 'projects/add-step.php');
@@ -61,7 +61,8 @@ $r->addRout('/movement-log', 'warehouse/wh-log.php');
 $r->addRout('/arrivals', 'warehouse/arrivals.php');
 $r->addRout('/edit-item', 'warehouse/edit-item.php');
 $r->addRout('/replenishment', 'warehouse/replenishment.php');
-$r->addRout('/po-replenishment', 'warehouse/po-arrivals.php');
+$r->addRout('/po-replenishment', 'warehouse/po-incoming.php');
+$r->addRout('/staging', 'warehouse/wh-incomings.php');
 
 // wiki storage page
 $r->addRout('/wiki', 'wiki.php');
@@ -70,28 +71,30 @@ $r->addRout('/wiki', 'wiki.php');
 // переход к документации о сайте
 $r->addRout('/docs', 'public/docs/docs.php');
 // вывод сборочной документации в ПДФ для проекта
-$r->addRout('/assy_flow_pdf', 'pdfOut/assyStepFlow.php');
+$r->addRout('/assy_flow_pdf', 'pdfOut/assyStepFlow.php', true);
 // вывод рут карты в ПДФ для заказа
 $r->addRout('/route_card', 'pdfOut/routes.php');
 // вывод таблицы для распечатки приходной накладной
-$r->addRout('/po-arrival-print', 'pdfOut/po-arrivals-table.php');
+$r->addRout('/po-arrival-print', 'pdfOut/incoming-tables.php');
 // создание БОМ файла на скачивание для проекта/заказа
-$r->addRout('/create_bom', 'orders/order-work-flow.php');
+$r->addRout('/create_bom', 'orders/order-work-flow.php', true);
 // Data Base changes listeners use for: Order, Chat
-$r->addRout('/is_change', 'core/listeners.php');
+$r->addRout('/is_change', 'core/listeners.php', true);
 
 // shared project view page
 $r->addRout('/shared-project', 'public/shared.php');
 // cron file for cron requests from server
-$r->addRout('/6fef03d1aac6981d6c6eaa35fc9b46d1311b4b5425a305fc7da1b00c2', 'core/cron.php');
+$r->addRout('/6fef03d1aac6981d6c6eaa35fc9b46d1311b4b5425a305fc7da1b00c2', 'core/cron.php', true);
 // запрос на поиск данных в БД
-$r->addRout('/get_data', 'searching/getData.php');
+$r->addRout('/get_data', 'searching/getData.php', true);
 
 // task manager pages
 $r->addRout('/task_list', 'task-manager.php');
 $r->addRout('/add-task', 'task-manager/add-task.php');
 $r->addRout('/update-task', 'task-manager/update-task.php');
 $r->addRout('/manage-list', 'task-manager/manage-list.php');
+
+$r->addRout('/test', 'test.php', true);
 
 
 // call the routing function to view page

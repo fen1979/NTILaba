@@ -4,7 +4,7 @@ const PROJECT_NAME = 1;
 const ASMAX_1 = 2;
 const ASMAX_2 = 3;
 const AMOUNT = 4;
-$user = EnsureUserIsAuthenticated($_SESSION,'userBean');
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 //
 if (isset($_GET['order-ids'])) {
     if (isset($_POST['data'])) {
@@ -136,7 +136,7 @@ if (isset($_GET['order-ids'])) {
         Если заказ был перевыполнен и клиент согласен забрать актуальное изготовленное количество,
         измененное количество будет сохранено в заказе.
     </pre>
-    <?php ScriptContent('priority'); ?>
+    <?php PAGE_FOOTER('priority', false); ?>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const table = document.getElementById('items-table');

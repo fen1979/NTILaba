@@ -6,27 +6,27 @@
     HeadContent($page);
     ?>
     <style>
-        .add-img-style {
-            width: auto;
-            max-width: 100%;
-        }
+        /*.add-img-style {*/
+        /*    width: auto;*/
+        /*    max-width: 100%;*/
+        /*}*/
 
-        .input {
-            display: block;
-            width: 100%;
-            padding: .375rem .75rem;
-            font-size: .9rem;
-            font-weight: 400;
-            line-height: 1.5;
-            background-clip: padding-box;
-            border: .05em solid #ced4da;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            border-radius: .25rem;
-            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-            margin: .3em;
-        }
+        /*.input {*/
+        /*    display: block;*/
+        /*    width: 100%;*/
+        /*    padding: .375rem .75rem;*/
+        /*    font-size: .9rem;*/
+        /*    font-weight: 400;*/
+        /*    line-height: 1.5;*/
+        /*    background-clip: padding-box;*/
+        /*    border: .05em solid #ced4da;*/
+        /*    -webkit-appearance: none;*/
+        /*    -moz-appearance: none;*/
+        /*    appearance: none;*/
+        /*    border-radius: .25rem;*/
+        /*    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;*/
+        /*    margin: .3em;*/
+        /*}*/
 
         /* СТИЛИ ДЛЯ ВЫВОДА ТАБЛИЦ */
         .item-list:hover {
@@ -87,15 +87,8 @@ if (isset($_POST['edit'])) {
 }
 
 // NAVIGATION BAR
-$navBarData['title'] = "NTI Tools $title mode";
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-$navBarData['btn_title'] = 'tool';
-NavBarContent($navBarData);
+NavBarContent(['title' => "NTI Tools $title mode", 'user' => $user, 'page_name' => $page, 'btn_title' => 'tool']); ?>
 
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
 <div class="main-container">
     <main class="container-fluid content">
         <?php if (!isset($_POST['edit']) && !isset($_POST['create'])) { ?>
@@ -273,10 +266,7 @@ deleteModalRouteForm();
 
 // MODAL DIALOG FOR VIEW RESPONCE FROM SERVER IF SEARCHED VALUE EXIST
 SearchResponceModalDialog($page, 'search-responce');
-// Футер
-footer($page);
-// SCRIPTS
-ScriptContent($page);
-?>
+// Футер // SCRIPTS
+PAGE_FOOTER($page); ?>
 </body>
 </html>

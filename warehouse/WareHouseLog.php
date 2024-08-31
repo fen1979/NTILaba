@@ -19,7 +19,9 @@ class WareHouseLog
      * @param $warehouseData
      * @param $invoiceData
      * @param $user
+     * @param null $action
      * @return string[]
+     * @throws \RedBeanPHP\RedException\SQL
      */
     public static function registerNewArrival($itemData, $warehouseData, $invoiceData, $user, $action = null): array
     {
@@ -53,7 +55,8 @@ class WareHouseLog
         $log->user_id = $user['id']; // идентификатор пользователя
         $log->user_name = $user['user_name'] ?? '';
         R::store($log);
-        return ['info' => 'Part was added successfully', 'color' => 'success', 'item_id' => $itemData['id']];
+        _flashMessage('Part was added successfully');
+        return ['item_id' => $itemData['id']];
     }
 
     /**
@@ -65,18 +68,12 @@ class WareHouseLog
      *   - количество товара
      *   - причину списания
      *   - идентификатор пользователя
-     * @param mixed $item_id Идентификатор товара.
-     * @param mixed $quantity Количество списываемого товара.
-     * @param mixed $from откуда пришел товар
-     * @param mixed $to куда положили
-     * @param mixed $supplier кто поставщик
-     * @param mixed $invoice накладная на прибытие/списание
-     * @param mixed $lot лот товара по складу
+     * @param $logData
      * @param mixed $user Идентификатор пользователя, проводившего операцию.
-     * @return string[]  значение для возврата
-     * @throws \\RedBeanPHP\RedException\SQL  ошибка для БД
+     * @return void  значение для возврата
+     * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function registerWriteOff($logData, $user): array
+    public static function registerWriteOff($logData, $user)
     {
         // Должна записывать в лог:
         $operation_type = (strpos($quantity, '-') !== false) ? 'WRITEOFF' : 'RECEIVING'; // тип операции
@@ -93,7 +90,7 @@ class WareHouseLog
         $log->invoice = $invoice ?? ''; // идентификатор документа (накладная).
         $log->lot = $lot ?? ''; // идентификатор запчасти на складе LOT:num.
         R::store($log);
-        return ['info' => 'The write-off has been completed, the part quantity: ' . $quantity . ' pieces has been written off successfully', 'color' => 'success'];
+        _flashMessage('The write-off has been completed, the part quantity: ' . $quantity . ' pieces has been written off successfully');
     }
 
     /**
@@ -128,12 +125,12 @@ class WareHouseLog
 
     /**
      * @param $item_id
-     * @param $log_data
+     * @param $logData
      * @param $user
-     * @return string[]
+     * @return void
      * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function updatingSomeData($item_id, $logData, $user): array
+    public static function updatingSomeData($item_id, $logData, $user)
     {
         // Должна записать в лог:
         $log = R::dispense(WH_LOGS);
@@ -146,7 +143,7 @@ class WareHouseLog
         $log->items_data = json_encode($logData, JSON_UNESCAPED_UNICODE);
 
         R::store($log);
-        return ['info' => 'Item was changed successfully', 'color' => 'success'];
+        _flashMessage('Item was changed successfully');
         /*
          * вывод массива из БД на страницу
          *

@@ -187,19 +187,24 @@ if (isset($_POST['do-unreserve-bom'])) {
 <head>
     <?php
     /* ICON, TITLE, STYLES AND META TAGS */
-    HeadContent($page);
-    ?>
+    HeadContent($page); ?>
+    <style>
+        #nav-items .nav-item {
+            border: 1px solid #0d6efd;
+            border-radius: 4px;
+            margin-right: 1px;
+        }
+    </style>
 </head>
 <body>
 <form action="" id="routing" method="post" class="hidden"></form>
-<?php
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
 
 <div class="container-fluid p-2" style="height: 95vh;">
     <!--  заголовок окна -->
-    <div class="header-line mb-4">
+    <div class="header-line mb-4" style="border-bottom: 2px solid black">
+        <!-- Кнопка Закрыть окно -->
+        <button type="button" class="btn btn-danger closeButton">Back to Orders</button>
+
         <h4>
             Order ID: <small><?= $order->id ?></small>
             &nbsp;&nbsp;
@@ -210,11 +215,11 @@ DisplayMessage($args ?? null);
         </h4>
         <?php LANGUAGE_BUTTONS(); ?>
         <!-- Кнопка Закрыть окно -->
-        <button type="submit" id="closeButton" class="btn btn-danger">Back to Orders</button>
+        <button type="button" class="btn btn-danger closeButton">Back to Orders</button>
     </div>
 
     <!--  кнопки переключения между табами -->
-    <ul class="nav nav-tabs" role="tablist">
+    <ul class="nav nav-tabs" role="tablist" id="nav-items">
         <!-- Таб 1 -->
         <li class="nav-item" role="presentation">
             <button class="nav-link <?= ($A_T == 'tab1') ? 'active' : '' ?>"
@@ -275,353 +280,31 @@ DisplayMessage($args ?? null);
 
         <!--  Контент Таба 2 order bom -->
         <div class="tab-pane fade show <?= ($A_T == 'tab2') ? 'active' : '' ?>" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
-            <?php if ($projectBom) { ?>
-                <table class="p-3" id="order-bom-table">
-                    <!-- header -->
-                    <thead>
-                    <tr style="white-space: nowrap">
-                        <?php list($tHead, $settings) = CreateTableHeadByUserSettings(
-                            $user, 'order-bom-table', PROJECT_BOM, '<th>Shelf / Box</th><th>Aqtual QTY [PCS, M]</th>');
-                        echo $tHead;
-                        ?>
-                    </tr>
-                    </thead>
-                    <!-- table -->
-                    <tbody>
-                    <?php
-                    foreach ($projectBom as $line) {
-                        $actual_qty = WareHouse::GetActualQtyForItem($line['customerid'], $line['item_id'] ?? '');
-                        $length = (double)$line['length_mm'] ?? 0;
-                        $qty = (int)$line['amount'];
-                        $oqty = (int)$order['order_amount'];
-                        // length in meters
-                        $bom_qty = empty($length) ? $qty * $oqty : (($qty * $length) / 1000) * $oqty;
-                        $color = ($actual_qty >= $bom_qty) ? 'success' : 'danger';
-                        ?>
-                        <tr class="item-list <?= $color; ?>">
-                            <?php
-                            if ($settings) {
-                                foreach ($settings as $item => $_) {
-                                    if ($item == 'amount') {
-                                        $it = $line[$item] * $order['order_amount'];
-                                    } elseif ($item == 'length_mm') {
-                                        $m = $line[$item] * $order['order_amount'] * $line['amount'] / 1000;
-                                        $it = !empty($m) ? "$m meter" : '---';
-                                    } else {
-                                        $it = $line[$item];
-                                    }
-                                    ?>
-                                    <td><?= $it; ?></td>
-                                    <?php
-                                }
-                            }
-
-                            $storage = WareHouse::GetOneItemFromWarehouse($line['manufacture_pn'], $line['owner_pn'], $line['item_id']);
-                            $shelf = $storage['storage_shelf'] ?? 'N/A';
-                            $box = $storage['storage_box'] ?? 'N/A';
-                            ?>
-                            <td><?= $shelf . ' / ' . $box; ?></td>
-                            <td><?= $storage['quantity'] ?? '0'; ?></td>
-                        </tr>
-                        <?php
-                    } ?>
-                    </tbody>
-                </table>
-
-                <!-- form for reserve this bom for project -->
-                <form action="" method="post" class="form mt-3">
-                    <label for="btn-reserve-bom">Reserve BOM items for this order</label>
-                    <br>
-                    <?php
-                    if ($reserve > 0) : ?>
-                        <button id="btn-unreserve-bom" name="do-unreserve-bom" class="btn btn-outline-success ">
-                            Undo Reserved BOM for this order
-                        </button>
-                    <?php else: ?>
-                        <button id="btn-reserve-bom" name="do-reserve-bom" class="btn btn-outline-success ">Do Reserve</button>
-                    <?php endif; ?>
-                </form>
-                <?php
-            } else {
-                $_SESSION['projectid'] = $project->id;
-                ?>
-                <div class="align-middle mt-3">
-                    <h3>Information on the available parts to create this project has not yet to be entered!</h3>
-                    <br>
-                    <?php $url = "check_part_list?mode=orderbom&back-id=$order->id&pid=$project->id"; ?>
-                    <button type="button" value="<?= $url; ?>" class="url btn btn-outline-primary">
-                        Do you want to enter information?
-                    </button>
-                </div>
-            <?php } ?>
+            <?php include_once 'work-flow/tab_2.php'; ?>
         </div>
         <!-- end tab 2 -->
 
         <!--  Контент Таба 3 tool -->
         <div class="tab-pane fade show <?= ($A_T == 'tab3') ? 'active' : '' ?>" id="tab3" role="tabpanel" aria-labelledby="tab3-tab">
-            <?php if (!empty($project['tools']) && $project['tools'] != 'NC') { ?>
-                <table class="p-3">
-                    <!-- header -->
-                    <thead>
-                    <tr>
-                        <?php
-                        /* настройки вывода от пользователя */
-                        if ($settings = getUserSettings($user, TOOLS)) {
-                            foreach ($settings as $item => $_) {
-                                echo '<th>' . SR::getResourceValue(TOOLS, $item) . '</th>';
-                            }
-                        } else {
-                            ?>
-                            <th>
-                                Your view settings for this table isn`t exist yet
-                                <a role="button" href="/setup" class="btn btn-outline-info">Edit Columns view settings</a>
-                            </th>
-                        <?php } ?>
-                    </tr>
-                    </thead>
-                    <!-- table -->
-                    <tbody>
-                    <?php
-                    $toolsId = explode(',', $project['tools']);
-                    foreach ($toolsId as $id) {
-                        $row = R::load(TOOLS, $id);
-                        echo '<tr class="item-list">';
-                        if ($settings) {
-                            foreach ($settings as $item => $_) {
-                                if ($item != 'image') {
-                                    if ($item == 'responsible')
-                                        echo '<td>' . (json_decode($row[$item])->name) . '</td>';
-                                    else
-                                        echo '<td>' . $row[$item] . '</td>';
-                                } else {
-                                    echo '<td>' .
-                                        '<img src="/' . (!empty($row['image']) ? $row['image'] : 'public/images/pna_en.webp') .
-                                        '" alt="Tool Image Preview" width="180px" >' .
-                                        '</td>';
-                                }
-                            }
-                        }
-                        echo '</tr>';
-                    }
-                    ?>
-                    </tbody>
-                </table>
-            <?php } else { ?>
-                <!-- notice for creation tools table for project -->
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <h3>No tool has to be selected for this project yet.</h3>
-                        <br>
-                        <?php $vurl = "new_project?mode=editmode&pid={$project['id']}&back-id={$_GET['orid']}"; ?>
-                        <button type="button" value="<?= $vurl; ?>" class="url btn btn-outline-primary">
-                            Do you want to select tools?
-                        </button>
-                    </div>
-                </div>
-            <?php } ?>
+            <?php include_once 'work-flow/tab_3.php'; ?>
         </div>
         <!-- end tab 3 -->
 
         <!-- Контент Таба 4 project docs -->
         <div class="tab-pane fade show <?= ($A_T == 'tab4') ? 'active' : '' ?>" id="tab4" role="tabpanel" aria-labelledby="tab4-tab">
-            <div class="row mt-3" style="margin: 0">
-                <div class="col-8">
-                    <?php
-                    $d = 'disabled';
-                    if (!empty($project['projectdocs']) && strpos($project['projectdocs'], '.pdf') !== false) {
-                        $d = '';
-                        ?>
-                        <iframe id="pdf-docs" width="100%" height="340%" src="/<?= $project['projectdocs']; ?>"></iframe>
-                    <?php } else { ?>
-                        <img src="/<?= getProjectFrontPicture($projectid, 'docs'); ?>" alt="<?= $orderid; ?>"
-                             class="img-fluid rounded" style="width: 100%;">
-                    <?php } ?>
-                </div>
-
-                <div class="col-4" style="border-left:solid black 1px;">
-                    <div class="mb-3">
-                        <h3 class="mb-3 ps-2">Additional Information</h3>
-                        <p class="ps-2"> <?= $project['extra']; ?></p>
-                        <p class="ps-2"><?= 'Project Revision: ' . $project['revision']; ?></p>
-                        <p class="ps-2 text-primary"><?= 'Created in: ' . $project['date_in']; ?></p>
-                    </div>
-                    <div class="mb-3">
-                        <a role="button" href="<?= BASE_URL . $project->projectdocs; ?>" target="_blanks" class="btn btn-outline-info <?= $d; ?>">
-                            Open Document
-                        </a>
-                    </div>
-                </div>
-            </div>
+            <?php include_once 'work-flow/tab_4.php'; ?>
         </div>
         <!-- end tab 4 -->
 
         <!-- Контент Таба 5 project Part list (BOM) -->
         <div class="tab-pane fade show <?= ($A_T == 'tab5') ? 'active' : '' ?>" id="tab5" role="tabpanel" aria-labelledby="tab5-tab">
-            <?php if ($projectBom) { ?>
-                <table class="p-3">
-                    <!-- header -->
-                    <thead>
-                    <tr>
-                        <?php
-                        if ($settings = getUserSettings($user, PROJECT_BOM)) {
-                            foreach ($settings as $item => $_) {
-                                echo '<th>' . SR::getResourceValue(PROJECT_BOM, $item) . '</th>';
-                            }
-                        } else {
-                            ?>
-                            <th>
-                                Your view settings for this table isn`t exist yet
-                                <a role="button" href="/setup" class="btn btn-outline-info">Edit Columns view settings</a>
-                            </th>
-                        <?php } ?>
-                    </tr>
-                    </thead>
-                    <!-- table -->
-                    <tbody>
-                    <?php
-                    foreach ($projectBom as $line) {
-                        echo '<tr class="item-list">';
-                        if ($settings) {
-                            foreach ($settings as $item => $_) {
-                                echo '<td>' . $line[$item] . '</td>';
-                            }
-                        }
-                        echo '</tr>';
-                    }
-                    ?>
-                    </tbody>
-                </table>
-                <?php
-            } else {
-                $_SESSION['projectid'] = $project->id;
-                ?>
-                <div class="align-middle row mt-3">
-                    <div class="col-12">
-                        <h3>Information on the available parts to create this project has not yet to be entered!</h3>
-                        <br>
-                        <?php $url = "check_part_list?mode=editmode&back-id=$order->id&pid=$project->id"; ?>
-                        <button type="button" value="<?= $url; ?>" class="url btn btn-outline-primary">
-                            Do you want to enter information?
-                        </button>
-                    </div>
-                </div>
-                <?php
-            } ?>
+            <?php include_once 'work-flow/tab_5.php'; ?>
         </div>
         <!-- end tab 5 -->
 
         <!-- Контент для Таба 6 project steps -->
         <div class="tab-pane fade show <?= ($A_T == 'tab6') ? 'active' : '' ?>" id="tab6" role="tabpanel" aria-labelledby="tab6-tab">
             <?php include_once 'work-flow/tab_6_steps.php'; ?>
-            <div class="step-box mt-3 hidden">
-                <?php
-                if ($stepsData) {
-                    $stepCount = 0;
-                    /* выводим все шаги для просмотра и выбора в работу */
-                    foreach ($stepsData as $step) {
-                        // проверяем если шаг был завершен то не выводим его
-                        if (!Orders::isStepComplite($order->status, $step['id'])) {
-                            $stepCount++;
-                            echo ($step['validation']) ? '<p class="text-white bg-danger">' . $step['validation'] . '</p>' : '';
-                            ?>
-                            <div class="row row-side" id="sid-<?= $step['step']; ?>" style="margin: 0">
-                                <div class="col-5">
-
-                                    <?php
-                                    // на случай если в проекте нет шагов с фото или видео
-                                    if (!empty($step['image'])) { ?>
-                                        <img class="step-image" src="/<?= $step['image']; ?>" alt="Hello asshole">
-                                        <?php
-                                    } else {
-                                        echo '<h3>' . $step['routeaction'] . '</h3>';
-                                    }
-
-                                    if ($step['video'] != 'none') { ?>
-                                        <video src="<?= $step['video']; ?>" controls width="100%" height="auto">
-                                            Your browser not support video
-                                        </video>
-                                    <?php } ?>
-                                </div>
-
-                                <div class="col-7 info-side">
-                                    <h5 class="mb-3">Step Number: <?= $step['step']; ?></h5>
-                                    <p class="text-primary"><?= $step['description']; ?></p>
-                                    <pre class="warning rounded border p-2">
-WARNING!
-Before you start this step, read the rules for transitioning between steps!
-1) Execute step:
-After completing the step completely.
-IMPORTANT!
-Click on the "step completed" button
-This will prevent the possibility of taking a step into work by mistake!
-2) Partial execution:
-In case of partial or serial execution of the order.
-IMPORTANT!
-After completing the step, click on the “next step” button.
-This button will appear if a serial number is included in the order!
-3) Transferring a step to another worker:
-If you need to transfer a step to another worker.
-IMPORTANT!
-Select an employee from the list and click the “transfer step” button.
-This action will open up the opportunity for another worker to choose a step to work on!
-4) Step verification by administrator:
-If this step is verified, the “request step verification” button will be presented on the page.
-IMPORTANT!
-Click on this button after making the first copy of the product in your order!
-If serial numbering is set, the action is performed for all copies of the product at this step!
-5) Stop order fulfillment:
-In a situation where a stop is required while executing an order.
-IMPORTANT!
-Press the "order to pause" button
-Next, in the dialog that opens, you need to write the reason for stopping the order in any language
-and click the “ok” button to complete the operation.
-                                </pre>
-                                    <?php
-                                    // если пользователь взял в работу один шаг то отключаем возможность взять другой в работу
-                                    if (!$assy_in_progress && $order->status == 'st-8') { ?>
-                                        <form action="" method="post">
-                                            <?php $assy_work_flow = R::findOne(ASSY_PROGRESS, 'current_stepid = ?', [$step['id']]); ?>
-                                            <input type="hidden" name="assyid" value="<?= $assy_work_flow->id; ?>">
-                                            <input type="hidden" name="stepid" value="<?= $step['id']; ?>">
-                                            <button type="submit" class="btn btn-outline-primary" name="take-a-step-to-work">
-                                                Take a step to work
-                                            </button>
-                                        </form>
-                                    <?php } ?>
-                                </div>
-                            </div>
-                        <?php }
-                    }
-                    // завершение заказа или повтор если требуется серийный номер или поштучное изготовление
-                    if ($stepCount == 0) {
-                        ?>
-                        <div class="mb-3 mt-3 p3 text-center">
-                            <h3>All project steps have been completed, complete the order or repeat all steps.</h3>
-                            <form action="" method="post">
-                                <button type="submit" name="complete_order" value="<?= $order->id; ?>" class="btn btn-outline-dark">
-                                    Order assembly complete, move on to the next order?
-                                </button>
-
-                                <h4>For orders where a serial number is required.</h4>
-                                <input type="text" name="serial_number_for_assy_flow" class="form-control" placeholder="Write next serial number">
-                                <button type="submit" name="repite_order" value="<?= $order->id; ?>" class="btn btn-outline-dark">
-                                    Repeat the assembly procedure step by step for the new serial number
-                                </button>
-                            </form>
-                        </div>
-                        <?php
-                    }
-
-                    // если нет шагов по сборке, выводим предложение добавить шаги в проекты
-                } else { ?>
-                    <div class="mb-3">
-                        <h4>It seems there are no assembly instructions for this project yet. Would you like to add assembly instructions to this project?</h4>
-                        <a role="button" href="/add_step?pid=<?= $project->id; ?>" target="_blank" class="btn btn-outline-info">
-                            Add Project steps
-                        </a>
-                    </div>
-                <?php } ?>
-            </div>
         </div>
         <!-- end tab 6 -->
 
@@ -652,6 +335,7 @@ and click the “ok” button to complete the operation.
     <!-- back button to edit-project or home -->
     <?php $url = 'order?orid=' . $_GET['orid']; ?>
     <form action="" method="post" class="form">
+        <label for="chatMessage" class="form-label">Message text</label>
         <textarea name="chatMessage" id="chatMessage" rows="14" class="form-control p-3"></textarea>
         <div class="button-box">
             <button type="submit" name="editChatMessage" class="actionButtons btn btn-warning">Edit</button>
@@ -662,7 +346,7 @@ and click the “ok” button to complete the operation.
 </div>
 
 <!-- WINDOW JAVASCRIPT -->
-<?php ScriptContent($page); ?>
+<?php PAGE_FOOTER($page, false); ?>
 <script type="application/javascript" src="/public/js/order-details.js"></script>
 </body>
 </html>

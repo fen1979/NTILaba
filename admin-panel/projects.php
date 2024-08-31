@@ -17,15 +17,8 @@
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Projects';
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-$navBarData['btn_title'] = 'project';
-NavBarContent($navBarData);
+NavBarContent(['title' => 'Projects', 'user' => $user, 'page_name' => $page, 'btn_title' => 'project']); ?>
 
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
 <div class="main-container">
     <main class="container-fluid content">
         <h2>Projects List</h2>
@@ -80,9 +73,7 @@ DisplayMessage($args ?? null);
 // MODAL WINDOW WITH ROUTE FORM AND CREATION FORM
 deleteModalRouteForm('/new_project');
 // Футер
-footer($page);
-// SCRIPTS
-ScriptContent($page);
+PAGE_FOOTER($page);
 ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {

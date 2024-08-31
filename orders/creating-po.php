@@ -96,14 +96,8 @@ if (isset($_POST['pioi']) && isset($_POST['projectName'])) {
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'P.O. Creation';
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
+NavBarContent(['title' => 'P.O. Creation', 'user' => $user, 'page_name' => $page]); ?>
 
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
 <h3 class="mt-3 mb-3 text-center">Draft Project and Order Record</h3>
 
 <div class="container mt-5 mb-5 px-3 py-3 rounded" style="background: beige;">
@@ -362,11 +356,8 @@ DisplayMessage($args ?? null);
 // MODAL DIALOG FOR VIEW RESPONCE FROM SERVER IF SEARCHED VALUE EXIST
 SearchResponceModalDialog($page, 'search-responce');
 
-// FOOTER
-footer();
-
-// SCRIPTS
-ScriptContent($page); ?>
+// FOOTER & SCRIPTS
+PAGE_FOOTER($page, false); ?>
 
 <!-- project scripts-->
 <script src="/public/js/pioi.js"></script>

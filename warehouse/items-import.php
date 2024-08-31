@@ -120,7 +120,12 @@ if (isset($_POST['importCsvFile'])) {
                         if ($result[0] === 'exist') {
                             $rowData['item_id'] = $result[1];
                             // переписываем данные в БД
-                            WareHouse::ReplenishInventory($rowData, $user);
+                            try {
+                                WareHouse::ReplenishInventory($rowData, $user);
+                            } catch (\RedBeanPHP\RedException\SQL $e) {
+                                // message collector (text/ color/ auto_hide = true)
+                                _flashMessage('Error: ' . $e->getMessage(), 'danger');
+                            }
                             $items++;
                         }
                         // если записи полностью совпадают с существующими в БД
@@ -173,19 +178,17 @@ if (isset($_POST['importCsvFile'])) {
     </head>
     <body>
     <?php
-    // NAVIGATION BAR
-    $navBarData['title'] = 'Import an CSV file';
-    $navBarData['active_btn'] = Y['STOCK'];
-    $navBarData['page_tab'] = $_GET['page'] ?? null;
-    $navBarData['record_id'] = $item->id ?? null;
-    $navBarData['user'] = $user;
-    $navBarData['page_name'] = $page;
-    NavBarContent($navBarData);
 
-    /* DISPLAY MESSAGES FROM SYSTEM */
-    DisplayMessage($args ?? null);
+    // title for plus button
     $t = 'Press the [+] button to add new item in storage, or CSV button to import file';
-    ?>
+    // NAVIGATION BAR
+    NavBarContent([
+        'title' => 'Import an CSV file',
+        'active_btn' => Y['STOCK'],
+        'page_tab' => $_GET['page'] ?? null,
+        'record_id' => $item->id ?? null,
+        'user' => $user,
+        'page_name' => $page]); ?>
 
     <div class="main-container">
         <main class="container-fluid content">
@@ -233,16 +236,11 @@ if (isset($_POST['importCsvFile'])) {
 
                 <button type="submit" id="btn" class="btn btn-primary form-control" name="importCsvFile" disabled>Import</button>
             </form>
-            <?php
-            // Футер
-            footer($page);
-            ?>
         </main>
     </div>
     <?php
-    /* SCRIPTS */
-    ScriptContent($page);
-    ?>
+    // SCRIPTS and Футер
+    PAGE_FOOTER($page); ?>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             dom.in("change", "#file_csv", function () {

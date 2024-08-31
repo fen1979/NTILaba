@@ -65,11 +65,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_FILES['some_file'])) {
 
         // Перемещаем файл из временного места в целевую папку
         if (move_uploaded_file($tmpName, $uploadPath)) {
-            $args['color'] = 'success';
-            $args['info'] = "Files $numFiles pcs, uploaded successfully.<br>";
+            _flashMessage("Files $numFiles pcs, uploaded successfully");
         } else {
-            $args['color'] = 'danger';
-            $args['info'] = "Error while uploading $fileName.<br>";
+            // message collector (text/ color/ auto_hide = true)
+            _flashMessage('Error while uploading $fileName.', 'danger');
         }
     }
 }
@@ -121,17 +120,7 @@ if (isset($_GET['dir']) && isset($_GET['mode']) && $_GET['mode'] == 'add-project
 <body>
 <?php
 // NAVIGATION BAR
-//$navBarData['title'] = '';
-$navBarData['active_btn'] = Y['WIKI'];
-//$navBarData['page_tab'] = $_GET['page'] ?? null;
-//$navBarData['record_id'] = $item->id ?? null;
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
-
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args);
-?>
+NavBarContent(['active_btn' => Y['WIKI'], 'user' => $user, 'page_name' => $page]); ?>
 
 <h4 class="text-center">
     <?php echo $n = rtrim($_GET['dir'] ?? (isset($_GET['pr_dir']) ? _dirPath($_GET) : ''), '/'); ?>
@@ -281,10 +270,7 @@ DisplayMessage($args);
         ?>
     </div>
 </main>
-<?php
-footer($page);
-ScriptContent($page);
-?>
+<?php PAGE_FOOTER($page); ?>
 <script src="public/js/wiki.js"></script>
 </body>
 </html>

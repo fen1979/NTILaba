@@ -58,28 +58,28 @@ class TaskManager
         return implode(',', $emails);
     }
 
-    private static function sendNotificationToMail($emails, $user, $task): array
+    /**
+     * @throws \PHPMailer\PHPMailer\Exception
+     */
+    private static function sendNotificationToMail($emails, $user, $task)
     {
         require 'emails-body.php';
         // Преобразуем строку с email-ами в массив, разделяя по запятой
         $emails = array_map('trim', explode(',', $emails));
 
         $subject = 'NTI Group Task Manager';
-        $res = [];
 
         // Отправка уведомления на каждый email в массиве
         foreach ($emails as $email) {
             if (Mailer::SendEmailNotification($email, $user['user_name'], $subject, emailTaskBody($task, SALT_PEPPER))) {
-                $res[] = ['info' => $email . ' Successfully sent', 'color' => 'success'];
+                _flashMessage($email . ' Successfully sent');
             } else {
-                $res[] = ['info' => $email . ' Error while sending!', 'color' => 'danger'];
+                _flashMessage($email . ' Error while sending!', 'danger');
             }
         }
-
-        return $res;
     }
 
-    public static function createNewTask($post, $user): array
+    public static function createNewTask($post, $user)
     {
         $post = self::checkPostDataAndConvertToArray($post);
 
@@ -96,18 +96,17 @@ class TaskManager
             R::store($task);
 
             // sent notification to attached users
-            $args = self::sendNotificationToMail($emails, $user, $task);
+            self::sendNotificationToMail($emails, $user, $task);
 
             //Query Executed and Task Inserted Successfully
-            $args = ['info' => 'Task Added Successfully.', 'color' => 'success'];
+            _flashMessage('Task Added Successfully.');
         } catch (Exception $e) {
             //FAiled to Add TAsk
-            $args = ['info' => 'Failed to Add Task ' . $e->getMessage(), 'color' => 'danger'];
+            _flashMessage('Failed to Add Task ' . $e->getMessage(), 'danger');
         }
-        return $args;
     }
 
-    public static function updateTask($post, $user): array
+    public static function updateTask($post, $user)
     {
         $post = self::checkPostDataAndConvertToArray($post);
         try {
@@ -126,18 +125,17 @@ class TaskManager
 
             // sent notification to attached users
             if (isset($post['send-email'])) // check if need send or not
-                $args = self::sendNotificationToMail($emails, $user, $task);
+                self::sendNotificationToMail($emails, $user, $task);
 
             //Query Executed and Task Inserted Successfully
-            $args[] = ['info' => 'Task Updated Successfully.', 'color' => 'success'];
+            _flashMessage('Task Updated Successfully.');
         } catch (Exception $e) {
             //FAiled to Add TAsk
-            $args[] = ['info' => 'Failed to Update Task ' . $e->getMessage(), 'color' => 'danger'];
+            _flashMessage('Failed to Update Task ' . $e->getMessage(), 'danger');
         }
-        return $args;
     }
 
-    public static function createNewTasksList($post, $user): array
+    public static function createNewTasksList($post, $user)
     {
         $post = self::checkPostDataAndConvertToArray($post);
         //Get the values from form and save it in variables
@@ -148,16 +146,15 @@ class TaskManager
             $list->list_name = $list_name;
             $list->list_description = $list_description;
             R::store($list);
-            $args = ['info' => 'List Added Successfully', 'color' => 'success'];
+            _flashMessage('List Added Successfully');
             redirectTo('manage-list', $args);
         } catch (Exception $e) {
-            $args = ['info' => 'Failed to Add List ' . $e->getMessage(), 'color' => 'danger'];
+            _flashMessage('Failed to Add List ' . $e->getMessage(), 'danger');
         }
 
-        return $args;
     }
 
-    public static function updateTasksList($post, $user): array
+    public static function updateTasksList($post, $user)
     {
         $post = self::checkPostDataAndConvertToArray($post);
 
@@ -169,25 +166,23 @@ class TaskManager
             $list->list_name = $list_name;
             $list->list_description = $list_description;
             R::store($list);
-            $args = ['info' => 'List Updated Successfully', 'color' => 'success'];
+            _flashMessage('List Updated Successfully');
             redirectTo('manage-list', $args);
         } catch (Exception $e) {
-            $args = ['info' => 'Failed to Update List ' . $e->getMessage(), 'color' => 'danger'];
+            _flashMessage('Failed to Update List ' . $e->getMessage(), 'danger');
         }
-
-        return $args;
     }
 
-    public static function deleteTaskOrList($get, $post, $user): array
+    public static function deleteTaskOrList($get, $post, $user)
     {
         // delete task
         if (isset($get['task_id']) && isset($get['delete'])) {
             try {
                 $task_id = $get['task_id'];
                 R::trash(R::load(TASKS, $task_id));
-                $args = ['info' => 'Task Deleted Successfully.', 'color' => 'success'];
+                _flashMessage('Task Deleted Successfully.');
             } catch (Exception $e) {
-                $args = ['info' => 'Failed to Delete Task ' . $e->getMessage(), 'color' => 'danger'];
+                _flashMessage('Failed to Delete Task ' . $e->getMessage(), 'danger');
             }
         }
 
@@ -197,12 +192,10 @@ class TaskManager
             $list_id = $_GET['list_id'];
             try {
                 R::trash(R::load(TASK_LIST, $list_id));
-                $args = ['info' => 'List Deleted Successfully', 'color' => 'success'];
+                _flashMessage('List Deleted Successfully');
             } catch (Exception $e) {
-                $args = ['info' => 'Failed to Delete List ' . $e->getMessage(), 'color' => 'danger'];
+                _flashMessage('Failed to Delete List ' . $e->getMessage(), 'danger');
             }
         }
-
-        return $args ?? [null];
     }
 }

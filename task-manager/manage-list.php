@@ -1,18 +1,18 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean');
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 require('TaskManager.php');
-$user = $_SESSION['userBean'];
 $page = 'task_manager';
-$args = TaskManager::deleteTaskOrList($_GET, $_POST, $user);
+
+TaskManager::deleteTaskOrList($_GET, $_POST, $user);
 
 // creation new list of tasks
 if (isset($_POST['save-new'])) {
-    $args = TaskManager::createNewTasksList($_POST, $user);
+    TaskManager::createNewTasksList($_POST, $user);
 }
 
 // task list information updating
 if (isset($_POST['update'])) {
-    $args = TaskManager::updateTasksList($_POST, $user);
+    TaskManager::updateTasksList($_POST, $user);
 }
 
 $hide_new = isset($_GET['list_id']) && isset($_GET['update']) ? 'hidden' : null;
@@ -29,14 +29,8 @@ $list = isset($_GET['list_id']) && isset($_GET['update']) ? R::load(TASK_LIST, $
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Task Manager';
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
+NavBarContent(['title' => 'Task Manager', 'user' => $user, 'page_name' => $page]); ?>
 
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
 <div class="container-fluid mt-3">
     <a role="button" class="btn btn-outline-success" href="/manage-list" <?= empty($hide_new) ? 'hidden' : ''; ?>>Add New Task List</a>
 
@@ -118,8 +112,7 @@ DisplayMessage($args ?? null);
 </div>
 
 <?php
-footer();
-ScriptContent($page);
-?>
+// footer and scripts
+PAGE_FOOTER($page); ?>
 </body>
 </html>

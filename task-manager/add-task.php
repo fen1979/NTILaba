@@ -1,7 +1,6 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean');
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 require 'TaskManager.php';
-$user = $_SESSION['userBean'];
 $page = 'task_manager';
 
 //Check whether the SAVE button is clicked or not
@@ -15,20 +14,13 @@ if (isset($_POST['submit'])) {
 <head>
     <?php
     /* ICON, TITLE, STYLES AND META TAGS */
-    HeadContent($page);
-    ?>
+    HeadContent($page); ?>
 </head>
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Add Task';
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
+NavBarContent(['title' => 'Add Task', 'user' => $user, 'page_name' => $page]); ?>
 
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
 <div class="wrapper mt-3">
     <form method="POST" action="">
         <div class="row mb-3">
@@ -123,7 +115,7 @@ DisplayMessage($args ?? null);
     </form>
 </div>
 
-<?php ScriptContent(); ?>
+<?php PAGE_FOOTER($page, false); ?>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {

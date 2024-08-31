@@ -18,7 +18,7 @@ class Mailer
      * @param string $attachment
      * @param string $attach_name
      * @return string
-     * @throws phpmailerException|Exception
+     * @throws Exception
      */
     public static function SendEmailNotification($email, $to_whom, $subject, $html_body, string $attachment = '', string $attach_name = ''): string
     {

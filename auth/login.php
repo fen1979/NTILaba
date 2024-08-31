@@ -41,7 +41,6 @@ if (isset($_POST['userName']) && isset($_POST['userPassword'])) {
 <!DOCTYPE html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
 <head>
-
     <?php HeadContent('login'); ?>
     <style>
         .eye-box {
@@ -90,49 +89,47 @@ if (isset($_POST['userName']) && isset($_POST['userPassword'])) {
 
     </style>
 </head>
-<body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
-<?php
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
-<div class="container">
-    <div class="row">
-        <div class="col-md-6 mx-auto">
-            <div class="card">
-                <div class="card-body">
-                    <div id="login-form">
-                        <h5 class="card-title text-center mb-4">Login</h5>
-                        <form method="post" id="login-form">
-                            <input type="hidden" name="user-agent" class="user-agent" value="">
-                            <div class="mb-3">
-                                <label for="loginUsername" class="form-label">Name</label>
-                                <input type="text" class="form-control" id="loginUsername" name="userName" required>
-                            </div>
-                            <div class="mb-3 eye-box">
-                                <label for="loginPassword" class="form-label">Password</label>
-                                <input type="password" class="form-control pi" id="loginPassword" name="userPassword" required>
-                                <i class="bi bi-eye eye"></i>
-                            </div>
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-success form-control" id="login">Login</button>
-                            </div>
-                        </form>
+<body>
+<main class="bg-light d-flex align-items-center justify-content-center" style="height: 90vh;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <div id="login-form">
+                            <h5 class="card-title text-center mb-4">Login</h5>
+                            <form method="post" id="login-form">
+                                <input type="hidden" name="user-agent" class="user-agent" value="">
+                                <div class="mb-3">
+                                    <label for="loginUsername" class="form-label">Name</label>
+                                    <input type="text" class="form-control" id="loginUsername" name="userName" required>
+                                </div>
+                                <div class="mb-3 eye-box">
+                                    <label for="loginPassword" class="form-label">Password</label>
+                                    <input type="password" class="form-control pi" id="loginPassword" name="userPassword" required>
+                                    <i class="bi bi-eye eye"></i>
+                                </div>
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-success form-control" id="login">Login</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div id="cookieConsentContainer" class="cookie-consent-container">
-    <div class="content-container">
-        <p>This site uses cookies to improve your experience. By continuing to use our site, you consent to the use of cookies.</p>
-        <button class="cookie-buttons" id="acceptCookieConsent">Confirm</button>
-        <button class="cookie-buttons" id="declineCookieConsent">Declaine</button>
+    <div id="cookieConsentContainer" class="cookie-consent-container">
+        <div class="content-container">
+            <p>This site uses cookies to improve your experience. By continuing to use our site, you consent to [OMIT] cookies.</p>
+            <button class="cookie-buttons" id="acceptCookieConsent">Confirm</button>
+            <button class="cookie-buttons" id="declineCookieConsent">Declaine</button>
+        </div>
     </div>
-</div>
+</main>
 
-<?php ScriptContent('login'); ?>
+<?php PAGE_FOOTER('login'); ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // добавляем Keypress для нажатия entеr на странице

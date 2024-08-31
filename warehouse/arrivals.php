@@ -120,17 +120,14 @@ if (isset($_GET['consignment']) && isset($_GET['item-id']) && isset($_GET['qty']
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Add New Part';
-$navBarData['active_btn'] = Y['STOCK'];
-$navBarData['page_tab'] = $_GET['page'] ?? null;
-$navBarData['record_id'] = $item->id ?? null;
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
+NavBarContent([
+    'title ' => 'Add New Part',
+    'active_btn' => Y['STOCK'],
+    'page_tab' => $_GET['page'] ?? null,
+    'record_id' => $item->id ?? null,
+    'user' => $user,
+    'page_name' => $page]); ?>
 
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
 <div class="container-fluid border-top">
     <div class="row">
 
@@ -253,7 +250,7 @@ DisplayMessage($args ?? null);
                             select the custom option and write new name by upper letters!!!';
                 $query = "SELECT DISTINCT REGEXP_REPLACE(owner_pn, '[0-9]+$', '') AS unique_part_name FROM warehouse";
                 ?>
-                <label for="owner-part-key">Owner P/N</label>
+                <label for="owner-pn-list">Owner P/N</label>
                 <?php if (!$bom_item || _empty($bom_item->owner_pn, true)){ ?>
                 <div class="input-group">
                     <select name="owner-pn-list" id="owner-pn-list" class="form-select" data-title="<?= $t ?>" required>
@@ -304,7 +301,7 @@ DisplayMessage($args ?? null);
                        class="input" required/>
 
                 <label for="delivery_note">Delivery Note</label>
-                <?php $note = _if(isset($_GET['pid']), "For Project ID: {$pid} and Order ID: {$orid}", ''); ?>
+                <?php $note = _if(isset($_GET['pid']), "For Project ID: $pid and Order ID: $orid", ''); ?>
                 <input type="text" placeholder="Delivery Note optional"
                        name="delivery_note" id="delivery_note" value="<?= set_value('delivery_note', $note); ?>"
                        class="input"/>
@@ -333,14 +330,11 @@ DisplayMessage($args ?? null);
 </div>
 
 <?php
-footer($page);
-
 // MODAL DIALOG FOR VIEW RESPONCE FROM SERVER IF SEARCHED VALUE EXIST
 SearchResponceModalDialog($page, 'search-responce');
 
-/* SCRIPTS */
-ScriptContent('arrivals');
-?>
+// FOOTER AND SCRIPTS
+PAGE_FOOTER($page); ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // Получаем элемент page_data

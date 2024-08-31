@@ -1,9 +1,8 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean');
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 include_once 'projects/Project.php';
 
 $page = 'project_part_list';
-$user = $_SESSION['userBean'];
 $backButton = ['url' => '/', 'text' => 'Back To Orders'];
 $formButton = ['name' => 'save-item-to-bom', 'text' => 'Save Item'];
 
@@ -29,15 +28,15 @@ if (isset($_GET['pid']) && isset($_GET['back-id']) && isset($_GET['mode'])) {
 /* saving the item to DB */
 if (isset($_POST['save-item-to-bom'])) {
     if (!isset($_FILES['import_csv']['name'][0])) {
-        $args = Project::createProjectBomItem($_POST, $user, $_GET['pid']);
+        Project::createProjectBomItem($_POST, $user, $_GET['pid']);
     } else {
-        $args = Project::importProjectBomFromFile($_FILES, $_POST, $user, $_GET['pid']);
+        Project::importProjectBomFromFile($_FILES, $_POST, $user, $_GET['pid']);
     }
 }
 
 /* delete item from project BOM */
 if (isset($_POST['password']) && isset($_POST['itemId']) && isset($_POST['delete-item'])) {
-    $args = Project::deleteProjectBomItem($_POST, $user);
+    Project::deleteProjectBomItem($_POST, $user);
 }
 
 /* undo delete item */
@@ -120,10 +119,6 @@ if (isset($_GET['edit-item'])) {
     </style>
 </head>
 <body>
-<?php
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
 
 <div class="row p-2 secondary">
     <!-- adding form -->
@@ -216,13 +211,23 @@ DisplayMessage($args ?? null);
                 <button type="submit" name="<?= $formButton['name']; ?>" class="btn btn-outline-success form-control"><?= $formButton['text']; ?></button>
             </div>
 
+<!--            <div class="mb-2">-->
+<!--                --><?php //$t = 'First you need to select a file! This will cancel the required fields,
+//                then enter the names of the columns in the file in the fields that you want to fill in!
+//                The remaining fields must remain empty!!! Click on the save button and you\'re done,
+//                you will see the args to the right of the form.'; ?>
+<!--                <button type="button" id="import_csv" class="btn btn-outline-info form-control" data-title="--><?php //= $t; ?><!--">-->
+<!--                    Import CSV file-->
+<!--                    <i class="bi bi-info-circle"></i>-->
+<!--                </button>-->
+<!--                <input type="file" name="import_csv" id="csv_input" accept="text/csv" hidden>-->
+<!--            </div>-->
+
             <div class="mb-2">
-                <?php $t = 'First you need to select a file! This will cancel the required fields, 
-                then enter the names of the columns in the file in the fields that you want to fill in! 
-                The remaining fields must remain empty!!! Click on the save button and you\'re done, 
-                you will see the args to the right of the form.'; ?>
-                <button type="button" id="import_csv" class="btn btn-outline-info form-control" data-title="<?= $t; ?>">Import CSV file <i class="bi bi-info-circle"></i></button>
-                <input type="file" name="import_csv" id="csv_input" accept="text/csv" hidden>
+                <button type="button" class="url btn btn-outline-info form-control" value="test?table-name=projectbom">
+                    Import Project BOM from file
+                    <i class="bi bi-filetype-xlsx"></i>
+                </button>
             </div>
 
             <div class="mb-2">
@@ -311,7 +316,7 @@ DisplayMessage($args ?? null);
     </div>
 </div>
 
-<?php ScriptContent($page); ?>
-<script type="text/javascript" src="/public/js/unit-bom.js"></script>
+<?php PAGE_FOOTER($page, false); ?>
+<script type="text/javascript" src="/public/js/project-bom.js"></script>
 </body>
 </html>

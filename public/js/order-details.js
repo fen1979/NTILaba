@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
     chatContainer.scrollTop(chatContainer.prop("scrollHeight"));
 
     // закрываем страницу и перекидываем пользователя на прошлую вкладку
-    dom.in("click", "#closeButton", function () {
+    dom.in("click", ".closeButton", function () {
         if (window.opener) {
             if (isDirty && !confirm('You have unsaved changes. Are you sure you want to leave?')) {
                 return; // Пользователь отказался закрывать страницу

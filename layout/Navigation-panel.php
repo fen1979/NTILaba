@@ -55,12 +55,18 @@ const BUTNS = ['main' => [
 /**
  *
  * NAVIGATION BAR
- * //$navBarData['title'] = 'Warehouse Information';
- * //$navBarData['active_btn'] = Y['LOG'];
- * //$navBarData['page_tab'] = $_GET['page'] ?? null;
- * //$navBarData['record_id'] = null;
- * //$navBarData['user'] = $user;
- * //$navBarData['page_name'] = $page;
+ * - how to use
+ * - // NAVIGATION BAR
+ * - NavBarContent([
+ * - 'title' => 'Title Information', // nav bar title
+ * - 'active_btn' => Y['value'], // active tabs
+ * - 'page_tab' => $_GET['page'] ?? null, //
+ * - 'record_id' => null, // some id
+ * - 'user' => $user, // user data
+ * - 'page_name' => $page, // page entry name
+ * -  // optional options
+ * - 'btn_title' => null // admin panel btn's title
+ * - ]);
  *
  * @param $navBarData
  * @return void
@@ -77,12 +83,12 @@ function NavBarContent($navBarData): void
     $pid = $navBarData['record_id'] ?? null;
     // admin panel
     $btn_title = $navBarData['btn_title'] ?? null;
+    $style = $navBarData['style'] ?? 'style="height: 6rem; width: 100%;"';
     ?>
     <!-- google translate tag -->
     <div id="google_translate_element"></div>
 
-    <header style="height: 6rem; width: 100%;">
-        <form action="" id="routing" class="hidden" method="post"></form>
+    <header <?= $style ?>>
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg fixed-top navbar-scroll blury">
             <div class="container-fluid">
@@ -244,7 +250,7 @@ function ALL_PAGES_BUTTONS($page, $btn_title): void
     <?php if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) { ?>
     <li class="nav-item">
         <button type="button" class="url act btn btn-sm btn-outline-secondary"
-                value="pioi">P.O.
+                value="pioi">P.O
         </button>
     </li>
     <li class="nav-item">
@@ -265,6 +271,12 @@ function ALL_PAGES_BUTTONS($page, $btn_title): void
     <li class="nav-item">
         <button type="button" class="url act btn btn-sm btn-outline-secondary"
                 value="wh">Warehouse
+        </button>
+    </li>
+    <li class="nav-item">
+        <?php $t = 'List of incoming documents for received parcels'; ?>
+        <button type="button" class="url act btn btn-sm btn-outline-secondary" data-title="<?= $t ?>"
+                value="staging">P.O.S
         </button>
     </li>
     <li class="nav-item">
@@ -295,6 +307,7 @@ function ALL_PAGES_BUTTONS($page, $btn_title): void
             <li><a class="dropdown-item" href="setup?route-page=6" target="_blank">Orders</a></li>
             <li><a class="dropdown-item" href="setup?route-page=8" target="_blank">Profile</a></li>
             <li><a class="dropdown-item" href="setup?route-page=9" target="_blank">Warehouses</a></li>
+            <li><a class="dropdown-item" href="setup?route-page=9" target="_blank">C.O.N.</a></li>
             <li><a class="dropdown-item" href="resources" target="_blank">Resources</a></li>
             <li><a class="dropdown-item" href="logs" target="_blank">Logs</a></li>
         </ul>
@@ -395,13 +408,13 @@ function EDIT_PROJECT_PAGE_BUTTONS($pid): void
         // сделать чтоб открывалось в новой вкладке
         ?>
         <li class="nav-item">
-            <button type="button" title="Delete" class="btn btn-sm btn-outline-danger deleteProjectButton" data-projectid="<?= $pid; ?>">
+            <button type="button" title="Delete" class="m-03 btn btn-sm btn-outline-danger deleteProjectButton" data-projectid="<?= $pid; ?>">
                 <i class="bi bi-trash3-fill"></i>
                 Delete Project
             </button>
         </li>
         <li class="nav-item">
-            <button type="button" title="Archive" class="btn btn-sm btn-outline-diliny archive" data-projectid="<?= $pid; ?>">
+            <button type="button" title="Archive" class="m-03 btn btn-sm btn-outline-diliny archive" data-projectid="<?= $pid; ?>">
                 <i class="bi bi-archive-fill"></i>
                 Archive Project
             </button>
@@ -419,7 +432,7 @@ function EDIT_PROJECT_PAGE_BUTTONS($pid): void
             </button>
         </li>
         <li class="nav-item">
-            <button type="button" value="assy_flow_pdf?pid=<?= $pid; ?>" class="url act btn btn btn-sm btn-outline-diliny">
+            <button type="button" value="assy_flow_pdf?pid=<?= $pid; ?>" class="url act btn btn btn-sm btn-outline-diliny" data-blank="1">
                 <i class="bi bi-bar-chart-steps"></i>
                 Assembly steps PDF
             </button>
@@ -537,7 +550,7 @@ function WAREHOUSE_PAGE_BUTTONS($page, $pid, $page_tab = ''): void
 
         <li class="nav-item">
             <button type="button" class="url act btn btn-sm btn-outline-diliny" value="po-replenishment">
-                PO Replenishment <i class="bi bi-plus"></i>
+                P.O. Replenishment <i class="bi bi-plus"></i>
             </button>
         </li>
 
@@ -547,11 +560,18 @@ function WAREHOUSE_PAGE_BUTTONS($page, $pid, $page_tab = ''): void
             </button>
         </li>
 
+<!--        <li class="nav-item">-->
+<!--            <button type="button" class="url act btn btn-sm btn-outline-diliny" value="import-csv" disabled>-->
+<!--                Import Items From File <i class="bi bi-filetype-csv"></i>-->
+<!--            </button>-->
+<!--        </li>-->
+
         <li class="nav-item">
-            <button type="button" class="url act btn btn-sm btn-outline-diliny" value="import-csv" disabled>
-                Import Items From File <i class="bi bi-filetype-csv"></i>
+            <button type="button" class="url act btn btn-sm btn-outline-diliny" value="test?import=warehouse">
+                Import Items From File <i class="bi bi-filetype-xlsx"></i>
             </button>
         </li>
+
         <li class="nav-item">
             <button type="button" class="url act btn btn-sm btn-outline-dark" value="movement-log">
                 Check Warehouse Logs <i class="bi bi-list-task"></i>

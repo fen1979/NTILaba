@@ -1,15 +1,19 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean');
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 require_once 'projects/Project.php';
 /* страница редактирования одного шага в проекте */
 $page = 'edit_step';
-$user = $_SESSION['userBean'];
 $max = $ns = 0;
 $step = $projectid = '';
 $args = array();
 
 if (isset($_POST['save-changes'])) {
-    $args = Project::editProjectStep($_POST, $_SESSION['userBean'], $_FILES, _E($_POST['step_id']));
+    try {
+        Project::editProjectStep($_POST, $_SESSION['userBean'], $_FILES, _E($_POST['step_id']));
+    } catch (\RedBeanPHP\RedException\SQL $e) {
+        // message collector (text/ color/ auto_hide = true)
+        _flashMessage('Error: ' . $e->getMessage(), 'danger');
+    }
 }
 
 /* finding stepsData for step editing */
@@ -110,15 +114,7 @@ if (isset($_GET['pid']) && isset($_GET['sid'])) {
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Edit step';
-$navBarData['record_id'] = $_GET['pid'] ?? null;
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
-
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args);
-?>
+NavBarContent(['title' => 'Edit step', 'record_id' => $_GET['pid'] ?? null, 'user' => $user, 'page_name' => $page]); ?>
 
 <div class="container mt-5">
     <div class="row">
@@ -300,7 +296,7 @@ DisplayMessage($args);
 </div>
 
 <!-- JAVASCRIPTS -->
-<?php ScriptContent($page); ?>
+<?php PAGE_FOOTER($page, false); ?>
 <script src="/public/js/edit-step.js"></script>
 </body>
 </html>

@@ -1,8 +1,6 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR]);
+$thisUser = EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR]);
 $page = 'logs';
-/* получение пользователя из сессии */
-$thisUser = $_SESSION['userBean'];
 $orderid = $settings = null;
 
 //$max_id = R::getCell('SELECT MAX(id) FROM logs');
@@ -62,17 +60,7 @@ list($pagination, $paginationButtons) = PaginationForPages($_GET, 'logs', LOGS, 
 
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Actions Information';
-$navBarData['active_btn'] = Y['LOG'];
-//$navBarData['page_tab'] = $_GET['page'] ?? null;
-//$navBarData['record_id'] = null;
-$navBarData['user'] = $thisUser;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
-
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
+NavBarContent(['title' => 'Actions Information', 'active_btn' => Y['LOG'], 'user' => $thisUser, 'page_name' => $page]); ?>
 
 <main class="container-fluid">
     <table>
@@ -104,15 +92,11 @@ DisplayMessage($args ?? null);
 
     <?php
     /* pagination */
-    echo $paginationButtons;
-    /* Футер */
-    footer($page);
-    ?>
+    echo $paginationButtons; ?>
 </main>
 
 <?php
-/* SCRIPTS */
-ScriptContent($page);
-?>
+/* SCRIPTS  and Футер */
+PAGE_FOOTER($page); ?>
 </body>
 </html>

@@ -1,17 +1,14 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean');
+$thisUser = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 include_once 'orders/Orders.php';
 $page = 'order';
 $orderid = null;
+$role = $thisUser['app_role'];
 
 /* resetup filters by user and status */
 if (isset($_POST['filter-by-status']) || isset($_POST['filter-by-user']) || isset($_POST['filter-by-client'])) {
     $args = Orders::changeFilters($_POST, $_SESSION['userBean']);
 }
-
-/* получение пользователя из сессии после изменения фильтров */
-$thisUser = $_SESSION['userBean'];
-$role = $thisUser['app_role'];
 
 /* PUT ORDER TO ARCHIVE */
 if (isset($_POST['password']) && isset($_POST['idForUse'])) {
@@ -39,17 +36,7 @@ $orderData = Orders::getOrdersByFilters($thisUser['filterby_status'], $thisUser[
 <body>
 <?php
 // NAVIGATION BAR
-//$navBarData['title'] = '';
-$navBarData['active_btn'] = Y['ORDER'];
-//$navBarData['page_tab'] = $_GET['page'] ?? null;
-//$navBarData['record_id'] = $item->id ?? null;
-$navBarData['user'] = $thisUser;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
-
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
+NavBarContent(['active_btn' => Y['ORDER'], 'user' => $thisUser, 'page_name' => $page]); ?>
 
 <div class="main-container">
     <main class="container-fluid content">
@@ -334,9 +321,6 @@ DisplayMessage($args ?? null);
             </div>
         </div>
     </div>
-
-    <!-- Футер -->
-    <?php footer($page); ?>
 </div>
 
 <!-- Hidden form to submit if changes are detected -->
@@ -353,8 +337,9 @@ DisplayMessage($args ?? null);
     ?>
 </form>
 
-<!-- JAVASCRIPTS -->
-<?php ScriptContent($page); ?>
+<?php
+// Футер and JAVASCRIPTS
+PAGE_FOOTER($page); ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         dom.onDBChangeListener('#play-song', '#notificationSound', "#uid");

@@ -1,18 +1,10 @@
 <!doctype html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="icon" href="/public/images/nti_logo.png">
-
-    <!-- Подключаем Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Подключаем Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- подключаем стили страницы -->
+    <?php
+    /* ICON, TITLE, STYLES AND META TAGS */
+    HeadContent('404'); ?>
     <link rel="stylesheet" href="/public/css/page404.css">
-    <title>404</title>
 </head>
 <body>
 <!--  back to home page  -->
@@ -32,8 +24,7 @@
 
             <!-- Счетчик проектов -->
             <div class="col-md-3 text-right">
-                <?= 'NTI Group - ' . R::count('projects');
-                ?>
+                <?= 'NTI Group - ' . R::count('projects'); ?>
             </div>
         </div>
     </footer>

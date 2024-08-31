@@ -18,13 +18,13 @@ if (isset($_POST['createOrder'])) {
     $project = R::load(PROJECTS, _E($_POST['project_id']));
     $client = R::load(CLIENTS, _E($_POST['customer_id']));
 
-    $_SESSION['info'] = $result = Orders::createOrder($user, $client, $project, $_POST);
+    $result = Orders::createOrder($user, $client, $project, $_POST);
     $orderId = $result[1];
     if (!$result[0]) {
 //        $orderId = $result[1];
 //        redirectTo("check_bom?orid=$orderId&pid=$project->id");
 //    } else {
-        $result = ['color' => 'danger', 'info' => 'Can not write log information'];
+        _flashMessage('Can not write log information', 'danger');
     }
 }
 
@@ -118,15 +118,7 @@ if (isset($_POST['updateOrder']) && !empty($_POST['order-id'])) {
 
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = $titleText;
-$navBarData['active_btn'] = Y['N_ORDER'];
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
-
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($result ?? null);
-?>
+NavBarContent(['title' => $titleText, 'active_btn' => Y['N_ORDER'], 'user' => $user, 'page_name' => $page]); ?>
 
 <div class="container mt-4 px-3 py-3 rounded" style="background: aliceblue;">
     <?php
@@ -443,7 +435,7 @@ DisplayMessage($result ?? null);
 SearchResponceModalDialog($page, 'search-responce');
 
 // SCRIPTS
-ScriptContent($page);
+PAGE_FOOTER($page, false);
 ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {

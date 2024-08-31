@@ -1,6 +1,5 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean');
-$user = $_SESSION['userBean'];
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 $page = 'resources';
 list($btn_name, $btn_text) = ['add-new-resource', 'Save Resource'];
 
@@ -77,17 +76,7 @@ if (isset($_GET['resid'])) {
 <body>
 <?php
 // NAVIGATION BAR
-//$navBarData['title'] = '';
-$navBarData['active_btn'] = Y['SETTINGS'];
-//$navBarData['page_tab'] = $_GET['page'] ?? null;
-//$navBarData['record_id'] = $item->id ?? null;
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
-
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
+NavBarContent(['active_btn' => Y['SETTINGS'], 'user' => $user, 'page_name' => $page]); ?>
 
 <div class="container-fluid content">
     <div class="row">
@@ -164,14 +153,12 @@ DisplayMessage($args ?? null);
 </div>
 
 <?php
-footer($page);
-
 // MODAL DIALOG FOR VIEW RESPONCE FROM SERVER IF SEARCHED VALUE EXIST
 SearchResponceModalDialog($page, 'search-responce');
 
 /* SCRIPTS */
-ScriptContent('arrivals');
-?>
+PAGE_FOOTER($page); ?>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
 // Выбираем таблицу с id searchAnswer

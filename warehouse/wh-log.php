@@ -1,7 +1,6 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
 require 'WareHouseLog.php';
-$user = $_SESSION['userBean'];
 $page = 'wh_log';
 
 // Параметры пагинации
@@ -81,17 +80,14 @@ $logs = R::find(WH_LOGS, 'ORDER BY date_in ASC ' . $pagination);
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Warehouse Information';
-$navBarData['active_btn'] = Y['LOG'];
-$navBarData['page_tab'] = $_GET['page'] ?? null;
-$navBarData['record_id'] = null;
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
+NavBarContent(['title' => 'Warehouse Information',
+    'active_btn' => Y['LOG'],
+    'page_tab' => $_GET['page'] ?? null,
+    'record_id' => null,
+    'user' => $user,
+    'page_name' => $page]); ?>
 
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
+
 <div class="container-fluid border-top" id="wh_logs">
     <table>
         <thead>
@@ -210,10 +206,8 @@ DisplayMessage($args ?? null);
 </div>
 
 <?php
-footer($page);
-/* SCRIPTS */
-ScriptContent('arrivals');
-?>
+// FOOTER AND SCRIPTS
+PAGE_FOOTER($page); ?>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Инициализация обработчиков событий при загрузке страницы

@@ -1,17 +1,21 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean');
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 require_once 'projects/Project.php';
 
 $page = 'project';
+$result = null;
+$viewBtnEdit = false;
+$role = $user['app_role'];
+
 /* delete or archive project */
 if (isset($_POST['projectid']) && isset($_POST['password'])) {
     /* adding project to archive */
     if (isset($_POST['archive'])) {
-        $args = Project::archiveOrExstractProject($_POST, $_SESSION['userBean']);
+        Project::archiveOrExstractProject($_POST, $_SESSION['userBean']);
     }
     /* удаление проекта и всех его данных включая фотографии и папку проекта */
     if (isset($_POST['delete'])) {
-        $args = Project::deleteProject($_POST, $_SESSION['userBean']);
+        Project::deleteProject($_POST, $_SESSION['userBean']);
     }
 }
 
@@ -19,13 +23,6 @@ if (isset($_POST['projectid']) && isset($_POST['password'])) {
 if (isset($_POST['preview-mode'])) {
     $_SESSION['preview_mode'] = !$_SESSION['preview_mode'];
 }
-
-
-/* вывод всех проектов в список */
-$result = null;
-$viewBtnEdit = false;
-$user = $_SESSION['userBean'];
-$role = $user['app_role'];
 
 // Параметры пагинации
 list($pagination, $paginationButtons) = PaginationForPages($_GET, $page, PROJECTS, 20);
@@ -40,23 +37,35 @@ $settings = getUserSettings($user, PROJECTS);
 <head>
     <?php
     /* ICON, TITLE, STYLES AND META TAGS */
-    HeadContent($page);
-    ?>
+    HeadContent($page); ?>
+    <style>
+        .pdf-modal {
+            display: none;
+            position: fixed;
+            width: 600px;
+            height: 700px;
+            background-color: white;
+            border: 1px solid #ccc;
+            z-index: 1000;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .pdf-modal iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .pdf-modal.visible {
+            display: block;
+        }
+    </style>
 </head>
 <body>
 <?php
 // NAVIGATION BAR
-//$navBarData['title'] = '';
-$navBarData['active_btn'] = Y['PROJECT'];
-//$navBarData['page_tab'] = $_GET['page'] ?? null;
-//$navBarData['record_id'] = $item->id ?? null;
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
+navBarContent(['active_btn' => Y['PROJECT'], 'user' => $user, 'page_name' => $page]); ?>
 
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
 <div class="container-fluid my-4 content">
     <!-- ---------------------------------- вывод привью всех проектов по возрастанию ------------------------------------------- -->
     <!-- ------------------ так же вывод привью проектов при поиске с заменой содержимого данного контейнера -------------------- -->
@@ -69,7 +78,9 @@ DisplayMessage($args ?? null);
                 <!-- header -->
                 <thead>
                 <tr style="white-space: nowrap">
-                    <?= CreateTableHeaderUsingUserSettings($settings, 'project-table', PROJECTS, '<th>Share Project</th>') ?>
+                    <?= CreateTableHeaderUsingUserSettings($settings, 'project-table', PROJECTS,
+                        '<th>Project Docs</th>'
+                        . '<th>Share Project</th>') ?>
                 </tr>
                 </thead>
                 <!-- table -->
@@ -77,9 +88,9 @@ DisplayMessage($args ?? null);
                 <?php
                 foreach ($result as $value) {
                     $shareLink = SHARE_LINK_ROUTE . $value['sharelink'];
-                    $projectId = $value['id'];
-                    ?>
-                    <tr class="item-list" data-id="<?= $projectId; ?>">
+                    $projectId = $value['id']; ?>
+
+                    <tr class="item-list " data-id="<?= $projectId; ?>">
                         <?php
                         if ($settings) {
                             foreach ($settings as $item => $_) {
@@ -88,7 +99,17 @@ DisplayMessage($args ?? null);
                         }
                         ?>
                         <td>
-                            <button type="button" class=" w-100 btn btn-sm btn-outline-diliny share-project" data-share-link="<?= $shareLink; ?>">
+                            <?php
+                            $d = _if((strpos($value['projectdocs'], '.pdf') === false), 'disabled', '');
+                            $ds = _if((strpos($value['projectdocs'], '.pdf') !== false), $value['projectdocs'], '');
+                            ?>
+                            <a type="button" class="w-100 btn btn-sm btn-outline-info <?= $d; ?> pdf-element" target="_blank"
+                               href="<?= $value['projectdocs'] ?>" data-pdf-path="<?= $ds; ?>">
+                                <i class="bi bi-filetype-pdf"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <button type="button" class="w-100 btn btn-sm btn-outline-diliny share-project" data-share-link="<?= $shareLink; ?>">
                                 <i class="bi bi-share-fill"></i>
                             </button>
                         </td>
@@ -192,21 +213,20 @@ DisplayMessage($args ?? null);
     ShowGroupChatPopup($page, $user);
 
     /* PAGINATION BUTTONS */
-    echo $paginationButtons;
-
-    /* FOOTER FOR PAGE */
-    footer($page);
-    ?>
+    echo $paginationButtons; ?>
 </div>
 <!-- END Container  -->
 <form action="" method="post" id="project_preview_switch">
     <input type="hidden" name="preview-mode" value="1">
 </form>
 <button type="button" class="url hidden" value="" id="routing-btn"></button>
+
+<div id="pdfModal" class="pdf-modal">
+    <iframe src="" id="pdfFrame"></iframe>
+</div>
 <?php
-/* SCRIPTS */
-ScriptContent($page);
-?>
+/* FOOTER FOR PAGE SCRIPTS */
+PAGE_FOOTER($page); ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // решить если нужна функция галерея для проекта TODO
@@ -235,7 +255,9 @@ ScriptContent($page);
         table.addEventListener('click', function (event) {
 
             // Проверяем, был ли клик по ссылке
-            if (event.target.tagName.toLowerCase() === 'button' || event.target.tagName.toLowerCase() === 'i') {
+            if (event.target.tagName.toLowerCase() === 'button'
+                || event.target.tagName.toLowerCase() === 'i'
+                || event.target.tagName.toLowerCase() === 'a') {
                 return; // Прекращаем выполнение функции, если клик был по ссылке
             }
 
@@ -254,8 +276,52 @@ ScriptContent($page);
                 btn.click();
             }
         });
+
+        // Hаведение на пдф
+        const pdfElements = document.querySelectorAll('.pdf-element');
+        const pdfModal = document.getElementById('pdfModal');
+        const pdfFrame = document.getElementById('pdfFrame');
+
+        pdfElements.forEach(element => {
+            element.addEventListener('mouseenter', function () {
+                const pdfPath = this.getAttribute('data-pdf-path');
+                if (pdfPath) {
+                    pdfFrame.src = pdfPath;
+
+                    const rect = this.getBoundingClientRect();
+                    const modalHeight = 700; // Высота модального окна
+
+                    // Расположение окна слева от кнопки
+                    pdfModal.style.left = `${rect.left - 610}px`; // сдвиг на ширину окна + немного отступа
+
+                    // Динамическое положение по вертикали
+                    if (rect.top + modalHeight > window.innerHeight) {
+                        // Если окно выходит за нижнюю границу, располагаем его выше
+                        pdfModal.style.top = `${rect.top - (rect.top + modalHeight - window.innerHeight)}px`;
+                    } else {
+                        // Обычное расположение
+                        pdfModal.style.top = `${rect.top}px`;
+                    }
+
+                    pdfModal.classList.add('visible');
+                }
+            });
+
+            element.addEventListener('mouseleave', function () {
+                pdfModal.classList.remove('visible');
+            });
+
+            element.addEventListener('click', function () {
+                if (/Mobi|Android/i.test(navigator.userAgent)) {
+                    const pdfPath = this.getAttribute('data-pdf-path');
+                    if (pdfPath) {
+                        window.open(pdfPath, '_blank');
+                    }
+                }
+            });
+        });
     });
 </script>
-<script type="text/javascript" src="public/js/units-view.js"></script>
+<script type="text/javascript" src="public/js/projects-view.js"></script>
 </body>
 </html>

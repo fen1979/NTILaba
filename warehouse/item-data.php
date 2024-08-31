@@ -1,8 +1,6 @@
 <?php
-EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR]);
+$user = EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR]);
 require 'warehouse/WareHouse.php';
-/* получение пользователя из сессии */
-$user = $_SESSION['userBean'];
 $page = 'view_item';
 $data = [];
 $item = null;
@@ -11,7 +9,11 @@ $A_T = $_GET['tab'] ?? 'tab1'; // Active Tab
 
 // updating information in to table warehouse, consignment, reserve, movement
 if (isset($_POST['item_id']) && isset($_POST['table-name'])) {
-    $args = WareHouse::updateRelatedTables($_POST, $user);
+    try {
+        WareHouse::updateRelatedTables($_POST, $user);
+    } catch (\RedBeanPHP\RedException\SQL $e) {
+        _flashMessage('Error: ' . $e->getMessage(), 'danger');
+    }
 }
 
 // формируем данные для вывода на страницу
@@ -179,17 +181,14 @@ function getDataForTable($itemId, $orderId, $projectId, $clientId, $reservedQty)
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'View Item ID: ' . $item->id;
-$navBarData['active_btn'] = Y['STOCK'];
-$navBarData['page_tab'] = $_GET['page'] ?? null;
-$navBarData['record_id'] = $item->id;
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData);
+NavBarContent(['title' => 'View Item ID: ' . $item->id,
+    'active_btn' => Y['STOCK'],
+    'page_tab' => $_GET['page'] ?? null,
+    'record_id' => $item->id,
+    'user' => $user,
+    'page_name' => $page]); ?>
 
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
+
 <div class="container-fluid my-3 border-top border-bottom">
     <div class="row mt-2 mb-2">
         <div class="col-4">
@@ -539,11 +538,8 @@ if ($user['can_change_data']) {
     echo '<div id="isUserCanChangeData" class="hidden">approved</div>';
 }
 
-// FOOTER
-footer($page);
-// SCRIPTS
-ScriptContent($page);
-?>
+// FOOTER and SCRIPTS
+PAGE_FOOTER($page); ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const changedRows = new Set();

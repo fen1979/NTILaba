@@ -55,7 +55,6 @@ class CPController
         if (!R::testConnection()) {
             exit ('No database connection');
         }
-//        session_start();
 
         require_once '../core/Resources.php';
         require_once '../core/Utility.php';
@@ -101,7 +100,7 @@ class CPController
         $c->date_in = str_replace('T', ' ', $post['date_in']); // дата создания clienta
         $id = R::store($c);
 
-        $args = ['color' => 'success', 'info' => 'Customer Saved successfully!'];
+        _flashMessage('Customer Saved successfully!');
 
         if ($get != null) {
             // if routed from order or project pages back data to page
@@ -119,13 +118,13 @@ class CPController
         if (isset($get['routed-from']))
             $details .= "Creation initiated from {$get['routed-from']}";
         if (!logAction($user['user_name'], 'CREATION', OBJECT_TYPE[13], $details)) {
-            $args[] = ['color' => 'danger', 'info' => 'Error! log creation!'];
+            _flashMessage('Error! log creation!', 'danger');
         }
 
         return $args;
     }
 
-    public static function updateCustomerData($post, $user): array
+    public static function updateCustomerData($post, $user)
     {
         $post = self::checkPostDataAndConvertToArray($post);
 
@@ -140,7 +139,7 @@ class CPController
         if (isset($post['cuid']) && ctype_digit($post['cuid'])) {
             $c = R::load(CLIENTS, $post['cuid']);
         } else {
-            return ['color' => 'danger', 'info' => 'Customer ID is not correct !!!'];
+            _flashMessage('Customer ID is not correct !!!', 'danger');
         }
         // data before update
         //$before = $c->export();
@@ -164,15 +163,15 @@ class CPController
         // json_encode($before, JSON_UNESCAPED_UNICODE);
         // json_encode($after, JSON_UNESCAPED_UNICODE);
 // fixme сделать правильное логирование
-        $args[] = ['color' => 'success', 'info' => 'Customer Updated successfully!'];
+        // message collector (text/ color/ auto_hide = true)
+        _flashMessage('Customer Updated successfully!');
 
         /* [     LOGS FOR THIS ACTION     ] */
         $details = "Customer name: $name, was updated <br>";
 
         if (!logAction($user['user_name'], 'CREATION', OBJECT_TYPE[13], $details)) {
-            $args[] = ['color' => 'danger', 'info' => 'Error! log creation!'];
+            // message collector (text/ color/ auto_hide = true)
+            _flashMessage('Error! log creation!', 'danger');
         }
-
-        return $args;
     }
 }

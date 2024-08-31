@@ -1,6 +1,7 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 require 'warehouse/WareHouse.php';
+$page = 'receipt_note';
 // Загружаем записи из БД
 $items = R::findAll(PO_AIRRVAL, 'orders_id = ?', [$_GET['orid']]);
 
@@ -8,7 +9,7 @@ if ($items) { ?>
     <!doctype html>
     <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
     <head>
-        <?php HeadContent('receipt_note'); ?>
+        <?php HeadContent($page); ?>
         <style>
             /* Основные стили для таблицы */
             table {
@@ -184,7 +185,7 @@ if ($items) { ?>
         <button class="btn btn-outline-diliny" id="print-all" value="1">Print All</button>
         <button class="btn btn-outline-diliny" id="print-err" value="2">Print non-conformities</button>
     </div>
-    <?php ScriptContent(); ?>
+    <?php PAGE_FOOTER($page, false); ?>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // реакция на событие клик на кнопках печати таблиц

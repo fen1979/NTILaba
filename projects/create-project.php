@@ -17,7 +17,7 @@ if (isset($_GET['orders'])) {
 /* СОЗДАЕМ НОВЫЙ ПРОЕКТ И СОХРАНЯЕМ В БД */
 if (isset($_POST['projectName']) && !isset($_SESSION['editmode'])) {
     /* создание нового проекта в БД */
-    $_SESSION['info'] = $args = Project::createNewProject($_POST, $user, $_FILES);
+    $args = Project::createNewProject($_POST, $user, $_FILES);
 
     /* возврат на страницу добавления заказа с данными о новом проекте */
     if (!empty($args['id'])) {
@@ -40,7 +40,7 @@ if (isset($_POST['projectName']) && !isset($_SESSION['editmode'])) {
 if (isset($_POST['projectName']) && isset($_SESSION['editmode']) && $_SESSION['editmode'] == 'activated') {
     /* добавляем в пост id проекта */
     $_POST['projectid'] = $_SESSION['projectid'];
-    $args = Project::editProjectInformation($_POST, $user, $_FILES);
+    Project::editProjectInformation($_POST, $user, $_FILES);
 }
 
 /* АКТИВАЦИЯ EDITING MODE */
@@ -64,51 +64,52 @@ if (isset($_GET["pid"]) && isset($_GET['mode']) && $_GET['mode'] == "editmode" &
     $id = $project->id;
 }
 
-
-function copyFileToDirectory($filePath, $destinationDir): string
-{
-    // Проверяем, существует ли файл
-    if (!file_exists($filePath)) {
-        return "File does not exist: $filePath";
-    }
-
-    // Проверяем, существует ли целевая директория
-    if (!is_dir($destinationDir)) {
-        return "Destination directory does not exist: $destinationDir";
-    }
-
-    // Получаем имя файла из полного пути
-    $fileName = basename($filePath);
-
-    // Полный путь к новому расположению файла
-    $destinationFilePath = $destinationDir . DIRECTORY_SEPARATOR . $fileName;
-
-    // Копируем файл в целевую папку
-    if (copy($filePath, $destinationFilePath)) {
-        return "File copied successfully to $destinationFilePath";
-    } else {
-        return "Failed to copy file: $filePath";
-    }
-}
-
-$t40 = R::findAll(PROJECT_STEPS, 'projects_id = 40');
-foreach ($t40 as $item) {
-    //echo copyFileToDirectory($item['image'], 'storage/projects/ELC7038-B00/');
-    $t84 = R::dispense(PROJECT_STEPS);
-    $t84->projects_id = 84;
-    $t84->routeid = $item['routeid'];
-    $t84->step = $item['step'];
-    $t84->routeaction = $item['routeaction'];
-    $t84->validation = $item['validation'];
-    $t84->image = str_replace('A00', 'B00', $item['image']);
-    $t84->video = str_replace('A00', 'B00', $item['video']);
-    $t84->description = $item['description'];
-    $t84->tool = $item['tool'];
-    $t84->revision = $item['revision'];
-    $t84->front_pic = $item['front_pic'];
-
-    //R::store($t84);
-}
+// TODO fixme
+// код для работы по клонированию проектов
+//function copyFileToDirectory($filePath, $destinationDir): string
+//{
+//    // Проверяем, существует ли файл
+//    if (!file_exists($filePath)) {
+//        return "File does not exist: $filePath";
+//    }
+//
+//    // Проверяем, существует ли целевая директория
+//    if (!is_dir($destinationDir)) {
+//        return "Destination directory does not exist: $destinationDir";
+//    }
+//
+//    // Получаем имя файла из полного пути
+//    $fileName = basename($filePath);
+//
+//    // Полный путь к новому расположению файла
+//    $destinationFilePath = $destinationDir . DIRECTORY_SEPARATOR . $fileName;
+//
+//    // Копируем файл в целевую папку
+//    if (copy($filePath, $destinationFilePath)) {
+//        return "File copied successfully to $destinationFilePath";
+//    } else {
+//        return "Failed to copy file: $filePath";
+//    }
+//}
+//
+//$t40 = R::findAll(PROJECT_STEPS, 'projects_id = 40');
+//foreach ($t40 as $item) {
+//    //echo copyFileToDirectory($item['image'], 'storage/projects/ELC7038-B00/');
+//    $t84 = R::dispense(PROJECT_STEPS);
+//    $t84->projects_id = 84;
+//    $t84->routeid = $item['routeid'];
+//    $t84->step = $item['step'];
+//    $t84->routeaction = $item['routeaction'];
+//    $t84->validation = $item['validation'];
+//    $t84->image = str_replace('A00', 'B00', $item['image']);
+//    $t84->video = str_replace('A00', 'B00', $item['video']);
+//    $t84->description = $item['description'];
+//    $t84->tool = $item['tool'];
+//    $t84->revision = $item['revision'];
+//    $t84->front_pic = $item['front_pic'];
+//
+//    //R::store($t84);
+//}
 ?>
 <!DOCTYPE html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
@@ -184,11 +185,7 @@ foreach ($t40 as $item) {
 <?php
 if ($backButton == '/') {
     // NAVIGATION BAR
-    $navBarData['title'] = 'Project Creation';
-    $navBarData['active_btn'] = Y['N_PROJECT'];
-    $navBarData['user'] = $user;
-    $navBarData['page_name'] = $page;
-    NavBarContent($navBarData);
+    NavBarContent(['title' => 'Project Creation', 'active_btn' => Y['N_PROJECT'], 'user' => $user, 'page_name' => $page]);
 
 } else {
     //back button to edit-project or home
@@ -219,11 +216,7 @@ if ($backButton == '/') {
             </div>
         </nav>
     </header>
-    <?php
-}
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
+<?php } ?>
 
 <div class="container mt-5 px-3 py-3 rounded" style="background: beige;">
     <div class="row">
@@ -492,7 +485,7 @@ DisplayMessage($args ?? null);
 SearchResponceModalDialog($page, 'search-responce');
 
 // SCRIPTS
-ScriptContent($page); ?>
-<script src="/public/js/add-unit.js"></script>
+PAGE_FOOTER($page, false); ?>
+<script src="/public/js/add-project.js"></script>
 </body>
 </html>

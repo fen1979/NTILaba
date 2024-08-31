@@ -28,7 +28,7 @@ class Project
     private static function saveProjectDocumentation($files, $projectName, $filename = '', bool $isNew = true): array
     {
         var_dump($files);
-        $dataArray = ['args' => null, 'filename' => null, 'errors' => null, 'info' => null];
+        $dataArray = ['args' => null, 'filename' => null];
         $docDir = PROJECTS_FOLDER . "$projectName/docs/";
 
         if (!empty($files['dockFile']['name'])) {
@@ -41,8 +41,8 @@ class Project
 
             // если размер больше чем надо или файл не того расширения отеняем операцию
             if (!in_array($fileType, $allowedExtensions) || $fileSize > $maxSize) {
-                $dataArray['errors'] = 'Invalid file type or size.';
-                return $dataArray;
+                _flashMessage('Invalid file type or size.', 'danger');
+                return [null];
             }
 
             // Переименование старого файла если это замена
@@ -61,9 +61,9 @@ class Project
             if (move_uploaded_file($tmp_name, $uploadedFile)) {
                 $dataArray['args'] = true;
                 $dataArray['filename'] = $uploadedFile;
-                $dataArray['info'] = 'Successfully uploaded the file.';
+                _flashMessage('Successfully uploaded the file.');
             } else {
-                $dataArray['errors'] = 'Error uploading the file.';
+                _flashMessage('Error uploading the file.', 'danger');
             }
         }
 
@@ -81,9 +81,9 @@ class Project
                 // Перемещаем файл из временного места в целевую папку
                 if (move_uploaded_file($tmpName, $uploadPath)) {
                     $dataArray['args'] = (bool)$dataArray['args'];
-                    $dataArray['info'] = "Files $numFiles pcs, uploaded successfully.<br>";
+                    _flashMessage("Files $numFiles pcs, uploaded successfully.");
                 } else {
-                    $dataArray['errors'] = "Error while uploading $fileName.<br>";
+                    _flashMessage("Error while uploading $fileName.", 'danger');
                 }
             }
 
@@ -123,10 +123,9 @@ class Project
      * CHANGE FOLDER NAMES AND PATHS IN TO DB
      * @param $id
      * @param $newName
-     * @return array
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    private static function changeProjectName($id, $newName): array
+    private static function changeProjectName($id, $newName)
     {
         // Загрузка проекта
         $project = R::load(PROJECTS, $id);
@@ -155,7 +154,7 @@ class Project
 
         // Переименование физической папки проекта на диске
         if (!rename($project->projectdir, $newProjectDir)) {
-            return ['info' => 'Error renaming project directory', 'color' => 'danger'];
+            _flashMessage('Error renaming project directory', 'danger');
         }
 
         // Обновление путей в объекте проекта
@@ -183,7 +182,7 @@ class Project
         // Сохранение обновленных данных в БД
         R::store($project);
 
-        return ['info' => 'Path and folders name changed successfully', 'color' => 'success'];
+        _flashMessage('Path and folders name changed successfully');
     }
 
     /* ============================ PROJECT METHODS =============================== */
@@ -256,21 +255,15 @@ class Project
                     $project->projectdocs = $result['filename'];
                     $log_details .= '<br> documentation file added to project';
                 }
-                $args[] = (!empty($result['errors'])) ?
-                    ['color' => 'danger', 'info' => $result['errors']] :
-                    ['color' => 'success', 'info' => $result['info']];
             }
 
             // сохраняем другие файлы в папку
             if (isset($files['projects_files']) && is_array($files['projects_files']) && count($files['projects_files']) > 0) {
-                $result = self::saveProjectDocumentation($files, $projectName);
-                $args[] = (!empty($result['errors'])) ?
-                    ['color' => 'danger', 'info' => $result['errors']] :
-                    ['color' => 'success', 'info' => $result['info']];
+                self::saveProjectDocumentation($files, $projectName);
             }
 
         } else {
-            $args[] = ['color' => 'warning', 'info' => 'Project documentation not added!'];
+            _flashMessage('Project documentation not added!', 'warning');
         }
 
         // сохраняем данные в БД и формируем обратные данные для возврата на страницу создания заказа
@@ -285,7 +278,7 @@ class Project
         /* [     LOGS FOR THIS ACTION     ] */
         $details = "Project id:$id,| $log_details";
         if (!logAction($user['user_name'], 'CREATION', OBJECT_TYPE[3], $details)) {
-            $args = ['info' => 'Log creation failed.', 'color' => 'danger'];
+            _flashMessage('Log creation failed.', 'danger');
         }
 
         return $args;
@@ -296,10 +289,10 @@ class Project
      * @param $post
      * @param $user
      * @param $files
-     * @return string[]
+     * @return void
      * @throws //\RedBeanPHP\RedException\SQL
      */
-    public static function editProjectInformation($post, $user, $files = null): array
+    public static function editProjectInformation($post, $user, $files = null)
     {
         $post = self::checkPostDataAndConvertToArray($post);
         $log_details = '<h4>Changes</h4>';
@@ -362,17 +355,12 @@ class Project
         $log_details .= "<br> Tools ID Before: $project->tools -> After:  $t";
 
         /* сохраняем документацию в папку */
-        $result = ['errors' => null];
         if (!empty($files['dockFile']['tmp_name']) || !empty($files['projects_files']['name'][0])) {
             // if project name has changed erlier than added or edited docs file
             $result = self::saveProjectDocumentation($files, $projectName, $project->projectdocs, false);
             if (isset($result['args']) && $result['args']) {
                 /* сохранить путь к файлу в базу данных */
                 $project->projectdocs = $result['filename'];
-
-                $args[] = (!empty($result['errors'])) ?
-                    ['color' => 'danger', 'info' => $result['errors']] :
-                    ['color' => 'success', 'info' => $result['info']];
             }
         }
 
@@ -394,17 +382,15 @@ class Project
 
         // if name changed than changing folders and path names
         if ($changNameNeeded) {
-            $args[] = self::changeProjectName($project->id, $projectName);
+            self::changeProjectName($project->id, $projectName);
             $log_details .= "<br> Project Name Before: $project->projectname -> After:  $projectName";
         }
-        $args[] = ['color' => 'success', 'info' => $log_details];
-        $args['hide'] = 'manual';
+        _flashMessage($log_details, 'success', false);
         /* [     LOGS FOR THIS ACTION     ] */
         $details = "Project id:$id,| $log_details";
         if (!logAction($user['user_name'], 'EDITING', OBJECT_TYPE[3], $details)) {
-            $args[] = ['info' => 'Log creation failed.', 'color' => 'danger'];
+            _flashMessage('Log creation failed.', 'danger');
         }
-        return $args ?? [null];
     }
 
     /**
@@ -412,10 +398,10 @@ class Project
      * @param $post
      * @param $user
      * @param $project_id
-     * @return array[]s
+     * @return void
      * @throws /\RedBeanPHP\RedException\SQL
      */
-    public static function createProjectBomItem($post, $user, $project_id): array
+    public static function createProjectBomItem($post, $user, $project_id)
     {
         $post = self::checkPostDataAndConvertToArray($post);
         $project = R::load(PROJECTS, $project_id);
@@ -447,13 +433,12 @@ class Project
 
         R::store($partList);
 
-        $res = ['info' => 'Item Added successfully', 'color' => 'success'];
+        _flashMessage('Item Added successfully');
         /* [ LOG WRITING ACTION ] */
         $details = 'Item for project ID= ' . $project_id . ', Added to BOM';
         if (!logAction($user['user_name'], 'CREATING', OBJECT_TYPE[3], $details)) {
-            $res = ['info' => 'Log creation failed!', 'color' => 'danger'];
+            _flashMessage('Log creation failed!', 'danger');
         }
-        return $res;
     }
 
     /**
@@ -462,10 +447,10 @@ class Project
      * @param $post
      * @param $user
      * @param $project_id
-     * @return mixed
+     * @return void
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    public static function importProjectBomFromFile($files, $post, $user, $project_id): array
+    public static function importProjectBomFromFile($files, $post, $user, $project_id)
     {
         $project = R::load(PROJECTS, $project_id);
         // converting post to assoc array
@@ -523,7 +508,6 @@ class Project
                             $goods->projects_id = $project->id;
 
 
-
                             // добавляем ID детали из БД если она есть в БД
                             // если детали нет то оставляем пустое поле
 //                            if (!empty($rowData['item_id'])) {
@@ -546,23 +530,23 @@ class Project
 
                 // deleting temp file
                 array_map('unlink', glob(TEMP_FOLDER . '*.*'));
+
                 if ($import) {
-                    $args = ['info' => 'Import success', 'color' => 'success'];
+                    _flashMessage('Import success');
                 } else {
-                    $args = ['info' => 'Error, somethig went wrong!', 'color' => 'danger'];
+                    _flashMessage('Error, somethig went wrong!', 'danger');
                 }
 
             } else {
-                $args = ['info' => 'Error, File format wrong! Only .csv', 'color' => 'danger'];
+                _flashMessage('Error, File format wrong! Only .csv', 'danger');
             }
         }
 
         /* [ LOG WRITING ACTION ] */
         $details = 'Items for project ID= ' . $project_id . ', Added to BOM';
         if (!logAction($user['user_name'], 'CREATING', OBJECT_TYPE[3], $details)) {
-            $args = ['info' => 'Log creation failed!', 'color' => 'danger'];
+            _flashMessage('Log creation failed!', 'danger');
         }
-        return $args;
     }
 
     /**
@@ -571,7 +555,7 @@ class Project
      * @param $user
      * @param $project_id
      * @param $item_id
-     * @return string[]
+     * @return string[] - args => true
      * @throws \\RedBeanPHP\RedException\SQL
      */
     public static function updateProjectBomItem($post, $user, $project_id, $item_id): array
@@ -594,59 +578,55 @@ class Project
 
         R::store($item);
 
-        $res['args'] = true;
-        $res[] = ['info' => 'Item Updated successfully L', 'color' => 'success'];
+        _flashMessage('Item Updated successfully L');
         /* [ LOG WRITING ACTION ] */
         $details = 'Item SKU=' . $post['sku'] . ',  for project ID= ' . $project_id . ', Updated in BOM';
         if (!logAction($user['user_name'], 'UPDATING', OBJECT_TYPE[5], $details)) {
-            $res[] = ['info' => 'Log creation failed!', 'color' => 'danger'];
+            _flashMessage('Log creation failed!', 'danger');
         }
-        return $res;
+        return ['args' => true];
     }
 
     /**
      * DELETE ITEM FROM PROJECT BOM
      * @param $post
      * @param $user
-     * @return array
+     * @return void
      */
-    public static function deleteProjectBomItem($post, $user): array
+    public static function deleteProjectBomItem($post, $user)
     {
         $post = self::checkPostDataAndConvertToArray($post);
         if (checkPassword($post['password'], true, $user)) {
             $it = R::load(PROJECT_BOM, $post['itemId']);
             $details = 'Item ID=' . $it->id . ', Deleted from Project ID=' . $it->projects_id . '<br>';
             $details .= 'Item bla bla bla add some description letter';
-            $res[] = ['info' => 'Item deleted!', 'color' => 'success'];
+            _flashMessage('Item deleted!');
 
             $bomid = Undo::StoreDeletedRecord(PROJECT_BOM, $it->id);
             $url = '<a href="/check_part_list?undo=true&bomid=' . $bomid . '&pid=' . $it->projects_id . '" class="btn btn-outline-dark fs-5">Undo Delete Item</a>';
-            $res[] = ['info' => $url, 'color' => 'dark'];
+            _flashMessage($url, 'dark');
 
             R::trash($it);
 
             /* [ LOG WRITING ACTION ] */
             if (!logAction($user['user_name'], 'DELETING', OBJECT_TYPE[5], $details)) {
-                $res = ['info' => 'Log creation failed!', 'color' => 'danger'];
+                _flashMessage('Log creation failed!', 'danger');
             }
         } else {
-            $res = ['info' => 'Password incorrect!', 'color' => 'danger'];
+            _flashMessage('Password incorrect!', 'danger');
         }
-
-        return $res;
     }
 
     /**
      * ADDING PROJECTS TO ARCHIVE
      * @param $post
      * @param $user
-     * @return array[]
+     * @return void
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    public static function archiveOrExstractProject($post, $user): array
+    public static function archiveOrExstractProject($post, $user)
     {
         $log_details = '';
-        $res = [];
         /* Project archivation */
         if (isset($post['archive'])) {
             if (checkPassword(_E($post['password']))) {
@@ -654,12 +634,12 @@ class Project
                 $project = R::load(PROJECTS, $projectid);
                 $project->archivation = ARCHIVATED; // in archive = 0
                 R::store($project);
-                $res = ['info' => "Project added to archive successfully!", 'color' => 'success'];
+                _flashMessage("Project added to archive successfully!");
                 $log_details = "Project name: $project->projectname was added to archive.<br>
                                 For extract project from archive go to 'SETTINGS/PROJECTS' 
                                 and find project by ID: $project->id";
             } else {
-                $res = ['info' => "Incorrect password writed!", 'color' => 'danger'];
+                _flashMessage("Incorrect password writed!", 'danger');
             }
         }
 
@@ -670,26 +650,25 @@ class Project
                 $project = R::load(PROJECTS, $projectid);
                 $project->archivation = !ARCHIVATED; // not in archive = 1
                 R::store($project);
-                $res = ['info' => "Project extracted from archive successfully!", 'color' => 'success'];
+                _flashMessage("Project extracted from archive successfully!");
                 $log_details = "Project name: $project->projectname was extracted from archive.";
             } else {
-                $res = ['info' => "Incorrect password writed!", 'color' => 'danger'];
+                _flashMessage("Incorrect password writed!", 'danger');
             }
         }
 
         if (!logAction($user['user_name'], 'ARCHIVE', OBJECT_TYPE[3], $log_details)) {
-            $res = ['info' => 'Log creation failed.', 'color' => 'danger'];
+            _flashMessage('Log creation failed.', 'danger');
         }
-        return $res;
     }
 
     /**
      * DELETING PROJECT AND DATA
      * @param $post
      * @param $user
-     * @return array
+     * @return void
      */
-    public static function deleteProject($post, $user): array
+    public static function deleteProject($post, $user)
     {
         if (checkPassword(_E($post['password']))) {
             $projectid = _E($post['projectid']);
@@ -732,16 +711,14 @@ class Project
                 R::trash($project);
             }
 
-            $res = ['info' => "Project deleted successfully!", 'color' => 'success'];
+            _flashMessage("Project deleted successfully!");
 
             if (!logAction($user['user_name'], 'DELETING', OBJECT_TYPE[3], $log_details)) {
-                $res = ['info' => 'Log creation failed.', 'color' => 'danger'];
+                _flashMessage('Log creation failed.', 'danger');
             }
         } else {
-            $res = ['info' => "Incorrect password writed!", 'color' => 'danger'];
+            _flashMessage("Incorrect password writed!", 'danger');
         }
-
-        return $res;
     }
 
     /* ============================ STEPS METHODS =============================== */
@@ -751,10 +728,9 @@ class Project
      * @param $user
      * @param $files
      * @param $project_id
-     * @return string[]
      * @throws /\RedBeanPHP\RedException\SQL
      */
-    public static function addNewStepToProject($post, $user, $files, $project_id): array
+    public static function addNewStepToProject($post, $user, $files, $project_id)
     {
         $uploadDir = TEMP_FOLDER;
         $project = R::load(PROJECTS, $project_id);
@@ -762,9 +738,7 @@ class Project
         /* Получаем данные из формы */
         $post = self::checkPostDataAndConvertToArray($post);
 
-        $args = array();
         $toSave = 0;
-        $displayInfo = '';
         $log_details = '';
 
         if (!empty($files['photoFile']['name'][0])) {
@@ -788,27 +762,22 @@ class Project
                     if (Converter::convertToWebP($uploadedFile, $outputFile)) {
                         array_map('unlink', glob("$uploadDir*.*"));
                         $toSave = 1;
-                        $displayInfo .= '<br>Image saved successfully';
-                        $args[] = ['color' => 'success', 'info' => $displayInfo];
+                        _flashMessage('<br>Image saved successfully');
                     } else {
-                        $displayInfo .= '<br>Conversion error, image format not supported!';
-                        $args[] = ['color' => 'danger', 'info' => $displayInfo];
+                        _flashMessage('<br>Conversion error, image format not supported!', 'danger');
                     }
                 } catch (Exception $e) {
-                    $displayInfo .= print($e);
-                    $args[] = ['color' => 'danger', 'info' => $displayInfo];
+                    _flashMessage(print($e), 'danger');
                 }
             } else {
                 if (!$uploadSuccess) {
-                    $displayInfo .= '<br>Error! image uploading file!';
-                    $args[] = ['color' => 'danger', 'info' => $displayInfo];
+                    _flashMessage('<br>Error! image uploading file!', 'danger');
                 }
             }
         } else {
             if ($project->sub_assembly == 0) {
                 // выводим ошибку отсутствие файла !
-                $displayInfo .= '<br>Error! Image file not exist!';
-                $args[] = ['color' => 'danger', 'info' => $displayInfo];
+                _flashMessage('<br>Error! Image file not exist!', 'danger');
             } else {
                 // сохраняем при условии что при создании проекта
                 // был выбран чекбокс "проект без медиа"
@@ -829,8 +798,7 @@ class Project
             if (is_uploaded_file($files['videoFile']['tmp_name'])) {
                 // Перемещаем файл в целевую директорию
                 if (move_uploaded_file($files['videoFile']['tmp_name'], $targetFilePath)) {
-                    $answer = "File uploaded successfully: " . $targetFilePath;
-                    $args[] = ['color' => 'success', 'info' => $answer];
+                    _flashMessage("File uploaded successfully: " . $targetFilePath);
                     // Здесь можно добавить вызов функции для конвертации видео
                     // Проверяем, является ли файл видео MP4 с кодеком H.264
                     if (Converter::isMp4H264($targetFilePath)) {
@@ -844,13 +812,11 @@ class Project
                     }
                     $toSave = 1;
                 } else {
-                    $displayInfo .= '<br>Error! uploading video file!';
-                    $args[] = ['info' => $displayInfo, 'color' => 'danger'];
+                    _flashMessage('<br>Error! uploading video file!', 'danger');
                 }
 
             } else {
-                $displayInfo .= '<br>Notice: Video file not exist!';
-                $args[] = ['color' => 'warning', 'info' => $displayInfo];
+                _flashMessage('<br>Notice: Video file not exist!', 'warning');
                 if ($toSave == 1)
                     $outputVideoFile = 'none';
             }
@@ -883,20 +849,16 @@ class Project
             $id = R::store($project);
 
             // выводим ответ пользователю
-            $displayInfo .= '<br>Step successfully saved.';
-            $args[] = ['color' => 'success', 'info' => $displayInfo];
+            _flashMessage('<br>Step successfully saved.');
         } else {
-            $displayInfo .= '<br>Error! saving stepsData to DB!';
-            $args[] = ['color' => 'danger', 'info' => $displayInfo];
+            _flashMessage('<br>Error! saving stepsData to DB!', 'danger');
         }
 
         /* [     LOGS FOR THIS ACTION     ] */
         $details = "Project id:$id,| $log_details";
         if (!logAction($user['user_name'], 'CREATING', OBJECT_TYPE[4], $details)) {
-            $displayInfo .= '<br>Log creation failed.';
-            $args[] = ['info' => $displayInfo, 'color' => 'danger'];
+            _flashMessage('<br>Log creation failed.', 'danger');
         }
-        return $args;
     }
 
     /**
@@ -906,77 +868,79 @@ class Project
      * @param $files
      * @param $step_id
      * @return void
+     * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function editProjectStep($post, $user, $files, $step_id): array
+    public static function editProjectStep($post, $user, $files, $step_id)
     {
         $post = self::checkPostDataAndConvertToArray($post);
         $toHistory = $stepToChange = R::load(PROJECT_STEPS, $step_id);
         $project = R::load(PROJECTS, $stepToChange->projects_id);
         $project_id = $stepToChange->projects_id;
-        $res = $log_details = array();
+        $log_details = array();
         /* 1=validation, 2=step num, 3=revision, 4=decription, 5=route act, 6=tool, 7=image, 8=video */
         $changes = explode(',', $post['changedFields']);
 
         foreach ($changes as $key) {
             switch ($key) {
                 case 1:
-                    $res[] = $out = self::changeValidation($post, $step_id);
+                    $out = self::changeValidation($post, $step_id);
                     $log_details['validation'] = $out['log'];
                     break;
                 case 2:
-                    $res[] = $out = self::shiftStep($stepToChange->projects_id, $post['oldStepNumber'], $post['newStepNumber']);
+                    $out = self::shiftStep($stepToChange->projects_id, $post['oldStepNumber'], $post['newStepNumber']);
                     $log_details['shiftStep'] = $out['log'];
                     break;
                 case 3:
-                    $res[] = $out = self::changeRevision($post, $step_id);
+                    $out = self::changeRevision($post, $step_id);
                     $log_details['revision'] = $out['log'];
                     break;
                 case 4:
-                    $res[] = $out = self::changeDescription($post, $step_id);
+                    $out = self::changeDescription($post, $step_id);
                     $log_details['description'] = $out['log'];
                     break;
                 case 5:
-                    $res[] = $out = self::changeRouteAction($post, $step_id);
+                    $out = self::changeRouteAction($post, $step_id);
                     $log_details['routeAction'] = $out['log'];
                     break;
                 case 6:
-                    $res[] = $out = self::changeTool($post, $step_id);
+                    $out = self::changeTool($post, $step_id);
                     $log_details['tool'] = $out['log'];
                     break;
                 case 7:
                     if (!empty($files['imageFile']['name'][0])) {
-                        $res[] = $out = self::changeImageFile($files, $step_id, $project_id);
-                        $log_details['image'] = $out['log'];
+                        $ou = self::changeImageFile($files, $step_id, $project_id);
+                        $log_details['image'] = $ou['log'];
                     }
                     break;
                 case 8:
                     if (!empty($files['videoFile']['name'][0])) {
-                        $res[] = $out = self::changeVideoFile($files, $step_id, $project_id);
-                        $log_details['video'] = $out['log'];
+                        $ou = self::changeVideoFile($files, $step_id, $project_id);
+                        $log_details['video'] = $ou['log'];
                     }
                     break;
                 case 9:
-                    $res[] = $out = self::changeFrontPicture($step_id, $post);
+                    $out = self::changeFrontPicture($step_id, $post);
                     $log_details['front-picture'] = $out['log'];
                     break;
                 case 10:
-                    $res[] = $out = self::changePartNumber($step_id, $post);
+                    $out = self::changePartNumber($step_id, $post);
                     $log_details['part-number'] = $out['log'];
                     break;
                 case 11:
-                    $res[] = $out = self::changeNotice($step_id, $post);
+                    $out = self::changeNotice($step_id, $post);
                     $log_details['note'] = $out['log'];
                     break;
                 default:
-                    $res = ['info' => 'No Changes added!', 'color' => 'warning'];
+                    _flashMessage('No Changes added!', 'warning');
                     break;
             }
+            // выводим сообщение если оно есть
+            if (!empty($out))
+                _flashMessage($out['info'], $out['color']);
         }
         /* after all changes in to step saving the history and logs */
         if ($log_details)
-            $res[] = self::saveStepHistory($log_details, $user, $toHistory, $project);
-
-        return $res ?? [null];
+            self::saveStepHistory($log_details, $user, $toHistory, $project);
     }
 
     /* =============================== STEP CHANGES PROTECTED METHODS ================================= */
@@ -997,6 +961,9 @@ class Project
         return ['info' => 'Step number changed successfully', 'color' => 'success', 'log' => 'step'];
     }
 
+    /**
+     * @throws \RedBeanPHP\RedException\SQL
+     */
     private static function changeValidation($post, $step_id): array
     {
         $step = R::load(PROJECT_STEPS, $step_id);
@@ -1009,6 +976,9 @@ class Project
             ['info' => 'Validation removed from this step', 'color' => 'danger', 'log' => 'check-0'];
     }
 
+    /**
+     * @throws \RedBeanPHP\RedException\SQL
+     */
     private static function changeRevision($post, $step_id): array
     {
         $step = R::load(PROJECT_STEPS, $step_id);
@@ -1017,6 +987,9 @@ class Project
         return ['info' => 'Step Revision changed successfuly', 'color' => 'success', 'log' => 'vers'];
     }
 
+    /**
+     * @throws \RedBeanPHP\RedException\SQL
+     */
     private static function changeDescription(array $post, $step_id): array
     {
         $step = R::load(PROJECT_STEPS, $step_id);
@@ -1025,6 +998,9 @@ class Project
         return ['info' => 'Step Description changed successfuly', 'color' => 'success', 'log' => 'desc'];
     }
 
+    /**
+     * @throws \RedBeanPHP\RedException\SQL
+     */
     private static function changeRouteAction(array $post, $step_id): array
     {
         $step = R::load(PROJECT_STEPS, $step_id);
@@ -1034,6 +1010,9 @@ class Project
         return ['info' => 'Step Route Action changed successfuly', 'color' => 'success', 'log' => 'route'];
     }
 
+    /**
+     * @throws \RedBeanPHP\RedException\SQL
+     */
     private static function changeTool(array $post, $step_id): array
     {
         $step = R::load(PROJECT_STEPS, $step_id);
@@ -1042,6 +1021,9 @@ class Project
         return ['info' => 'Step Tool for step changed successfuly', 'color' => 'success', 'log' => 'tool'];
     }
 
+    /**
+     * @throws \RedBeanPHP\RedException\SQL
+     */
     private static function changeImageFile($files, $step_id, $project_id): array
     {
         $step = R::load(PROJECT_STEPS, $step_id);
@@ -1080,12 +1062,12 @@ class Project
 
                     /* если успешно переместилось то -> сохраняем данные в таблицу history */
                     $path['image_path'] = $newStepImageHistoryPath;
-                    $res[] = ['info' => 'Move file to history success!', 'color' => 'success', 'log' => 'success'];
+                    _flashMessage('Move file to history success!');
                 } else {
-                    $res[] = ['info' => 'Move file to history failed!', 'color' => 'danger', 'log' => 'error'];
+                    _flashMessage('Move file to history failed!', 'danger');
                 }
             } else {
-                $res[] = ['info' => 'Old file not exist!', 'color' => 'danger', 'log' => 'error'];
+                _flashMessage('Old file not exist!', 'danger');
             }
 
             /* если успешно сохранилось конвертируем фото из временной папки с сохранением в папку проекта */
@@ -1098,9 +1080,10 @@ class Project
                     array_map('unlink', glob(TEMP_FOLDER . '*.*'));
                     /* обновляем путь к файлу в БД и пишем лог */
                     $step->image = $outputFile;
-                    $res[] = ['info' => 'Image changed success.', 'color' => 'success', 'log' => [$path, 'image']];
+                    _flashMessage('Image changed success.');
+                    $res = ['log' => [$path, 'image']];
                 } else {
-                    $res[] = ['info' => 'File convertation to webp failed!', 'color' => 'danger', 'log' => 'error'];
+                    _flashMessage('File convertation to webp failed!', 'danger');
                 }
             }
 
@@ -1108,19 +1091,23 @@ class Project
             if ($uploadSuccess && !$isNotWebp) {
                 /* обновляем путь к файлу в БД и пишем лог */
                 $step->image = $uploadedFile;
-                $res[] = ['info' => 'Image changed success.', 'color' => 'success', 'log' => [$path, 'image']];
+                _flashMessage('Image changed success.');
+                $res = ['log' => [$path, 'image']];
             }
 
             R::store($step);
 
         } else {
             /* если формат файла не разрешен то отправляем отчет об ошибке ничего не делая в системе */
-            $res = ['info' => 'File format is error!', 'color' => 'danger', 'log' => 'error'];
+            _flashMessage('File format is error!', 'danger');
         }
 
         return $res;
     }
 
+    /**
+     * @throws \RedBeanPHP\RedException\SQL
+     */
     private static function changeVideoFile($files, $step_id, $project_id): array
     {
         $step = R::load(PROJECT_STEPS, $step_id);
@@ -1149,25 +1136,26 @@ class Project
             // Перемещаем файл в целевую директорию
             if (move_uploaded_file($file['tmp_name'], $targetFilePath)) {
                 $step->video = $outputVideoFile;
-                $res[] = ['info' => 'Video File uploaded successfully', 'color' => 'success', 'log' => [$path, 'video']];
+                _flashMessage('Video File uploaded successfully');
+                $res = ['log' => [$path, 'video']];
 
                 // Проверяем, является ли файл видео MP4 с кодеком H.264
                 if (Converter::isMp4H264($targetFilePath)) {
                     // Файл уже в нужном формате, переименуем и переместим его
                     rename($targetFilePath, $outputVideoFile);
-                    $res[] = ['info' => 'Video changed success.', 'color' => 'success', 'log' => [$path, 'video']];
+                    _flashMessage('Old video changed success.');
                 } else {
                     // Файл не в формате MP4 H.264, конвертируем его
                     Converter::convertToMp4H264($targetFilePath, $outputVideoFile);
-                    $res[] = ['info' => 'Video changed success.', 'color' => 'success', 'log' => [$path, 'video']];
+                    _flashMessage('Video format changed success.');
                     // Удаление исходного файла, если необходимо
                     array_map('unlink', glob(TEMP_FOLDER . '*.*'));
                 }
             } else {
-                $res[] = ['info' => 'Error video uploading file!', 'color' => 'danger', 'log' => 'error'];
+                _flashMessage('Error video uploading file!', 'danger');
             }
         } else {
-            $res[] = ['errors' => 'Error video file not exist!', 'color' => 'danger', 'log' => 'error'];
+            _flashMessage('Error video file not exist!', 'danger');
         }
 
         R::store($step);
@@ -1204,10 +1192,10 @@ class Project
      * @param $user
      * @param $step
      * @param $project
-     * @return string[]
+     * @return void
      * @throws /\RedBeanPHP\RedException\SQL
      */
-    private static function saveStepHistory($data, $user, $step, $project): array
+    private static function saveStepHistory($data, $user, $step, $project): void
     {
         $changeslog = $paths = $changes = [];
         /* преобразование массива данных для сохранения в БД */
@@ -1247,15 +1235,14 @@ class Project
 
         R::store($history);
 
-        $args = ['info' => 'History and Log saved Successfully', 'color' => 'success'];
+        _flashMessage('History and Log saved Successfully');
         /* [     LOGS FOR THIS ACTION     ] */
         $details = "Project name: $project->projectname, Step N: $step->step, updated, <br>";
         $details .= "Changes in: [" . implode(', ', $changes) . ']';
         $details .= "<br>Press icon eye on step editing page.";
         if (!logAction($user['user_name'], 'UPDATING', OBJECT_TYPE[4], $details)) {
-            $args = ['info' => 'Log creation failed.', 'color' => 'danger'];
+            _flashMessage('Log creation failed.', 'danger');
         }
-        return $args;
     }
 
     /* =============================== STEP CHANGES PROTECTED METHODS ================================= */
@@ -1266,7 +1253,7 @@ class Project
      * @param $user
      * @return void
      */
-    public static function deleteProjectStep($post, $user): array
+    public static function deleteProjectStep($post, $user)
     {
         if (checkPassword(_E($post['password']))) {
             $project = R::load(PROJECTS, _E($post['projectid']));
@@ -1308,28 +1295,26 @@ class Project
                         }
                         /* удаляем все данные из БД */
                         R::trash($step);
-                        $args = ['info' => 'Step Was deleted successfully!', 'color' => 'success'];
+                        _flashMessage('Step Was deleted successfully!');
                     }
 
                 } else {
                     /* не найдена папка проекта  */
-                    $args = ['info' => "Project folder not found, step isn`t deleted!", 'color' => 'danger'];
+                    _flashMessage("Project folder not found, step isn`t deleted!", 'danger');
                 }
             } else {
                 /* не найден шаг в БД */
-                $args = ['info' => "The step not exist, step isn`t deleted!", 'color' => 'danger'];
+                _flashMessage("The step not exist, step isn`t deleted!", 'danger');
             }
         } else {
             /* не верный мастер пароль */
-            $args = ['info' => "Incorrect password writed!", 'color' => 'danger'];
+            _flashMessage("Incorrect password writed!", 'danger');
         }
 
         $details = 'Project name: ' . $project->projectname . ', Step number: ' . $tmpStep->step . '<br>';
         $details .= 'Step deleted by administrator or not :)<br>';
         if (!logAction($user['user_name'], 'DELETING', OBJECT_TYPE[4], $details)) {
-            $args = ['info' => 'Log creation failed', 'color' => 'danger'];
+            _flashMessage('Log creation failed', 'danger');
         }
-
-        return $args;
     }
 }

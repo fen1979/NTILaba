@@ -17,15 +17,7 @@
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Orders';
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-$navBarData['btn_title'] = 'order';
-NavBarContent($navBarData);
-
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
+NavBarContent(['title' => 'Orders', 'user' => $user, 'page_name' => $page, 'btn_title' => 'order']); ?>
 
 <div class="main-container">
     <main class="container-fluid content">
@@ -36,9 +28,7 @@ DisplayMessage($args ?? null);
 // MODAL WINDOW WITH ROUTE FORM AND CREATION FORM
 deleteModalRouteForm('/new_order');
 // Футер
-footer($page);
-// SCRIPTS
-ScriptContent($page);
+PAGE_FOOTER($page);
 ?>
 
 <script>

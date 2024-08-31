@@ -82,12 +82,12 @@ class Management
     /**
      * PASTED IMAGE CONVERTER AND SAVER
      * @param $imageData
-     * @param $partName
+     * @param $toolName
      * @return string[]
      */
     private static function convertAndSavePastedImageForItem($imageData, $toolName): array
     {
-        $partName = preg_replace(['/[^a-z0-9 \-_]/', '/[ \-]+/'], ['', '_'], strtolower($toolName));
+        //$partName = preg_replace(['/[^a-z0-9 \-_]/', '/[ \-]+/'], ['', '_'], strtolower($toolName));
         // Убираем префикс data:image/...;base64, если он есть
         if (strpos($imageData, "base64,") !== false) {
             list($typePart, $imageData) = explode('base64,', $imageData);
@@ -108,8 +108,8 @@ class Management
             // Путь для сохранения конвертированного изображения
             $filePathWebp = TOOLS_FOLDER . $toolName . ".webp";
             // Вызываем метод конвертации
-            $res = Converter::convertToWebp($filePathRaw, $filePathWebp);
-            array_map('unlink', glob(TEMP_FOLDER . "*.*"));
+            if (Converter::convertToWebp($filePathRaw, $filePathWebp))
+                array_map('unlink', glob(TEMP_FOLDER . "*.*"));
         } else {
             // Если изображение уже в webp, формируем путь для сохранения
             $filePathWebp = TOOLS_FOLDER . $toolName . ".webp";
@@ -125,9 +125,9 @@ class Management
      *
      * @param $post
      * @param $user
-     * @return array
+     * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function deletingAnItem($post, $user): array
+    public static function deletingAnItem($post, $user)
     {
         list($who, $id) = explode('-', $post['idForUse']);
 
@@ -141,7 +141,7 @@ class Management
                         $log_details = "Rout Action №:$id was deleted, RA: $r->action, SKU: $tr";
 
                         R::trash($r);
-                        $res['info'] = "Rout Action SKU $tr deleted successfully!";
+                        _flashMessage("Rout Action SKU $tr deleted successfully!");
                     }
                     break;
                 case 'user':
@@ -153,7 +153,7 @@ class Management
                         $log_details = "User №:$id was deleted, Name: $tr";
 
                         R::trash($r);
-                        $res['info'] = "User named $tr deleted successfully!";
+                        _flashMessage("User named $tr deleted successfully!");
                     }
                     break;
                 case 'tools':
@@ -186,23 +186,19 @@ class Management
 
                         $log_details = "Tool id №:$id was deleted, Name: $tr";
                         R::trash($r);
-                        $res['info'] = "Tool $tr deleted successfully!";
+                        _flashMessage("Tool $tr deleted successfully!");
                     }
                     break;
 
             }
 
-            $res['color'] = 'success';
-
             /* [     LOGS FOR THIS ACTION     ] */
             if (!logAction($user['user_name'], 'DELETING', OBJECT_TYPE[12], $log_details)) {
-                $res[] = ['info' => 'The log not created.', 'color' => 'danger'];
+                _flashMessage('The log not created.', 'danger');
             }
         } else {
-            $res[] = ['info' => 'Incorrect password writed!', 'color' => 'danger'];
+            _flashMessage('Incorrect password writed!', 'danger');
         }
-
-        return $res;
     }
 
     /**
@@ -210,10 +206,9 @@ class Management
      *
      * @param $post
      * @param $user
-     * @return array
      * @throws //\RedBeanPHP\RedException\SQL
      */
-    public static function createUpdateRoutAction($post, $user): array
+    public static function createUpdateRoutAction($post, $user)
     {
         if (isset($post['rout-action-editing'])) {
             $routAction = R::load(ROUTE_ACTION, _E($post['rout-action-editing']));
@@ -231,16 +226,15 @@ class Management
         $routAction->specifications = _E($post['specifications'] ?? '');
 
         if (R::store($routAction)) {
-            $res[] = ['info' => 'Rout Action Saved successfully!', 'color' => 'success'];
+            _flashMessage('Rout Action Saved successfully!');
         } else {
-            $res[] = ['info' => 'Some things go wrong!', 'color' => 'danger'];
+            _flashMessage('Some things go wrong!', 'danger');
         }
 
         /* [     LOGS FOR THIS ACTION     ] */
         if (!logAction($user['user_name'], $log_action, OBJECT_TYPE[8], $log_details)) {
-            $res[] = ['info' => 'The log not created.', 'color' => 'danger'];
+            _flashMessage('The log not created.', 'danger');
         }
-        return $res;
     }
 
     /**
@@ -248,17 +242,16 @@ class Management
      *
      * @param $post
      * @param $user
-     * @return array
      * @throws //\RedBeanPHP\RedException\SQL
      */
-    public static function createUpdateWarehouseType($post, $user): array
+    public static function createUpdateWarehouseType($post, $user)
     {
         $warehouseType = R::load(WH_TYPES, _E($post['wh-action-editing']));
         if (isset($post['wh-action-editing']) && $warehouseType) {
             $log_action = 'UPDATING';
             $log_details = "Name Type №:$warehouseType->id was updated successfully";
         } else {
-            $routAction = R::dispense(WH_TYPES);
+            $warehouseType = R::dispense(WH_TYPES);
             $log_action = 'CREATING';
             $log_details = "Name Type №:$warehouseType->id was created successfully";
         }
@@ -267,16 +260,15 @@ class Management
         $warehouseType->description = _E($post['description'] ?? '');
 
         if (R::store($warehouseType)) {
-            $res[] = ['info' => 'Name Type Saved successfully!', 'color' => 'success'];
+            _flashMessage('Name Type Saved successfully!');
         } else {
-            $res[] = ['info' => 'Some things go wrong!', 'color' => 'danger'];
+            _flashMessage('Some things go wrong!', 'danger');
         }
 
         /* [     LOGS FOR THIS ACTION     ] */
         if (!logAction($user['user_name'], $log_action, OBJECT_TYPE[6], $log_details)) {
-            $res[] = ['info' => 'The log not created.', 'color' => 'danger'];
+            _flashMessage('The log not created.', 'danger');
         }
-        return $res;
     }
 
     /**
@@ -284,10 +276,9 @@ class Management
      *
      * @param $post
      * @param $thisUser
-     * @return array
      * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function addOrUpdateUsersData($post, $thisUser): array
+    public static function addOrUpdateUsersData($post, $thisUser)
     {
         $post = self::checkPostDataAndConvertToArray($post);
         $name = $post['name'];
@@ -331,14 +322,15 @@ class Management
 
                     $user->ownSettingsList[] = $settings;
                     R::store($user);
-                    $args = ['color' => 'success', 'info' => 'Registration complite!'];
+                    _flashMessage('Registration complite!');
 
                     $details = 'Worker named: ' . $user->user_name . ', Added successfully on: ' . date('Y/m/d') . ' at ' . date('h:i');
                     $details .= getServerData();
                     logAction($thisUser['user_name'], 'REGISTER', OBJECT_TYPE[11], $details);
                 }
             } else {
-                $args = ['color' => 'danger', 'info' => 'Registration error Password Data wrong!'];
+                // message collector (text/ color/ auto_hide = true)
+                _flashMessage('Registration error Password Data wrong!', 'danger');
             }
         }
 
@@ -364,22 +356,20 @@ class Management
                 $hash = password_hash($pass, PASSWORD_DEFAULT);
                 $user->user_hash = $hash;
                 $log_details .= '<br>password was changed!';
-                $args[] = ['info' => 'The user password has been successfully changed!!!<br>To log in, use the new password.', 'color' => 'danger'];
+                _flashMessage('The user password has been successfully changed!!!<br>To log in, use the new password.', 'danger');
             } else {
-                $args[] = ['info' => 'No password changes!<br>Ignore this message if you have not changed your password!', 'color' => 'warning'];
+                _flashMessage('No password changes!<br>Ignore this message if you have not changed your password!', 'warning');
             }
 
             if (R::store($user)) {
                 $log_details .= "<br>Changes: [$user->job_role, $user->app_role, $user->user_name]";
-                $args[] = ['info' => 'Changes Saved successfully!', 'color' => 'success'];
+                _flashMessage('Changes Saved successfully!');
             } else {
-                $args[] = ['info' => 'Something went wrong!', 'color' => 'danger'];
+                _flashMessage('Something went wrong!', 'danger');
             }
 
             logAction($user['user_name'], 'EDITING', OBJECT_TYPE[11], $log_details);
         }
-
-        return $args;
     }
 
     /**
@@ -388,10 +378,9 @@ class Management
      * @param $post
      * @param $files
      * @param $user
-     * @return array
      * @throws //\RedBeanPHP\RedException\SQL
      */
-    public static function createUpdateTools($post, $files, $user): array
+    public static function createUpdateTools($post, $files, $user)
     {
         $post = self::checkPostDataAndConvertToArray($post);
         $log_details = '';
@@ -449,9 +438,9 @@ class Management
 
         if (R::store($tool) && $result['status']) {
             $act = $log_action == 'EDITING' ? 'updated' : 'saved';
-            $res[] = ['info' => $result['error'] . '<br/> The tool ' . $act . ' successfully!', 'color' => 'success'];
+            _flashMessage($result['error'] . '<br/> The tool ' . $act . ' successfully!');
         } else {
-            $res[] = ['info' => $result['error'], 'color' => 'danger'];
+            _flashMessage($result['error'], 'danger');
         }
 
         // fixme сделать нормальный лог для обновления и создания и прочего
@@ -461,9 +450,8 @@ class Management
 
         /* [     LOGS FOR THIS ACTION     ] */
         if (!logAction($user['user_name'], $log_action, OBJECT_TYPE[9], $log_details)) {
-            $res[] = ['info' => 'The log not created.', 'color' => 'danger'];
+            _flashMessage('The log not created.', 'danger');
         }
-        return $res;
     }
 
     /**
@@ -472,12 +460,10 @@ class Management
      * @param $post
      * @param $files
      * @param $user
-     * @return null[]
      * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function importToolsListByCsvFile($post, $files, $user): array
+    public static function importToolsListByCsvFile($post, $files, $user)
     {
-        $args = [null];
         if (isset($post['import-from-csv-file'])) {
 
             /* сохраняем файл с данными для работы */
@@ -493,7 +479,7 @@ class Management
 
                         // Проверка наличия файла
                         if (!file_exists($uploadedFile)) {
-                            $_SESSION['info'] = ['info' => 'File not found', 'color' => 'danger'];
+                            _flashMessage('File not found', 'danger');
                             die();
                         }
 
@@ -518,8 +504,7 @@ class Management
                                 unlink($uploadedFile);
 
                                 // Вывод сообщения пользователю о несоответствии структуры файла
-                                $args[] = ['info' => 'Error, file structure does not match expected format!', 'color' => 'danger'];
-                                return $args;
+                                _flashMessage('Error, file structure does not match expected format!', 'danger');
                             }
 
                             // Массив для хранения данных из CSV файла
@@ -559,7 +544,7 @@ class Management
                             }
 
                         } else {
-                            $args[] = ['info' => 'Error open file', 'color' => 'danger'];
+                            _flashMessage('Error open file', 'danger');
                         }
                     } // upload success
 
@@ -569,21 +554,20 @@ class Management
                     // выводим сообщение пользователю
                     if ($items > 0) {
                         $log_details = "File was imported correctly.<br> Lines added: $items";
-                        $args[] = ['info' => $log_details, 'color' => 'success'];
+                        _flashMessage($log_details);
 
                         /* [     LOGS FOR THIS ACTION     ] */
                         if (!logAction($user['user_name'], 'IMPORT FILE', OBJECT_TYPE[9], $log_details)) {
-                            $args[] = ['info' => 'The log not created.', 'color' => 'danger'];
+                            _flashMessage('The log not created.', 'danger');
                         }
                     } else {
-                        $args[] = ['info' => 'No items added!', 'color' => 'warning'];
+                        _flashMessage('No items added!', 'warning');
                     }
                 } else {
-                    $args[] = ['info' => 'Error, File format wrong! Only .csv', 'color' => 'danger'];
+                    _flashMessage('Error, File format wrong! Only .csv', 'danger');
                 }
             }
         }
-        return $args;
     }
 
 
@@ -592,10 +576,10 @@ class Management
      *
      * @param $post
      * @param $userId
-     * @return array
-     * @throws //\RedBeanPHP\RedException\SQL
+     * @return void
+     * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function columnsRedirection($post, $userId): array
+    public static function columnsRedirection($post, $userId): void
     {
         // Получаем пользователя
         $user = R::load(USERS, $userId);
@@ -606,7 +590,7 @@ class Management
             // Создаем новую запись настроек
             $settings = R::dispense(SETTINGS);
             $t_name = $settings->table_name = _E($post['save-settings']);
-            $columnsOrderedByUser = json_decode($post['rowOrder'], true);//explode(',', $post['rowOrder']);
+            $columnsOrderedByUser = json_decode($post['rowOrder'], true);
             $settings->setup = json_encode($columnsOrderedByUser);
             R::store($settings);
 
@@ -616,7 +600,7 @@ class Management
 
             // Обновляем существующие настройки
             $settings = R::load(SETTINGS, $existingSetting['id']);
-            $columnsOrderedByUser = json_decode($post['rowOrder'], true);//explode(',', $post['rowOrder']);
+            $columnsOrderedByUser = json_decode($post['rowOrder'], true);
             $settings->setup = json_encode($columnsOrderedByUser);
             R::store($settings);
         }
@@ -624,26 +608,22 @@ class Management
         // Обновляем данные пользователя в сессии
         $_SESSION['userBean'] = R::load(USERS, $user['id']);
 
-        $res['info'] = 'Settings saved successfully';
-        $res['color'] = 'success';
+        _flashMessage('Settings saved successfully');
 
         /* [     LOGS FOR THIS ACTION     ] */
         $log_details = "The column output has been changed, table name: $t_name";
         if (!logAction($user->user_name, 'UPDATING', OBJECT_TYPE[10], $log_details)) {
-            $res['info'] = 'The log not created.';
-            $res['color'] = 'danger';
+            _flashMessage('The log not created.', 'danger');
         }
-        return $res;
     }
 
     /**
      * USER ACCOUNT SETTUNGS
      * @param $post
      * @param $userId
-     * @return array
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    public static function accountSettings($post, $userId): array
+    public static function accountSettings($post, $userId)
     {
         // Получаем пользователя
         $user = R::load(USERS, $userId);
@@ -656,29 +636,24 @@ class Management
         // Обновляем данные пользователя в сессии
         $_SESSION['userBean'] = R::load(USERS, $user['id']);
 
-        $res['info'] = 'Settings saved successfully';
-        $res['color'] = 'success';
+        _flashMessage('Settings saved successfully');
 
         /* [     LOGS FOR THIS ACTION     ] */
         $log_details = "The user settings has been changed and saved";
         if (!logAction($user->user_name, 'ACCOUNT SETTINGS', OBJECT_TYPE[11], $log_details)) {
-            $res['info'] = 'The log not created.';
-            $res['color'] = 'danger';
+            _flashMessage('The log not created.', 'danger');
         }
-        return $res;
     }
 
     /**
      * USER PASSWORD CHANGEING FUNCTION
      * @param string $userId
      * @param $post
-     * @return array
      * @throws //\PHPMailer\PHPMailer\Exception
      */
-    public static function updatePasswordForUsers(string $userId, $post): array
+    public static function updatePasswordForUsers(string $userId, $post)
     {
         if (isset($post["update-user-password"])) {
-            $res = [];
             $user = R::load(USERS, $userId);
             $pass_1 = _E($post["password"]);
             $pass_2 = _E($post["re-password"]);
@@ -690,7 +665,7 @@ class Management
             $user->email = !empty($post["email"]) ? $post["email"] : null;
             R::store($user);
 
-            $res[] = ['info' => 'Password updated successfully', 'color' => 'success'];
+            _flashMessage('Password updated successfully');
 
             if (!empty($post["send-mail"]) && _E($post["send-mail"]) == '1') {
                 $body = '<h3>Hello ' . $user->user_name . '</h3>';
@@ -707,21 +682,19 @@ class Management
 
                 $answer = Mailer::SendEmailNotification(_E($post["email"]), $user['user_name'], 'Password Update NTI', $body);
                 if ($answer != 'success')
-                    $res[] = ['info' => $answer, 'color' => 'danger'];
+                    _flashMessage($answer, 'danger');
                 else
-                    $res[] = ['info' => 'Mail sended successfully!', 'color' => 'success'];
+                    _flashMessage('Mail sended successfully!');
             }
 
             /*    LOGS FOR THIS ACTION     */
             $log_details = "The user password has been changed and saved";
             if (!logAction($user->user_name, 'ACCOUNT SETTINGS', OBJECT_TYPE[11], $log_details)) {
-                $res[] = ['info' => 'The log not created.', 'color' => 'danger'];
+                _flashMessage('The log not created.', 'danger');
             }
         } else {
-            $res[] = ['info' => 'Please fill all the required fields.', 'color' => 'danger'];
+            _flashMessage('Please fill all the required fields.', 'danger');
         }
         $_SESSION['userBean'] = R::load(USERS, $userId);
-
-        return $res;
     }
 }

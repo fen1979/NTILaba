@@ -42,7 +42,7 @@
         }
 
         .wrap {
-            white-space: wrap;
+            white-space: pre-wrap;
         }
     </style>
 </head>
@@ -57,15 +57,8 @@ if (isset($_POST['edit'])) {
     $routAction['sku'] = null;
 }
 // NAVIGATION BAR
-$navBarData['title'] = 'Route Actions ' . $title;
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-$navBarData['btn_title'] = 'route';
-NavBarContent($navBarData);
+NavBarContent(['title' => 'Route Actions ' . $title, 'user' => $user, 'page_name' => $page, 'btn_title' => 'route']); ?>
 
-/* DISPLAY MESSAGES FROM SYSTEM */
-DisplayMessage($args ?? null);
-?>
 <div class="container-fluid">
     <?php if (!isset($_POST['edit']) && !isset($_POST['create'])) { ?>
         <table>
@@ -137,10 +130,7 @@ DisplayMessage($args ?? null);
 <?php
 // MODAL WINDOW WITH ROUTE FORM
 deleteModalRouteForm();
-// Футер
-footer($page);
-// SCRIPTS
-ScriptContent($page);
-?>
+// Футер // SCRIPTS
+PAGE_FOOTER($page); ?>
 </body>
 </html>
