@@ -256,10 +256,6 @@ NavBarContent(['title' => "NTI Tools $title mode", 'user' => $user, 'page_name' 
     </main>
 </div>
 
-<form method="post" enctype="multipart/form-data" id="import-file-form" hidden>
-    <input type="hidden" name="import-from-csv-file" value="1">
-    <input type="file" name="csvFile" id="import-file-input" accept="text/csv">
-</form>
 <?php
 // MODAL WINDOW WITH ROUTE FORM
 deleteModalRouteForm();

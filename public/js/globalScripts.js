@@ -144,24 +144,27 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    //i установка цвета на активную кнопку в навбаре, Получаем текущий URL
+    // i установка цвета на активную кнопку в навбаре, Получаем текущий URL
     const url = new URL(window.location.href);
-    // получаем имя страницы из адресной строки
-    const routePage = url.pathname;
-    // получаем все кнопки у которых есть класс url
+    // Получаем имя страницы из адресной строки
+    const routePage = url.pathname + url.search; // Включаем query параметры
+    // Получаем все кнопки, у которых есть класс .url.act
     const navButtons = document.querySelectorAll('.url.act');
-    // Loop through the buttons and check their value
+
+    // Проходим по всем кнопкам и проверяем их value
     navButtons.forEach(function (button) {
-        if (button.value === routePage.replace("/", "")) {
-            // Add the active class to the button with the matching value
+        // Проверяем, включает ли значение кнопки часть текущего URL
+        if (routePage.includes(button.value)) {
+            // Добавляем активный класс к кнопке, если совпадение найдено
             button.classList.remove('btn-outline-secondary');
             button.classList.add('btn-outline-primary');
         } else {
-            // Remove the active class from all other buttons
+            // Убираем активный класс у остальных кнопок
             button.classList.remove('btn-outline-primary');
             button.classList.add('btn-outline-secondary');
         }
     });
+
 });
 
 

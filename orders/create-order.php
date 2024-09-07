@@ -1,68 +1,112 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-include_once 'Orders.php';
-$page = 'new_order';
-$titleText = 'Order Creation';
-$project = $order = $client = $result = null;
-$btnSubmit['text'] = 'Create new order';
-$btnSubmit['name'] = 'createOrder';
+//include_once 'controllers/OrderManager.php';
+//include_once 'Orders.php';
+//$requestData = RequestData::getInstance();
+// Инициализируем менеджер заказов
+$orderManager = new OrderManager($user);
+// Обрабатываем GET-запросы для редактирования заказа
+$orderManager->handleGetRequest(RequestData::getInstance());
+// Проверка свободных мест на складе
+$orderManager->checkForStorageBoxes($_POST);
+// Создание нового заказа
+$orderManager->createOrder($_POST);
+// Обновление информации о заказе
+$orderManager->updateOrder($_POST);
+// Создание заказа из списка проектов
+$orderManager->createOrderFromProject($_GET);
+// Обновление существующего заказа
+$orderManager->updateExistingOrder($_POST, $_GET);
+// Получаем данные для страницы
+$pageData = $orderManager->getPageData();
+// Используем данные для отображения на странице
+$titleText = $pageData['titleText'];
+$btnSubmit = $pageData['btnSubmit'];
+$order = $pageData['order'];
+$project = $pageData['project'];
+$client = $pageData['client'];
+$page = $pageData['page'];
+$result = $pageData['result'];
+?>
+
+<?php
+//$page = 'new_order';
+//$titleText = 'Order Creation';
+//$project = $order = $client = $result = null;
+//$btnSubmit['text'] = 'Create new order';
+//$btnSubmit['name'] = 'createOrder';
+
+// edit order from order view page
+//$requestData->checkGetRequestAndExecute(['edit-order', 'pid', 'orid'],
+//    function ($cleanedData) use (&$order, &$project, &$client, &$btnSubmit, &$titleText, &$page) {
+//    // Загружаем данные из БД
+//    $order = R::load(ORDERS, $cleanedData['orid']);
+//    $project = R::load(PROJECTS, $order->projects_id);
+//    $client = R::load(CLIENTS, $order->customers_id);
+//
+//    // Обновляем переменные
+//    $btnSubmit['text'] = 'Update this order';
+//    $btnSubmit['name'] = 'updateOrder';
+//    $titleText = 'Editing Order';
+//    $page = 'edit_order';
+//});
+
 
 // check for not in use boxes in storage
 // called from ajax metod by clicking on storage box field
-if (isset($_POST['search-for-storage-box'])) {
-    exit(WareHouse::getEmptyBoxForItem($_POST, 'order_kit'));
-}
+//if (isset($_POST['search-for-storage-box'])) {
+//    exit(WareHouse::getEmptyBoxForItem($_POST, 'order_kit'));
+//}
 
 /* creating new order */
-if (isset($_POST['createOrder'])) {
-    $project = R::load(PROJECTS, _E($_POST['project_id']));
-    $client = R::load(CLIENTS, _E($_POST['customer_id']));
-
-    $result = Orders::createOrder($user, $client, $project, $_POST);
-    $orderId = $result[1];
-    if (!$result[0]) {
-//        $orderId = $result[1];
-//        redirectTo("check_bom?orid=$orderId&pid=$project->id");
-//    } else {
-        _flashMessage('Can not write log information', 'danger');
-    }
-}
+//if (isset($_POST['createOrder'])) {
+//    $project = R::load(PROJECTS, _E($_POST['project_id']));
+//    $client = R::load(CLIENTS, _E($_POST['customer_id']));
+//
+//    $result = Orders::createOrder($user, $client, $project, $_POST);
+//    $orderId = $result[1];
+//    if (!$result[0]) {
+////        $orderId = $result[1];
+////        redirectTo("check_bom?orid=$orderId&pid=$project->id");
+////    } else {
+//        _flashMessage('Can not write log information', 'danger');
+//    }
+//}
 
 /* TODO updating order information ?????? разобратся где оно берется! да я забыл поэтому и записываю */
-if (isset($_POST['editOrder'])) {
-    $project = R::load(PROJECTS, _E($_POST['project_id']));
-    $client = R::load(CLIENTS, _E($_POST['customer_id']));
-    $order = R::load(ORDERS, _E($_POST['order_id']));
-
-    $_SESSION['info'] = $res = Orders::updateOrderInformation($user, _E($_POST['order_id']), $_POST, $project, $client);
-    if ($res) {
-        redirectTo("check_bom?orid=$orderId&pid=$project->id");
-    }
-}
+//if (isset($_POST['editOrder'])) {
+//    $project = R::load(PROJECTS, _E($_POST['project_id']));
+//    $client = R::load(CLIENTS, _E($_POST['customer_id']));
+//    $order = R::load(ORDERS, _E($_POST['order_id']));
+//
+//    $res = Orders::updateOrderInformation($user, _E($_POST['order_id']), $_POST, $project, $client);
+//    if ($res) {
+//        redirectTo("check_bom?orid=$orderId&pid=$project->id");
+//    }
+//}
 
 // create new order from project list page
-if (isset($_GET['pid']) && isset($_GET['nord'])) {
-    $project = R::load(PROJECTS, _E($_GET['pid']));
-    $client = R::findOne(CLIENTS, 'name = ?', [$project->customername]);
-}
+//if (isset($_GET['pid']) && isset($_GET['nord'])) {
+//    $project = R::load(PROJECTS, _E($_GET['pid']));
+//    $client = R::findOne(CLIENTS, 'name = ?', [$project->customername]);
+//}
 
 // edit order from order view page
-if (isset($_GET['edit-order']) && isset($_GET['pid']) && isset($_GET['orid'])) {
-    $order = R::load(ORDERS, _E($_GET['orid']));
-    $project = R::load(PROJECTS, $order->projects_id);
-    $client = R::load(CLIENTS, $order->customers_id);
-    $btnSubmit['text'] = 'Update this order';
-    $btnSubmit['name'] = 'updateOrder';
-    $titleText = 'Editing Order';
-    $page = 'edit_order';
-}
+//if (isset($_GET['edit-order']) && isset($_GET['pid']) && isset($_GET['orid'])) {
+//    $order = R::load(ORDERS, _E($_GET['orid']));
+//    $project = R::load(PROJECTS, $order->projects_id);
+//    $client = R::load(CLIENTS, $order->customers_id);
+//    $btnSubmit['text'] = 'Update this order';
+//    $btnSubmit['name'] = 'updateOrder';
+//    $titleText = 'Editing Order';
+//    $page = 'edit_order';
+//}
 
 // call update order function
-if (isset($_POST['updateOrder']) && !empty($_POST['order-id'])) {
-    $result = Orders::updateOrderInformation($user, _E($_POST['order-id']), $_POST, true, true);
-    $_SESSION['info'] = $result;
-    redirectTo("edit-order?edit-order&orid={$_GET['orid']}&pid={$result['pid']}");
-}
+//if (isset($_POST['updateOrder']) && !empty($_POST['order-id'])) {
+//    $result = Orders::updateOrderInformation($user, _E($_POST['order-id']), $_POST, true, true);
+//    redirectTo("edit-order?edit-order&orid={$_GET['orid']}&pid={$result['pid']}");
+//}
 ?>
 <!DOCTYPE html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
@@ -244,7 +288,8 @@ NavBarContent(['title' => $titleText, 'active_btn' => Y['N_ORDER'], 'user' => $u
 
                     <div class="col-2">
                         <input type="text" class="form-control track-change" id="storageShelf" name="storageShelf"
-                               value="<?= set_value('storageShelf', $order['storage_shelf'] ?? ''); ?>" placeholder="Write your shelf here" data-field-id="shelf">
+                               value="<?= set_value('storageShelf', $order['storage_shelf'] ?? ''); ?>"
+                               placeholder="Write your shelf here" data-field-id="shelf">
                     </div>
 
                     <div class="col-2">
@@ -302,7 +347,8 @@ NavBarContent(['title' => $titleText, 'active_btn' => Y['N_ORDER'], 'user' => $u
                                         $checked = !empty($workers) && in_array($u['user_name'], $workers) ? 'checked' : '';
                                         ?>
                                         <li class="form-check dropdown-item">
-                                            <input type="checkbox" id="u-<?= $key; ?>" value="<?= $u['user_name']; ?>" class="form-check-input" <?= $checked ?>>
+                                            <input type="checkbox" id="u-<?= $key; ?>" value="<?= $u['user_name']; ?>"
+                                                   class="form-check-input" <?= $checked ?>>
                                             <label class="form-check-label w-100" for="u-<?= $key; ?>"><?= $u['user_name']; ?></label>
                                         </li>
                                     <?php }
@@ -377,7 +423,8 @@ NavBarContent(['title' => $titleText, 'active_btn' => Y['N_ORDER'], 'user' => $u
             <div class="mb-3">
                 <?php $t = 'Here write some additional information for Worker or any reasons.'; ?>
                 <label for="extra" class="form-label"><i class="bi bi-info-circle" data-title="<?= $t; ?>"></i> &nbsp; Additional Information</label>
-                <textarea class="form-control track-change" id="extra" name="extra" data-field-id="extra"><?= set_value('extra', $order['extra'] ?? ''); ?></textarea>
+                <textarea class="form-control track-change" id="extra" name="extra"
+                          data-field-id="extra"><?= set_value('extra', $order['extra'] ?? ''); ?></textarea>
             </div>
 
             <button type="submit" class="btn btn-primary form-control mt-3 mb-2" id="createOrderFBtn" name="<?= $btnSubmit['name'] ?>">

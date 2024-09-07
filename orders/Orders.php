@@ -5,19 +5,6 @@ define('STATUS', SR::getAllResourcesInGroup('status'));
 class Orders
 {
     /* i============================ PROTECTED METHODS =============================== */
-    private static function checkPostDataAndConvertToArray($post): array
-    {
-        $postDataArray = [];
-        foreach ($post as $key => $item) {
-            if (is_array($item)) {
-                $postDataArray[$key] = self::checkPostDataAndConvertToArray($item);
-            } else {
-                $postDataArray[$key] = _E($item);
-            }
-        }
-        return $postDataArray;
-    }
-
     private static function makeFolderInStorage(string $unic): string
     {
         /* Создаем папку проекта*/
@@ -33,17 +20,16 @@ class Orders
      * ORDER FILTERS BY USER & STATUS
      * @param $post
      * @param $user
-     * @return array
-     * @throws //\RedBeanPHP\RedException\SQL
+     * @return mixed|\RedBeanPHP\OODBBean
+     * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function changeFilters($post, $user): array
+    public static function changeFilters($post, $user)
     {
         /* resetup filters by user and status */
         if (isset($post['filter-by-status'])) {
             $u = R::load(USERS, $user['id']);
             $u->filterby_status = implode(',', $post['status'] ?? ['']);
             $_SESSION['userBean'] = R::load(USERS, R::store($u));
-            $res['user'] = $_SESSION['userBean'];
             _flashMessage('Filter by status changed');
         }
 
@@ -52,7 +38,6 @@ class Orders
             $u = R::load(USERS, $user['id']);
             $u->filterby_user = implode(',', $post['users'] ?? ['all']);
             $_SESSION['userBean'] = R::load(USERS, R::store($u));
-            $res['user'] = $_SESSION['userBean'];
             _flashMessage('Filter by User changed');
         }
 
@@ -61,10 +46,9 @@ class Orders
             $u = R::load(USERS, $user['id']);
             $u->filterby_client = _E($post['clients'] ?? '');
             $_SESSION['userBean'] = R::load(USERS, R::store($u));
-            $res['user'] = $_SESSION['userBean'];
             _flashMessage('Filter by Customer changed');
         }
-        return $res;
+        return $_SESSION['userBean'];
     }
 
     /**
@@ -126,7 +110,7 @@ class Orders
      */
     public static function setStatusOrUserInOrder($user, $order_id, $post)
     {
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
         $order = R::load(ORDERS, $order_id);
         // ОБНОВЛЕНИЕ СТАТУСА ЗАКАЗА И РАБОТНИКОВ ЗАКАЗА
         if (isset($post['set-order-user'])) {
@@ -184,7 +168,7 @@ class Orders
      */
     public static function createOrder($user, $client, $project, $post): array
     {
-        $post = Orders::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
 
         $order = R::dispense(ORDERS);
 
@@ -265,7 +249,7 @@ class Orders
     public static function updateOrderInformation($user, $order_id, $post, $project = null, $client = null): array
     {
         if ($project && $client) {
-            $post = self::checkPostDataAndConvertToArray($post);
+            $post = checkPostDataAndConvertToArray($post);
             $order = R::load(ORDERS, $order_id);
             $msg = '';
             // ИЗМЕНЕНИЕ ИННФОРМАЦИИ В ЗАКАЗЕ
@@ -997,7 +981,7 @@ class Orders
     {
 
         $res = ['tab' => '2', 'step_id' => '', 'errors' => ''];
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
         switch ($action) {
             case 'initiation':
                 $res = self::orderProgressInit($order, $project, $user, $steps);

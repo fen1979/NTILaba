@@ -18,9 +18,14 @@ if (isset($_POST['pioi']) && isset($_POST['projectName'])) {
 
     if (isset($_POST['addCustomer']) && empty($_POST['customerId'])) {
         // создаем нового пользователя если нет в БД
-        $args = CPC::createCustomer(null, $_POST, $user);
+        try {
+            $args = CPC::createCustomer(null, $_POST, $user);
+        } catch (\RedBeanPHP\RedException\SQL $e) {
+            _flashMessage($e->getMessage(), 'danger');
+        }
         $_POST['customerId'] = $args['customer_id'];
     }
+
     // создаем новый проект заглушку
     $args = Project::createNewProject($_POST, $user, $_FILES);
     // получаем данные для создания заказа заглушки

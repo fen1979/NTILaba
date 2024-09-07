@@ -4,18 +4,6 @@ require 'warehouse/WareHouse.php';
 class Project
 {
     /* ============================ PROTECTED METHODS =============================== */
-    private static function checkPostDataAndConvertToArray($post): array
-    {
-        $postDataArray = [];
-        foreach ($post as $key => $item) {
-            if (is_array($item)) {
-                $postDataArray[$key] = self::checkPostDataAndConvertToArray($item);
-            } else {
-                $postDataArray[$key] = _E($item);
-            }
-        }
-        return $postDataArray;
-    }
 
     /**
      * функция сохранения файла документации к проекту
@@ -198,7 +186,7 @@ class Project
     {
         $log_details = '';
         /* Получаем данные из формы*/
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
         $projectName = preg_replace('/[^a-zA-Z0-9]/', '-', $post['projectName']);
 
         /* Создаем папку проекта*/
@@ -294,7 +282,7 @@ class Project
      */
     public static function editProjectInformation($post, $user, $files = null)
     {
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
         $log_details = '<h4>Changes</h4>';
 
         /* Получаем данные из формы*/
@@ -403,7 +391,7 @@ class Project
      */
     public static function createProjectBomItem($post, $user, $project_id)
     {
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
         $project = R::load(PROJECTS, $project_id);
 
         $partList = R::dispense(PROJECT_BOM);
@@ -560,7 +548,7 @@ class Project
      */
     public static function updateProjectBomItem($post, $user, $project_id, $item_id): array
     {
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
         $item = R::load(PROJECT_BOM, $item_id);
         $item->sku = $post['sku'];  // sku makat
         $item->part_name = $post['part_name'];  // part name
@@ -595,7 +583,7 @@ class Project
      */
     public static function deleteProjectBomItem($post, $user)
     {
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
         if (checkPassword($post['password'], true, $user)) {
             $it = R::load(PROJECT_BOM, $post['itemId']);
             $details = 'Item ID=' . $it->id . ', Deleted from Project ID=' . $it->projects_id . '<br>';
@@ -736,7 +724,7 @@ class Project
         $project = R::load(PROJECTS, $project_id);
         $projectDir = $project->projectdir;
         /* Получаем данные из формы */
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
 
         $toSave = 0;
         $log_details = '';
@@ -872,7 +860,7 @@ class Project
      */
     public static function editProjectStep($post, $user, $files, $step_id)
     {
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
         $toHistory = $stepToChange = R::load(PROJECT_STEPS, $step_id);
         $project = R::load(PROJECTS, $stepToChange->projects_id);
         $project_id = $stepToChange->projects_id;

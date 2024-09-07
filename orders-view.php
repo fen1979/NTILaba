@@ -1,13 +1,18 @@
 <?php
 $thisUser = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-include_once 'orders/Orders.php';
+//include_once 'orders/Orders.php';
 $page = 'order';
 $orderid = null;
 $role = $thisUser['app_role'];
 
 /* resetup filters by user and status */
 if (isset($_POST['filter-by-status']) || isset($_POST['filter-by-user']) || isset($_POST['filter-by-client'])) {
-    $args = Orders::changeFilters($_POST, $_SESSION['userBean']);
+    try {
+        $thisUser = Orders::changeFilters($_POST, $thisUser);
+    } catch (\RedBeanPHP\RedException\SQL $e) {
+        // message collector (text/ color/ auto_hide = true)
+        _flashMessage('Error: ' . $e->getMessage(), 'danger');
+    }
 }
 
 /* PUT ORDER TO ARCHIVE */

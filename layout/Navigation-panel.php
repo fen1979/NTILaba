@@ -117,6 +117,9 @@ function NavBarContent($navBarData): void
                             case 'replenishment':
                                 WAREHOUSE_PAGE_BUTTONS($page, $pid, $page_tab);
                                 break;
+                            case 'tracking':
+                                TRACKING_PAGE_BUTTONS();
+                                break;
                             default:
                                 ALL_PAGES_BUTTONS($page, $btn_title);
                                 LANGUAGE_BUTTONS();
@@ -125,7 +128,7 @@ function NavBarContent($navBarData): void
 
                         <!-- LOG OUT BUTTON -->
                         <li class="nav-item">
-                            <button type="button" class="url act btn btn-sm btn-outline-dark text-white" value="sign-out">
+                            <button type="button" class="url btn btn-sm btn-outline-dark text-white" value="sign-out">
                                 <i class="bi bi-door-closed"></i>
                             </button>
                         </li>
@@ -170,6 +173,23 @@ function NavBarContent($navBarData): void
     <?php
 
 } // END NAVBAR CONTENNT FUNCTION
+
+function TRACKING_PAGE_BUTTONS()
+{
+    ?>
+    <li class="nav-item">
+        <button type="button" class="url act btn btn-sm btn-outline-secondary text-white" value="home">Home</button>
+    </li>
+
+    <li class="nav-item">
+        <button type="button" class="url act btn btn-sm btn-outline-secondary text-white" value="tracking">Receive</button>
+    </li>
+
+    <li class="nav-item">
+        <button type="button" class="url act btn btn-sm btn-outline-secondary text-white" value="track-list?track-list=1">Track List</button>
+    </li>
+    <?php
+}
 
 /**
  * MAIN NAVIGATION BUTTONS
@@ -292,10 +312,11 @@ function ADMIN_PANEL_BUTTONS($btn_title, $page, $width = false): void
     // уровень администратора позволяет работать с админ панелью
     if (isUserRole([ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR])) {
         // страница где отображается кнопка импортировать из файла
-        if ($page == 3) { ?>
+        if ($page == 3 || $page == 2) {
+            $table = _if(($page == 3), 'tools', 'routeaction'); ?>
             <li class="nav-item">
-                <button type="button" id="import-from-file" class="btn btn-sm btn-outline-info m-03">
-                    Import from file <i class="bi bi-filetype-csv"></i>
+                <button type="button" value="import-file?table-name=<?= $table ?>" class="url btn btn-sm btn-outline-info">
+                    Import from file <i class="bi bi-filetype-xlsx"></i>
                 </button>
             </li>
         <?php }
@@ -532,7 +553,7 @@ function WAREHOUSE_PAGE_BUTTONS($page, $pid, $page_tab = ''): void
         <!--        </li>-->
 
         <li class="nav-item">
-            <button type="button" class="url act btn btn-sm btn-outline-diliny" value="test?import=warehouse">
+            <button type="button" class="url act btn btn-sm btn-outline-diliny" value="import-file?import=warehouse">
                 Import Items From File <i class="bi bi-filetype-xlsx"></i>
             </button>
         </li>

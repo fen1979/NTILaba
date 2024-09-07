@@ -40,7 +40,8 @@
 <?php
 // NAVIGATION BAR
 NavBarContent(['title' => 'Profile Settings', 'user' => $user, 'page_name' => $page]);
-const START_PAGE = ['order' => 'Orders', 'project' => 'Projects', 'wh' => 'Warehouse', 'wiki' => 'Wiki', 'task_list' => 'Task Manager'];
+const START_PAGE = ['home' => 'Home', 'order' => 'Orders', 'project' => 'Projects',
+    'wh' => 'Warehouse', 'wiki' => 'Wiki', 'task_list' => 'Task Manager'];
 ?>
 
 <div class="main-container">
@@ -96,6 +97,42 @@ const START_PAGE = ['order' => 'Orders', 'project' => 'Projects', 'wh' => 'Wareh
                             <input class="form-check-input" type="checkbox" id="soundSwitch" name="sound" value="1" <?= $ckd; ?>>
                         </div>
 
+                        <!-- Включение/отключение оповещений на мейл -->
+                        <div class="mb-3 form-check form-switch">
+                            <?php
+                            $ckd = $user['notify'] == '1' ? 'checked' : '';
+                            // Массив доступных типов уведомлений
+                            $notifyOptions = [
+                                '1' => 'Tracking Notifications',
+                                '2' => 'Tasks Notifications',
+                                '3' => 'Order Changes Notifications',
+                                '4' => 'System Updates',
+                                '5' => 'Security Alerts'
+                            ];
+
+                            // Разбиваем строку с типами уведомлений из БД на массив
+                            $selectedNotifyTypes = explode(',', $user['notify_type']);
+                            ?>
+                            <label class="form-check-label" for="notifySwitch">Email Notifications</label>
+                            <input class="form-check-input" type="checkbox" id="notifySwitch" name="notify" value="1" <?= $ckd; ?>>
+
+                            <!-- Блок с чекбоксами -->
+                            <div id="notifyOptions" class="notify-options mt-3" style="display: <?= $ckd ? 'block' : 'none'; ?>;">
+                                <?php foreach ($notifyOptions as $key => $label): ?>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="notify_type[]" value="<?= $key; ?>"
+                                               id="notifyType_<?= $key; ?>"
+                                            <?= in_array($key, $selectedNotifyTypes) ? 'checked' : ''; ?>>
+                                        <label class="form-check-label" for="notifyType_<?= $key; ?>">
+                                            <?= $label; ?>
+                                        </label>
+                                    </div>
+                                    <hr>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+
                         <!-- form buttons -->
                         <div class="mb-3">
                             <button type="button" id="btn-take-image" class="btn btn-secondary">
@@ -150,5 +187,27 @@ const START_PAGE = ['order' => 'Orders', 'project' => 'Projects', 'wh' => 'Wareh
 deleteModalRouteForm();
 // Футер // SCRIPTS
 PAGE_FOOTER($page); ?>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const notifySwitch = document.getElementById('notifySwitch');
+        const notifyOptions = document.getElementById('notifyOptions');
+        const checkboxes = document.querySelectorAll('#notifyOptions input[type="checkbox"]');
+
+        // Показываем/скрываем блок с чекбоксами при переключении свитча
+        notifySwitch.addEventListener('change', function () {
+            if (this.checked) {
+                notifyOptions.style.display = 'block';
+            } else {
+                notifyOptions.style.display = 'none';
+                // Сброс всех чекбоксов при отключении свитча
+                checkboxes.forEach(function (checkbox) {
+                    checkbox.checked = false;
+                });
+            }
+        });
+    });
+</script>
+
 </body>
 </html>

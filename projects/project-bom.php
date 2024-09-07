@@ -211,20 +211,20 @@ if (isset($_GET['edit-item'])) {
                 <button type="submit" name="<?= $formButton['name']; ?>" class="btn btn-outline-success form-control"><?= $formButton['text']; ?></button>
             </div>
 
-<!--            <div class="mb-2">-->
-<!--                --><?php //$t = 'First you need to select a file! This will cancel the required fields,
-//                then enter the names of the columns in the file in the fields that you want to fill in!
-//                The remaining fields must remain empty!!! Click on the save button and you\'re done,
-//                you will see the args to the right of the form.'; ?>
-<!--                <button type="button" id="import_csv" class="btn btn-outline-info form-control" data-title="--><?php //= $t; ?><!--">-->
-<!--                    Import CSV file-->
-<!--                    <i class="bi bi-info-circle"></i>-->
-<!--                </button>-->
-<!--                <input type="file" name="import_csv" id="csv_input" accept="text/csv" hidden>-->
-<!--            </div>-->
+            <!--            <div class="mb-2">-->
+            <!--                --><?php //$t = 'First you need to select a file! This will cancel the required fields,
+            //                then enter the names of the columns in the file in the fields that you want to fill in!
+            //                The remaining fields must remain empty!!! Click on the save button and you\'re done,
+            //                you will see the args to the right of the form.'; ?>
+            <!--                <button type="button" id="import_csv" class="btn btn-outline-info form-control" data-title="--><?php //= $t; ?><!--">-->
+            <!--                    Import CSV file-->
+            <!--                    <i class="bi bi-info-circle"></i>-->
+            <!--                </button>-->
+            <!--                <input type="file" name="import_csv" id="csv_input" accept="text/csv" hidden>-->
+            <!--            </div>-->
 
             <div class="mb-2">
-                <button type="button" class="url btn btn-outline-info form-control" value="test?table-name=projectbom">
+                <button type="button" class="url btn btn-outline-info form-control" value="import-file?table-name=projectbom">
                     Import Project BOM from file
                     <i class="bi bi-filetype-xlsx"></i>
                 </button>

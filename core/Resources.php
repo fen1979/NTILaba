@@ -71,6 +71,7 @@ const LOGS = 'logs'; // логи сайта и всех его операций
 const UNDO_TABLE = 'deletedrecords'; // таблица временно хранящая данные удаленных записей склада
 const TASK_LIST = 'tasklists';
 const TASKS = 'tasks';
+const TRACK_DATA = 'aatracking';
 
 /**
  * ORDER - 0

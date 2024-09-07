@@ -62,6 +62,8 @@
             </button>
         <?php else: ?>
             <button id="btn-reserve-bom" name="do-reserve-bom" class="btn btn-outline-success ">Do Reserve</button>
+            <?php $path = "{$project->docsdir}order_bom_for_{$project->projectname}_.xlsx"; ?>
+            <a href="<?= $path; ?>" class="btn btn-outline-info ">Get File for Assembly Kit</a>
         <?php endif; ?>
     </form>
     <?php

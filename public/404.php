@@ -8,7 +8,7 @@
 </head>
 <body>
 <!--  back to home page  -->
-<a href="/order" class="floating-btn none" title="Back to Home Page">
+<a href="/home" class="floating-btn none" title="Back to Home Page">
     <i class="bi bi-house"></i>
 </a>
 <div class="container">

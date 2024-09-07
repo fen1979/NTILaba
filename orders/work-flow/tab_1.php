@@ -150,8 +150,8 @@ const CHECK_BOX = [
             <div class="mt-3">
 
                 <?php
-                $url = BASE_URL . "{$project->projectdir}docs/order_bom_for_{$project->projectname}_.xlsx";
-                $path = "{$project->projectdir}docs/order_bom_for_{$project->projectname}_.xlsx";
+                $url = BASE_URL . "{$project->docsdir}order_bom_for_{$project->projectname}_.xlsx";
+                $path = "{$project->docsdir}order_bom_for_{$project->projectname}_.xlsx";
                 $d = (is_file($path)) ? '' : 'hidden';
                 ?>
                 <button type="button" id="download_bom" class="btn btn-outline-dark form-control mt-2" value="<?= $order->id; ?>">

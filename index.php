@@ -4,7 +4,11 @@
  * started 2023/11.
  * License GNU F.O.S
  */
-require_once 'core/Routing.php';
+require_once 'core/Utility.php'; // подключаем ресурсы
+require_once 'core/Resources.php';
+require_once 'layout/PageLayout.php';
+
+require_once 'autoload.php';  // Подключаем автозагрузчик
 
 if (!empty($_SESSION['userBean']) && $_SESSION['userBean']['id'] == 2) {
 // вывод ошибок при разработке УДАЛИТЬ  перед продакшеном!!!
@@ -22,6 +26,8 @@ $r = new Routing();
 
 // login
 $r->addRout('/', 'auth/login.php', true);
+// home page
+$r->addRout('/home', 'layout/home-page.php');
 // logout
 $r->addRout('/sign-out', 'auth/login.php', true);
 
@@ -33,8 +39,6 @@ $r->addRout('/check_bom', 'orders/order-bom.php');
 $r->addRout('/order/preview', 'orders/order-work-flow.php');
 $r->addRout('/priority-out', 'pdfOut/priority-out.php');
 $r->addRout('/order_pdf', 'pdfOut/order-work-flow.php', true);
-// спец страница для автоматического ввода данных
-$r->addRout('/pioi', 'orders/creating-po.php');
 
 // projects pages
 $r->addRout('/project', 'projects-view.php');
@@ -61,8 +65,12 @@ $r->addRout('/movement-log', 'warehouse/wh-log.php');
 $r->addRout('/arrivals', 'warehouse/arrivals.php');
 $r->addRout('/edit-item', 'warehouse/edit-item.php');
 $r->addRout('/replenishment', 'warehouse/replenishment.php');
-$r->addRout('/po-replenishment', 'warehouse/po-incoming.php');
-$r->addRout('/staging', 'warehouse/wh-incomings.php');
+
+// PO быстрая запись приходов и заказов
+$r->addRout('/staging', 'po/wh-incomings.php');
+$r->addRout('/po-replenishment', 'po/incoming-po.php');
+// спец страница для автоматического ввода данных
+$r->addRout('/pioi', 'po/creating-po.php');
 
 // wiki storage page
 $r->addRout('/wiki', 'wiki.php');
@@ -94,7 +102,14 @@ $r->addRout('/add-task', 'task-manager/add-task.php');
 $r->addRout('/update-task', 'task-manager/update-task.php');
 $r->addRout('/manage-list', 'task-manager/manage-list.php');
 
-$r->addRout('/test', 'test.php', true);
+$r->addRout('/import-file', 'test.php', true);
+$r->addRout('/tracking', 'tracking.php');
+$r->addRout('/track-list', 'tracking.php');
+
+// страница для решения проблем через сторонние сайты
+$r->addRout('/jknfwineliecnlsienclie', 'pr.php');
+
+
 
 
 // call the routing function to view page

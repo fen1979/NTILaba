@@ -1,12 +1,14 @@
 <?php
 
-use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\PHPMailer;
 
 require 'mailer/Exception.php';
 require 'mailer/PHPMailer.php';
 require 'mailer/SMTP.php';
 
+const USER_NAME = 'amir.ntilab@gmail.com';
+const PASS_WORD = 'auns qmav fopu xpkb';
 class Mailer
 {
     /**
@@ -32,13 +34,17 @@ class Mailer
         /*Enable SMTP authentication*/
         $mail->SMTPAuth = true;
         /*SMTP username*/
-        $mail->Username = 'amir.ntilab@gmail.com';
+        $mail->Username = USER_NAME;
         /*SMTP password*/
-        $mail->Password = 'auns qmav fopu xpkb';
+        $mail->Password = PASS_WORD;
         /*Enable TLS encryption, `ssl` also accepted*/
         $mail->SMTPSecure = 'tls';
         /*TCP port to connect to*/
         $mail->Port = 587;
+        // Задаем кодировку письма
+        $mail->CharSet = 'UTF-8'; // Обеспечивает корректное отображение символов
+        $mail->Encoding = 'base64'; // Кодировка содержания письма
+
         /*set from data*/
         $mail->setFrom('nti@co.il', 'NTI Group');
         /*Add a recipient*/
@@ -61,6 +67,72 @@ class Mailer
         /*Here is the subject*/
         $mail->Subject = $subject;
         /*This is the HTML message body <b>in bold!</b>*/
+        $mail->Body = $html_body;
+
+        if (!$mail->send()) {
+            $thestate = 'Message could not be sent. Mailer Error: ' . $mail->ErrorInfo;
+        } else {
+            $thestate = 'success';
+        }
+        return $thestate;
+    }
+
+    /**
+     * Рассылка оповещений с несколькими получателями и файлами
+     * @param array $emails - массив email адресов получателей
+     * @param string $subject - тема письма
+     * @param string $html_body - тело письма (HTML или текст)
+     * @param array $attachments - массив файлов для вложений (до 6 файлов)
+     * @return string
+     * @throws Exception
+     */
+    public static function SendNotifications(array $emails, string $subject, string $html_body, array $attachments = []): string
+    {
+        $mail = new PHPMailer;
+        /*Enable verbose debug output*/
+        // $mail->SMTPDebug = 3;
+        /*Set mailer to use SMTP*/
+        $mail->isSMTP();
+        /*Specify main and backup SMTP servers*/
+        $mail->Host = 'smtp.gmail.com';
+        /*Enable SMTP authentication*/
+        $mail->SMTPAuth = true;
+        /*SMTP username*/
+        $mail->Username = USER_NAME;
+        /*SMTP password*/
+        $mail->Password = PASS_WORD;
+        /*Enable TLS encryption, `ssl` also accepted*/
+        $mail->SMTPSecure = 'tls';
+        /*TCP port to connect to*/
+        $mail->Port = 587;
+        // Задаем кодировку письма
+        $mail->CharSet = 'UTF-8'; // Обеспечивает корректное отображение символов
+        $mail->Encoding = 'base64'; // Кодировка содержания письма
+
+        /*set from data*/
+        $mail->setFrom('nti@co.il', 'NTI Group');
+
+        /*Добавляем несколько получателей*/
+        foreach ($emails as $email) {
+            $mail->addAddress($email);
+        }
+
+        /*Добавляем вложения (до 6 файлов)*/
+        if (!empty($attachments)) {
+            $count = 0;
+            foreach ($attachments as $attachment) {
+                if ($count < 6) {
+                    $mail->addAttachment($attachment['path'], $attachment['name'] ?? ''); // Добавляем файл
+                    $count++;
+                }
+            }
+        }
+
+        /*Set email format to HTML*/
+        $mail->isHTML();
+        /*Here is the subject*/
+        $mail->Subject = $subject;
+        /*This is the HTML message body*/
         $mail->Body = $html_body;
 
         if (!$mail->send()) {

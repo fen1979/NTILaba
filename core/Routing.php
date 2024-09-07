@@ -28,17 +28,6 @@ const IGNORE_LIST = [
     ['type' => 'contains', 'value' => 'storage/projects/']
     // Добавляйте сюда новые условия для игнорирования
 ];
-
-/* ==================== SITE PUBLIC RESOURCES ================== */
-require_once 'Resources.php';
-require_once 'Utility.php';
-require_once 'layout/PageLayout.php';
-require_once 'libs/Converter.php';
-include_once 'libs/Mailer.php';
-require_once 'Undo.php';
-
-/* route class */
-
 class Routing
 {
     private array $pages = array();

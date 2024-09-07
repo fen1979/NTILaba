@@ -3,19 +3,6 @@ class_alias('CPController', 'CPC');
 
 class CPController
 {
-    private static function checkPostDataAndConvertToArray($post): array
-    {
-        $postDataArray = [];
-        foreach ($post as $key => $item) {
-            if (is_array($item)) {
-                $postDataArray[$key] = self::checkPostDataAndConvertToArray($item);
-            } else {
-                $postDataArray[$key] = _E($item);
-            }
-        }
-        return $postDataArray;
-    }
-
     private static function backDataToRoutedPage(array $get, array $urlData): string
     {
         // routed from create project page
@@ -74,9 +61,17 @@ class CPController
             return json_encode(['supplier_id' => null, 'supplier_name' => null, 'request' => $post['request'], 'log' => $log_data]);
     }
 
+    /**
+     * - Добавление нового клиента
+     * @param $get
+     * @param $post
+     * @param $user
+     * @return array
+     * @throws \RedBeanPHP\RedException\SQL
+     */
     public static function createCustomer($get, $post, $user): array
     {
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
 
         $extraPhones = ['phone_1' => $post['extraPhone_1'] ?? '', 'phone_2' => $post['extraPhone_2'] ?? ''];
         $extraContact = ['contact_1' => $post['extraContact_1'] ?? '', 'contact_2' => $post['extraContact_2'] ?? ''];
@@ -124,9 +119,16 @@ class CPController
         return $args;
     }
 
+    /**
+     * - Обновление данных клиента
+     * @param $post
+     * @param $user
+     * @return void
+     * @throws \RedBeanPHP\RedException\SQL
+     */
     public static function updateCustomerData($post, $user)
     {
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
 
         $extraPhones = ['phone_1' => $post['extraPhone_1'] ?? '', 'phone_2' => $post['extraPhone_2'] ?? ''];
         $extraContact = ['contact_1' => $post['extraContact_1'] ?? '', 'contact_2' => $post['extraContact_2'] ?? ''];

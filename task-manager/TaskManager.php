@@ -2,19 +2,6 @@
 
 class TaskManager
 {
-    private static function checkPostDataAndConvertToArray($post): array
-    {
-        $postDataArray = [];
-        foreach ($post as $key => $item) {
-            if (is_array($item)) {
-                $postDataArray[$key] = self::checkPostDataAndConvertToArray($item);
-            } else {
-                $postDataArray[$key] = _E($item);
-            }
-        }
-        return $postDataArray;
-    }
-
     private static function compliteness($subTaskJson): int
     {
         $result = 0;
@@ -81,7 +68,7 @@ class TaskManager
 
     public static function createNewTask($post, $user)
     {
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
 
         try {
             $task = R::dispense(TASKS);
@@ -108,7 +95,7 @@ class TaskManager
 
     public static function updateTask($post, $user)
     {
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
         try {
             $task = R::load(TASKS, $post['task-id']);
             $task->task_name = $post['task_name'];
@@ -137,7 +124,7 @@ class TaskManager
 
     public static function createNewTasksList($post, $user)
     {
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
         //Get the values from form and save it in variables
         $list_name = $_POST['list_name'];
         $list_description = $_POST['list_description'];
@@ -156,7 +143,7 @@ class TaskManager
 
     public static function updateTasksList($post, $user)
     {
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
 
         try {
             $list_id = $_POST['update'];

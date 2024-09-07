@@ -3,24 +3,6 @@
 class Management
 {
     /**
-     * CHECKING POST DATA FOR AN SCAM DATA
-     * @param $post
-     * @return array
-     */
-    private static function checkPostDataAndConvertToArray($post): array
-    {
-        $postDataArray = [];
-        foreach ($post as $key => $item) {
-            if (is_array($item)) {
-                $postDataArray[$key] = self::checkPostDataAndConvertToArray($item);
-            } else {
-                $postDataArray[$key] = _E($item);
-            }
-        }
-        return $postDataArray;
-    }
-
-    /**
      * МЕТОДЫ ОБЩЕГО ПОЛЬЗОВАНИЯ
      * @param $files
      * @param $imagePath
@@ -210,6 +192,8 @@ class Management
      */
     public static function createUpdateRoutAction($post, $user)
     {
+        $post = checkPostDataAndConvertToArray($post);
+
         if (isset($post['rout-action-editing'])) {
             $routAction = R::load(ROUTE_ACTION, _E($post['rout-action-editing']));
             $log_action = 'UPDATING';
@@ -220,10 +204,10 @@ class Management
             $log_details = "Rout Action №:$routAction->id was created successfully";
         }
 
-        $routAction->sku = _E($post['sku'] ?? '');
-        $routAction->actions = _E($post['actions'] ?? '');
-        $routAction->description = _E($post['description'] ?? '');
-        $routAction->specifications = _E($post['specifications'] ?? '');
+        $routAction->sku = $post['sku'] ?? '';
+        $routAction->actions = $post['actions'] ?? '';
+        $routAction->description = $post['description'] ?? '';
+        $routAction->specifications = $post['specifications'] ?? '';
 
         if (R::store($routAction)) {
             _flashMessage('Rout Action Saved successfully!');
@@ -280,7 +264,7 @@ class Management
      */
     public static function addOrUpdateUsersData($post, $thisUser)
     {
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
         $name = $post['name'];
         $email = $post['email'];
         $phone = $post['phone'] ?? null;
@@ -382,7 +366,7 @@ class Management
      */
     public static function createUpdateTools($post, $files, $user)
     {
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
         $log_details = '';
         /* $imagePath = [0] -> path to file, [1] -> errors, [2] -> statment true/false */
         if (isset($post['tools-editing']) && isset($post['tool_id'])) {
@@ -455,123 +439,6 @@ class Management
     }
 
     /**
-     * IMPORT TOOLS DATA FROM AN CSV FILE
-     *
-     * @param $post
-     * @param $files
-     * @param $user
-     * @throws \RedBeanPHP\RedException\SQL
-     */
-    public static function importToolsListByCsvFile($post, $files, $user)
-    {
-        if (isset($post['import-from-csv-file'])) {
-
-            /* сохраняем файл с данными для работы */
-            if (!empty($files['csvFile']['name'][0])) {
-                $tmp_name = $files['csvFile']['tmp_name'];
-                $uploadedFile = TEMP_FOLDER . basename($files['csvFile']['name']);
-                $fileType = strtolower(pathinfo($uploadedFile, PATHINFO_EXTENSION));
-
-                if ($fileType == 'csv') {
-                    // если файл соответствует требованиям сохраняем в ТМП папку
-                    $uploadSuccess = move_uploaded_file($tmp_name, $uploadedFile);
-                    if ($uploadSuccess) {
-
-                        // Проверка наличия файла
-                        if (!file_exists($uploadedFile)) {
-                            _flashMessage('File not found', 'danger');
-                            die();
-                        }
-
-                        // Открытие файла для чтения
-                        if (($handle = fopen($uploadedFile, "r")) !== FALSE) {
-                            // Чтение первой строки с заголовками колонок
-                            $headers = fgetcsv($handle, 1000);
-
-                            // Определение ожидаемой структуры заголовков
-                            $expectedHeaders = [
-                                'manufacturer', 'model', 'device_type', 'location', 'in_use',
-                                'calibration', 'serial', 'calibration_date', 'next_calibration',
-                                'responsible', 'email', 'remarks', 'image'
-                            ];
-
-                            // Проверка структуры файла
-                            if ($headers !== $expectedHeaders) {
-                                // Закрытие файла
-                                fclose($handle);
-
-                                // Удаление временного файла CSV
-                                unlink($uploadedFile);
-
-                                // Вывод сообщения пользователю о несоответствии структуры файла
-                                _flashMessage('Error, file structure does not match expected format!', 'danger');
-                            }
-
-                            // Массив для хранения данных из CSV файла
-                            $data = [];
-
-                            // Чтение каждой строки и преобразование в ассоциативный массив
-                            while (($row = fgetcsv($handle, 1000)) !== FALSE) {
-                                $rowLine = array_combine($headers, $row);
-                                $data[] = $rowLine;
-                            }
-
-                            // Закрытие файла
-                            fclose($handle);
-                            $items = 0;
-
-                            // Пример доступа к данным
-                            foreach ($data as $rowLine) {
-                                $nt = R::dispense(TOOLS);
-                                $nt->manufacturer_name = $rowLine['manufacturer']; // имя инструмента от производителя
-                                $nt->device_model = $rowLine['model']; // модель инструмента
-                                $nt->device_type = $rowLine['device_type']; // тип инструмента
-                                $nt->device_location = $rowLine['location']; // рабочее местонахождение инструмента
-                                $nt->in_use = $rowLine['in_use']; // рабочий который пользуется инструментом
-                                $nt->calibration = $rowLine['calibration']; // NONC = no need calibration, NEC = need calibration
-                                $nt->serial_num = $rowLine['serial']; // сирийный номер инструмента после калибровки
-                                $nt->date_of_inspection = $rowLine['calibration_date']; // дата последней калибровки - обслуживания инструмента
-                                $nt->next_inspection_date = $rowLine['next_calibration']; // следующая дата калибровки - обслуживания инструмента !!!
-                                $nt->work_life = '12'; // интервал обслуживания/калибровки (месяцев)
-                                $res = json_encode(['name' => $rowLine['responsible'], 'email' => $rowLine['email'] ?? '']);
-                                $nt->responsible = $res; // ответственный за инструмент
-                                $nt->remarks = $rowLine['remarks']; // заметки на полях
-                                $nt->image = $rowLine['image'] ?? null; // путь к фото инструмента или ПДФ
-                                $nt->date_in = date('Y-m-d H:i'); // дата внесения в БД
-
-                                R::store($nt);
-                                $items++;
-                            }
-
-                        } else {
-                            _flashMessage('Error open file', 'danger');
-                        }
-                    } // upload success
-
-                    // удаляем временный файл CSV
-                    array_map('unlink', glob(TEMP_FOLDER . '*.*'));
-
-                    // выводим сообщение пользователю
-                    if ($items > 0) {
-                        $log_details = "File was imported correctly.<br> Lines added: $items";
-                        _flashMessage($log_details);
-
-                        /* [     LOGS FOR THIS ACTION     ] */
-                        if (!logAction($user['user_name'], 'IMPORT FILE', OBJECT_TYPE[9], $log_details)) {
-                            _flashMessage('The log not created.', 'danger');
-                        }
-                    } else {
-                        _flashMessage('No items added!', 'warning');
-                    }
-                } else {
-                    _flashMessage('Error, File format wrong! Only .csv', 'danger');
-                }
-            }
-        }
-    }
-
-
-    /**
      * TABLE COLUMNS ACTIONS CODE
      *
      * @param $post
@@ -631,6 +498,9 @@ class Management
         $user->sound = _E($post['sound'] ?? '0');
         $user->view_mode = _E($post['dark-mode'] ?? 'light'); // light/dark
         $user->preview = _E($post['project-preview'] ?? 'docs'); // docs/image
+        $user->notify = _E($post['notify'] ?? '0'); // уведомления вкл/выкл
+        $user->notify_type = isset($post['notify_type']) ? implode(',', $post['notify_type']) : ''; // Типы уведомлений
+
         R::store($user);
 
         // Обновляем данные пользователя в сессии

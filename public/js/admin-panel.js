@@ -176,22 +176,6 @@ dom.addEventListener("DOMContentLoaded", function () {
         dom.e("#save-btn").disabled = false;
     });
 
-
-    // событие клик на выбор файла для импорта инструментов из файла
-    dom.doClick("#import-from-file", "#import-file-input", function (elem) {
-        if (elem.files[0]) {
-            const file = elem.files[0];
-            const fileExtension = file.name.split('.').pop().toLowerCase();
-
-            if (fileExtension !== 'csv') {
-                alert('Invalid file type. Please select a CSV file.');
-                elem.value = ''; // Clear the selected file
-            } else {
-                dom.e("#import-file-form").submit();
-            }
-        }
-    });
-
     // выборка фоток из БД которые существуют
     const tools = {method: "POST", url: "get_data", headers: null};
     dom.makeRequest("#db-image-btn", "click", "data-request", tools, function (error, result, _) {

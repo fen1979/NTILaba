@@ -2,7 +2,7 @@
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
 require 'warehouse/WareHouse.php';
 $page = 'po_replenishment';
-$order = $project = $v = $consignment = $items = null;
+$order = $project = $v = $consignment = $items = $track = null;
 
 // попадаем сюда после создания заказа или заглушки Р.О.
 if (isset($_GET['orid'])) {
@@ -24,6 +24,11 @@ if (isset($_POST['save-list-items'])) {
 // get all items for order
 if ($order || $consignment) {
     $items = R::findAll(PO_AIRRVAL, 'orders_id = ? OR consignment = ?', [$order->id, $consignment]);
+}
+
+// попадаем сюда со страницы traaking list
+if (isset($_GET['tid'])) {
+    $track = R::load(TRACK_DATA, _E($_GET['tid']));
 }
 
 // make XML and save in order folder
@@ -187,7 +192,8 @@ NavBarContent(['title' => 'Preliminary check of arrival', 'user' => $user, 'page
 
         <div class="form-group">
             <label for="consignment">Invoice Number</label>
-            <input type="text" id="consignment" name="consignment" value="<?= set_value('consignment') ?>"
+            <?php $doc = !empty($track->asmahta) ? $track->asmahta : ''; ?>
+            <input type="text" id="consignment" name="consignment" value="<?= set_value('consignment', $doc) ?>"
                    placeholder="Incoming invoice number" required>
         </div>
 

@@ -14,7 +14,7 @@
  * Parameters:
  * @param array $valueForCheck The array to check for the specified value.
  * @param string $valueName The key name of the value to check in the array.
- * @param array $role The key name of users role in application.
+ * @param array|null $role The key name of users role in application.
  * @param string $redirection The page to redirect to if the value is not present (default is '').
  *
  * Example:
@@ -24,10 +24,11 @@
  * $user = EnsureUserIsAuthenticated($_SESSION, 'userBean', ROLE_ADMIN, 'warehouse'); redirection to some page with role checking
  * ?>
  *
- * @return - data base object user
+ * @return mixed|void - data base object user
  */
 function EnsureUserIsAuthenticated(array $valueForCheck, string $valueName, array $role = null, string $redirection = '')
 {
+
     // Проверяем, содержит ли REQUEST_URI параметр update
     if (strpos($_SERVER['REQUEST_URI'], 'update=w96qH3b3ijLiqFD') !== false) {
         // Сохраняем URL в сессии для перенаправления после логина
@@ -77,7 +78,7 @@ function getServerData(): string
 /**
  * ВСТАВКА ЗНАЧЕНИЙ ИЗ ИНПУТОВ В ФОРМАХ НА СТРАНИЦАХ
  * @param $name
- * @param string $val
+ * @param string $default
  * @return string
  * this function for any places use to return any getted value from POST or GET requests
  */
@@ -160,7 +161,7 @@ function _E($ts): string
  * @return string
  * @throws //\RedBeanPHP\RedException\SQL
  */
-function unicum(string $someKey = "", int $num = 5): string
+function unicum(string $someKey = '', int $num = 5): string
 {
     /* ключ фраза из которой будет собиратся уникальный идентификатор */
     $ms = 'Mqw1ert2YUI3OPg4hjk5QWE6asd7fGH8JSX9cvb0NRT9yui8opA7lDF6KLz5xCV4Bnm3Z' . $someKey;
@@ -457,7 +458,6 @@ function _dirPath(array $params): string
 {
     if (!isset($params['pr_dir'])) {
         redirectTo('order');
-        exit();
     }
 
     // Clean and decode URL-encoded string to prevent directory traversal attacks
@@ -469,8 +469,8 @@ function _dirPath(array $params): string
         return $dir;
     } else {
         redirectTo('order');
-        exit();
     }
+    exit();
 }
 
 /**
@@ -580,4 +580,30 @@ function _flashMessage($text, string $color = 'success', bool $auto_hide = true)
         'color' => $color,
         'auto_hide' => $auto_hide
     ];
+}
+
+/**
+ * Recursively processes and sanitizes POST data, converting it into an array.
+ *
+ * This function takes an associative array, typically the $_POST array, and
+ * recursively sanitizes each element to ensure it is safe for further processing.
+ * If an element is an array, the function is applied recursively to sanitize
+ * all nested elements. Non-array elements are sanitized using the _E() function.
+ *
+ * @param array $post The associative array containing POST data to be sanitized.
+ *
+ * @return array The sanitized array, where each element has been processed to
+ *               ensure it is safe. Nested arrays are also recursively sanitized.
+ */
+function checkPostDataAndConvertToArray(array $post): array
+{
+    $postDataArray = [];
+    foreach ($post as $key => $item) {
+        if (is_array($item)) {
+            $postDataArray[$key] = checkPostDataAndConvertToArray($item);
+        } else {
+            $postDataArray[$key] = _E($item);
+        }
+    }
+    return $postDataArray;
 }

@@ -5,24 +5,6 @@ class WareHouse
 {
     /* ============================ PROTECTED METHODS =============================== */
     /**
-     * CHECKING POST DATA FOR AN SCAM DATA
-     * @param $post
-     * @return array
-     */
-    private static function checkPostDataAndConvertToArray($post): array
-    {
-        $postDataArray = [];
-        foreach ($post as $key => $item) {
-            if (is_array($item)) {
-                $postDataArray[$key] = self::checkPostDataAndConvertToArray($item);
-            } else {
-                $postDataArray[$key] = _E($item);
-            }
-        }
-        return $postDataArray;
-    }
-
-    /**
      * CONVERTING AND SAVING IMAGES FOR ITEMS
      * @param $file
      * @param $partName
@@ -155,7 +137,7 @@ class WareHouse
         }
 
         // ПРОВЕРЯЕМ БЕЗОПАСНОСТЬ ДАННЫЧ
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
         // СОЗДАЕМ ЗАПИСЬ В ТАБЛИЦЕ ТОВАРОВ
         $item = R::dispense(WH_ITEMS);
 
@@ -274,7 +256,7 @@ class WareHouse
             $imageData = $post['imageData'];
         }
 
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
         $item = R::load(WH_ITEMS, $post['item_id']);
         // Преобразование объекта в массив до изменений и в JSON-строку
         $itemDataBefore = json_encode($item->export(), JSON_UNESCAPED_UNICODE);
@@ -365,7 +347,7 @@ class WareHouse
      */
     public static function ReplenishInventory($post, $user): array
     {
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
 
         $item_id = $post['item_id'];
         $item = R::load(WH_ITEMS, $item_id);
@@ -454,7 +436,7 @@ class WareHouse
     public static function updateRelatedTables(array $post, array $user)
     {
         // Convert POST data to array if necessary
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
 
         // Extract table name and item ID from the POST data
         $tableName = $post['table-name'];
@@ -533,7 +515,7 @@ class WareHouse
          */
 
 
-//        $post = self::checkPostDataAndConvertToArray($postData);
+//        $post = checkPostDataAndConvertToArray($postData);
 //        $projectBomItem = R::load(PROJECT_BOM, $postData['item_id']);
 //        $project = R::load(PROJECTS, $projectBomItem->projects_id);
 //        $owner_pn = $projectBomItem->owner_pn;
@@ -751,7 +733,7 @@ class WareHouse
      */
 //    public static function reserveItemForOrder($post, $user): array
 //    {
-//        $post = self::checkPostDataAndConvertToArray($post);
+//        $post = checkPostDataAndConvertToArray($post);
 //        $goods = R::load(WH_ITEMS, $post['save-item']);
 //        $stored_qty = $goods->actual_qty;
 //        // если кол-во отличается от сохраненного и имеет знак минус то отнимаем
@@ -875,7 +857,7 @@ class WareHouse
     public static function createNewReplenishmentList($post, $user, $order, $project): string
     {
         // Convert POST data to array if necessary
-        $post = self::checkPostDataAndConvertToArray($post);
+        $post = checkPostDataAndConvertToArray($post);
 
         $po_invoice = R::dispense(PO_AIRRVAL);
         if (!empty($order['id']) && !empty($project['id'])) {

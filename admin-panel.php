@@ -30,14 +30,7 @@ if (isset($_POST['update-user-data']) || isset($_POST['add-new-user'])) {
 if (isset($_POST['tools-saving']) || isset($_POST['tools-editing'])) {
     Management::createUpdateTools($_POST, $_FILES['imageFile'], $user);
 }
-if (isset($_POST['import-from-csv-file']) && isset($_FILES['csvFile'])) {
-    try {
-        Management::importToolsListByCsvFile($_POST, $_FILES, $user);
-    } catch (\RedBeanPHP\RedException\SQL $e) {
-        // message collector (text/ color/ auto_hide = true)
-        _flashMessage('Error: ' . $e->getMessage(), 'danger');
-    }
-}
+
 /* TABLE COLUMNS ACTIONS CODE ------------------------------------------------- */
 if (isset($_POST['rowOrder']) && isset($_POST['save-settings'])) {
     Management::columnsRedirection($_POST, $user['id']);

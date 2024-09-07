@@ -71,6 +71,10 @@ if (isset($_GET['resid'])) {
             padding: 10px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
+        .bi.bi-x-circle:hover {
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -81,7 +85,14 @@ NavBarContent(['active_btn' => Y['SETTINGS'], 'user' => $user, 'page_name' => $p
 <div class="container-fluid content">
     <div class="row">
         <div class="col-3 sticky-form">
+
             <form action="" method="post">
+                <h4>
+                    <a role="button" href="/resources" style="text-decoration: none;">Reset &nbsp;
+                        <i class="bi bi-x-circle"></i>
+                    </a>
+                </h4>
+
                 <h4>Site Resources</h4>
                 <div class="mb-3">
                     <label for="group_name" class="form-label">Group Name</label>
