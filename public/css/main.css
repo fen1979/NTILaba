@@ -868,3 +868,64 @@ i.flag-il:before, i.flag-israel:before {
 }
 
 /* END MEDIA */
+
+/*===================== ТУТОРИАЛ ====================*/
+/* Скрытие контейнера для туториала по умолчанию */
+#tutorialContainer.d-none {
+    display: none;
+}
+
+/* Затемнение всей страницы */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: none; /* Скрыто по умолчанию */
+}
+
+/* Стиль для подсказки */
+.tooltip {
+    position: absolute;
+    background-color: #162947;
+    color: white;
+    padding: 25px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 9001;
+    font-size: 20px;
+    display: none; /* Скрыто по умолчанию */
+}
+
+/* Кнопка для перехода к следующему шагу */
+#nextStep {
+    position: fixed;
+    bottom: 50px;
+    left: 15%;
+    z-index: 9010;
+    width: 10rem;
+    height: 10rem;
+    border-radius: 50%;
+}
+
+/* Кнопка для отмены туториала */
+#cancelTutorial {
+    position: fixed;
+    bottom: 50px;
+    left: 5%;
+    z-index: 9010;
+    width: 10rem;
+    height: 10rem;
+    border-radius: 50%;
+}
+
+/* Стили для выделения целевого элемента */
+.highlight {
+    position: absolute;
+    border: 5px solid red;
+    z-index: 9001;
+}
+

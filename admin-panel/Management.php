@@ -498,6 +498,7 @@ class Management
         $user->sound = _E($post['sound'] ?? '0');
         $user->view_mode = _E($post['dark-mode'] ?? 'light'); // light/dark
         $user->preview = _E($post['project-preview'] ?? 'docs'); // docs/image
+        $user->tutorial = _E($post['tutorial'] ?? '0'); // Preview tutorial
         $user->notify = _E($post['notify'] ?? '0'); // уведомления вкл/выкл
         $user->notify_type = isset($post['notify_type']) ? implode(',', $post['notify_type']) : ''; // Типы уведомлений
 

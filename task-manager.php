@@ -1,6 +1,5 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require 'task-manager/TaskManager.php';
 $page = 'task_manager';
 $preview_archive = false;
 // preview all tasks

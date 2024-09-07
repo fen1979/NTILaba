@@ -133,6 +133,16 @@ const START_PAGE = ['home' => 'Home', 'order' => 'Orders', 'project' => 'Project
                         </div>
 
 
+                        <!-- Включение/отключение туториала -->
+                        <div class="mb-3 form-check form-switch">
+                            <?php $ckd = '';
+                            if ($user['tutorial'] == '1') {
+                                $ckd = 'checked';
+                            } ?>
+                            <label class="form-check-label" for="tutorial">Preview Tutorial</label>
+                            <input class="form-check-input" type="checkbox" id="tutorial" name="tutorial" value="1" <?= $ckd; ?>>
+                        </div>
+
                         <!-- form buttons -->
                         <div class="mb-3">
                             <button type="button" id="btn-take-image" class="btn btn-secondary">

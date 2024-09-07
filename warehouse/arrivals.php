@@ -1,6 +1,5 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
-require 'WareHouse.php';
 $page = 'arrivals';
 $bom_item = $consignment = $qty = $orid = $pid = null;
 // check for not in use boxes in storage

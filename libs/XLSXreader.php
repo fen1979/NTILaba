@@ -73,7 +73,7 @@
  *   echo 'xlsx error: '.$xlsx->error();
  * }
  */
-class SimpleXLSX
+class XLSXreader
 {
     // Don't remove this string! Created by Sergey Shuchkin sergey.shuchkin@gmail.com
     public static $CF = [ // Cell formats
@@ -213,7 +213,7 @@ class SimpleXLSX
         if ($is_data) {
             $this->package['filename'] = 'default.xlsx';
             $this->package['mtime'] = time();
-            $this->package['size'] = SimpleXLSX::strlen($filename);
+            $this->package['size'] = XLSXreader::strlen($filename);
 
             $vZ = $filename;
         } else {
@@ -283,23 +283,23 @@ class SimpleXLSX
 
             // Special case : value block after the compressed data
             if ($aP['GPF'] & 0x0008) {
-                $aP1 = unpack('V1CRC/V1CS/V1UCS', SimpleXLSX::substr($vZ, -12));
+                $aP1 = unpack('V1CRC/V1CS/V1UCS', XLSXreader::substr($vZ, -12));
 
                 $aP['CRC'] = $aP1['CRC'];
                 $aP['CS'] = $aP1['CS'];
                 $aP['UCS'] = $aP1['UCS'];
                 // 2013-08-10
-                $vZ = SimpleXLSX::substr($vZ, 0, -12);
-                if (SimpleXLSX::substr($vZ, -4) === "\x50\x4b\x07\x08") {
-                    $vZ = SimpleXLSX::substr($vZ, 0, -4);
+                $vZ = XLSXreader::substr($vZ, 0, -12);
+                if (XLSXreader::substr($vZ, -4) === "\x50\x4b\x07\x08") {
+                    $vZ = XLSXreader::substr($vZ, 0, -4);
                 }
             }
 
             // Getting stored filename
-            $aI['N'] = SimpleXLSX::substr($vZ, 26, $nF);
+            $aI['N'] = XLSXreader::substr($vZ, 26, $nF);
             $aI['N'] = str_replace('\\', '/', $aI['N']);
 
-            if (SimpleXLSX::substr($aI['N'], -1) === '/') {
+            if (XLSXreader::substr($aI['N'], -1) === '/') {
                 // is a directory entry - will be skipped
                 continue;
             }
@@ -309,9 +309,9 @@ class SimpleXLSX
             $aI['P'] = ($aI['P'] === '.') ? '' : $aI['P'];
             $aI['N'] = basename($aI['N']);
 
-            $vZ = SimpleXLSX::substr($vZ, 26 + $nF + $mF);
+            $vZ = XLSXreader::substr($vZ, 26 + $nF + $mF);
 
-            if ($aP['CS'] > 0 && (SimpleXLSX::strlen($vZ) !== (int)$aP['CS'])) { // check only if availabled
+            if ($aP['CS'] > 0 && (XLSXreader::strlen($vZ) !== (int)$aP['CS'])) { // check only if availabled
                 $aI['E'] = 1;
                 $aI['EM'] = 'Compressed size is not equal with the value in header information.';
             }
@@ -405,7 +405,7 @@ class SimpleXLSX
         if ($relations = $this->getEntryXML('_rels/.rels')) {
             foreach ($relations->Relationship as $rel) {
                 $rel_type = basename(trim((string)$rel['Type'])); // officeDocument
-                $rel_target = SimpleXLSX::getTarget('', (string)$rel['Target']); // /xl/workbook.xml or xl/workbook.xml
+                $rel_target = XLSXreader::getTarget('', (string)$rel['Target']); // /xl/workbook.xml or xl/workbook.xml
 
                 if ($rel_type === 'officeDocument'
                     && $workbook = $this->getEntryXML($rel_target)
@@ -431,7 +431,7 @@ class SimpleXLSX
                         // Loop relations for workbook and extract sheets...
                         foreach ($workbookRelations->Relationship as $workbookRelation) {
                             $wrel_type = basename(trim((string)$workbookRelation['Type'])); // worksheet
-                            $wrel_target = SimpleXLSX::getTarget(dirname($rel_target), (string)$workbookRelation['Target']);
+                            $wrel_target = XLSXreader::getTarget(dirname($rel_target), (string)$workbookRelation['Target']);
                             if (!$this->entryExists($wrel_target)) {
                                 continue;
                             }
@@ -454,7 +454,7 @@ class SimpleXLSX
                                         if (isset($val->t)) {
                                             $this->sharedstrings[] = (string)$val->t;
                                         } elseif (isset($val->r)) {
-                                            $this->sharedstrings[] = SimpleXLSX::parseRichText($val);
+                                            $this->sharedstrings[] = XLSXreader::parseRichText($val);
                                         }
                                     }
                                 }
@@ -594,10 +594,10 @@ class SimpleXLSX
     public function getEntryData($name)
     {
         $name = ltrim(str_replace('\\', '/', $name), '/');
-        $dir = SimpleXLSX::strtoupper(dirname($name));
-        $name = SimpleXLSX::strtoupper(basename($name));
+        $dir = XLSXreader::strtoupper(dirname($name));
+        $name = XLSXreader::strtoupper(basename($name));
         foreach ($this->package['entries'] as &$entry) {
-            if (SimpleXLSX::strtoupper($entry['path']) === $dir && SimpleXLSX::strtoupper($entry['name']) === $name) {
+            if (XLSXreader::strtoupper($entry['path']) === $dir && XLSXreader::strtoupper($entry['name']) === $name) {
                 if ($entry['error']) {
                     return false;
                 }
@@ -626,7 +626,7 @@ class SimpleXLSX
                     if ($entry['data'] === false) {
                         $entry['error'] = 2;
                         $entry['error_msg'] = 'Decompression of data failed.';
-                    } elseif ($entry['ucs'] > 0 && (SimpleXLSX::strlen($entry['data']) !== (int)$entry['ucs'])) {
+                    } elseif ($entry['ucs'] > 0 && (XLSXreader::strlen($entry['data']) !== (int)$entry['ucs'])) {
                         $entry['error'] = 3;
                         $entry['error_msg'] = 'Uncompressed size is not equal with the value in header information.';
                     } elseif (crc32($entry['data']) !== $entry['crc']) {
@@ -646,10 +646,10 @@ class SimpleXLSX
     public function deleteEntry($name)
     {
         $name = ltrim(str_replace('\\', '/', $name), '/');
-        $dir = SimpleXLSX::strtoupper(dirname($name));
-        $name = SimpleXLSX::strtoupper(basename($name));
+        $dir = XLSXreader::strtoupper(dirname($name));
+        $name = XLSXreader::strtoupper(basename($name));
         foreach ($this->package['entries'] as $k => $entry) {
-            if (SimpleXLSX::strtoupper($entry['path']) === $dir && SimpleXLSX::strtoupper($entry['name']) === $name) {
+            if (XLSXreader::strtoupper($entry['path']) === $dir && XLSXreader::strtoupper($entry['name']) === $name) {
                 unset($this->package['entries'][$k]);
                 return true;
             }
@@ -670,10 +670,10 @@ class SimpleXLSX
     public function entryExists($name)
     {
         // 0.6.6
-        $dir = SimpleXLSX::strtoupper(dirname($name));
-        $name = SimpleXLSX::strtoupper(basename($name));
+        $dir = XLSXreader::strtoupper(dirname($name));
+        $name = XLSXreader::strtoupper(basename($name));
         foreach ($this->package['entries'] as $entry) {
-            if (SimpleXLSX::strtoupper($entry['path']) === $dir && SimpleXLSX::strtoupper($entry['name']) === $name) {
+            if (XLSXreader::strtoupper($entry['path']) === $dir && XLSXreader::strtoupper($entry['name']) === $name) {
                 return true;
             }
         }
@@ -762,7 +762,7 @@ class SimpleXLSX
 
         $ref = (string)$ws->dimension['ref'];
 
-        if (SimpleXLSX::strpos($ref, ':') !== false) {
+        if (XLSXreader::strpos($ref, ':') !== false) {
             $d = explode(':', $ref);
             $idx = $this->getIndex($d[1]);
 
@@ -815,7 +815,7 @@ class SimpleXLSX
             $col = $m[1];
             $row = $m[2];
 
-            $colLen = SimpleXLSX::strlen($col);
+            $colLen = XLSXreader::strlen($col);
             $index = 0;
 
             for ($i = $colLen - 1; $i >= 0; $i--) {
@@ -880,7 +880,7 @@ class SimpleXLSX
 
             case 'inlineStr':
                 // Value is rich text inline
-                $value = SimpleXLSX::parseRichText($cell->is);
+                $value = XLSXreader::parseRichText($cell->is);
 
                 break;
 
@@ -1084,7 +1084,7 @@ class SimpleXLSX
             return false;
         }
         if (is_array($cell)) {
-            $cell = SimpleXLSX::num2name($cell[0]) . $cell[1];// [3,21] -> D21
+            $cell = XLSXreader::num2name($cell[0]) . $cell[1];// [3,21] -> D21
         }
         if (is_string($cell)) {
             $result = $ws->sheetData->xpath("row/c[@r='" . $cell . "']");
@@ -1155,7 +1155,7 @@ class SimpleXLSX
     {
         $target = trim($target);
         if (strpos($target, '/') === 0) {
-            return SimpleXLSX::substr($target, 1);
+            return XLSXreader::substr($target, 1);
         }
         $target = ($base ? $base . '/' : '') . $target;
         // a/b/../c -> a/c
@@ -1195,7 +1195,7 @@ class SimpleXLSX
         $letter = chr(65 + $numeric);
         $num2 = (int)(($num - 1) / 26);
         if ($num2 > 0) {
-            return SimpleXLSX::num2name($num2) . $letter;
+            return XLSXreader::num2name($num2) . $letter;
         }
         return $letter;
     }

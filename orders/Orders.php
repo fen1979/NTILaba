@@ -1,5 +1,4 @@
 <?php
-include_once 'warehouse/WareHouse.php';
 define('STATUS', SR::getAllResourcesInGroup('status'));
 
 class Orders
@@ -456,8 +455,6 @@ class Orders
      */
     public static function makeXLSXfileAndSave($order_id, $pathToSave): bool
     {
-        include_once 'libs/xlsxgen.php';
-
         $titles = SR::getAllResourcesInGroup(PROJECT_BOM); // 12 titles
         $order = R::load(ORDERS, $order_id);
         $data = R::findAll(PROJECT_BOM, "projects_id = ?", [$order->projects_id]);
@@ -478,7 +475,7 @@ class Orders
         $project_name = $order->project_name;
         $pathToSave = ($pathToSave != null) ? $pathToSave : 'storage/projects/' . $project_name . '/docs/order_bom_for_' . $project_name . '_.xlsx';
         $path = (strpos($pathToSave, '.xlsx') === false) ? $pathToSave . '.xlsx' : $pathToSave;
-        $xlsx = XLSXGen::fromArray($orderBOM);
+        $xlsx = XLSXGeneration::fromArray($orderBOM);
         return $xlsx->saveAs($path);
     }
 

@@ -1,6 +1,5 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
-require 'WareHouse.php';
 $page = 'edit_item';
 $pageMode = 'edit';
 $item = null;

@@ -1,7 +1,5 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-include_once 'projects/Project.php';
-
 $page = 'project_part_list';
 $backButton = ['url' => '/', 'text' => 'Back To Orders'];
 $formButton = ['name' => 'save-item-to-bom', 'text' => 'Save Item'];

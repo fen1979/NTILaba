@@ -31,9 +31,9 @@
     <p>This is a paragraph that will be converted into a PDF file.</p>
     <?php
     // PARSING XMLS FILES WORK CODE
-    include_once '../libs/xlsxread.php';
+    include_once '../libs/XLSXreader.php';
 
-    if ($xlsx = SimpleXLSX::parse('../storage/projects/JTAG-MASTER-SWITCH--for-5V-option/docs/order_bom_for_JTAG-MASTER-SWITCH--for-5V-option_.xlsx')) {
+    if ($xlsx = XLSXreader::parse('../storage/projects/JTAG-MASTER-SWITCH--for-5V-option/docs/order_bom_for_JTAG-MASTER-SWITCH--for-5V-option_.xlsx')) {
         echo '<table id="table">';
         foreach ($xlsx->rows() as $row) {
             echo '<tr>';
@@ -44,7 +44,7 @@
         }
         echo '</table>';
     } else {
-        echo SimpleXLSX::parseError();
+        echo XLSXreader::parseError();
     }
     ?>
 </div>

@@ -1,6 +1,5 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR]);
-require 'warehouse/WareHouse.php';
 $page = 'view_item';
 $data = [];
 $item = null;

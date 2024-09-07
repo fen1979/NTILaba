@@ -1,7 +1,6 @@
 <?php
 // check and return user if logged in
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require 'warehouse/WareHouse.php';
 $page = 'pioi';
 
 // check for not in use boxes in storage
@@ -12,9 +11,6 @@ if (isset($_POST['search-for-storage-box'])) {
 
 /* СОЗДАЕМ НОВЫЙ ПРОЕКТ И ЗАКАЗ НА ОСНОВЕ ДАННЫХ И СОХРАНЯЕМ В БД */
 if (isset($_POST['pioi']) && isset($_POST['projectName'])) {
-    require 'projects/Project.php';
-    require 'orders/Orders.php';
-    require 'counterparties/CPController.php';
 
     if (isset($_POST['addCustomer']) && empty($_POST['customerId'])) {
         // создаем нового пользователя если нет в БД

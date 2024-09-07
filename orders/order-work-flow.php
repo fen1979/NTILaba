@@ -1,15 +1,11 @@
 <?php
 // this if uses from ajax request it need to be first on page!!!!
 if (isset($_POST['suggest'])) {
-    include_once 'Orders.php';
     exit((Orders::makeXLSXfileAndSave($_POST['suggest'], null)) ? 'success' : 'error');
 }
 
 // rest page functions and includes
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean', null, 'order');
-include_once 'orders/Orders.php';
-
-/* получение пользователя из сессии */
 $role = $user['app_role'];
 $page = 'order_details';
 

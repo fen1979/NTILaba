@@ -1,8 +1,5 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-//include_once 'controllers/OrderManager.php';
-//include_once 'Orders.php';
-//$requestData = RequestData::getInstance();
 // Инициализируем менеджер заказов
 $orderManager = new OrderManager($user);
 // Обрабатываем GET-запросы для редактирования заказа

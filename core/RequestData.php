@@ -1,6 +1,4 @@
 <?php
-//class_alias('RequestData', 'RD');
-
 class RequestData
 {
     private static ?RequestData $instance = null;

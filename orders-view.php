@@ -1,6 +1,5 @@
 <?php
 $thisUser = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-//include_once 'orders/Orders.php';
 $page = 'order';
 $orderid = null;
 $role = $thisUser['app_role'];
@@ -164,7 +163,7 @@ NavBarContent(['active_btn' => Y['ORDER'], 'user' => $thisUser, 'page_name' => $
             </div>
 
             <!-- Вывод данных по фильтрам -->
-            <div class="col secondary text-white rounded">
+            <div class="col secondary text-white rounded" id="status-info">
                 <div class="row">
                     <div class="col">
                         By Client
@@ -262,11 +261,11 @@ NavBarContent(['active_btn' => Y['ORDER'], 'user' => $thisUser, 'page_name' => $
                                     <?php } ?>
 
                                     <?php $url = "check_bom?orid={$order['id']}&pid={$order['projects_id']}"; ?>
-                                    <button type="button" value="<?= $url; ?>" class="url btn btn-outline-primary" data-title="Edit order BOM">
+                                    <button type="button" value="<?= $url; ?>" class="url btn btn-outline-primary ed-bom" data-title="Edit order BOM">
                                         <i class="bi bi-card-list"></i>
                                     </button>
                                     <?php $url = "edit-order?edit-order&orid={$order['id']}&pid={$order['projects_id']}"; ?>
-                                    <button type="button" value="<?= $url; ?>" class="url btn btn-outline-warning" data-title="Edit Order">
+                                    <button type="button" value="<?= $url; ?>" class="url btn btn-outline-warning ed-order" data-title="Edit Order">
                                         <i class="bi bi-pencil"></i>
                                     </button>
 
@@ -350,5 +349,10 @@ PAGE_FOOTER($page); ?>
         dom.onDBChangeListener('#play-song', '#notificationSound', "#uid");
     });
 </script>
+<?php
+if ($thisUser['tutorial'] == '1') {
+    $pageArray = 'steps = data.orders;';
+    include_once 'layout/tutorial.php';
+} ?>
 </body>
 </html>

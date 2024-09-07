@@ -1,11 +1,10 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require 'TaskManager.php';
 $page = 'task_manager';
 
 //Check whether the SAVE button is clicked or not
 if (isset($_POST['submit'])) {
-    $args = TaskManager::createNewTask($_POST, $user);
+   TaskManager::createNewTask($_POST, $user);
     redirectTo('task_list', $args);
 }
 ?>

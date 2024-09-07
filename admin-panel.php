@@ -1,13 +1,15 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-/* class для работы с таблицами */
-require 'admin-panel/Management.php';
-
 $page = 'admin-panel';
 $role = $user['app_role'];
 /* удаление rout card/user/tools и всех его данных ---------------------------- */
 if (isset($_POST['idForUse']) && isset($_POST['password'])) {
-    Management::deletingAnItem($_POST, $user);
+    try {
+        Management::deletingAnItem($_POST, $user);
+    } catch (\RedBeanPHP\RedException\SQL $e) {
+        // message collector (text/ color/ auto_hide = true)
+        _flashMessage('Error: ' . $e->getMessage(), 'danger');
+    }
 }
 /* ROUT ACTIONS CODE ---------------------------------------------------------- */
 if (isset($_POST['rout-action-saving']) || isset($_POST['rout-action-editing'])) {
@@ -33,7 +35,12 @@ if (isset($_POST['tools-saving']) || isset($_POST['tools-editing'])) {
 
 /* TABLE COLUMNS ACTIONS CODE ------------------------------------------------- */
 if (isset($_POST['rowOrder']) && isset($_POST['save-settings'])) {
-    Management::columnsRedirection($_POST, $user['id']);
+    try {
+        Management::columnsRedirection($_POST, $user['id']);
+    } catch (\RedBeanPHP\RedException\SQL $e) {
+        // message collector (text/ color/ auto_hide = true)
+        _flashMessage('Error: ' . $e->getMessage(), 'danger');
+    }
 }
 /* USER ACCOUNT SETTINGS ACTIONS CODE ------------------------------------------ */
 if (isset($_POST['user-account-settings'])) {

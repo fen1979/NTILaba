@@ -1,6 +1,5 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require_once 'projects/Project.php';
 $page = 'add_step';
 $project = $projectName = $projectDir = $args = null;
 $nextStepNumber = 1;
@@ -305,7 +304,7 @@ NavBarContent(['title' => 'Add New', 'record_id' => $_GET['pid'] ?? null, 'user'
         function checkFormAndToggleSubmit() {
             let allFilled = true;
 
-            if (dom.e('#toolId').value === '' ||
+            if (/*dom.e('#toolId').value === '' ||*/
                 dom.e('#routeid').value.trim() === '' ||
                 dom.e('#actionDescription').value.trim() === '' ||
                 (dom.e('#photo').dataset.required === 0 && dom.e('#photo')[0].files.length === 0)

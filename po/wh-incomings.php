@@ -1,6 +1,5 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require 'warehouse/WareHouse.php';
 $page = 'staging';
 
 $order = null;

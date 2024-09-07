@@ -1,6 +1,5 @@
 <?php
 function_exists('EnsureUserIsAuthenticated') ? EnsureUserIsAuthenticated($_SESSION, 'userBean') : die('Forbidden 372.5');
-require 'WareHouse.php';
 /* получение пользователя из сессии */
 $user = $_SESSION['userBean'];
 $page = 'import_csv';

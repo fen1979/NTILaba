@@ -4,9 +4,9 @@
  * started 2023/11.
  * License GNU F.O.S
  */
-require_once 'core/Utility.php'; // подключаем ресурсы
-require_once 'core/Resources.php';
-require_once 'layout/PageLayout.php';
+require_once 'core/Utility.php'; // подключаем утилиты
+require_once 'core/Resources.php'; // подключаем ресурсы
+require_once 'layout/PageLayout.php'; // подключаем лайоут
 
 require_once 'autoload.php';  // Подключаем автозагрузчик
 
@@ -38,7 +38,7 @@ $r->addRout('/edit-order', 'orders/create-order.php');
 $r->addRout('/check_bom', 'orders/order-bom.php');
 $r->addRout('/order/preview', 'orders/order-work-flow.php');
 $r->addRout('/priority-out', 'pdfOut/priority-out.php');
-$r->addRout('/order_pdf', 'pdfOut/order-work-flow.php', true);
+$r->addRout('/order_pdf', 'pdfOut/order-details.php', true);
 
 // projects pages
 $r->addRout('/project', 'projects-view.php');

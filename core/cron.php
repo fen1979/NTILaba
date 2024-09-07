@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @throws \PHPMailer\PHPMailer\Exception
+ */
 function checkToolsNextCheckDate()
 {
     $tools = R::findAll(TOOLS);
@@ -46,6 +49,7 @@ function checkToolsNextCheckDate()
  * @param string $dateFromDb Дата из базы данных в формате 'Y-m-d H:i:s'.
  * @param int $days Диапазон в днях (положительное значение для будущих дат, отрицательное для прошлых).
  * @return bool Возвращает true, если дата в диапазоне, иначе false.
+ * @throws Exception
  */
 function isDateInRange(string $dateFromDb, int $days): bool
 {
@@ -71,4 +75,7 @@ function writeLogs($logdata)
 
 }
 
-checkToolsNextCheckDate();
+try {
+    checkToolsNextCheckDate();
+} catch (\PHPMailer\PHPMailer\Exception $e) {
+}

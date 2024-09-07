@@ -1,6 +1,4 @@
 <?php
-require 'warehouse/WareHouse.php';
-
 class Project
 {
     /* ============================ PROTECTED METHODS =============================== */

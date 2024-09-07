@@ -86,7 +86,7 @@ if (isset($_GET['pid']) && isset($_GET['orid'])) {
     }
 
     // Создание объекта PDF
-    $pdf = new ORDER_DETAILS(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+    $pdf = new ROUTES(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
     $pdf->SetCreator(PDF_CREATOR);
     $pdf->SetAuthor('NTI Group');
     $pdf->SetTitle('NTI Group');
@@ -241,14 +241,13 @@ if (isset($_GET['pid']) && isset($_GET['orid'])) {
     }
 
     /* Сохраняем документ в папке докс проекта */
-    $absolutePath = $project->projectdir . 'docs/' . $project->projectname . '_routecard.pdf';
+    $absolutePath = $project->projectdir . '/docs/' . $project->projectname . '_routecard.pdf';
     $pdf->Output($absolutePath, 'F');
 
     /* и выводим в браузер для дальнейших манипуляций */
     $pdf->Output($absolutePath);
 } else {
     // если данные не пришли то возвращаем пользователя на страницу заказы
-    header("Location: /order");
-    exit();
+    redirectTo("order");
 }
 //  fopenLocal() in file tcpdf_static.php was changed

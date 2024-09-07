@@ -1,6 +1,5 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require_once 'projects/Project.php';
 $page = 'edit_project';
 $role = $user['app_role'];
 $_SESSION['editmode'] = $args = $project_for_edit = $projectID = null;

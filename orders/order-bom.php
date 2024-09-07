@@ -1,6 +1,5 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-include_once 'Orders.php';
 
 /*
  * произвести поиск по складу согласно запчастям, сопоставить полученные значения с нуждами заказа по проекту,

@@ -7,7 +7,10 @@ spl_autoload_register(function ($class) {
         __DIR__ . '/controllers/',
         __DIR__ . '/orders/',
         __DIR__ . '/projects/',
-        __DIR__ . '/counterparties/'
+        __DIR__ . '/warehouse/',
+        __DIR__ . '/counterparties/',
+        __DIR__ . '/task-manager/',
+        __DIR__ . '/admin-panel/'
         // Можете добавить больше папок по необходимости
     ];
 

@@ -1,7 +1,5 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require_once 'projects/Project.php';
-
 $page = 'project';
 $result = null;
 $viewBtnEdit = false;
@@ -323,5 +321,10 @@ PAGE_FOOTER($page); ?>
     });
 </script>
 <script type="text/javascript" src="public/js/projects-view.js"></script>
+<?php
+if ($user['tutorial'] == '1') {
+    $pageArray = 'steps = data.projects;';
+    include_once 'layout/tutorial.php';
+} ?>
 </body>
 </html>

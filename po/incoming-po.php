@@ -1,6 +1,5 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'wh');
-require 'warehouse/WareHouse.php';
 $page = 'po_replenishment';
 $order = $project = $v = $consignment = $items = $track = null;
 

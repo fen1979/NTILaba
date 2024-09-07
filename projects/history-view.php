@@ -1,8 +1,6 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require 'Project.php';
 $page = 'history_steps';
-
 ?>
 
 <!doctype html>

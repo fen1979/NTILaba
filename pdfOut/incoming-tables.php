@@ -1,6 +1,5 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require 'warehouse/WareHouse.php';
 $page = 'receipt_note';
 // Загружаем записи из БД
 $items = R::findAll(PO_AIRRVAL, 'orders_id = ?', [$_GET['orid']]);

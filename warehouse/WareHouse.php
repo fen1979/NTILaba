@@ -1,6 +1,4 @@
 <?php
-require 'WareHouseLog.php';
-
 class WareHouse
 {
     /* ============================ PROTECTED METHODS =============================== */
@@ -905,7 +903,7 @@ class WareHouse
      */
     public static function makeXLSXfileAndSave($order_id): bool
     {
-        include_once 'libs/xlsxgen.php';
+        include_once 'libs/XLSXGeneration.php';
 
         $titles = SR::getAllResourcesInGroup(PO_AIRRVAL); // 12 titles
         $order = R::load(ORDERS, $order_id);
@@ -927,7 +925,7 @@ class WareHouse
         }
 
         $pathToSave = 'storage/orders/' . $order->order_folder . '/staging_' . $order->id . '_.xlsx';
-        return XLSXGen::fromArray($orderBOM)->saveAs($pathToSave);
+        return XLSXGeneration::fromArray($orderBOM)->saveAs($pathToSave);
     }
 
     /**

@@ -1,6 +1,5 @@
 <?php
 EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require 'projects/Project.php';
 $page = 'new_project';
 $user = $_SESSION['userBean'];
 $id = null;

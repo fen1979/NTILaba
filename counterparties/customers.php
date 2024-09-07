@@ -1,6 +1,5 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require 'CPController.php';
 $page = 'customers';
 $client = null;
 $saveButtonText = 'Save New Customer';

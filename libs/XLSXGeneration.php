@@ -20,7 +20,7 @@
  * Export data to MS Excel. PHP XLSX generator
  * Author: sergey.shuchkin@gmail.com
  */
-class XLSXGen
+class XLSXGeneration
 {
     public $curSheet;
     protected $defaultFont;

@@ -1,6 +1,5 @@
 <?php
 $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
-require('TaskManager.php');
 $page = 'task_manager';
 
 TaskManager::deleteTaskOrList($_GET, $_POST, $user);

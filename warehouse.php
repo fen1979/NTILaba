@@ -1,6 +1,5 @@
 <?php
 $thisUser = EnsureUserIsAuthenticated($_SESSION, 'userBean', [ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_SUPERVISOR], 'order');
-require 'warehouse/WareHouse.php';
 $page = 'wh';
 
 // SQL-запрос для получения всех записей из nomenclature (whitems) с прикрепленными записями из warehouse
