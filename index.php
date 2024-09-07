@@ -102,14 +102,12 @@ $r->addRout('/add-task', 'task-manager/add-task.php');
 $r->addRout('/update-task', 'task-manager/update-task.php');
 $r->addRout('/manage-list', 'task-manager/manage-list.php');
 
-$r->addRout('/import-file', 'test.php', true);
+// tracking programm for first memorisen incoming trafick
 $r->addRout('/tracking', 'tracking.php');
 $r->addRout('/track-list', 'tracking.php');
 
-// страница для решения проблем через сторонние сайты
-$r->addRout('/jknfwineliecnlsienclie', 'pr.php');
-
-
+// import xslx test file
+$r->addRout('/import-file', 'test.php', true);
 
 
 // call the routing function to view page

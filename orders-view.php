@@ -349,10 +349,5 @@ PAGE_FOOTER($page); ?>
         dom.onDBChangeListener('#play-song', '#notificationSound', "#uid");
     });
 </script>
-<?php
-if ($thisUser['tutorial'] == '1') {
-    $pageArray = 'steps = data.orders;';
-    include_once 'layout/tutorial.php';
-} ?>
 </body>
 </html>

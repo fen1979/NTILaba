@@ -321,10 +321,5 @@ PAGE_FOOTER($page); ?>
     });
 </script>
 <script type="text/javascript" src="public/js/projects-view.js"></script>
-<?php
-if ($user['tutorial'] == '1') {
-    $pageArray = 'steps = data.projects;';
-    include_once 'layout/tutorial.php';
-} ?>
 </body>
 </html>
