@@ -172,7 +172,7 @@ PAGE_FOOTER($page); ?>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-// Выбираем таблицу с id searchAnswer
+        // Выбираем таблицу с id searchAnswer
         const tBody = document.getElementById('table');
 
         // Добавляем делегированный обработчик событий на таблицу
@@ -189,15 +189,20 @@ PAGE_FOOTER($page); ?>
                 const dataId = row.dataset.id;
                 //const dataPage = row.dataset.page;
                 let newUrl;
-
-                //if (dataPage) {
                 newUrl = "/resources?resid=" + dataId + "&#row-" + (dataId);
-                // } else {
-                //     newUrl = "/test?resid=" + dataId;
-                // }
-
                 // Переход по указанному адресу
                 window.location.href = newUrl;
+            }
+        });
+
+        // Обработка клика по результату поиска resource
+        dom.in("click", "#search-responce tr.resource", function () {
+            if (this.parentElement.dataset.info) {
+                // Извлекаем и парсим данные из атрибута data-info
+                let info = JSON.parse(this.parentElement.dataset.info);
+                let dataId = info.res_id;
+                // Переход по указанному адресу
+                window.location.href = "/resources?resid=" + dataId + "&#row-" + (dataId);
             }
         });
     });

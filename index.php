@@ -4,8 +4,8 @@
  * started 2023/11.
  * License GNU F.O.S
  */
+require_once 'core/Сonstants.php'; // подключаем переменные
 require_once 'core/Utility.php'; // подключаем утилиты
-require_once 'core/Resources.php'; // подключаем ресурсы
 require_once 'layout/PageLayout.php'; // подключаем лайоут
 
 require_once 'autoload.php';  // Подключаем автозагрузчик
@@ -105,6 +105,7 @@ $r->addRout('/manage-list', 'task-manager/manage-list.php');
 // tracking programm for first memorisen incoming trafick
 $r->addRout('/tracking', 'tracking.php');
 $r->addRout('/track-list', 'tracking.php');
+$r->addRout('/print-track-info', 'tracking.php');
 
 // import xslx test file
 $r->addRout('/import-file', 'test.php', true);

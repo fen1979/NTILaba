@@ -40,10 +40,10 @@ NavBarContent(['title' => 'Columns', 'user' => $user, 'page_name' => $page]); ?>
                 <button type="button" name="sel_tab" value="<?= CLIENTS ?>" class="dob btn btn-outline-primary ms-2">Customers</button>
                 <button type="button" name="sel_tab" value="<?= WH_ITEMS ?>" class="dob btn btn-outline-primary ms-2">Warehouse</button>
                 <button type="button" name="sel_tab" value="<?= TRACK_DATA ?>" class="dob btn btn-outline-primary ms-2">Track List</button>
-                <!--                    <button type="button" name="sel_tab" disabled value="users" class="dob btn btn-outline-secondary ms-2">Users</button>-->
-                <!--                    <button type="button" name="sel_tab" disabled value="projectsteps" class="dob btn btn-outline-secondary ms-2">Units Data</button>-->
-                <!--                    <button type="button" name="sel_tab" disabled value="history" class="dob btn btn-outline-secondary ms-2">Units History</button>-->
-                <!--                    <button type="button" name="sel_tab" id="da" value="" class=" btn btn-outline-secondary ms-2">Orders Data</button>-->
+                <!--<button type="button" name="sel_tab" disabled value="users" class="dob btn btn-outline-secondary ms-2">Users</button>-->
+                <!--<button type="button" name="sel_tab" disabled value="projectsteps" class="dob btn btn-outline-secondary ms-2">Units Data</button>-->
+                <!--<button type="button" name="sel_tab" disabled value="history" class="dob btn btn-outline-secondary ms-2">Units History</button>-->
+                <!--<button type="button" name="sel_tab" id="da" value="" class=" btn btn-outline-secondary ms-2">Orders Data</button>-->
 
                 <!--<button type="button" name="sel_tab" value="order_details" class="dob btn btn-outline-primary ms-2">Order Details</button>-->
                 <!--<button type="button" name="sel_tab" value="priority" class="dob btn btn-outline-primary ms-2">Priority Out</button>-->
@@ -53,6 +53,7 @@ NavBarContent(['title' => 'Columns', 'user' => $user, 'page_name' => $page]); ?>
     </div>
 
     <?php
+    // распределение запросов на вывод таблиц для конфигурации
     if (isset($_POST['sel_tab']) || isset($_POST['priority']) || isset($_POST['order_details'])) {
         // сделать разделение на разные таблицы но вывод в одну таблицу-форму для универсальности
         if (isset($_POST['sel_tab'])) {
@@ -168,20 +169,25 @@ NavBarContent(['title' => 'Columns', 'user' => $user, 'page_name' => $page]); ?>
                 <!-- Скрытые поля для порядка строк -->
                 <input type="hidden" name="rowOrder" id="rowOrder" value="">
             </form>
-        <?php }
+            <?php
+            // if tables isn't exist or something wet wrong!
+        } else {
+            ?>
+            <h2 class="p-2 text-warning">Maybe table <?= $tab_name ?> not exist yet or something went wrong!</h2>
+            <?php
+        }
     }
 
     function createPriorityColumnSelectionForm()
     {
 
-
+        echo 'hi createPriorityColumnSelectionForm';
     }
 
     function createOrderDetailsSelectionForm()
     {
-
+        echo 'hi createOrderDetailsSelectionForm';
     }
-
 
     ?>
 </div>

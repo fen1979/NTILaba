@@ -75,7 +75,18 @@ function writeLogs($logdata)
 
 }
 
+function sendNotificationAboutLongTimeWaitingParcelCheck()
+{
+    // check what track is compare with 48 hours
+    // get all data from track
+    // send notifications
+    $t = R::findAll(TRACK_DATA, 'processed = 0');
+    $trackingController = new TrackingController($user);
+    $trackingController->cronRequest();
+}
+
 try {
-    checkToolsNextCheckDate();
+    //checkToolsNextCheckDate();
+    //sendNotificationAboutLongTimeWaitingParcelCheck();
 } catch (\PHPMailer\PHPMailer\Exception $e) {
 }

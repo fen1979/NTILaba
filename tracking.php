@@ -3,7 +3,7 @@ $user = EnsureUserIsAuthenticated($_SESSION, 'userBean');
 $page = 'tracking';
 $trackingController = new TrackingController($user);
 // Для обработки POST-запросов (например, при сохранении посылки)
-$trackingController->handlePostRequest();
+$print_info = $trackingController->handlePostRequest();
 // Для обработки GET-запросов (например, при отображении списка посылок)
 $data = $trackingController->handleGetRequest();
 $trackList = $data['trackList'];
@@ -325,7 +325,9 @@ $settings = $data['settings'];
 <?php
 // NAVIGATION BAR
 NavBarContent(['title' => 'Tracking', 'user' => $user, 'page_name' => $page]); ?>
-
+<?php if (!empty($print_info)) {
+    echo '<a href="' . $print_info . '" target="_blank" id="relocation" class="hidden"></a>';
+} ?>
 <?php if (!$trackList) { ?>
     <div class="container form-container">
         <h3 class="text-center mb-4">Форма Приемки</h3>
@@ -388,63 +390,71 @@ NavBarContent(['title' => 'Tracking', 'user' => $user, 'page_name' => $page]); ?
     </div>
 
 <?php PAGE_FOOTER($page, false); ?>
+    <!--suppress JSValidateTypes -->
     <script>
-        const photoContainer = document.getElementById('photo-container');
-        const addPhotoBtn = document.getElementById('add-photo-btn');
-        const uploadForm = document.getElementById('uploadForm'); // Получаем форму
-        let photoCount = 0;
-        const maxPhotos = 5;
-        let lastIndex = 0; // Индекс для отслеживания последнего добавленного поля
-
-        addPhotoBtn.addEventListener('click', () => {
-            if (photoCount >= maxPhotos) return;
-
-            lastIndex++; // Увеличиваем индекс при каждом добавлении нового файла
-
-            // Создаем input для файла
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.name = `photo${lastIndex}`;
-            fileInput.accept = 'image/*';
-            fileInput.id = `photo${lastIndex}`;
-            fileInput.onchange = () => previewImage(fileInput, lastIndex);
-
-            // Добавляем инпут внутрь формы, чтобы он отправлялся на сервер
-            uploadForm.appendChild(fileInput);
-
-            // Симулируем клик по скрытому input
-            fileInput.click();
-        });
-
-        function previewImage(input, index) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const previewContainer = document.createElement('div');
-                    previewContainer.classList.add('preview');
-                    previewContainer.id = `preview${index}`;
-
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-
-                    const removeBtn = document.createElement('button');
-                    removeBtn.innerHTML = '&times;';
-                    removeBtn.classList.add('remove-preview');
-                    removeBtn.onclick = () => {
-                        previewContainer.remove();
-                        input.remove();
-                        photoCount--;
-                    };
-
-                    previewContainer.appendChild(img);
-                    previewContainer.appendChild(removeBtn);
-                    photoContainer.appendChild(previewContainer);
-
-                    photoCount++;
-                };
-                reader.readAsDataURL(input.files[0]);
+        document.addEventListener("DOMContentLoaded", function () {
+            // relocation after saving for printing information about
+            if (dom.e("#relocation")) {
+                dom.e("#relocation").click();
             }
-        }
+
+            const photoContainer = document.getElementById('photo-container');
+            const addPhotoBtn = document.getElementById('add-photo-btn');
+            const uploadForm = document.getElementById('uploadForm'); // Получаем форму
+            let photoCount = 0;
+            const maxPhotos = 5;
+            let lastIndex = 0; // Индекс для отслеживания последнего добавленного поля
+
+            addPhotoBtn.addEventListener('click', () => {
+                if (photoCount >= maxPhotos) return;
+
+                lastIndex++; // Увеличиваем индекс при каждом добавлении нового файла
+
+                // Создаем input для файла
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.name = `photo${lastIndex}`;
+                fileInput.accept = 'image/*';
+                fileInput.id = `photo${lastIndex}`;
+                fileInput.onchange = () => previewImage(fileInput, lastIndex);
+
+                // Добавляем инпут внутрь формы, чтобы он отправлялся на сервер
+                uploadForm.appendChild(fileInput);
+
+                // Симулируем клик по скрытому input
+                fileInput.click();
+            });
+
+            function previewImage(input, index) {
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const previewContainer = document.createElement('div');
+                        previewContainer.classList.add('preview');
+                        previewContainer.id = `preview${index}`;
+
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+
+                        const removeBtn = document.createElement('button');
+                        removeBtn.innerHTML = '&times;';
+                        removeBtn.classList.add('remove-preview');
+                        removeBtn.onclick = () => {
+                            previewContainer.remove();
+                            input.remove();
+                            photoCount--;
+                        };
+
+                        previewContainer.appendChild(img);
+                        previewContainer.appendChild(removeBtn);
+                        photoContainer.appendChild(previewContainer);
+
+                        photoCount++;
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+        });
     </script>
 <?php } else { ?>
     <div id="searchAnswer">
@@ -458,35 +468,19 @@ NavBarContent(['title' => 'Tracking', 'user' => $user, 'page_name' => $page]); ?
             <!-- table -->
             <tbody>
             <?php
-            foreach ($result as $value) { ?>
-
-                <tr class="item-list " data-id="<?= $value['id']; ?>" onmouseover="showPreview('<?= $value['file_path'] ?>')" onmouseout="hidePreview()">
-                    <?php
-                    if ($settings) {
-                        foreach ($settings as $item => $_) {
-                            if ($item == 'file_path') {
-                                if (!empty($value[$item])) {
-                                    ?>
-                                    <td>
-                                        <div class="thumbs-container">
-                                            <?php foreach (explode(',', $value[$item]) as $imgSrc): ?>
-                                                <img src="<?= $imgSrc ?>" alt="Image Placeholder" class="thumbs-image"
-                                                     onmouseover="showPreview('<?= $imgSrc ?>')" onmouseout="hidePreview()">
-                                            <?php endforeach; ?>
-                                        </div>
-                                    </td>
-                                    <?php
-                                } else {
-                                    echo '<td></td>';
-                                }
-                            } else {
+            foreach ($result as $value) {
+                if ($value['processed'] != 1) { ?>
+                    <tr class="item-list " data-id="<?= $value['id']; ?>" onmouseover="showPreview('<?= $value['file_path'] ?>')" onmouseout="hidePreview()">
+                        <?php
+                        if ($settings) {
+                            foreach ($settings as $item => $_) {
                                 echo '<td>' . $value[$item] . '</td>';
                             }
                         }
-                    }
-                    ?>
-                </tr>
-            <?php } ?>
+                        ?>
+                    </tr>
+                <?php }
+            } ?>
             </tbody>
         </table>
 

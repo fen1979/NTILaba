@@ -667,12 +667,13 @@ function viewResources($result): void
     if ($result) {
         foreach ($result as $reso) {
             $infoData = json_encode([
+                'res_id' => $reso['id'],
                 'group_name' => $reso['group_name'],
                 'key_name' => $reso['key_name'],
                 'value' => $reso['value'],
                 'detail' => $reso['detail']]);
             ?>
-            <tr class="item-list" data-info="<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>">
+            <tr class="resource item-list" data-info="<?= htmlspecialchars($infoData, ENT_QUOTES, 'UTF-8'); ?>">
                 <td><?= $reso['group_name']; ?></td>
                 <td><?= $reso['key_name']; ?></td>
                 <td><?= $reso['value']; ?></td>

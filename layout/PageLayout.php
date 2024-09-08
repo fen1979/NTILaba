@@ -291,8 +291,39 @@ function PAGE_FOOTER($page = '', $footer = true, $spinner = true)
                             zIndex: 9001
                         })
                         .appendTo('body');
+
+                    // Корректируем позицию кнопок
+                    adjustButtonPosition(tooltipTop, tooltipHeight);
                 }
 
+                // Функция для корректировки положения кнопок относительно тултипа
+                function adjustButtonPosition(tooltipTop, tooltipHeight) {
+                    const windowHeight = $(window).height();
+                    const nextButton = $('#nextStep');
+                    const cancelButton = $('#cancelTutorial');
+                    const buttonHeight = nextButton.outerHeight();
+
+                    // Проверяем, пересекается ли кнопка с тултипом
+                    const nextButtonTop = windowHeight - 50 - buttonHeight; // Текущая позиция кнопки снизу
+
+                    // Если тултип перекрывает кнопку, сдвигаем кнопку вверх
+                    if (tooltipTop + tooltipHeight > nextButtonTop) {
+                        nextButton.css({
+                            top: "6rem"
+                        });
+                        cancelButton.css({
+                            top: "6rem"
+                        });
+                    } else {
+                        // Возвращаем кнопки на стандартную позицию, если они не перекрываются
+                        nextButton.css({
+                            top: ''
+                        });
+                        cancelButton.css({
+                            top: ''
+                        });
+                    }
+                }
 
                 // Функция для перехода к следующему шагу
                 $('#nextStep').on('click', function () {

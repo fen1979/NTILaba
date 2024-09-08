@@ -1,4 +1,5 @@
 <?php
+
 class RequestData
 {
     private static ?RequestData $instance = null;
@@ -204,10 +205,8 @@ class RequestData
     }
 
     /**
-     * Проверяет наличие указанного триггерного ключа в массиве POST и вызывает callback функцию с очищенными данными.
-     *
-     * Функция проверяет массив POST на наличие одного триггерного ключа (например, кнопки submit).
-     * Если триггерный ключ найден в массиве POST (независимо от его значения), очищенные данные POST
+     * Функция проверяет массив POST на наличие всех указанных ключей (например, кнопки submit).
+     * Если триггерные ключи найдены в массиве POST (независимо от их значения), очищенные данные POST
      * передаются в callback функцию, которая выполняется для дальнейшей обработки.
      *
      * @param $keys
@@ -218,25 +217,12 @@ class RequestData
      * @example
      * // Пример использования:
      * $requestData = RequestData::getInstance();
-     * $requestData->checkPostRequestAndExecute('createOrder', function($postData) use ($user) {
-     *     $project = R::load(PROJECTS, _E($postData['project_id']));
-     *     $client = R::load(CLIENTS, _E($postData['customer_id']));
-     *
-     *     // Вызов функции для создания заказа
-     *     Orders::createOrder($user, $client, $project, $postData);
-     * });
-     *
-     *
-     * Пример общего использования:
-     *
-     * $requestData->checkPostRequestAndExecute('some_trigger', function($cleanedData) {
+     * $requestData->executeIfAllPostKeysExist('some_trigger', function($cleanedData) {
      * // Вызов функции с очищенными данными POST
      * someOtherFunction($cleanedData);
      * });
      */
-
-
-    public function checkPostRequestAndExecute($keys, callable $callback): void
+    public function executeIfAllPostKeysExist($keys, callable $callback): void
     {
         $postData = $this->getPost(); // получаем очищенные POST данные
         $keys = is_array($keys) ? $keys : [$keys]; // Преобразуем одиночный ключ в массив, если это не массив
@@ -259,10 +245,47 @@ class RequestData
 
 
     /**
-     * Проверяет наличие указанного триггерного ключа в массиве GET и вызывает callback функцию с очищенными данными.
+     * Функция проверяет массив POST на наличие хотя бы одного триггерного ключа (например, кнопки submit).
+     * Если триггерный ключ найден в массиве POST (независимо от его значения), очищенные данные POST
+     * передаются в callback функцию, которая выполняется для дальнейшей обработки.
      *
-     * Функция проверяет массив POST на наличие одного триггерного ключа (например, кнопки submit).
-     * Если триггерный ключ найден в массиве GET (независимо от его значения), очищенные данные GET
+     * @param $keys
+     * @param callable $callback Функция обратного вызова, которая будет вызвана с аргументом $postData, содержащим
+     *                           очищенные данные POST, если триггер найден.
+     * @return void
+     *
+     * - // Пример использования:
+     * - $requestData = RequestData::getInstance();
+     * - $requestData->executeIfAnyPostKeyExists('some_trigger', function($cleanedData) {
+     * - // Вызов функции с очищенными данными POST
+     * - someOtherFunction($cleanedData);
+     * - });
+     */
+    public function executeIfAnyPostKeyExists($keys, callable $callback): void
+    {
+        $postData = $this->getPost(); // получаем очищенные POST данные
+        $keys = is_array($keys) ? $keys : [$keys]; // Преобразуем одиночный ключ в массив, если это не массив
+
+        $anyKeyExists = false; // Флаг для проверки наличия хотя бы одного ключа
+
+        // Проверяем наличие хотя бы одного ключа в POST
+        foreach ($keys as $key) {
+            if (isset($postData[$key])) { // Если хотя бы один ключ существует, устанавливаем флаг
+                $anyKeyExists = true;
+                break;
+            }
+        }
+
+        // Если хотя бы один ключ существует, вызываем callback и передаем очищенные данные
+        if ($anyKeyExists) {
+            call_user_func($callback, $postData);
+        }
+    }
+
+
+    /**
+     * Функция проверяет массив GET на наличие всех указанных ключей (например, кнопки submit, поля формы).
+     * Если триггерные ключи найдены в массиве GET (независимо от их значения), очищенные данные GET
      * передаются в callback функцию, которая выполняется для дальнейшей обработки.
      *
      * @param $keys - Ключ-триггер (например, имя кнопки submit), который нужно искать в массиве GET.
@@ -273,25 +296,12 @@ class RequestData
      * @example
      * // Пример использования:
      * $requestData = RequestData::getInstance();
-     * $requestData->checkGetRequestAndExecute('createOrder', function($getData) use ($user) {
-     *     $project = R::load(PROJECTS, _E($getData['project_id']));
-     *     $client = R::load(CLIENTS, _E($getData['customer_id']));
-     *
-     *     // Вызов функции для создания заказа
-     *     Orders::createOrder($user, $client, $project, $getData);
-     * });
-     *
-     *
-     * Пример общего использования:
-     *
      * $requestData->checkGetRequestAndExecute('some_trigger', function($cleanedData) {
      * // Вызов функции с очищенными данными POST
      * someOtherFunction($cleanedData);
      * });
      */
-
-
-    public function checkGetRequestAndExecute($keys, callable $callback): void
+    public function executeIfAllGetKeysExist($keys, callable $callback): void
     {
         $getData = $this->getGet(); // получаем очищенные POST данные
 
@@ -309,6 +319,45 @@ class RequestData
 
         // Если все ключи существуют, вызываем callback и передаем очищенные данные
         if ($allKeysExist) {
+            call_user_func($callback, $getData);
+        }
+    }
+
+    /**
+     * Функция проверяет массив GET а наличие хотя бы одного триггерного ключа (например, кнопки submit, поля формы).
+     * Если триггерные ключи найдены в массиве GET (независимо от их значения), очищенные данные GET
+     * передаются в callback функцию, которая выполняется для дальнейшей обработки.
+     *
+     * @param $keys - Ключ-триггер (например, имя кнопки submit), который нужно искать в массиве GET.
+     * @param callable $callback Функция обратного вызова, которая будет вызвана с аргументом $getData, содержащим
+     *                           очищенные данные POST, если триггер найден.
+     * @return void
+     *
+     * @example
+     * // Пример использования:
+     * $requestData = RequestData::getInstance();
+     * $requestData->checkGetRequestAndExecute('some_trigger', function($cleanedData) {
+     * // Вызов функции с очищенными данными POST
+     * someOtherFunction($cleanedData);
+     * });
+     */
+    public function executeIfAnyGetKeyExists($keys, callable $callback): void
+    {
+        $getData = $this->getGet(); // получаем очищенные POST данные
+        $keys = is_array($keys) ? $keys : [$keys]; // Преобразуем одиночный ключ в массив, если это не массив
+
+        $anyKeyExists = false; // Флаг для проверки наличия хотя бы одного ключа
+
+        // Проверяем наличие хотя бы одного ключа в GET
+        foreach ($keys as $key) {
+            if (isset($getData[$key])) { // Если хотя бы один ключ существует, устанавливаем флаг
+                $anyKeyExists = true;
+                break;
+            }
+        }
+
+        // Если хотя бы один ключ существует, вызываем callback и передаем очищенные данные
+        if ($anyKeyExists) {
             call_user_func($callback, $getData);
         }
     }

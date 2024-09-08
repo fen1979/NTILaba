@@ -7,10 +7,10 @@
 const NO_VIEW_PAGES = [
     'new_order', 'edit_order', 'order_bom',
     'customers', 'docs',
-    'admin-panel',
+    'admin-panel', 'home',
     'new_project', 'edit_project', 'edit_step', 'add_step',
     'import_csv', 'view_item', 'arrivals', 'edit_item', 'replenishment', 'po_replenishment',
-    'task_manager', 'pioi'];
+    'task_manager', 'pioi', 'tracking'];
 /**
  *
  * NAVIGATION BAR

@@ -27,7 +27,8 @@ $role = $user['app_role'];
         }
 
         .link-button:hover {
-            background-color: #0056b3; /* Изменение фона при наведении */
+            background-color: transparent; /* Изменение фона при наведении */
+            color: #000000;
         }
 
         .container {
@@ -44,64 +45,16 @@ $role = $user['app_role'];
 NavBarContent(['active_btn' => Y['ORDER'], 'user' => $thisUser, 'page_name' => $page]); ?>
 
 <div class="container">
-    <div class="row text-center">
-        <!-- Link 1 -->
-        <div class="col-12 col-md-4 mb-4">
-            <a href="order" target="_blank" class="link-button">
-                ORDERS
-            </a>
-        </div>
-        <!-- Link 2 -->
-        <div class="col-12 col-md-4 mb-4">
-            <a href="/project" target="_blank" class="link-button">
-                PROJECTS, assembly manuals
-            </a>
-        </div>
-        <!-- Link 3 -->
-        <div class="col-12 col-md-4 mb-4">
-            <a href="/wh" target="_blank" class="link-button">
-                WAREHOUSE
-            </a>
-        </div>
-        <!-- Link 4 -->
-        <div class="col-12 col-md-4 mb-4">
-            <a href="/task_list" target="_blank" class="link-button">
-                TASKS
-            </a>
-        </div>
-        <!-- Link 5 -->
-        <div class="col-12 col-md-4 mb-4">
-            <a href="/pioi" target="_blank" class="link-button">
-                CREATIONS
-            </a>
-        </div>
-        <!-- Link 6 -->
-        <div class="col-12 col-md-4 mb-4">
-            <a href="/setup?route-page=1" target="_blank" class="link-button">
-                SETTINGS
-            </a>
-        </div>
-        <!-- Link 7 -->
-        <div class="col-12 col-md-4 mb-4">
-            <a href="/tracking" target="_blank" class="link-button">
-                TRACKING
-            </a>
-        </div>
-        <!-- Link 8 -->
-        <div class="col-12 col-md-4 mb-4">
-            <a href="/" target="_blank" class="link-button">
-                uno
-            </a>
-        </div>
-        <!-- Link 9 -->
-        <div class="col-12 col-md-4 mb-4">
-            <a href="/" target="_blank" class="link-button">
-                uno
-            </a>
-        </div>
+    <div class="row text-center" id="btn-container">
+        <?php foreach (SR::getAllResourcesInGroup('home_btns') as $link => $text) {
+            echo '<div class="col-12 col-md-3 mb-4">';
+            echo '<a href="' . $link . '" target="_blank" class="link-button">';
+            echo $text;
+            echo '</a>';
+            echo '</div>';
+        } ?>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<?php PAGE_FOOTER($page); ?>
 </body>
 </html>
