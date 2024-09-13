@@ -54,7 +54,7 @@ $settings = $data['settings'];
 //});
 //
 //// вывод списка для просмотра  входящих посылок
-//$requestData->checkGetRequestAndExecute('track-list', function ($_) use (&$user, &$requestData, &$trackList, &$result, &$settings) {
+//$requestData->executeIfAnyGetKeyExists('track-list', function ($_) use (&$user, &$requestData, &$trackList, &$result, &$settings) {
 //    $trackList = true;
 //    $result = R::findAll(TRACK_DATA, 'ORDER BY date_in DESC');
 //    $settings = getUserSettings($user, TRACK_DATA);

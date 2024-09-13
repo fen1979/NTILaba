@@ -20,9 +20,9 @@ class OrderManager
     }
 
     // Метод для обработки GET-запросов и загрузки заказа на редактирование
-    public function handleGetRequest($requestData)
+    public function handleGetRequest($requestData): void
     {
-        $requestData->checkGetRequestAndExecute(['edit-order', 'pid', 'orid'], function ($cleanedData) {
+        $requestData->executeIfAnyGetKeyExists(['edit-order', 'pid', 'orid'], function ($cleanedData) {
             $this->order = R::load(ORDERS, $cleanedData['orid']);
             $this->project = R::load(PROJECTS, $this->order->projects_id);
             $this->client = R::load(CLIENTS, $this->order->customers_id);
@@ -34,7 +34,7 @@ class OrderManager
     }
 
     // Метод для поиска свободных мест на складе (вызывается через AJAX)
-    public function checkForStorageBoxes($postData)
+    public function checkForStorageBoxes($postData): void
     {
         if (isset($postData['search-for-storage-box'])) {
             echo WareHouse::getEmptyBoxForItem($postData, 'order_kit');
@@ -43,7 +43,7 @@ class OrderManager
     }
 
     // Метод для создания нового заказа
-    public function createOrder($postData)
+    public function createOrder($postData): void
     {
         if (isset($postData['createOrder'])) {
             $this->project = R::load(PROJECTS, _E($postData['project_id']));
@@ -61,7 +61,7 @@ class OrderManager
 
     // Метод для обновления информации о заказе
     /* TODO updating order information ?????? разобратся где оно берется! да я забыл поэтому и записываю */
-    public function updateOrder($postData)
+    public function updateOrder($postData): void
     {
         if (isset($postData['editOrder'])) {
             $this->project = R::load(PROJECTS, _E($postData['project_id']));
@@ -76,7 +76,7 @@ class OrderManager
     }
 
     // Метод для создания заказа из списка проектов
-    public function createOrderFromProject($getData)
+    public function createOrderFromProject($getData): void
     {
         if (isset($getData['pid']) && isset($getData['nord'])) {
             $this->project = R::load(PROJECTS, _E($getData['pid']));
@@ -85,7 +85,7 @@ class OrderManager
     }
 
     // Метод для обновления существующего заказа
-    public function updateExistingOrder($postData, $getData)
+    public function updateExistingOrder($postData, $getData): void
     {
         if (isset($postData['updateOrder']) && !empty($postData['order-id'])) {
             $result = Orders::updateOrderInformation($this->user, _E($postData['order-id']), $postData, true, true);

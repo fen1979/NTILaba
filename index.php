@@ -113,7 +113,7 @@ $r->addRout('/import-file', 'test.php', true);
 $r->addRout('/chat-handler', 'chat/chat-handler.php', true);
 
 
-$r->addRout('/kkuehbd7d7y48yd', 'pr.php', true);
+$r->addRout('/fvlihlsilsi', 'pr.php', true);
 
 
 // call the routing function to view page

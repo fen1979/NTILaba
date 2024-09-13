@@ -30,7 +30,7 @@ function EnsureUserIsAuthenticated(array $valueForCheck, string $valueName, arra
 {
 
     // Проверяем, содержит ли REQUEST_URI параметр update
-    if (strpos($_SERVER['REQUEST_URI'], SALT_PEPPER) !== false) {
+    if (str_contains($_SERVER['REQUEST_URI'], SALT_PEPPER)) {
         // Сохраняем URL в сессии для перенаправления после логина
         $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
     }
@@ -54,7 +54,7 @@ function EnsureUserIsAuthenticated(array $valueForCheck, string $valueName, arra
  *
  * @param string $url The URL to redirect to. Defaults to the site root.
  */
-function redirectTo(string $url = '')
+function redirectTo(string $url = ''): void
 {
     header('Location: /' . $url) and exit(); // Ensure no further code is executed
 }
@@ -205,7 +205,7 @@ function unicum(string $someKey = '', int $num = 5): string
  * @param bool $search
  * @return array|mixed|string|true|null
  */
-function getProjectFrontPicture($projectId, $mode, bool $search = false)
+function getProjectFrontPicture($projectId, $mode, bool $search = false): mixed
 {
     // mode = docs
     if ($mode == 'docs') {
@@ -275,7 +275,7 @@ function logAction($userName, $action, $objectType, string $details = ''): bool
  * @param $args
  * @return mixed|null
  */
-function getUserSettings($user, $args)
+function getUserSettings($user, $args): mixed
 {
     /* настройки вывода от пользователя */
     if ($user) {
@@ -304,10 +304,10 @@ function isColumnTypeDigit(string $tableName, string $columnName): bool
 {
     $columnInfo = R::getRow("SHOW COLUMNS FROM " . $tableName . " LIKE ?", [$columnName]);
     $columnType = $columnInfo['Type'] ?? null;
-    if (strpos($columnType, 'int') !== false ||
-        strpos($columnType, 'float') !== false ||
-        strpos($columnType, 'double') !== false ||
-        strpos($columnType, 'decimal') !== false) {
+    if (str_contains($columnType, 'int') ||
+        str_contains($columnType, 'float') ||
+        str_contains($columnType, 'double') ||
+        str_contains($columnType, 'decimal')) {
         // Колонка содержит числа
         return true;
     } else {
@@ -408,13 +408,11 @@ function CreateTableHeadByUserSettings($user, $table_id, $DB_table_name, $static
  */
 function getNotificationSound($sound): string
 {
-    switch ($sound) {
-        case '1':
-            return '<audio id="notificationSound" src="public/sounds/sms.mp3"></audio>';
-        case '2':
-            return '<audio id="notificationSound" src="public/sounds/notify.mp3"></audio>';
-    }
-    return '';
+    return match ($sound) {
+        '1' => '<audio id="notificationSound" src="public/sounds/sms.mp3"></audio>',
+        '2' => '<audio id="notificationSound" src="public/sounds/notify.mp3"></audio>',
+        default => '',
+    };
 }
 
 /**
@@ -464,7 +462,7 @@ function _dirPath(array $params): string
     $dir = str_replace(array('../', '..\\', './', '.\\'), '', $dir);
 
     // Check if the directory starts with 'storage/projects/' and does not contain illegal characters
-    if (strpos($dir, 'storage/projects/') === 0 && !preg_match('/[^a-zA-Z0-9_\/\-]/', $dir)) {
+    if (str_starts_with($dir, 'storage/projects/') && !preg_match('/[^a-zA-Z0-9_\/\-]/', $dir)) {
         return $dir;
     } else {
         redirectTo('order');
@@ -481,14 +479,14 @@ function _dirPath(array $params): string
  *
  * @param mixed $condition The condition to check. This can be any type, including arrays, objects, and null.
  * @param mixed $trueValue The value to return if the condition evaluates to true. This can be a static value or a callable function that returns a value.
- * @param mixed $falseValue (optional) The value to return if the condition evaluates to false. This can also be a static value or a callable function.
+ * @param mixed|null $falseValue (optional) The value to return if the condition evaluates to false. This can also be a static value or a callable function.
  * Defaults to null.
- * @param mixed $defaultValue (optional) The value to return if the condition is null or undefined. This can also be a static value or a callable function.
+ * @param mixed|null $defaultValue (optional) The value to return if the condition is null or undefined. This can also be a static value or a callable function.
  * Defaults to null.
  * @return mixed The result of the condition check or the default value. Returns the trueValue if the condition is true, the falseValue if the condition is false,
  * or the defaultValue if the condition is not set.
  */
-function _if($condition, $trueValue, $falseValue = null, $defaultValue = null)
+function _if(mixed $condition, mixed $trueValue, mixed $falseValue = null, mixed $defaultValue = null): mixed
 {
     // Check if the condition is null, undefined, or a "falsey" value
     if (!isset($condition)) {
@@ -542,7 +540,7 @@ function _if($condition, $trueValue, $falseValue = null, $defaultValue = null)
  * // Выведет "No input provided", так как $input содержит только пробелы
  */
 
-function _empty($value, $callBack)
+function _empty(mixed $value, mixed $callBack): mixed
 {
     // Проверка на несуществующую переменную или null
     if (!isset($value)) {

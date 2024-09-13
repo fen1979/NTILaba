@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 
 class RequestData
 {
@@ -66,7 +66,7 @@ class RequestData
     {
         $headers = [];
         foreach ($_SERVER as $key => $value) {
-            if (substr($key, 0, 5) === 'HTTP_') {
+            if (str_starts_with($key, 'HTTP_')) {
                 $header = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($key, 5)))));
                 $headers[$header] = $value;
             }
@@ -156,27 +156,18 @@ class RequestData
      * @param int $errorCode Код ошибки
      * @return bool|string Возвращает true, если ошибок нет, или сообщение об ошибке
      */
-    private function processFileError(int $errorCode)
+    private function processFileError(int $errorCode): bool|string
     {
-        switch ($errorCode) {
-            case UPLOAD_ERR_OK:
-                return true;
-            case UPLOAD_ERR_INI_SIZE:
-            case UPLOAD_ERR_FORM_SIZE:
-                return 'File exceeds maximum upload size.';
-            case UPLOAD_ERR_PARTIAL:
-                return 'File was only partially uploaded.';
-            case UPLOAD_ERR_NO_FILE:
-                return 'No file was uploaded.';
-            case UPLOAD_ERR_NO_TMP_DIR:
-                return 'Missing a temporary folder.';
-            case UPLOAD_ERR_CANT_WRITE:
-                return 'Failed to write file to disk.';
-            case UPLOAD_ERR_EXTENSION:
-                return 'A PHP extension stopped the file upload.';
-            default:
-                return 'Unknown error occurred.';
-        }
+        return match ($errorCode) {
+            UPLOAD_ERR_OK => true,
+            UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'File exceeds maximum upload size.',
+            UPLOAD_ERR_PARTIAL => 'File was only partially uploaded.',
+            UPLOAD_ERR_NO_FILE => 'No file was uploaded.',
+            UPLOAD_ERR_NO_TMP_DIR => 'Missing a temporary folder.',
+            UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
+            UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload.',
+            default => 'Unknown error occurred.',
+        };
     }
 
     public function getRequest(): array
@@ -296,7 +287,7 @@ class RequestData
      * @example
      * // Пример использования:
      * $requestData = RequestData::getInstance();
-     * $requestData->checkGetRequestAndExecute('some_trigger', function($cleanedData) {
+     * $requestData->executeIfAnyGetKeyExists('some_trigger', function($cleanedData) {
      * // Вызов функции с очищенными данными POST
      * someOtherFunction($cleanedData);
      * });
@@ -336,7 +327,7 @@ class RequestData
      * @example
      * // Пример использования:
      * $requestData = RequestData::getInstance();
-     * $requestData->checkGetRequestAndExecute('some_trigger', function($cleanedData) {
+     * $requestData->executeIfAnyGetKeyExists('some_trigger', function($cleanedData) {
      * // Вызов функции с очищенными данными POST
      * someOtherFunction($cleanedData);
      * });

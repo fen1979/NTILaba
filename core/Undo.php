@@ -39,7 +39,7 @@ class Undo
      * @return void
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    public static function RestoreDeletedRecord($deletedRecordId)
+    public static function RestoreDeletedRecord($deletedRecordId): void
     {
         $deletedRecord = R::load(UNDO_TABLE, $deletedRecordId);
 

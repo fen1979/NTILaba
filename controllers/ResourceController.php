@@ -2,7 +2,7 @@
 class ResourceController
 {
     // Data Base table name
-    private const RESOURCES = 'resources';
+    private const string RESOURCES = 'resources';
     private static ?string $groupName = null;
 
     /**
@@ -12,7 +12,7 @@ class ResourceController
      * @param string $group
      * @return void
      */
-    public static function setGroupName(string $group)
+    public static function setGroupName(string $group): void
     {
         self::$groupName = $group;
     }
@@ -23,7 +23,7 @@ class ResourceController
      * SR::createTable(); // создать таблицу при первом запуске
      * @return void
      */
-    public static function createTable()
+    public static function createTable(): void
     {
         R::exec('CREATE TABLE IF NOT EXISTS ' . self::RESOURCES . ' (id INT AUTO_INCREMENT PRIMARY KEY,
         group_name VARCHAR(255) NOT NULL, key_name VARCHAR(255) NOT NULL, value TEXT NOT NULL,
@@ -103,7 +103,7 @@ class ResourceController
      * @return void
      * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function updateResourceDetail($group, $key, $detail, bool $check = false)
+    public static function updateResourceDetail($group, $key, $detail, bool $check = false): void
     {
         $data = R::findOne(self::RESOURCES, 'group_name = ? AND key_name = ?', [$group, $key]);
         if ($data && !$check) {
@@ -130,7 +130,7 @@ class ResourceController
      * @param $key
      * @return void
      */
-    public static function deleteResource($group, $key)
+    public static function deleteResource($group, $key): void
     {
         $data = R::findOne(self::RESOURCES, 'group_name = ? AND key_name = ?', [$group, $key]);
         if ($data) {
@@ -145,7 +145,7 @@ class ResourceController
      * @param $group
      * @return void
      */
-    public static function deleteAllResourcesInGroup($group)
+    public static function deleteAllResourcesInGroup($group): void
     {
         $data = R::find(self::RESOURCES, 'group_name = ?', [$group]);
         R::trashAll($data);
@@ -228,7 +228,7 @@ class ResourceController
      * @param null $group
      * @param bool $object
      * @param bool $ordered
-     * @return array
+     * @return array|null
      */
     public static function getAllResourcesInGroup($group = null, bool $object = false, bool $ordered = false): ?array
     {
@@ -272,7 +272,7 @@ class ResourceController
      * @return void
      * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function clearAllDetailsInGroup($group_name, string $default = '')
+    public static function clearAllDetailsInGroup($group_name, string $default = ''): void
     {
         $res = self::getAllResourcesInGroup($group_name);
         foreach ($res as $re) {
@@ -290,7 +290,7 @@ class ResourceController
      * @return void
      * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function clearAllValuesInGroup($group_name, string $default = '')
+    public static function clearAllValuesInGroup($group_name, string $default = ''): void
     {
         $res = self::getAllResourcesInGroup($group_name);
         foreach ($res as $re) {
