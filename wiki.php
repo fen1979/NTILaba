@@ -10,7 +10,7 @@ $backBtn = false;
 
 /* drag and drop file redirect */
 if (isset($_POST['filePath']) && isset($_POST['targetDir'])) {
-    include_once 'core/ResourceController.php';
+    include_once 'core/Constants.php';
     include_once 'core/Utility.php';
     $file = _E($_POST['filePath']);
     $target = _E($_POST['targetDir']);
@@ -174,7 +174,7 @@ NavBarContent(['active_btn' => Y['WIKI'], 'user' => $user, 'page_name' => $page]
 <main style="margin: 0; overflow-y: scroll; height: 80vh;">
     <div class="row p-3" id="search_here">
         <?php
-        function scanDirectory($directory, $isRoot = true)
+        function scanDirectory($directory, $isRoot = true): void
         {
             $files = scandir($directory);
             // Выводим кнопки для директорий на самом верхнем уровне

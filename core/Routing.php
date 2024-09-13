@@ -40,7 +40,7 @@ class Routing
      * @param bool $ignore_keeping
      * @return void
      */
-    public function addRout($url, $path, bool $ignore_keeping = false)
+    public function addRout($url, $path, bool $ignore_keeping = false): void
     {
         $this->pages[$url] = $path;
         $this->ignore_list[$url] = $ignore_keeping;
@@ -68,7 +68,7 @@ class Routing
      * @return void
      */
 
-    public function route($url)
+    public function route($url): void
     {
         // getting the path url for file location
         $fileDir = $this->pages[$url];
@@ -101,7 +101,7 @@ class Routing
      * ВЫХОД ПОЛЬЗОВАТЕЛЕЙ ИЗ СИСТЕМЫ
      * @return void
      */
-    private function logOut()
+    private function logOut(): void
     {
         $user = $_SESSION['userBean'];
         $details = 'User named: ' . $user['user_name'] . ', Sign out successfully in: ' . date('Y/m/d') . ' at ' . date('h:i');
@@ -140,7 +140,7 @@ class Routing
     {
         // Проверка игнорируемых путей
         foreach (IGNORE_LIST as $ignore) {
-            if ($ignore['type'] == 'contains' && strpos($uri, $ignore['value']) !== false) {
+            if ($ignore['type'] == 'contains' && str_contains($uri, $ignore['value'])) {
                 return;
             } elseif ($ignore['type'] == 'exact' && $uri === $ignore['value']) {
                 return;
@@ -165,7 +165,7 @@ class Routing
     private function containsAnyRoute(string $uri): bool
     {
         foreach ($this->pages as $route => $path) {
-            if (strpos($uri, $route) !== false) {
+            if (str_contains($uri, $route)) {
                 return true;
             }
         }

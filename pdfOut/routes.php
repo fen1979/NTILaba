@@ -9,22 +9,22 @@ if (isset($_GET['pid']) && isset($_GET['orid'])) {
         protected string $doc_vers;
         protected string $date;
 
-        public function setDocumentName($x)
+        public function setDocumentName($x): void
         {
             $this->doc_name = $x;
         }
 
-        public function setDocumentRevision($x)
+        public function setDocumentRevision($x): void
         {
             $this->doc_vers = $x;
         }
 
-        public function setStartDate($x)
+        public function setStartDate($x): void
         {
             $this->date = $x;
         }
 
-        public function Header()
+        public function Header(): void
         {
             // Устанавливаем шрифт и выравнивание по центру
             $this->SetFont('dejavusans', 'B', 9);
@@ -49,14 +49,14 @@ if (isset($_GET['pid']) && isset($_GET['orid'])) {
             $this->Cell(35, 8, 'עמוד ' . $this->getAliasNumPage() . ' מתוך ' . $this->getAliasNbPages(), 1, 1, 'L');
         }
 
-        public function Footer()
+        public function Footer(): void
         {
             $this->SetFont('dejavusans', 'B', 5);
             $this->Cell(0, 6, 'עמוד ' . $this->getAliasNumPage() . ' מתוך ' . $this->getAliasNbPages(), 0, 0, 'C');
         }
 
         // Метод для добавления ячеек с автоматическим управлением размером шрифта
-        public function addCellWithAutoFont($w, $h, $text, $border, $ln, $align, $maxChar, $fill = false)
+        public function addCellWithAutoFont($w, $h, $text, $border, $ln, $align, $maxChar, $fill = false): void
         {
             // Убедимся, что $text является строкой
             // с версии 8ю0 метод обязан получать пустую строку вместо null!
@@ -77,7 +77,7 @@ if (isset($_GET['pid']) && isset($_GET['orid'])) {
         }
 
         // Метод для проверки и добавления новой страницы при необходимости
-        public function checkAndAddNewPage($currentHeight)
+        public function checkAndAddNewPage($currentHeight): void
         {
             if ($this->GetY() + $currentHeight > $this->getPageHeight() - $this->getBreakMargin()) {
                 $this->AddPage();

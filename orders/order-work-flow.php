@@ -162,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST)) {
         $sid = !empty($args['step_id']) ? '&#sid-' . $args['step_id'] : ''; // возврат к последнему шагу
 
         // вывод информации об ошибках и успехах
-        redirectTo("order/preview?orid=$orderid&tab=tab$tab" . $sid, $args);
+        redirectTo("order/preview?orid=$orderid&tab=tab$tab" . $sid);
     }
 }
 

@@ -7,7 +7,7 @@
  * @param $mySearchString
  * @return void
  */
-function viewCustomer($result, $col, $mySearchString)
+function viewCustomer($result, $col, $mySearchString): void
 {
     if ($result && !empty($mySearchString)) { ?>
         <thead>
@@ -146,7 +146,7 @@ function viewSupplier($result, $request, $mySearchString): void
  * функция вывода результатов поиска на странице добавления заказа
  * форма поиска по проектам
  */
-function viewLineOfUnit($result, $col, $mySearchString)
+function viewLineOfUnit($result, $col, $mySearchString): void
 {
     //i ВЫВОД РЕЗУЛЬТАТОВ ПОИСКА В МОДАЛЬНОМ ОКНЕ
     if ($result && !empty($mySearchString)) { ?>
@@ -188,7 +188,7 @@ function viewLineOfUnit($result, $col, $mySearchString)
  * функция вывода результата поиска на странице пректов
  * форма глобального поиска
  */
-function viewFullUnit($result, $user)
+function viewFullUnit($result, $user): void
 {
     if ($_SESSION['preview_mode']) {
         //i ВЫВОД ТАБЛИЧНОГО ВИДА ПРОЕКТА ПРИ ПОИСКЕ
@@ -253,7 +253,7 @@ function viewFullUnit($result, $user)
                         <?php
                         //Project Documentation preview or Last step of project if Docs not exist
                         if ($user['preview'] == 'docs') {
-                            if (!empty($value['projectdocs']) && strpos($value['projectdocs'], '.pdf') !== false) { ?>
+                            if (!empty($value['projectdocs']) && str_contains($value['projectdocs'], '.pdf')) { ?>
                                 <iframe src="<?= $value['projectdocs']; ?>"></iframe>
                                 <a href="<?= $value['projectdocs']; ?>" target="_blank" class="mt-2 pdf-link">View Project Docs</a>
                             <?php } else { ?>
@@ -324,7 +324,7 @@ function getOrderProgress($order): string
  * функция вывода результатов поиска на странице заказов
  * глобальная форма поиска
  */
-function viewOrder($result, $user)
+function viewOrder($result, $user): void
 {
     if ($result) {
         if ($user) {
@@ -610,7 +610,7 @@ function viewPartsForUnitBOM($result): void
 
 /**
  * @param $itemImages
- * @return void
+ * @return string
  */
 function itemImagesForChoose($itemImages): string
 {
@@ -699,8 +699,7 @@ function viewWarehouseLogs(array $result): void
      * @return bool
      */
     $isValidJson = function (string $data): bool {
-        json_decode($data);
-        return (json_last_error() === JSON_ERROR_NONE);
+        return (json_validate($data));
     };
 
     if ($result) {
@@ -782,7 +781,7 @@ function viewWarehouseLogs(array $result): void
     }
 }
 
-function viewToolsTable($result)
+function viewToolsTable($result): void
 {
     if ($result) { ?>
         <h2>Search result for Tools</h2>

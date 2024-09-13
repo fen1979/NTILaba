@@ -8,7 +8,12 @@ if (isset($_POST['uid'])) {
 
         if ($logs->object_type == 'PROJECT' || $logs->object_type == 'ORDER' || $logs->object_type == 'ORDER_CHAT') {
             $hd->uid = $logs->id;
-            R::store($hd);
+            try {
+                R::store($hd);
+            } catch (\RedBeanPHP\RedException\SQL $e) {
+                // message collector (text/ color/ auto_hide = true)
+                _flashMessage('Error: ' . $e->getMessage(), 'danger');
+            }
             echo '1';
         }
     }

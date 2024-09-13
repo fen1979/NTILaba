@@ -22,7 +22,7 @@ class Orders
      * @return mixed|\RedBeanPHP\OODBBean
      * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function changeFilters($post, $user)
+    public static function changeFilters($post, $user): mixed
     {
         /* resetup filters by user and status */
         if (isset($post['filter-by-status'])) {
@@ -107,7 +107,7 @@ class Orders
      * @param $post
      * @throws /\RedBeanPHP\RedException\SQL
      */
-    public static function setStatusOrUserInOrder($user, $order_id, $post)
+    public static function setStatusOrUserInOrder($user, $order_id, $post): void
     {
         $post = checkPostDataAndConvertToArray($post);
         $order = R::load(ORDERS, $order_id);
@@ -474,7 +474,7 @@ class Orders
 
         $project_name = $order->project_name;
         $pathToSave = ($pathToSave != null) ? $pathToSave : 'storage/projects/' . $project_name . '/docs/order_bom_for_' . $project_name . '_.xlsx';
-        $path = (strpos($pathToSave, '.xlsx') === false) ? $pathToSave . '.xlsx' : $pathToSave;
+        $path = (!str_contains($pathToSave, '.xlsx')) ? $pathToSave . '.xlsx' : $pathToSave;
         $xlsx = XLSXGeneration::fromArray($orderBOM);
         return $xlsx->saveAs($path);
     }
@@ -503,7 +503,7 @@ class Orders
      * @param null $info
      * @return bool|string[]
      */
-    public static function getFileExtension($file, $info = null)
+    public static function getFileExtension($file, $info = null): array|bool
     {
         $extArray = ['jpg', 'jpeg', 'png', 'webp', 'mp4', 'mp3', 'm4a', 'wav', 'pdf', 'csv', 'xls', 'xlsx', 'doc', 'txt', 'zip', 'rar', '7z'];
 
@@ -672,7 +672,7 @@ class Orders
      * @param $files
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    public static function saveChatMessage($order_id, $user, $post, $files = null)
+    public static function saveChatMessage($order_id, $user, $post, $files = null): void
     {
         $result = [null];
         $order = R::load(ORDERS, $order_id);
@@ -722,7 +722,7 @@ class Orders
      * @param $order_id
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    public static function editOrDeleteMessage($post, $user, $order_id)
+    public static function editOrDeleteMessage($post, $user, $order_id): void
     {
         $log_details = $log_action = null;
         if (isset($post['editChatMessage'])) {
@@ -1409,7 +1409,7 @@ class Orders
      * @param array|null $projectBom
      * @param $reserve
      */
-    public static function ReserveBomForOrder($user, array $get, ?array $projectBom, $reserve)
+    public static function ReserveBomForOrder($user, array $get, ?array $projectBom, $reserve): void
     {
         $order = R::load(ORDERS, _E($get['orid']));
         $reservations = [];
@@ -1464,10 +1464,9 @@ class Orders
      * Undo reserved items for project/order
      * @param $user
      * @param array $get
-     * @param array|null $projectBom
      * @param $reserve
      */
-    public static function UnReserveBomForOrder($user, array $get, $reserve)
+    public static function UnReserveBomForOrder($user, array $get, $reserve): void
     {
         $order = R::load(ORDERS, _E($get['orid']));
         $reserv = R::findAll(WH_RESERV, 'order_uid = ? AND project_uid = ?', [$order->id, $order->projects_id]);

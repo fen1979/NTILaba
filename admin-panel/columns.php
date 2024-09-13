@@ -178,13 +178,13 @@ NavBarContent(['title' => 'Columns', 'user' => $user, 'page_name' => $page]); ?>
         }
     }
 
-    function createPriorityColumnSelectionForm()
+    function createPriorityColumnSelectionForm(): void
     {
 
         echo 'hi createPriorityColumnSelectionForm';
     }
 
-    function createOrderDetailsSelectionForm()
+    function createOrderDetailsSelectionForm(): void
     {
         echo 'hi createOrderDetailsSelectionForm';
     }

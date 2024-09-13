@@ -28,7 +28,7 @@ if (isset($_GET['pid']) && isset($_GET['sid'])) {
     $routeID = $step['routeid'];
     $toolID = $step['tool'];
     $stepImage = $step['image'];
-    $stepVideo = (strpos($step['video'], '.mp4') !== false) ? $step['video'] : 'none';
+    $stepVideo = (str_contains($step['video'], '.mp4')) ? $step['video'] : 'none';
     $projectName = $project->projectname;
 }
 ?>

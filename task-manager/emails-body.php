@@ -1,5 +1,5 @@
 <?php
-function emailTaskBody($task, $salt)
+function emailTaskBody($task, $salt): false|string
 {
     // Начинаем буферизацию вывода
     ob_start();

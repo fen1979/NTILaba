@@ -1,4 +1,6 @@
 <?php
+/** @noinspection PhpUnusedLocalVariableInspection */
+/** @noinspection PhpUnusedParameterInspection */
 
 class TaskManager
 {
@@ -48,7 +50,7 @@ class TaskManager
     /**
      * @throws \PHPMailer\PHPMailer\Exception
      */
-    private static function sendNotificationToMail($emails, $user, $task)
+    private static function sendNotificationToMail($emails, $user, $task): void
     {
         require 'emails-body.php';
         // Преобразуем строку с email-ами в массив, разделяя по запятой
@@ -66,7 +68,7 @@ class TaskManager
         }
     }
 
-    public static function createNewTask($post, $user)
+    public static function createNewTask($post, $user): void
     {
         $post = checkPostDataAndConvertToArray($post);
 
@@ -93,7 +95,7 @@ class TaskManager
         }
     }
 
-    public static function updateTask($post, $user)
+    public static function updateTask($post, $user): void
     {
         $post = checkPostDataAndConvertToArray($post);
         try {
@@ -122,7 +124,7 @@ class TaskManager
         }
     }
 
-    public static function createNewTasksList($post, $user)
+    public static function createNewTasksList($post, $user): void
     {
         $post = checkPostDataAndConvertToArray($post);
         //Get the values from form and save it in variables
@@ -134,14 +136,14 @@ class TaskManager
             $list->list_description = $list_description;
             R::store($list);
             _flashMessage('List Added Successfully');
-            redirectTo('manage-list', $args);
+            redirectTo('manage-list');
         } catch (Exception $e) {
             _flashMessage('Failed to Add List ' . $e->getMessage(), 'danger');
         }
 
     }
 
-    public static function updateTasksList($post, $user)
+    public static function updateTasksList($post, $user): void
     {
         $post = checkPostDataAndConvertToArray($post);
 
@@ -154,13 +156,13 @@ class TaskManager
             $list->list_description = $list_description;
             R::store($list);
             _flashMessage('List Updated Successfully');
-            redirectTo('manage-list', $args);
+            redirectTo('manage-list');
         } catch (Exception $e) {
             _flashMessage('Failed to Update List ' . $e->getMessage(), 'danger');
         }
     }
 
-    public static function deleteTaskOrList($get, $post, $user)
+    public static function deleteTaskOrList($get, $post, $user): void
     {
         // delete task
         if (isset($get['task_id']) && isset($get['delete'])) {

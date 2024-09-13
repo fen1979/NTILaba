@@ -1,4 +1,5 @@
 <?php
+/** @noinspection PhpUnused */
 require_once 'libs/tcpdf/tcpdf.php';
 
 if (isset($_GET['pid']) && isset($_GET['orid'])) {
@@ -10,27 +11,27 @@ if (isset($_GET['pid']) && isset($_GET['orid'])) {
         protected string $date;
         protected string $d_date;
 
-        public function setDocumentName($x)
+        public function setDocumentName($x): void
         {
             $this->order_id = $x;
         }
 
-        public function setDocumentRevision($x)
+        public function setDocumentRevision($x): void
         {
             $this->unit_name = $x;
         }
 
-        public function setStartDate($x)
+        public function setStartDate($x): void
         {
             $this->date = $x;
         }
 
-        public function setEndDate($x)
+        public function setEndDate($x): void
         {
             $this->d_date = $x;
         }
 
-        public function Header()
+        public function Header(): void
         {
             $this->SetFont('dejavusans', 'B', 20);
             $this->Cell(95, 18, 'Order ID: ' . $this->order_id, 0, 1, 'L');
@@ -43,7 +44,7 @@ if (isset($_GET['pid']) && isset($_GET['orid'])) {
         }
 
         // Метод для проверки и добавления новой страницы при необходимости
-        public function checkAndAddNewPage($currentHeight)
+        public function checkAndAddNewPage($currentHeight): void
         {
             if ($this->GetY() + $currentHeight > $this->getPageHeight() - $this->getBreakMargin()) {
                 $this->AddPage();

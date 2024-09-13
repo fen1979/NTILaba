@@ -53,7 +53,7 @@ if (isset($_POST['update-user-password'])) {
     $timer = '<meta http-equiv="refresh" content="6;url=/sign-out">';
     _flashMessage('The password has been changed! Re-authorization required! You will be redirected to the login page. Wait!', 'danger');
 }
-function deleteModalRouteForm($createFormAction = '')
+function deleteModalRouteForm($createFormAction = ''): void
 { ?>
     <!--  модальное окно форма для удаления  -->
     <div class="modal" id="deleteModal" style="backdrop-filter: blur(15px);">

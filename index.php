@@ -4,7 +4,7 @@
  * started 2023/11.
  * License GNU F.O.S
  */
-require_once 'core/Сonstants.php'; // подключаем переменные
+require_once 'core/Constants.php'; // подключаем переменные
 require_once 'core/Utility.php'; // подключаем утилиты
 require_once 'layout/PageLayout.php'; // подключаем лайоут
 

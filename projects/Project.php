@@ -11,7 +11,7 @@ class Project
      * @param bool $isNew
      * @return array
      */
-    private static function saveProjectDocumentation($files, $projectName, $filename = '', bool $isNew = true): array
+    private static function saveProjectDocumentation($files, $projectName, mixed $filename = '', bool $isNew = true): array
     {
         var_dump($files);
         $dataArray = ['args' => null, 'filename' => null];
@@ -33,7 +33,7 @@ class Project
 
             // Переименование старого файла если это замена
             if (!$isNew) {
-                if (strpos($filename, '.pdf') !== false && is_file($filename)) {
+                if (str_contains($filename, '.pdf') && is_file($filename)) {
                     rename($filename, 'archivated-' . $filename);
                 }
             }
@@ -111,7 +111,7 @@ class Project
      * @param $newName
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    private static function changeProjectName($id, $newName)
+    private static function changeProjectName($id, $newName): void
     {
         // Загрузка проекта
         $project = R::load(PROJECTS, $id);
@@ -149,7 +149,7 @@ class Project
         $project->docsdir = $newDocsDir;
 
         // если еть докуиентация то меняем ее имя для правильного вывода на страницах
-        if (!empty($project->projectdocs) && strpos($project->projectdocs, '.pdf') !== false)
+        if (!empty($project->projectdocs) && str_contains($project->projectdocs, '.pdf'))
             $project->projectdocs = str_replace($oldName, $newName, $project->projectdocs);
 
         // Загрузка всех шагов проекта
@@ -278,7 +278,7 @@ class Project
      * @return void
      * @throws //\RedBeanPHP\RedException\SQL
      */
-    public static function editProjectInformation($post, $user, $files = null)
+    public static function editProjectInformation($post, $user, $files = null): void
     {
         $post = checkPostDataAndConvertToArray($post);
         $log_details = '<h4>Changes</h4>';
@@ -387,7 +387,7 @@ class Project
      * @return void
      * @throws /\RedBeanPHP\RedException\SQL
      */
-    public static function createProjectBomItem($post, $user, $project_id)
+    public static function createProjectBomItem($post, $user, $project_id): void
     {
         $post = checkPostDataAndConvertToArray($post);
         $project = R::load(PROJECTS, $project_id);
@@ -436,7 +436,7 @@ class Project
      * @return void
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    public static function importProjectBomFromFile($files, $post, $user, $project_id)
+    public static function importProjectBomFromFile($files, $post, $user, $project_id): void
     {
         $project = R::load(PROJECTS, $project_id);
         // converting post to assoc array
@@ -579,7 +579,7 @@ class Project
      * @param $user
      * @return void
      */
-    public static function deleteProjectBomItem($post, $user)
+    public static function deleteProjectBomItem($post, $user): void
     {
         $post = checkPostDataAndConvertToArray($post);
         if (checkPassword($post['password'], true, $user)) {
@@ -610,7 +610,7 @@ class Project
      * @return void
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    public static function archiveOrExstractProject($post, $user)
+    public static function archiveOrExstractProject($post, $user): void
     {
         $log_details = '';
         /* Project archivation */
@@ -654,7 +654,7 @@ class Project
      * @param $user
      * @return void
      */
-    public static function deleteProject($post, $user)
+    public static function deleteProject($post, $user): void
     {
         if (checkPassword(_E($post['password']))) {
             $projectid = _E($post['projectid']);
@@ -716,7 +716,7 @@ class Project
      * @param $project_id
      * @throws /\RedBeanPHP\RedException\SQL
      */
-    public static function addNewStepToProject($post, $user, $files, $project_id)
+    public static function addNewStepToProject($post, $user, $files, $project_id): void
     {
         $uploadDir = TEMP_FOLDER;
         $project = R::load(PROJECTS, $project_id);
@@ -856,7 +856,7 @@ class Project
      * @return void
      * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function editProjectStep($post, $user, $files, $step_id)
+    public static function editProjectStep($post, $user, $files, $step_id): void
     {
         $post = checkPostDataAndConvertToArray($post);
         $toHistory = $stepToChange = R::load(PROJECT_STEPS, $step_id);
@@ -1239,7 +1239,7 @@ class Project
      * @param $user
      * @return void
      */
-    public static function deleteProjectStep($post, $user)
+    public static function deleteProjectStep($post, $user): void
     {
         if (checkPassword(_E($post['password']))) {
             $project = R::load(PROJECTS, _E($post['projectid']));

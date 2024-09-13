@@ -244,6 +244,7 @@ NavBarContent(['title' => 'Add New', 'record_id' => $_GET['pid'] ?? null, 'user'
 </div>
 
 <?php PAGE_FOOTER($page, false); ?>
+<!--suppress JSIncompatibleTypesComparison -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // поиск по списку элементов рут карты

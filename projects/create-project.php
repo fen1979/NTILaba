@@ -340,7 +340,7 @@ if ($backButton == '/') {
 
             <?php
             // если файл пдф был загружен (для редактирования)
-            if (!empty($project['projectdocs']) && strpos($project['projectdocs'], '.pdf') !== false) { ?>
+            if (!empty($project['projectdocs']) && str_contains($project['projectdocs'], '.pdf')) { ?>
                 <div class="p-1 col">
                     <a type="button" target="_blank" class="btn btn-outline-info form-control" href="<?= $project['projectdocs'] ?? ''; ?>">
                         View or Download Document

@@ -71,7 +71,7 @@ class Management
     {
         //$partName = preg_replace(['/[^a-z0-9 \-_]/', '/[ \-]+/'], ['', '_'], strtolower($toolName));
         // Убираем префикс data:image/...;base64, если он есть
-        if (strpos($imageData, "base64,") !== false) {
+        if (str_contains($imageData, "base64,")) {
             list($typePart, $imageData) = explode('base64,', $imageData);
             // Получаем тип изображения из строки data URI
             preg_match("/^data:image\/(\w+);/", $typePart, $matches);
@@ -109,7 +109,7 @@ class Management
      * @param $user
      * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function deletingAnItem($post, $user)
+    public static function deletingAnItem($post, $user): void
     {
         list($who, $id) = explode('-', $post['idForUse']);
 
@@ -190,7 +190,7 @@ class Management
      * @param $user
      * @throws //\RedBeanPHP\RedException\SQL
      */
-    public static function createUpdateRoutAction($post, $user)
+    public static function createUpdateRoutAction($post, $user): void
     {
         $post = checkPostDataAndConvertToArray($post);
 
@@ -228,7 +228,7 @@ class Management
      * @param $user
      * @throws //\RedBeanPHP\RedException\SQL
      */
-    public static function createUpdateWarehouseType($post, $user)
+    public static function createUpdateWarehouseType($post, $user): void
     {
         $warehouseType = R::load(WH_TYPES, _E($post['wh-action-editing']));
         if (isset($post['wh-action-editing']) && $warehouseType) {
@@ -262,7 +262,7 @@ class Management
      * @param $thisUser
      * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function addOrUpdateUsersData($post, $thisUser)
+    public static function addOrUpdateUsersData($post, $thisUser): void
     {
         $post = checkPostDataAndConvertToArray($post);
         $name = $post['name'];
@@ -364,7 +364,7 @@ class Management
      * @param $user
      * @throws //\RedBeanPHP\RedException\SQL
      */
-    public static function createUpdateTools($post, $files, $user)
+    public static function createUpdateTools($post, $files, $user): void
     {
         $post = checkPostDataAndConvertToArray($post);
         $log_details = '';
@@ -406,7 +406,7 @@ class Management
         /* saving image for tool */
         // если фото было где то скопированно а не выбрано физически
         $pastedImagexist = false;
-        if (!empty($_POST['imageData']) && strpos($_POST['imageData'], 'data:image') === 0) {
+        if (!empty($_POST['imageData']) && str_starts_with($_POST['imageData'], 'data:image')) {
             $pastedImagexist = true;
             $name = $post['manufacturer_name'] . '_' . $post['device_model'];
             $result = self::convertAndSavePastedImageForItem($post['imageData'], $name);
@@ -490,7 +490,7 @@ class Management
      * @param $userId
      * @throws \\RedBeanPHP\RedException\SQL
      */
-    public static function accountSettings($post, $userId)
+    public static function accountSettings($post, $userId): void
     {
         // Получаем пользователя
         $user = R::load(USERS, $userId);
@@ -522,7 +522,7 @@ class Management
      * @param $post
      * @throws //\PHPMailer\PHPMailer\Exception
      */
-    public static function updatePasswordForUsers(string $userId, $post)
+    public static function updatePasswordForUsers(string $userId, $post): void
     {
         if (isset($post["update-user-password"])) {
             $user = R::load(USERS, $userId);

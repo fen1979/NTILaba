@@ -85,7 +85,7 @@ NavBarContent(['title' => $title, 'record_id' => $projectID ?? null, 'user' => $
             <div class="img-video-container">
                 <!-- image -->
                 <img src="<?= $s['image'] ?>" alt="Image Placeholder" class="magnify-image">
-                <?php list($src, $act) = _if((strpos($s['video'], '.mp4') !== false), [$s['video'], ''], ['', 'hidden']); ?>
+                <?php list($src, $act) = _if((str_contains($s['video'], '.mp4')), [$s['video'], ''], ['', 'hidden']); ?>
                 <!-- video -->
                 <video controls class="video <?= $act ?>" width="640" height="480" src="<?= $src ?>" id="video-file">
                     Your browser isn't support video!

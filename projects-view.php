@@ -98,8 +98,8 @@ navBarContent(['active_btn' => Y['PROJECT'], 'user' => $user, 'page_name' => $pa
                         ?>
                         <td>
                             <?php
-                            $d = _if((strpos($value['projectdocs'], '.pdf') === false), 'disabled', '');
-                            $ds = _if((strpos($value['projectdocs'], '.pdf') !== false), $value['projectdocs'], '');
+                            $d = _if((!str_contains($value['projectdocs'], '.pdf')), 'disabled', '');
+                            $ds = _if((str_contains($value['projectdocs'], '.pdf')), $value['projectdocs'], '');
                             ?>
                             <a type="button" class="w-100 btn btn-sm btn-outline-info <?= $d; ?> pdf-element" target="_blank"
                                href="<?= $value['projectdocs'] ?>" data-pdf-path="<?= $ds; ?>">
@@ -147,7 +147,7 @@ navBarContent(['active_btn' => Y['PROJECT'], 'user' => $user, 'page_name' => $pa
                             <?php
                             //Project Documentation preview or Last step of project if Docs not exist
                             if ($user['preview'] == 'docs') {
-                                if (!empty($value['projectdocs']) && strpos($value['projectdocs'], '.pdf') !== false) { ?>
+                                if (!empty($value['projectdocs']) && str_contains($value['projectdocs'], '.pdf')) { ?>
                                     <iframe src="<?= $value['projectdocs']; ?>"></iframe>
                                     <a href="<?= $value['projectdocs']; ?>" target="_blank" class="mt-2 pdf-link">View Project Docs</a>
                                 <?php } else { ?>

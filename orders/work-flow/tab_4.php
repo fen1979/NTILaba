@@ -2,7 +2,7 @@
     <div class="col-8">
         <?php
         $d = 'disabled';
-        if (!empty($project['projectdocs']) && strpos($project['projectdocs'], '.pdf') !== false) {
+        if (!empty($project['projectdocs']) && str_contains($project['projectdocs'], '.pdf')) {
             $d = '';
             ?>
             <iframe id="pdf-docs" width="100%" height="340%" src="/<?= $project['projectdocs']; ?>"></iframe>

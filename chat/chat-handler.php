@@ -10,7 +10,12 @@ switch ($action) {
     case 'sendMessage':
         $receiverId = $_POST['receiver_id'];
         $message = $_POST['message'];
-        $result = ChatController::saveMessage($userId, $receiverId, $message);
+        try {
+            $result = ChatController::saveMessage($userId, $receiverId, $message);
+        } catch (\RedBeanPHP\RedException\SQL $e) {
+            // message collector (text/ color/ auto_hide = true)
+            _flashMessage('Error: ' . $e->getMessage(), 'danger');
+        }
         echo json_encode($result);
         break;
 
@@ -22,7 +27,12 @@ switch ($action) {
 
     case 'deleteMessage':
         $messageId = $_POST['message_id'];
-        $result = ChatController::deleteMessage($messageId);
+        try {
+            $result = ChatController::deleteMessage($messageId);
+        } catch (\RedBeanPHP\RedException\SQL $e) {
+            // message collector (text/ color/ auto_hide = true)
+            _flashMessage('Error: ' . $e->getMessage(), 'danger');
+        }
         echo json_encode($result);
         break;
 

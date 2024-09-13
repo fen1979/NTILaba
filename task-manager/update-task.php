@@ -7,7 +7,7 @@ TaskManager::deleteTaskOrList($_GET, $_POST, $user);
 // update task information or status
 if (isset($_POST['task-id']) && isset($_POST['update'])) {
     TaskManager::updateTask($_POST, $user);
-    redirectTo('task_list', $args);
+    redirectTo('task_list');
 }
 
 // preview task before updateing

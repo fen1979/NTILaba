@@ -14,44 +14,44 @@ if (isset($_GET['pid'])) {
         /**
          * @var float|int
          */
-        private $headerHeight;
+        private int|float $headerHeight;
 
-        public function setTitle($title)
+        public function setTitle($title): void
         {
             $this->projectName = $title;
         }
 
-        public function SetDecription($description)
+        public function SetDecription($description): void
         {
             $this->desc = $description;
         }
 
-        public function SetVers($revision)
+        public function SetVers($revision): void
         {
             $this->revision = $revision;
         }
 
-        public function SetStartDate($date_in)
+        public function SetStartDate($date_in): void
         {
             $this->date = $date_in;
         }
 
-        public function SetValidation($show)
+        public function SetValidation($show): void
         {
             $this->validation = $show;
         }
 
-        public function getHeaderHeight()
+        public function getHeaderHeight(): float|int
         {
             return $this->headerHeight;
         }
 
-        public function SetVideoLink($videoLink)
+        public function SetVideoLink($videoLink): void
         {
             $this->video = $videoLink;
         }
 
-        public function Header()
+        public function Header(): void
         {
             // Устанавливаем шрифт и выравнивание по центру
             $this->SetFont('dejavusans', 'B', 9);
@@ -192,7 +192,7 @@ if (isset($_GET['pid'])) {
             }
 
             // i video
-            if (strpos($value['video'], 'mp4') !== false) {
+            if (str_contains($value['video'], 'mp4')) {
                 // Получаем текущую вертикальную позицию
                 $y = $pdf->GetY();
                 $tempImagePath = addVideoFrameToPDF($value['video']); // $value['video'] - путь к файлу видео
@@ -233,7 +233,7 @@ if (isset($_GET['pid'])) {
     exit();
 }
 
-function changeImageExt($patx, $count)
+function changeImageExt($patx, $count): void
 {
     if (file_exists($patx)) {
         // Load the WebP file
@@ -246,13 +246,13 @@ function changeImageExt($patx, $count)
     }
 }
 
-function clearTmpFolder()
+function clearTmpFolder(): void
 {
     $uploadDir = TEMP_FOLDER;
     array_map('unlink', glob("$uploadDir*.*"));
 }
 
-function addVideoFrameToPDF($videoPath)
+function addVideoFrameToPDF($videoPath): false|string
 {
     // Путь для сохранения изображения
     $tempImagePath = TEMP_FOLDER . 'frame.jpeg';

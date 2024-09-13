@@ -60,8 +60,14 @@ if (isset($_GET['orid']) && isset($_GET['pid'])) {
 if (isset($_POST['approved-for-work'])) {
     $order = R::load(ORDERS, _E($_POST['approved-for-work']));
     $order->pre_assy = 1; // Partial Assembly Allowed
-    R::store($order);
-    redirectTo("order/preview?orid={$_GET['orid']}&tab=tab1");
+    try {
+        R::store($order);
+        redirectTo("order/preview?orid={$_GET['orid']}&tab=tab1");
+    } catch (\RedBeanPHP\RedException\SQL $e) {
+        // message collector (text/ color/ auto_hide = true)
+        _flashMessage('Error: ' . $e->getMessage(), 'danger');
+    }
+
 }
 
 /* добавка части к ВОМ и составление таблицы материалов которые есть для ЗАКАЗ НАРЯДА */
@@ -71,17 +77,12 @@ if (isset($_POST['approved-for-work'])) {
 // изменить данные для работы с существующими запчастями
 if (isset($_POST['import_qty']) && isset($_POST['item_id'])) {
     $item_id = _E($_POST['item_id']);
-    try {
-        if (WareHouse::updateQuantityForItem($_POST, $user)) {
-            $consignment = "consignment={$_POST['consignment']}";
-            $item_id = "item-id={$_POST['item_id']}";
-            $qty = "qty={$_POST['import_qty']}";
-            $backLink = "orid={$_GET['orid']}&pid={$_GET['pid']}";
-            redirectTo("arrivals?new-item&$consignment&$item_id&$qty&$backLink");
-        }
-    } catch (\RedBeanPHP\RedException\SQL $e) {
-        // message collector (text/ color/ auto_hide = true)
-        _flashMessage('Something is gone wrong! ' . $e->getMessage(), 'danger');
+    if (WareHouse::updateQuantityForItem($_POST, $user)) {
+        $consignment = "consignment={$_POST['consignment']}";
+        $item_id = "item-id={$_POST['item_id']}";
+        $qty = "qty={$_POST['import_qty']}";
+        $backLink = "orid={$_GET['orid']}&pid={$_GET['pid']}";
+        redirectTo("arrivals?new-item&$consignment&$item_id&$qty&$backLink");
     }
 }
 

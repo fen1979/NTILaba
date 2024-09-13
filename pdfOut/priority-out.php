@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 const ID = 0;
 const PROJECT_NAME = 1;
 const ASMAX_1 = 2;

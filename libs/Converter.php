@@ -29,11 +29,11 @@ class Converter
     public static function isMp4H264($filePath): bool
     {
         $output = shell_exec("ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,codec_long_name -of default=noprint_wrappers=1:nokey=1 '$filePath'");
-        return strpos($output, 'h264') !== false;
+        return str_contains($output, 'h264');
     }
 
     // Функция для конвертации видео в MP4 H.264
-    public static function convertToMp4H264($source, $target)
+    public static function convertToMp4H264($source, $target): void
     {
         shell_exec("ffmpeg -i '$source' -vcodec libx264 -acodec aac '$target'");
     }

@@ -62,7 +62,7 @@ class TrackingController
         });
 
         // preview table track list one item for print
-        $this->requestData->executeIfAllGetKeysExist('ordered-list', function ($data) use (&$tl, &$result, &$settings) {
+        $this->requestData->executeIfAllGetKeysExist('ordered-list', function () use (&$tl, &$result, &$settings) {
             $result = R::findAll(TRACK_DATA, 'recieved = 0 AND processed = 0');
             $settings = getUserSettings($this->user, TRACK_DATA);
             $tl = true;
@@ -101,7 +101,7 @@ class TrackingController
     }
 
     // Метод для обработки каждого файла (конвертация и сохранение)
-    private function processFile($file, &$paths, &$attachments, $target_dir)
+    private function processFile($file, &$paths, &$attachments, $target_dir): void
     {
         $tmp_path = $file['tmp_name'];
         $original_name = $file['name'];
@@ -138,14 +138,14 @@ class TrackingController
      * - Метод для отправки уведомлений
      * @throws \PHPMailer\PHPMailer\Exception
      */
-    private function sendNotification($track, $transferUser, $attachments, $cron = false)
+    private function sendNotification($track, $transferUser, $attachments, $cron = false): void
     {
         $eml = '';
         $emails = [];
         $salt = SALT_PEPPER;
 
         foreach (R::findAll(USERS) as $us) {
-            if ($us['notify'] == 1 && strpos($us['notify_type'], '1') !== false) {
+            if ($us['notify'] == 1 && str_contains($us['notify_type'], '1')) {
                 $eml .= "{$us['email']}, ";
                 $emails[] = $us['email'];
             }
@@ -174,7 +174,7 @@ class TrackingController
     /**
      * @throws \PHPMailer\PHPMailer\Exception
      */
-    public function cronRequest($track, $transferUser, $attachments)
+    public function cronRequest($track, $transferUser, $attachments): void
     {
         $this->sendNotification($track, $transferUser, $attachments, true);
     }

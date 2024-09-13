@@ -26,7 +26,7 @@ if (isset($_POST['userName']) && isset($_POST['userPassword'])) {
         } else {
             // смотрим где было последнее посещение и переходим туда
             if ($user->last_action) {
-                $url = (strpos($user->last_action, 'assy_flow_pdf') === false && strpos($user->last_action, 'route_card') === false)
+                $url = (!str_contains($user->last_action, 'assy_flow_pdf') && !str_contains($user->last_action, 'route_card'))
                     ? $user->last_action : $user->link;
                 redirectTo(ltrim($url, '/'));
             } else {

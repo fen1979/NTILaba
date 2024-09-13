@@ -1,9 +1,10 @@
-<?php
+<?php /** @noinspection PhpUnused */
 
 /**
  * @throws \PHPMailer\PHPMailer\Exception
+ * @throws Exception
  */
-function checkToolsNextCheckDate()
+function checkToolsNextCheckDate(): void
 {
     $tools = R::findAll(TOOLS);
 
@@ -36,7 +37,7 @@ function checkToolsNextCheckDate()
         }
 
         if (!empty($body)) {
-            echo $answer = Mailer::SendEmailNotification($mail, $name, $subject, $body);
+            echo Mailer::SendEmailNotification($mail, $name, $subject, $body);
             writeLogs($logdata);
         }
     }
@@ -75,7 +76,10 @@ function writeLogs($logdata)
 
 }
 
-function sendNotificationAboutLongTimeWaitingParcelCheck()
+/**
+ * @throws \PHPMailer\PHPMailer\Exception
+ */
+function sendNotificationAboutLongTimeWaitingParcelCheck(): void
 {
     // check what track is compare with 48 hours
     // get all data from track
@@ -89,4 +93,5 @@ try {
     //checkToolsNextCheckDate();
     //sendNotificationAboutLongTimeWaitingParcelCheck();
 } catch (\PHPMailer\PHPMailer\Exception $e) {
+
 }

@@ -161,7 +161,7 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
 }
 
 // function for any search in DB
-function dynamicSearch($tableName, $columns, $searchString)
+function dynamicSearch($tableName, $columns, $searchString): \RedBeanPHP\Cursor|array|int|null
 {
     // Проверяем, что имя таблицы и столбцы допустимы
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
@@ -187,7 +187,7 @@ function dynamicSearch($tableName, $columns, $searchString)
 }
 
 // function for search in warehouse only!!!
-function SearchWarehouseItems($searchTerm, $table_one, $table_two)
+function SearchWarehouseItems($searchTerm, $table_one, $table_two): \RedBeanPHP\Cursor|array|int|null
 {
     // SQL-запрос для поиска в двух таблицах и объединения результатов
     // Используем * для выбора всех полей из обеих таблиц
