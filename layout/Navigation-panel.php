@@ -98,7 +98,11 @@ function NavBarContent($navBarData): void
                 <!-- NAVIGATION PANEL BUTTONS -->
                 <div class="collapse navbar-collapse" id="navBarContent">
                     <ul class="navbar-nav me-auto">
-
+                        <li class="nav-item">
+                            <button type="button" class="url btn btn-sm btn-outline-info text-white" value="home" title="Home screen">
+                                <i class="bi bi-house"></i>
+                            </button>
+                        </li>
                         <?php switch ($page) {
                             case 'admin-panel':
                                 ADMIN_PANEL_BUTTONS($btn_title, $_GET['route-page']);
@@ -178,7 +182,7 @@ function TRACKING_PAGE_BUTTONS()
 {
     ?>
     <li class="nav-item">
-        <button type="button" class="url act btn btn-sm btn-outline-secondary text-white" value="home">Home</button>
+        <button type="button" class="url act btn btn-sm btn-outline-secondary text-white" value="ordered-list?ordered-list=1">Ordered</button>
     </li>
 
     <li class="nav-item">

@@ -23,3 +23,7 @@ spl_autoload_register(function ($class) {
         }
     }
 });
+
+// aliases for some classes
+class_alias('ResourceController', 'SR');
+class_alias('CPController', 'CPC');

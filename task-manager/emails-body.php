@@ -47,7 +47,7 @@ function emailTaskBody($task, $salt)
             </div>
         </div>
         <div>
-            <a role="button" href="https://nti.icu/update-task?task_id=<?= $task_id; ?>&update=<?= $salt ?>">
+            <a role="button" href="https://nti.icu/update-task?task_id=<?= $task_id; ?>&<?= $salt ?>">
                 Update or Change task information
             </a>
         </div>

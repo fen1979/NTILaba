@@ -2,7 +2,7 @@
 
 /* ==================================================== PROJECT CONSTANTS ==================================================== */
 const BASE_URL = 'https://nti.icu/'; // path to site root catalog (index.php)
-const SALT_PEPPER = 'w96qH3b3ijLiqFD';
+const SALT_PEPPER = 'saspens=w96qH3b3ijLiqFD';
 
 $lang = substr($_SERVER ['HTTP_ACCEPT_LANGUAGE'], 0, 2);
 define("LANG", $lang);
@@ -59,7 +59,8 @@ const WH_ORDERED_ITEMS = 'whordereditems'; // СПИСОК ЗАКАЗАННЫХ 
 const PO_AIRRVAL = 'whstaging'; // СПИСОК ВРЕМЕННО ХРАНИМЫХ ЧАСТЕЙ НЕ ПРОШЕДШИХ ТОЧНУЮ ПРОВЕРКУ
 const ASSY_PROGRESS = 'assyprogress'; // состояние работы над заказом
 const TOOLS = 'tools'; // таблица инструмента компании
-const ROUTE_ACTION = 'routeaction'; // рут карта список
+const ROUTE_ACTION = 'routeaction'; //i рут карта список fixme merge in to spme cart and destroy the table
+const ROUTE_CARDS = 'routecards'; // список рут карт
 const HISTORY = 'history'; // история изменений в сборочных шагах
 const ORDER_CHATS = 'orderchats'; // сообщения внутри заказа
 //const USER_CHATS = 'userchats'; // TODO user global chats

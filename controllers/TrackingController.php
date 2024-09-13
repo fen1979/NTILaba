@@ -1,4 +1,5 @@
 <?php
+
 class TrackingController
 {
     private ?object $user;
@@ -23,6 +24,7 @@ class TrackingController
             $track->asmahta = $data['asmahta']; // номер документа если есть (приходная накладная)
             $track->transferTo = $data['transferTo']; //  кто ответственный за обработку
             $track->processed = 0; // обработан ли приход
+            $track->recieved = 1; // получена ли посылка требуется для заказанных посылок
             $transferUser = R::load(USERS, $data['transferTo']); // имя пользователя на кого кперевели
             $track->description = $data['description'] ?? ''; // описание чего то
 
@@ -55,6 +57,13 @@ class TrackingController
         // preview table track list one item for print
         $this->requestData->executeIfAllGetKeysExist('print-track-info', function ($data) use (&$tl, &$result, &$settings) {
             $result = R::load(TRACK_DATA, $data['tid']);
+            $settings = getUserSettings($this->user, TRACK_DATA);
+            $tl = true;
+        });
+
+        // preview table track list one item for print
+        $this->requestData->executeIfAllGetKeysExist('ordered-list', function ($data) use (&$tl, &$result, &$settings) {
+            $result = R::findAll(TRACK_DATA, 'recieved = 0 AND processed = 0');
             $settings = getUserSettings($this->user, TRACK_DATA);
             $tl = true;
         });
@@ -154,7 +163,7 @@ class TrackingController
         $html_body .= "<p>Transferred to: " . $transferUser->user_name . "</p>";
         $html_body .= "<pre>" . $track->description . "</pre>";
         $html_body .= "<br><br>";
-        $html_body .= "<a style='font-size: x-large;' href='https://nti.icu/tracking?track-list=1&update=$salt'>Preview Track List</a>";
+        $html_body .= "<a style='font-size: x-large;' href='https://nti.icu/tracking?track-list=1&$salt'>Preview Track List</a>";
 
         $mailerResult = Mailer::SendNotifications($emails, $subject, $html_body, $attachments);
 

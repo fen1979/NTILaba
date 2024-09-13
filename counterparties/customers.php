@@ -13,21 +13,30 @@ if (isset($_GET['routed-from']) || isset($_GET['search'])) {
 if (isset($_POST['createCstomer'])) {
     // if customer was edited
     if (isset($_POST['cuid'])) {
-        CPController::updateCustomerData($_POST, $user);
+        try {
+            CPC::updateCustomerData($_POST, $user);
+        } catch (\RedBeanPHP\RedException\SQL $e) {
+            // message collector (text/ color/ auto_hide = true)
+            _flashMessage('Error: ' . $e->getMessage(), 'danger');
+        }
     } else {
         // if customer was created
-        CPController::createCustomer($_GET, $_POST, $user);
+        try {
+            CPC::createCustomer($_GET, $_POST, $user);
+        } catch (\RedBeanPHP\RedException\SQL $e) {
+            // message collector (text/ color/ auto_hide = true)
+            _flashMessage('Error: ' . $e->getMessage(), 'danger');
+        }
     }
     if (!empty($args['location'])) {
-        $_SESSION['info'] = $args;
-        header("Location: {$args['location']}");
-        exit();
+        redirectTo($args['location']);
     }
 }
 
 // get data for customer editing
 if (isset($_POST['edit-customer']) && isset($_POST['cuid'])) {
     $client = R::load(CLIENTS, _E($_POST['cuid']));
+    $saveButtonText = 'Update Customer';
 }
 
 /* настройки вывода от пользователя */
@@ -57,11 +66,8 @@ if ($user) {
 <body>
 <?php
 // NAVIGATION BAR
-$navBarData['title'] = 'Customers';
-$navBarData['active_btn'] = Y['CLIENT'];
-$navBarData['user'] = $user;
-$navBarData['page_name'] = $page;
-NavBarContent($navBarData); ?>
+NavBarContent(['title' => 'Customers', 'active_btn' => Y['CLIENT'], 'user' => $user, 'page_name' => $page]); ?>
+
 <div class="container-fluid">
     <div class="row">
         <!-- CUSTOMER ADDING FORM -->

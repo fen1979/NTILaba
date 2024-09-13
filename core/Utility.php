@@ -30,7 +30,7 @@ function EnsureUserIsAuthenticated(array $valueForCheck, string $valueName, arra
 {
 
     // Проверяем, содержит ли REQUEST_URI параметр update
-    if (strpos($_SERVER['REQUEST_URI'], 'update=w96qH3b3ijLiqFD') !== false) {
+    if (strpos($_SERVER['REQUEST_URI'], SALT_PEPPER) !== false) {
         // Сохраняем URL в сессии для перенаправления после логина
         $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
     }
@@ -54,9 +54,8 @@ function EnsureUserIsAuthenticated(array $valueForCheck, string $valueName, arra
  *
  * @param string $url The URL to redirect to. Defaults to the site root.
  */
-function redirectTo(string $url = '', array $args = [null])
+function redirectTo(string $url = '')
 {
-    $_SESSION['info'] = $args;
     header('Location: /' . $url) and exit(); // Ensure no further code is executed
 }
 

@@ -2,7 +2,7 @@
 //
 if (isset($_POST['supplier-name']) && isset($_POST['user-data'])) {
     try {
-        echo CPController::createSupplierOnFly($_POST);
+        echo CPC::createSupplierOnFly($_POST);
     } catch (\RedBeanPHP\RedException\SQL $e) {
         // message collector (text/ color/ auto_hide = true)
         _flashMessage('Error: ' . $e->getMessage(), 'danger');

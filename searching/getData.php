@@ -141,8 +141,16 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
 
         case 'tools':
             {
+                // поиск по таблице инструменты
                 $col = ['manufacturer_name', 'device_model', 'device_type'];
-                viewToolsTable(dynamicSearch(TOOLS, $col, $mySearchString), $mySearchString);
+                viewToolsTable(dynamicSearch(TOOLS, $col, $mySearchString));
+            }
+            break;
+
+        case 'tools-click':
+            {
+                // вывод таблицы инструмента на странице создания проекта
+                viewToolsTable(R::findAll(TOOLS));
             }
             break;
         default:

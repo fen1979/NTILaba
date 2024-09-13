@@ -10,7 +10,7 @@ $backBtn = false;
 
 /* drag and drop file redirect */
 if (isset($_POST['filePath']) && isset($_POST['targetDir'])) {
-    include_once 'core/Resources.php';
+    include_once 'core/ResourceController.php';
     include_once 'core/Utility.php';
     $file = _E($_POST['filePath']);
     $target = _E($_POST['targetDir']);

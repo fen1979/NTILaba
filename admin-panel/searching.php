@@ -5,7 +5,7 @@ EnsureUserIsAuthenticated($_SESSION, 'userBean');
 if (isset($_POST['suggest'])) {
 //    // подключение Базы Данных МаринаДБ
 //    require_once "../core/rb-mysql.php";
-//    require_once '../core/Resources.php';
+//    require_once '../core/ResourceController.php';
 //    require_once '../core/Utility.php';
 //
 //    // database name = !!!-> nti_production <-!!!

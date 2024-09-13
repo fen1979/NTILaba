@@ -1,7 +1,5 @@
 <?php /** @noinspection PhpUnused */
-class_alias('Resources', 'SR');
-
-class Resources
+class ResourceController
 {
     // Data Base table name
     private const RESOURCES = 'resources';

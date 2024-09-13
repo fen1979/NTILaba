@@ -1,6 +1,8 @@
 <?php
-class_alias('CPController', 'CPC');
 
+/**
+ * - Client Supplier Controller
+ */
 class CPController
 {
     private static function backDataToRoutedPage(array $get, array $urlData): string
@@ -43,7 +45,7 @@ class CPController
             exit ('No database connection');
         }
 
-        require_once '../core/Resources.php';
+        require_once '../core/ResourceController.php';
         require_once '../core/Utility.php';
 
         $sup = R::dispense(SUPPLIERS);

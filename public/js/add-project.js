@@ -1,3 +1,8 @@
+/*
+* обработка отметки чекбоксов в таблице выбора инструментов для проекта находится в файле
+* dlobalScripts.js на 90 линии файла
+* функция : dom.makeRequest(".searchThisClick", "click", "data-request", args, function (error, result, event, _)
+* */
 document.addEventListener("DOMContentLoaded", function () {
     // click on upload files for project button
     dom.doClick("#projects_files_btn", "#projects_files");
@@ -24,22 +29,6 @@ document.addEventListener("DOMContentLoaded", function () {
             // Если файлы не выбраны, возвращаем базовый текст
             dom.e("#pickFile").textContent = "Upload Project Documentation (PDF Only)";
         }
-    });
-    // Использование функции dom.in для делегирования событий клика на элементы .tools-row
-    dom.inAll('click', '.tools-row', function (e) {
-        // Prevent the dropdown from closing
-        e.stopPropagation();
-
-        // Toggle the checkbox state
-        let checkbox = this.querySelector('input[type="checkbox"]');
-        checkbox.checked = !checkbox.checked; // Toggle the checkbox
-        checkbox.dispatchEvent(new Event('change')); // Trigger the change event
-
-        // Вызов функции проверки валидности формы после изменения состояния чекбокса
-        dom.e('#createProjectForm input[required], #createProjectForm textarea[required], #createProjectForm input[type="checkbox"]',
-            function () {
-                this.dispatchEvent(new Event('input')); // Инициирование события input для запуска валидации
-            });
     });
 
     // Обработка клика по результату поиска клиента
@@ -145,3 +134,16 @@ document.addEventListener("DOMContentLoaded", function () {
     // Проверка формы при загрузке страницы
     checkForm();
 });
+
+function saveSelection() {
+    // Получаем все чекбоксы с классом 'row-checkbox'
+    const checkboxes = document.querySelectorAll('.row-checkbox:checked'); // Только выбранные чекбоксы
+    // Собираем значения чекбоксов
+    const selectedValues = Array.from(checkboxes).map(checkbox => checkbox.value);
+    // Формируем строку из значений через запятую
+    dom.e("#tools").value = selectedValues.join(',');
+    // добавляем текст в кнопку для визуализации
+    dom.e("#tools-btn").textContent = "Selected: " + selectedValues.join(',');
+    // скрываем окно
+    dom.hide("#searchModal");
+}

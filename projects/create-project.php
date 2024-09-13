@@ -279,13 +279,13 @@ if ($backButton == '/') {
         <div class="mb-3">
             <div class="row">
                 <div class="col-7">
-                    <label for="pn" class="form-label" id="pn_label">Unit Name <b class="text-danger">*</b></label>
+                    <label for="pn" class="form-label" id="pn_label">Project Name <b class="text-danger">*</b></label>
                 </div>
                 <div class="col-3">
-                    <label for="pr" class="form-label">Unit Version <b class="text-danger">*</b></label>
+                    <label for="pr" class="form-label">Project Version <b class="text-danger">*</b></label>
                 </div>
                 <div class="col-2">
-                    <label for="date_in" class="form-label">Unit start Date <b class="text-danger">*</b></label>
+                    <label for="date_in" class="form-label">Project start Date <b class="text-danger">*</b></label>
                 </div>
             </div>
 
@@ -320,6 +320,8 @@ if ($backButton == '/') {
                         // создать потом массив имен для рут карт документов и сохранить в БД
                         $opt = ['1' => 'option 1', '2' => 'option 2', '3' => 'option 3', '4' => 'option 4', '5' => 'option 5'];
                         foreach ($opt as $key => $item) {
+//                        foreach (R::findAll(ROUTE_CARDS) as $card) {
+                            // echo '<option value="' . $card['id'] . '">' . $card['name'] . '</option>';
                             echo '<option value="' . $key . '">' . $item . '</option>';
                         } ?>
                     </select>
@@ -331,7 +333,7 @@ if ($backButton == '/') {
         <div class="row mb-3">
             <div class="p-1 col">
                 <button type="button" class="btn btn-outline-primary form-control" id="pickFile"
-                        data-who="file">Upload Unit Documentation (PDF Only)
+                        data-who="file">Upload Project Documentation (PDF Only)
                 </button>
                 <input type="file" name="dockFile" id="pdf_file" accept=".pdf" hidden/>
             </div>
@@ -353,7 +355,7 @@ if ($backButton == '/') {
                 ?>
                 <div class="p-1 col">
                     <a type="button" target="_blank" class="btn btn-outline-info form-control" href="<?= $href; ?>">
-                        View or Download Unit Files
+                        View or Download Project Files
                     </a>
                 </div>
             <?php } ?>
@@ -405,7 +407,6 @@ if ($backButton == '/') {
                     </div>
                 </div>
             </div>
-
         </div>
 
         <!--i ADDITIONAL INFORMATIONS -->
@@ -417,63 +418,17 @@ if ($backButton == '/') {
 
         <!--i CHOOSE TOOL TO PROJECT AND CREATE PROJECT BUTTONS -->
         <div class="row mt-5">
-            <div class="col-8">
-                <label for="tools">Choose Tools</label>
-                <input type="text" name="tools" id="tools" class="searchThis form-control" placeholder="Write here for choose tools" data-request="tools">
-            </div>
-
-            <!-- fixme hidden tag -->
-            <div class="col hidden">
-                <button class="btn btn-outline-dark form-control dropdown-toggle" type="button" id="dropdownMenuTools" data-bs-toggle="dropdown" aria-expanded="false">
-                    Choose Tools to Project
+            <div class="col">
+                <button type="button" class="btn btn-outline-diliny searchThisClick form-control" id="tools-btn" data-request="tools-click">
+                    Choose Tools
                 </button>
-
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuTools">
-                    <!-- список инструментов на производстве, выбирается при создании проекта -->
-                    <div style="overflow-y: scroll; height: 45rem;" class="p-3">
-                        <?php
-                        $table = R::getAll('SELECT DISTINCT t.* FROM tools t WHERE t.device_model IS NOT NULL AND t.device_model != "" GROUP BY t.device_model');
-                        $toolsChoosen = (!empty($project['tools']) && $project['tools'] != 'NC') ? explode(',', $project['tools']) : null;
-                        foreach ($table as $row) {
-                            $on = '';
-                            if ($toolsChoosen != null && in_array($row['id'], $toolsChoosen, true) !== false) {
-                                $on = 'checked';
-                            }
-                            ?>
-                            <div class="card mb-3" style="max-width: 540px;">
-                                <div class="row g-0">
-                                    <div class="col-md-6">
-                                        <img src="<?= !empty($row['image']) ? $row['image'] : 'public/images/pna_en.webp'; ?>" class="img-fluid rounded-end"
-                                             alt="<?= $row['serial_num'] ?>">
-                                    </div>
-                                    <div class="col-md-6 border-start">
-                                        <div class="card-body">
-                                            <h5 class="card-title"><?= $row['manufacturer_name'] ?></h5>
-                                            <p class="card-text"><?= $row['device_model'] ?></p>
-                                            <p class="card-text"><?= $row['device_type'] ?></p>
-                                            <p class="card-text"><small class="text-muted"><?= $row['next_inspection_date'] ?></small></p>
-                                            <input class="form-check-input" type="checkbox" name="selected-tools[]" value="<?= $row['id'] ?>" <?= $on ?>
-                                                   style="width: 10rem; height: 10rem;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php } ?>
-                    </div>
-                </div>
+                <!--i-->
+                <input type="hidden" name="tools" id="tools">
             </div>
-            <!-- fixme hidden tag -->
-
-            <div class="col-4">
+            <div class="col">
                 <button type="submit" class="btn btn-outline-success form-control" id="createProjectBtn" <?= $disabled; ?>>
                     <?= $buttonSave; ?>
                 </button>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-auto" id="tool_preview">
-
             </div>
         </div>
     </form>

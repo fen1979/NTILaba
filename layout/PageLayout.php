@@ -369,15 +369,14 @@ function ShowGroupChatPopup($page, $user = null)
     <!-- popup main chat room window -->
     <div class="chat-popup" id="popup-window">
         <span id="user_information" data-userid="<?= $_SESSION['userBean']['id']; ?>" data-username="<?= $_SESSION['userBean']['user_name']; ?>" class="hidden"></span>
-        <form action="" class="form-container" method="post">
+        <form action="" class="form-container" method="post" onsubmit="sendMessage(); return false;">
             <div class="mb-2" onclick="closeForm()">
-                <i class="bi bi-x-lg p-2 danger" onclick="closeForm()"></i>
+                <i class="bi bi-x-lg p-2 danger"></i>
             </div>
 
             <label for="msg"><b>Messages</b></label>
             <div class="msg_content" id="msg_area"></div>
             <textarea placeholder="Type message.." name="msg" id="msg" required></textarea>
-
 
             <div class="dropdown w-100">
                 <button class="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="dropdown-toggle">
@@ -389,8 +388,8 @@ function ShowGroupChatPopup($page, $user = null)
                         if ($u['id'] != '1') {
                             ?>
                             <div class="radio-item">
-                                <input type="radio" name="user" value="<?= $u['id']; ?>" id="<?= $u['id']; ?>">&nbsp;
-                                <label for="<?= $u['id']; ?>"><?= $u['user_name']; ?> </label>
+                                <input type="radio" name="user" value="<?= $u['id']; ?>" id="<?= $u['id']; ?>" onchange="loadMessages(<?= $u['id']; ?>)">&nbsp;
+                                <label for="<?= $u['id']; ?>"><?= $u['user_name']; ?></label>
                             </div>
                             <?php
                         }
@@ -400,6 +399,7 @@ function ShowGroupChatPopup($page, $user = null)
             </div>
             <button type="submit" class="btn btn-success">Send</button>
         </form>
+
     </div>
     <?php
 }

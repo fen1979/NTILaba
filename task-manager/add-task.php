@@ -5,7 +5,7 @@ $page = 'task_manager';
 //Check whether the SAVE button is clicked or not
 if (isset($_POST['submit'])) {
    TaskManager::createNewTask($_POST, $user);
-    redirectTo('task_list', $args);
+    redirectTo('task_list');
 }
 ?>
 <!doctype html>

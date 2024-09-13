@@ -344,10 +344,7 @@ NavBarContent(['active_btn' => Y['ORDER'], 'user' => $thisUser, 'page_name' => $
 <?php
 // Футер and JAVASCRIPTS
 PAGE_FOOTER($page); ?>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        dom.onDBChangeListener('#play-song', '#notificationSound', "#uid");
-    });
-</script>
+<!-- chat work on jquery lib -->
+<script type="text/javascript" src="chat/chat.js"></script>
 </body>
 </html>

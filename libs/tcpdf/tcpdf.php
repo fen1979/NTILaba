@@ -8056,7 +8056,7 @@ class TCPDF {
 			if (empty($this->signature_data['approval']) OR ($this->signature_data['approval'] != 'A')) {
 				$out .= ' /LastModified '.$this->_datestring(0, $this->doc_modification_timestamp);
 			}
-			$out .= ' /Resources 2 0 R';
+			$out .= ' /ResourceController 2 0 R';
 			foreach ($this->page_boxes as $box) {
 				$out .= ' /'.$box;
 				$out .= sprintf(' [%F %F %F %F]', $this->pagedim[$n][$box]['llx'], $this->pagedim[$n][$box]['lly'], $this->pagedim[$n][$box]['urx'], $this->pagedim[$n][$box]['ury']);
@@ -8865,7 +8865,7 @@ class TCPDF {
 		$rect = sprintf('%F %F', $w, $h);
 		$out .= ' /BBox [0 0 '.$rect.']';
 		$out .= ' /Matrix [1 0 0 1 0 0]';
-		$out .= ' /Resources 2 0 R';
+		$out .= ' /ResourceController 2 0 R';
 		$stream = $this->_getrawstream($stream);
 		$out .= ' /Length '.strlen($stream);
 		$out .= ' >>';
@@ -9348,7 +9348,7 @@ class TCPDF {
 				}
 				$out .= sprintf(' /BBox [%F %F %F %F]', ($data['x'] * $this->k), (-$data['y'] * $this->k), (($data['w'] + $data['x']) * $this->k), (($data['h'] - $data['y']) * $this->k));
 				$out .= ' /Matrix [1 0 0 1 0 0]';
-				$out .= ' /Resources <<';
+				$out .= ' /ResourceController <<';
 				$out .= ' /ProcSet [/PDF /Text /ImageB /ImageC /ImageI]';
 				if (!$this->pdfa_mode || $this->pdfa_version >= 2) {
 					// transparency
@@ -9432,7 +9432,7 @@ class TCPDF {
 	}
 
 	/**
-	 * Output Spot Colors Resources.
+	 * Output Spot Colors ResourceController.
 	 * @protected
 	 * @since 4.0.024 (2008-09-12)
 	 */
@@ -9465,7 +9465,7 @@ class TCPDF {
 	}
 
 	/**
-	 * Output Resources Dictionary.
+	 * Output ResourceController Dictionary.
 	 * @protected
 	 */
 	protected function _putresourcedict() {
@@ -9529,7 +9529,7 @@ class TCPDF {
 	}
 
 	/**
-	 * Output Resources.
+	 * Output ResourceController.
 	 * @protected
 	 */
 	protected function _putresources() {
@@ -14868,7 +14868,7 @@ class TCPDF {
 				$rect = sprintf('%F %F', $this->wPt, $this->hPt);
 				$out .= ' /BBox [0 0 '.$rect.']';
 				$out .= ' /Group << /Type /Group /S /Transparency /CS /DeviceGray >>';
-				$out .= ' /Resources <<';
+				$out .= ' /ResourceController <<';
 				$out .= ' /ExtGState << /a0 << /ca 1 /CA 1 >> >>';
 				$out .= ' /Pattern << /p'.$idgs.' '.$this->gradients[$idgs]['pattern'].' 0 R >>';
 				$out .= ' >>';

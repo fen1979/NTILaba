@@ -105,10 +105,15 @@ $r->addRout('/manage-list', 'task-manager/manage-list.php');
 // tracking programm for first memorisen incoming trafick
 $r->addRout('/tracking', 'tracking.php');
 $r->addRout('/track-list', 'tracking.php');
+$r->addRout('/ordered-list', 'tracking.php');
 $r->addRout('/print-track-info', 'tracking.php');
 
 // import xslx test file
 $r->addRout('/import-file', 'test.php', true);
+$r->addRout('/chat-handler', 'chat/chat-handler.php', true);
+
+
+$r->addRout('/kkuehbd7d7y48yd', 'pr.php', true);
 
 
 // call the routing function to view page

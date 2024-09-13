@@ -216,6 +216,8 @@ navBarContent(['active_btn' => Y['PROJECT'], 'user' => $user, 'page_name' => $pa
 <!-- END Container  -->
 <form action="" method="post" id="project_preview_switch">
     <input type="hidden" name="preview-mode" value="1">
+    <input type="hidden" id="uid" name="uid" value="<?= $user['id']; ?>">
+
 </form>
 <button type="button" class="url hidden" value="" id="routing-btn"></button>
 
@@ -321,5 +323,7 @@ PAGE_FOOTER($page); ?>
     });
 </script>
 <script type="text/javascript" src="public/js/projects-view.js"></script>
+<!-- chat work on jquery lib -->
+<script type="text/javascript" src="chat/chat.js"></script>
 </body>
 </html>

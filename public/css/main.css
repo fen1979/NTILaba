@@ -19,6 +19,9 @@ form input[required], form select[required], form textarea[required] {
 button {
     white-space: nowrap;
 }
+.fs-s{
+    font-size: 11px;
+}
 
 /* убирает отступы бутстрапа и горизонтальный скролл */
 .row {

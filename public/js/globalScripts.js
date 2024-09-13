@@ -86,6 +86,53 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // эвент клик для вывода таблицы инструментов на странице создания проекта
+    dom.makeRequest(".searchThisClick", "click", "data-request", args, function (error, result, event, _) {
+        if (error) {
+            console.error('Error during fetch:', error);
+            return;
+        }
+
+        // Проверка на нажатие клавиши Esc и скрытие модального окна
+        if (event && event.key === "Escape") {
+            dom.hide("#searchModal");
+            return; // Прерываем дальнейшую обработку, если нажата Esc
+        }
+
+        // if pagination is exist on page
+        let pagination = dom.e("#pagination-container");
+        if (pagination) {
+            pagination.classList.add("hidden");
+        }
+
+        // вывод информации в модальное окно
+        let modalTable = dom.e("#searchModal");
+        if (modalTable && result !== 'EMPTY') {
+            dom.e("#search-responce").innerHTML = result;
+            dom.show("#searchModal", "", true);
+
+            // обработка отметки чекбоксов в таблице
+            const inputValue = dom.e("#tools").value;
+            const selectedIds = inputValue ? inputValue.split(',').map(id => id.trim()) : [];
+
+            // Сначала снимаем все отметки
+            const toolsTableBody = dom.e("#tools-table");
+            const allCheckboxes = toolsTableBody.querySelectorAll('.row-checkbox');
+            allCheckboxes.forEach(cb => cb.checked = false);
+
+            // Затем отмечаем необходимые чекбоксы
+            selectedIds.forEach(id => {
+                const checkbox = document.getElementById(id);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            });
+
+        } else {
+            dom.hide("#searchModal");
+        }
+    });
+
     // слушатель события при изменениях в БД на сервере (временное решение переделать на соккеты и добавить чат)
     dom.onDBChangeListener = function (trigger, sound, uid) {
         const playSong = dom.e(trigger);
@@ -129,9 +176,20 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // скрываем ответ от сервера при клике на страницах
-    dom.in("click", "body", function () {
+    dom.in("click", "body", function (event) {
+        // Проверяем, есть ли на странице модальное окно с таблицей tools
+        const toolsTable = dom.e('#tools-table');
+
+        // Если таблица tools подгружена и пользователь кликает вне этого окна, не скрываем модальное окно
+        if (toolsTable && toolsTable.contains(event.target)) {
+            // Таблица tools открыта, ничего не делаем
+            return;
+        }
+
+        // Если таблица tools не открыта или клик происходит вне таблицы, скрываем модальное окно
         dom.hide("#searchModal");
     });
+
 
     // переделать в свои методы как дойдем
     // navigation butter toggle
