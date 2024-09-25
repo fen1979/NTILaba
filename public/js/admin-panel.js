@@ -88,24 +88,24 @@ dom.addEventListener("DOMContentLoaded", function () {
     });
 
     /* скрипты для настройки вывода таблиц */
-    if (dom.e('tbody tr')) {
+    if (dom.e('#columns-table tr')) {
         // Инициализация порядка строк при загрузке страницы
         updateRowOrder();
 
         let draggedRow = null;
         // Делаем строки таблицы перетаскиваемыми
-        dom.eAll('tbody tr', 'draggable', 'true');
+        dom.eAll('#columns-table tr', 'draggable', 'true');
 
         // Обработка событий dragstart
-        dom.in('dragstart', 'tbody tr', function () {
+        dom.in('dragstart', '#columns-table tr', function () {
             draggedRow = this;
         }, 'table');
         // Обработка событий dragover
-        dom.in('dragover', 'tbody tr', function (event) {
+        dom.in('dragover', '#columns-table tr', function (event) {
             event.preventDefault();
         }, 'table');
         // Обработка событий drop
-        dom.in('drop', 'tbody tr', function () {
+        dom.in('drop', '#columns-table tr', function () {
             if (this !== draggedRow) {
                 this.parentNode.insertBefore(draggedRow, this);
                 updateRowOrder();
@@ -269,7 +269,7 @@ dom.addEventListener("DOMContentLoaded", function () {
 function updateRowOrder() {
     let order = {};
     dom.querySelectorAll('tbody tr').forEach(tr => {
-        let checkbox = tr.querySelector('input[type="checkbox"][name="selected-colums[]"]');
+        let checkbox = tr.querySelector('input[type="checkbox"]');
         if (checkbox && checkbox.checked) {
             let filterCheckbox = tr.querySelector('input[type="checkbox"][name^="enable-filter"]');
             let fieldName = checkbox.value;

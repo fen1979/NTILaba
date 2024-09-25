@@ -38,7 +38,7 @@ class Mailer
         /*SMTP password*/
         $mail->Password = PASS_WORD;
         /*Enable TLS encryption, `ssl` also accepted*/
-        $mail->SMTPSecure = 'tls';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         /*TCP port to connect to*/
         $mail->Port = 587;
         // Задаем кодировку письма
@@ -98,11 +98,11 @@ class Mailer
         /*Enable SMTP authentication*/
         $mail->SMTPAuth = true;
         /*SMTP username*/
-        $mail->Username = USER_NAME;
+        $mail->Username = 'amir.ntilab@gmail.com';
         /*SMTP password*/
-        $mail->Password = PASS_WORD;
+        $mail->Password = 'auns qmav fopu xpkb';
         /*Enable TLS encryption, `ssl` also accepted*/
-        $mail->SMTPSecure = 'tls';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         /*TCP port to connect to*/
         $mail->Port = 587;
         // Задаем кодировку письма

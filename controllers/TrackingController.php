@@ -5,7 +5,7 @@ class TrackingController
     private ?object $user;
     private ?object $requestData;
 
-    public function __construct($user)
+    public function __construct($user = null)
     {
         $this->user = $user;
         $this->requestData = RequestData::getInstance();
@@ -22,11 +22,15 @@ class TrackingController
             $track->location = $data['location']; // место куда поставили на хранение
             $track->receiver = $data['receiver']; // получатьль в офисе
             $track->asmahta = $data['asmahta']; // номер документа если есть (приходная накладная)
-            $track->transferTo = $data['transferTo']; //  кто ответственный за обработку
+
+            $transferUser = R::load(USERS, $data['transferTo']); // имя пользователя на кого перевели
+            $jsonToSave = '{"name":"' . $transferUser->user_name . '", "id":"' . $transferUser->id . '"}';
+            $track->transferTo = $jsonToSave; //  кто ответственный за обработку
+
+            $track->description = $data['description'] ?? ''; // описание чего то
             $track->processed = 0; // обработан ли приход
             $track->recieved = 1; // получена ли посылка требуется для заказанных посылок
-            $transferUser = R::load(USERS, $data['transferTo']); // имя пользователя на кого кперевели
-            $track->description = $data['description'] ?? ''; // описание чего то
+
 
             // Конвертируем и сохраняем изображения
             list($paths, $attachments) = $this->convertAndSaveImages($this->requestData->getFiles());
@@ -35,7 +39,7 @@ class TrackingController
             if (R::store($track)) {
                 // отправляем письма с вложениями всем у кого рассылка включена!
                 $this->sendNotification($track, $transferUser, $attachments);
-                $return = 'print-track-info?tid=' . $track->id;
+                $return = 'print-track-info?track-id=' . $track->id;
             }
         });
 
@@ -45,30 +49,34 @@ class TrackingController
     // Метод для обработки GET-запросов (получение списка трекинговых данных или вывод на печать)
     public function handleGetRequest(): array
     {
-        $tl = false;
+        $tl = 'adding-form';
+        $title = 'Tracking';
         $result = $settings = null;
         // preview tracking table list all tracks
-        $this->requestData->executeIfAllGetKeysExist('track-list', function () use (&$tl, &$result, &$settings) {
+        $this->requestData->executeIfAllGetKeysExist('track-list', function () use (&$tl, &$result, &$settings, &$title) {
             $result = R::findAll(TRACK_DATA, 'ORDER BY id DESC');
             $settings = getUserSettings($this->user, TRACK_DATA);
-            $tl = true;
+            $tl = 'recieved';
+            $title = 'Tracking List';
         });
 
         // preview table track list one item for print
-        $this->requestData->executeIfAllGetKeysExist('print-track-info', function ($data) use (&$tl, &$result, &$settings) {
-            $result = R::load(TRACK_DATA, $data['tid']);
+        $this->requestData->executeIfAllGetKeysExist('track-id', function ($data) use (&$tl, &$result, &$settings, &$title) {
+            $result = R::load(TRACK_DATA, $data['track-id']);
             $settings = getUserSettings($this->user, TRACK_DATA);
-            $tl = true;
+            $tl = 'printing';
+            $title = 'Tracking Print';
         });
 
         // preview table track list one item for print
-        $this->requestData->executeIfAllGetKeysExist('ordered-list', function () use (&$tl, &$result, &$settings) {
+        $this->requestData->executeIfAllGetKeysExist('ordered-list', function () use (&$tl, &$result, &$settings, &$title) {
             $result = R::findAll(TRACK_DATA, 'recieved = 0 AND processed = 0');
             $settings = getUserSettings($this->user, TRACK_DATA);
-            $tl = true;
+            $tl = 'ordered';
+            $title = 'Tracking';
         });
 
-        return ['trackList' => $tl, 'result' => $result, 'settings' => $settings];
+        return ['trackList' => $tl, 'result' => $result, 'settings' => $settings, 'title' => $title];
     }
 
     // Метод для конвертации и сохранения изображений
@@ -154,7 +162,8 @@ class TrackingController
         if (!$cron)
             _flashMessage('Users with emails have been notified!<br>' . $eml, 'warning', false);
 
-        $subject = 'Parcel for NTI Accepted';
+        //$subject = 'New parcel received for NTI';
+        $subject = "NTI. Parcel from [$track->courier] received";
         $html_body = "<h1>Hello! NTI Group!</h1>";
         $html_body .= "<h4>A parcel was received! Time of record creation: <br>" . $track->date_in . "</h4>";
         $html_body .= "<p>Courier: " . $track->courier . "</p>";

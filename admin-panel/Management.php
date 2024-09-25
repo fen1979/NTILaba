@@ -453,6 +453,7 @@ class Management
         $t_name = '';
         // Поиск существующих настроек
         $existingSetting = R::findOne(SETTINGS, 'users_id = ? AND table_name = ?', [$user['id'], $post['save-settings']]);
+
         if (empty($existingSetting['table_name'])) {
             // Создаем новую запись настроек
             $settings = R::dispense(SETTINGS);
@@ -460,14 +461,13 @@ class Management
             $columnsOrderedByUser = json_decode($post['rowOrder'], true);
             $settings->setup = json_encode($columnsOrderedByUser);
             R::store($settings);
-
             $user->ownSettingsList[] = $settings;
             R::store($user);
         } else {
-
             // Обновляем существующие настройки
             $settings = R::load(SETTINGS, $existingSetting['id']);
             $columnsOrderedByUser = json_decode($post['rowOrder'], true);
+            var_dump($columnsOrderedByUser);
             $settings->setup = json_encode($columnsOrderedByUser);
             R::store($settings);
         }

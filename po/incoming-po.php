@@ -28,6 +28,15 @@ if ($order || $consignment) {
 // попадаем сюда со страницы traaking list
 if (isset($_GET['tid'])) {
     $track = R::load(TRACK_DATA, _E($_GET['tid']));
+    $track->processed = 1;
+    try {
+        R::store($track);
+        // message collector (text/ color/ auto_hide = true)
+        _flashMessage('The tracking was updated');
+    } catch (\RedBeanPHP\RedException\SQL $e) {
+        // message collector (text/ color/ auto_hide = true)
+        _flashMessage('Error wile updating', 'danger');
+    }
 }
 
 // make XML and save in order folder

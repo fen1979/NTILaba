@@ -39,7 +39,7 @@ button {
     right: 1%;
     font-size: 18px;
     padding: 0.55rem;
-    width: max-content;
+    width: fit-content;
     border-radius: 7px;
     z-index: 999999;
 }

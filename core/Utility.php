@@ -604,3 +604,35 @@ function checkPostDataAndConvertToArray(array $post): array
     }
     return $postDataArray;
 }
+
+/**
+ * Проверяет, является ли переданное значение JSON-строкой.
+ * Если да, возвращает значение по указанному ключу.
+ * Если нет, возвращает исходное значение.
+ * Если значение отсутствует или равно null, возвращает значение по умолчанию.
+ *
+ * @param int|string|null $itemForCheck Значение для проверки (текст или цифра).
+ * @param string $jsonKey Ключ для извлечения значения из JSON.
+ * @param mixed $default Значение по умолчанию, возвращаемое при отсутствии значения или ошибках. По умолчанию пустая строка.
+ * @return mixed Значение по ключу из JSON, исходное значение или значение по умолчанию.
+ */
+function checkAndReturnJsonValue(int|string|null $itemForCheck, string $jsonKey, string $default = ''): mixed
+{
+    // Если значение отсутствует или равно null, вернуть значение по умолчанию
+    if ($itemForCheck === null) {
+        return $default;
+    }
+
+    // Попытка декодировать строку как JSON
+    $decoded = json_decode($itemForCheck, true);
+
+    // Проверка на успешное декодирование и наличие ключа
+    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded) && array_key_exists($jsonKey, $decoded)) {
+        return $decoded[$jsonKey];
+    }
+
+    // Если значение не является JSON или ключ отсутствует, вернуть исходное значение
+    return $itemForCheck;
+}
+
+

@@ -109,11 +109,11 @@ $r->addRout('/ordered-list', 'tracking.php');
 $r->addRout('/print-track-info', 'tracking.php');
 
 // import xslx test file
-$r->addRout('/import-file', 'test.php', true);
+$r->addRout('/import-file', 'import-any.php', true);
 $r->addRout('/chat-handler', 'chat/chat-handler.php', true);
 
 
-$r->addRout('/fvlihlsilsi', 'pr.php', true);
+$r->addRout('/fvlihlsilsi', 'test.php', true);
 
 
 // call the routing function to view page

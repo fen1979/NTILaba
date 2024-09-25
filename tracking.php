@@ -9,151 +9,7 @@ $data = $trackingController->handleGetRequest();
 $trackList = $data['trackList'];
 $result = $data['result'];
 $settings = $data['settings'];
-//$requestData = RequestData::getInstance();
-//$requestData->checkPostRequestAndExecute('save-track', function ($data) use (&$user, &$requestData) {
-//
-//    $t = R::dispense(TRACK_DATA);
-//    $dt = $t->date_in = date('Y/m/d, h:i:s');
-//    $co = $t->courier = $data['courier'];
-//    $loc = $t->location = $data['location'];
-//    $re = $t->receiver = $data['receiver'];
-//    $t->transferTo = $data['transferTo'];
-//    $tw = R::load(USERS, $data['transferTo']);
-//    $desc = $t->description = $data['description'] ?? '';
-//
-//    list($paths, $attachments) = convertAndSaveImages($requestData->getFiles());
-//    $t->file_path = $paths;
-//    if (R::store($t)) {
-//        $eml = '';
-//        $emails = [];
-//        // отправка мейла с оповещением
-//        foreach (R::findAll(USERS) as $us) {
-//            if ($us['notify'] == 1 && strpos($us['notify_type'], '1') !== false) {
-//                $eml .= "{$us['email']}, ";
-//                $emails[] = $us['email'];
-//            }
-//        }
-//
-//        // проверяем если никго не было то для правильной работы присваиваем имейл по умолчанию
-//        //$emails = _empty($emails, 'amir@nti.co.il');// by default
-//
-//        _flashMessage('Users witch emails is viewed has notificated!<br>' . $eml, 'warning', false);
-//        $subject = 'Parcel for NTI Accepted';
-//        $html_body = '<h1>Hello! NTI Group!</h1>';
-//        $html_body .= '<h4>Some parcel was received! Time of record creation: <br>' . $dt . '</h4>';
-//        $html_body .= '<p>Courier: ' . $co . '</p>';
-//        $html_body .= '<p>Location now: ' . $loc . '</p>';
-//        $html_body .= '<p>Receiver: ' . $re . '</p>';
-//        $html_body .= '<p>Transfered to: ' . $tw->user_name . '</p>';
-//        $html_body .= '<pre>' . $desc . '</pre>';
-//        $html_body .= '<br><br>';
-//
-//        $m = Mailer::SendNotifications($emails, $subject, $html_body, $attachments);
-//        _flashMessage('New Delivery created and stored successfully<br>' . $m);
-//    }
-//});
-//
-//// вывод списка для просмотра  входящих посылок
-//$requestData->executeIfAnyGetKeyExists('track-list', function ($_) use (&$user, &$requestData, &$trackList, &$result, &$settings) {
-//    $trackList = true;
-//    $result = R::findAll(TRACK_DATA, 'ORDER BY date_in DESC');
-//    $settings = getUserSettings($user, TRACK_DATA);
-//});
-//
-//function convertAndSaveImages(array $files): array
-//{
-//    $paths = '';
-//    $attachments = [];
-//    $tmp_dir = TEMP_FOLDER; // Временная папка
-//    $target_dir = 'storage/tracking/'; // Папка для хранения файлов
-//
-//    // Создаем папку, если она не существует, с полными правами
-//    if (!is_dir($target_dir)) {
-//        mkdir($target_dir, 0777, true);
-//    }
-//
-//    // Проходим по каждому файлу в массиве
-//    foreach ($files as $key => $fileData) {
-//        // Проверяем, является ли файл множественным
-//        if (isset($fileData[0])) {
-//            foreach ($fileData as $index => $file) {
-//                if (!isset($file['error']) || $file['error'] === 0) {
-//                    $tmp_path = $file['tmp_name'];
-//                    $original_name = pathinfo($file['name'], PATHINFO_FILENAME); // Исходное имя файла без расширения
-//                    $timestamp = date('YmdHis'); // Текущая дата и время без пробелов и знаков препинания
-//                    $new_file_name = $original_name . '_' . $timestamp . '.webp'; // Генерируем новое имя для файла
-//                    $out_path = $target_dir . $new_file_name; // Путь для сохранения конвертированного файла
-//
-//                    // Конвертация в формат WebP
-//                    if (Converter::convertToWebP($tmp_path, $out_path)) {
-//                        // Если конвертация успешна, добавляем путь к файлу в массив вложений
-//                        $attachments[] = ['path' => $out_path, 'name' => $new_file_name];
-//                        // Формируем строку для переменной $paths с путями к каждому файлу
-//                        $paths .= $out_path . ', ';
-//                    } else {
-//                        _flashMessage('Ошибка при конвертации файла: ' . $file['name'], 'danger');
-//                    }
-//                }
-//            }
-//        } else {
-//            // Для единичных файлов
-//            if (!isset($fileData['error']) || $fileData['error'] === 0) {
-//                $tmp_path = $fileData['tmp_name'];
-//                $original_name = pathinfo($fileData['name'], PATHINFO_FILENAME); // Исходное имя файла без расширения
-//                $timestamp = date('YmdHis'); // Текущая дата и время без пробелов и знаков препинания
-//                $new_file_name = $original_name . '_' . $timestamp . '.webp'; // Генерируем новое имя для файла
-//                $out_path = $target_dir . $new_file_name; // Путь для сохранения конвертированного файла
-//
-//                // Конвертация в формат WebP
-//                if (Converter::convertToWebP($tmp_path, $out_path)) {
-//                    // Если конвертация успешна, добавляем путь к файлу в массив вложений
-//                    $attachments[] = ['path' => $out_path, 'name' => $new_file_name];
-//                    // Формируем строку для переменной $paths с путями к каждому файлу
-//                    $paths .= $out_path . ', ';
-//                } else {
-//                    _flashMessage('Ошибка при конвертации файла: ' . $fileData['name'], 'danger');
-//                }
-//            }
-//        }
-//    }
-//
-//    // Удаляем лишнюю запятую и пробел в конце строки
-//    $paths = rtrim($paths, ', ');
-//
-//    // Удаление временных файлов из временной папки
-//    foreach ($files as $fileGroup) {
-//        if (isset($fileGroup[0])) {
-//            foreach ($fileGroup as $file) {
-//                if (file_exists($file['tmp_name'])) {
-//                    unlink($file['tmp_name']); // Удаляем файл
-//                }
-//            }
-//        } else {
-//            if (file_exists($fileGroup['tmp_name'])) {
-//                unlink($fileGroup['tmp_name']); // Удаляем файл
-//            }
-//        }
-//    }
-//
-//    // Очищаем временную папку после успешного выполнения
-//    if (is_dir($tmp_dir)) {
-//        $files_in_tmp_dir = glob($tmp_dir . '/*'); // Получаем все файлы в папке
-//        foreach ($files_in_tmp_dir as $file) {
-//            if (is_file($file)) {
-//                unlink($file); // Удаляем каждый файл
-//            }
-//        }
-//    }
-//
-//    // Если все успешно, выводим сообщение об успехе
-//    if (!empty($attachments)) {
-//        _flashMessage('Файлы успешно сохранены, конвертированы и временные файлы удалены.');
-//    }
-//
-//    // Возвращаем массив с путями и вложениями
-//    return [$paths, $attachments];
-//}
-
+$title = $data['title'];
 ?>
 <!DOCTYPE html>
 <html lang="<?= LANG; ?>" <?= VIEW_MODE; ?>>
@@ -220,6 +76,7 @@ $settings = $data['settings'];
             color: white;
         }
 
+        <?php if ($trackList != 'printing') { ?>
         table {
             width: 100%;
             border-collapse: collapse;
@@ -239,16 +96,26 @@ $settings = $data['settings'];
             padding-right: 1rem;
         }
 
+        th {
+            background-color: #717171;
+            color: #ffffff;
+        }
+
         th, td {
             text-align: left;
             padding: 5px;
             border: 1px solid #ddd;
         }
 
-        th {
-            background-color: #717171;
-            color: #ffffff;
+        <?php }else{ ?>
+
+        th, td {
+            text-align: left;
+            padding: 15px;
+            border: 1px solid #ddd;
         }
+
+        <?php } ?>
 
         .thumbs-image {
             width: 50px;
@@ -324,11 +191,13 @@ $settings = $data['settings'];
 
 <?php
 // NAVIGATION BAR
-NavBarContent(['title' => 'Tracking', 'user' => $user, 'page_name' => $page]); ?>
+NavBarContent(['title' => $title, 'user' => $user, 'page_name' => $page]); ?>
 <?php if (!empty($print_info)) {
     echo '<a href="' . $print_info . '" target="_blank" id="relocation" class="hidden"></a>';
-} ?>
-<?php if (!$trackList) { ?>
+}
+
+// выводим форму для добавления полученной посылки
+if ($trackList == 'adding-form') { ?>
     <div class="container form-container">
         <h3 class="text-center mb-4">Форма Приемки</h3>
         <form id="uploadForm" action="tracking" method="POST" enctype="multipart/form-data">
@@ -456,7 +325,10 @@ NavBarContent(['title' => 'Tracking', 'user' => $user, 'page_name' => $page]); ?
             }
         });
     </script>
-<?php } else { ?>
+<?php }
+
+// выводим таблицу всех посылок на данный момент не обработанных
+elseif ($trackList == 'recieved' || $trackList == 'ordered') { ?>
     <div id="searchAnswer">
         <table class="p-3" id="track-table">
             <!-- header -->
@@ -474,7 +346,7 @@ NavBarContent(['title' => 'Tracking', 'user' => $user, 'page_name' => $page]); ?
                         <?php
                         if ($settings) {
                             foreach ($settings as $item => $_) {
-                                echo '<td>' . $value[$item] . '</td>';
+                                echo '<td>' . checkAndReturnJsonValue($value[$item], 'name') . '</td>';
                             }
                         }
                         ?>
@@ -493,8 +365,9 @@ NavBarContent(['title' => 'Tracking', 'user' => $user, 'page_name' => $page]); ?
         <div class="modal-content warning">
             <h3>Предупреждение</h3>
             <h4>Вы будете перенаправлены на страницу редактирования входящих данных.
-                Важно: при переходе данная запись будет удалена.</h4>
-            <button id="continueBtn">Перейти</button>
+                Важно: при переходе данная запись будет удалена из списка.</h4>
+            <button id="printBtn">Распечатать Данные</button>
+            <button id="continueBtn">Перейти к редактированию</button>
             <button id="cancelBtn">Отменить</button>
         </div>
     </div>
@@ -600,7 +473,7 @@ NavBarContent(['title' => 'Tracking', 'user' => $user, 'page_name' => $page]); ?
                     imageInterval = setInterval(() => {
                         currentIndex = (currentIndex + 1) % imagePaths.length; // Переход к следующему изображению по кругу
                         displayImage(currentIndex);
-                    }, 1000); // Интервал в 1 секунду
+                    }, 3000); // Интервал в 1 секунду
                 }
             }
         }
@@ -615,6 +488,67 @@ NavBarContent(['title' => 'Tracking', 'user' => $user, 'page_name' => $page]); ?
                 imageInterval = null; // Сбрасываем интервал
             }
         }
+    </script>
+<?php // выводим форму для печати отчета
+}
+
+// выводим таблицу созданной записи для печати
+elseif ($trackList == 'printing' && $result['processed'] == 0) { ?>
+    <table class="p-3 mb-5">
+        <!-- table -->
+        <tbody>
+        <tr>
+            <th>Incoming Date</th>
+            <td><?= $result['date_in']; ?></td>
+        </tr>
+        <tr>
+            <th>Courier</th>
+            <td><?= $result['courier']; ?></td>
+        </tr>
+        <tr>
+            <th>Location</th>
+            <td><?= $result['location']; ?></td>
+        </tr>
+        <tr>
+            <th>Reciever</th>
+            <td><?= $result['receiver']; ?></td>
+        </tr>
+        <tr>
+            <th>Asmachta</th>
+            <td><?= $result['asmahta']; ?></td>
+        </tr>
+        <tr>
+            <th>I/O</th>
+            <td><?= checkAndReturnJsonValue($result['transferTo'], 'name'); ?></td>
+        </tr>
+        <tr>
+            <th>Note</th>
+            <td><?= $result['description']; ?></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <button id="print-table" class="btn btn-outline-info">Print Information</button>
+<?php PAGE_FOOTER($page, false); ?>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // реакция на событие клик на кнопках печати таблиц
+            dom.in("click", "#print-table", function () {
+                dom.hide("#print-table");
+                dom.hide("header");
+                // запрос печати
+                window.print();
+                // таймер появления кнопок после печати
+                setTimeout(function () {
+                    dom.show("#print-table");
+                    dom.show("header");
+                }, 500);
+            });
+
+            // скрываем столбцы в которых нет данных
+            dom.hideEmptyColumnsInTable("#raw-data-table");
+            dom.hideEmptyColumnsInTable("#error-data-table");
+        });
     </script>
 <?php } ?>
 </body>

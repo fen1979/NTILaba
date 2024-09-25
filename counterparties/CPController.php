@@ -45,7 +45,7 @@ class CPController
             exit ('No database connection');
         }
 
-        require_once '../core/ResourceController.php';
+        require_once '../core/Constants.php';
         require_once '../core/Utility.php';
 
         $sup = R::dispense(SUPPLIERS);
@@ -128,7 +128,7 @@ class CPController
      * @return void
      * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function updateCustomerData($post, $user)
+    public static function updateCustomerData($post, $user): void
     {
         $post = checkPostDataAndConvertToArray($post);
 

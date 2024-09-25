@@ -37,7 +37,7 @@ function checkToolsNextCheckDate(): void
         }
 
         if (!empty($body)) {
-            echo Mailer::SendEmailNotification($mail, $name, $subject, $body);
+            Mailer::SendEmailNotification($mail, $name, $subject, $body);
             writeLogs($logdata);
         }
     }
@@ -77,21 +77,25 @@ function writeLogs($logdata)
 }
 
 /**
- * @throws \PHPMailer\PHPMailer\Exception
+ * @throws \PHPMailer\PHPMailer\Exception|Exception
  */
 function sendNotificationAboutLongTimeWaitingParcelCheck(): void
 {
-    // check what track is compare with 48 hours
-    // get all data from track
-    // send notifications
     $t = R::findAll(TRACK_DATA, 'processed = 0');
-    $trackingController = new TrackingController($user);
-    $trackingController->cronRequest();
+    foreach ($t as $track) {
+        if ($track['date_in'] && isDateInRange($track['date_in'], 3)) {
+            $transferUser = R::load(USERS, $track['transferTo']); // имя пользователя на кого перевели
+            $paths = explode(',', $track['file_path']);
+            foreach ($paths as $out_path) {
+                $attachments[] = ['path' => $out_path, 'name' => 'file-name'];
+            }
+
+            (new TrackingController())->cronRequest($track, $transferUser, $attachments);
+        }
+    }
 }
 
-try {
-    //checkToolsNextCheckDate();
-    //sendNotificationAboutLongTimeWaitingParcelCheck();
-} catch (\PHPMailer\PHPMailer\Exception $e) {
 
-}
+//checkToolsNextCheckDate();
+//sendNotificationAboutLongTimeWaitingParcelCheck();
+

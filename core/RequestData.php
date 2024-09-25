@@ -295,7 +295,6 @@ class RequestData
     public function executeIfAllGetKeysExist($keys, callable $callback): void
     {
         $getData = $this->getGet(); // получаем очищенные POST данные
-
         $keys = is_array($keys) ? $keys : [$keys]; // Преобразуем одиночный ключ в массив, если это не массив
 
         $allKeysExist = true; // Флаг для проверки всех ключей

@@ -441,6 +441,12 @@ function EDIT_PROJECT_PAGE_BUTTONS($pid): void
         </li>
     <?php } ?>
     <li class="nav-item">
+        <button type="button" class="url btn btn-sm btn-outline-info" value="import-file?import=projectsteps&pid=<?= $pid; ?>">
+            <i class="bi bi-filetype-xls"></i>
+            Add new steps by XSLX
+        </button>
+    </li>
+    <li class="nav-item">
         <button type="button" class="url act btn btn-sm btn-outline-diliny" value="add_step?pid=<?= $pid; ?>">
             <i class="bi bi-plus-circle"></i>
             Add new step
