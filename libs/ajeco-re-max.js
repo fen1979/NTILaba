@@ -137,7 +137,7 @@ dom.addEventListener("DOMContentLoaded", function () {
      * @param {number|string} speed - Длительность анимации в миллисекундах или ключевые слова "slow" или "fast".
      * @param {boolean} blur - затемнение задней части окна
      */
-    dom.show = function (selector, speed, blur = false) {
+    dom.show = function (selector, speed = "fast", blur = false) {
         const element = dom.e(selector);
         if (element) {
             // Проверяем, скрыт ли элемент
@@ -214,7 +214,7 @@ dom.addEventListener("DOMContentLoaded", function () {
      * @param {string} selector - Селектор элемента, который будет скрыт.
      * @param {number|string} speed - Длительность анимации в миллисекундах или ключевые слова "slow" или "fast".
      */
-    dom.hide = function (selector, speed) {
+    dom.hide = function (selector, speed = "fast") {
         let element = dom.e(selector);
         if (element) {
             // Определяем длительность анимации

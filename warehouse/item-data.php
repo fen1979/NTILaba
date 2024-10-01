@@ -42,7 +42,7 @@ if (isset($_GET['itemid'])) {
         $data = array_merge($data, $result);
     }
 }
-function getDataForTable($itemId, $orderId, $projectId, $clientId, $reservedQty)
+function getDataForTable($itemId, $orderId, $projectId, $clientId, $reservedQty): array|int|null|\RedBeanPHP\Cursor
 {
     // SQL-запрос с использованием JOIN
     $query = "
@@ -222,7 +222,7 @@ NavBarContent(['title' => 'View Item ID: ' . $item->id,
             ?>
             <div class="link-box">
                 <h4>Links to items</h4>
-                <?= $link ?>
+                <?= $link ?? '' ?>
             </div>
 
             <div class="mt-2">
@@ -395,6 +395,7 @@ NavBarContent(['title' => 'View Item ID: ' . $item->id,
                     <th>Supplier</th>
                     <th>Owner</th>
                     <th>Arrival QTY</th>
+                    <th>Notes</th>
                     <th>Date In</th>
                 </tr>
                 </thead>
@@ -411,10 +412,11 @@ NavBarContent(['title' => 'View Item ID: ' . $item->id,
                             <td data-name="owner_id" class="hidden"><?= json_decode($line['owner'])->id; ?></td>
 
                             <td data-name="lot"><?= $line['lot']; ?></td>
-                            <td data-name="delivery_note"><?= $line['delivery_note']; ?></td>
+                            <td data-name="consignment"><?= $line['consignment']; ?></td>
                             <td data-name="supplier"><?= json_decode($line['supplier'])->name; ?></td>
                             <td data-name="owner"><?= json_decode($line['owner'])->name; ?></td>
                             <td data-name="quantity"><?= $line['quantity']; ?></td>
+                            <td data-name="delivery_note"><?= $line['delivery_note']; ?></td>
                             <td data-name="date_in"><?= $line['date_in']; ?></td>
                         </tr>
                         <?php
