@@ -164,6 +164,7 @@ dom.addEventListener("DOMContentLoaded", function () {
                         if (element.classList && element.classList.contains('hidden')) {
                             element.classList.remove("hidden");
                             element.style.display = 'block';
+                            element.style.opacity = "1";
                         } else {
                             // Элемент не содержит класс 'hidden'
                             // Показываем элемент, если он был скрыт
