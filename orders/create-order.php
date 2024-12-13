@@ -73,6 +73,65 @@ $result = $pageData['result'];
             background-color: #717171;
             color: #ffffff;
         }
+
+        /*=====================*/
+        /* CSS */
+        .input-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            min-height: 38px;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            padding: 0 8px;
+            background-color: #fff;
+        }
+
+        .input-container input {
+            border: none;
+            flex: 1;
+            min-width: 150px;
+            padding: 6px 12px;
+            font-size: 1rem;
+            background-color: transparent;
+        }
+
+        .input-container input:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            margin-right: 8px;
+        }
+
+        .tag {
+            background-color: #e9ecef;
+            border-radius: 0.375rem;
+            padding: 5px 10px;
+            margin: 4px 0;
+            margin-right: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .tag .remove-tag {
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #6c757d;
+        }
+
+        .tag .remove-tag::after {
+            content: '×';
+        }
+
+        .input-container input::placeholder {
+            color: #6c757d;
+        }
+
     </style>
 </head>
 <body>
@@ -136,30 +195,35 @@ NavBarContent(['title' => $titleText, 'active_btn' => Y['N_ORDER'], 'user' => $u
 
             <div class="mb-3">
                 <div class="row g-3 align-items-center">
-                    <div class="col-6">
+                    <div class="col-6 raw-label">
                         <label for="projectName" class="form-label"><i class="bi bi-search"></i>&nbsp;Project Name <b class="text-danger">*</b></label>
                     </div>
-                    <div class="col-2">
+
+                    <div class="col-2 one-p">
                         <label for="project_id" class="form-label">Project ID</label>
                     </div>
-                    <div class="col-2">
+                    <div class="col-2 one-p">
                         <label for="projectRevision" class="form-label">Project Version</label>
                     </div>
                 </div>
                 <div class="row g-3 align-items-center">
-                    <div class="col-6">
-                        <input type="text" class="searchThis form-control" id="projectName" name="projectName" data-request="project"
-                               value="<?= set_value('projectName', $project->projectname ?? ''); ?>" required>
+                    <div class="col-6 raw-label">
+                        <div id="project-input-container" class="input-container">
+                            <div id="project-tags" class="tags"></div>
+                            <input type="text" class="searchThis form-control" id="projectName" name="projectName" data-request="project" value="<?= set_value('projectName', $project->projectname ?? ''); ?>" autocomplete="off">
+                            <input type="hidden" id="projects" name="projects" value="">
+                        </div>
                     </div>
-                    <div class="col-2">
+
+                    <div class="col-2 one-p">
                         <input type="text" class="form-control" id="project_id" name="project_id"
                                value="<?= set_value('project_id', $project->id ?? '0'); ?>" readonly>
                     </div>
-                    <div class="col-2">
+                    <div class="col-2 one-p">
                         <input type="text" class="form-control" id="projectRevision" name="projectRevision" readonly
                                value="<?= set_value('projectRevision', $project->revision ?? '0'); ?>">
                     </div>
-                    <div class="col-auto">
+                    <div class="col-auto one-p">
                         <button type="button" value="new_project?orders" class="url btn btn-outline-primary">Create Project</button>
                     </div>
                 </div>
@@ -425,17 +489,39 @@ PAGE_FOOTER($page, false);
         });
 
         // Обработка клика по результату поиска project
+        // dom.in("click", "#search-responce tr.project", function () {
+        //     if (this.parentElement.dataset.info) {
+        //         // Извлекаем и парсим данные из атрибута data-info
+        //         let info = JSON.parse(this.parentElement.dataset.info);
+        //         // Устанавливаем полученные значения в поля ввода
+        //         dom.e("#projectName").value = info.name; // Устанавливаем имя в поле ввода
+        //         dom.e("#projectRevision").value = info.revision; // Устанавливаем ревизию в поле ввода
+        //         dom.e("#project_id").value = info.projectID; // Устанавливаем id в скрытое поле
+        //
+        //         flushMultipleProjects(info);
+        //         // Очищаем результаты поиска
+        //         dom.hide("#searchModal");
+        //     }
+        // });
+        // Обработка клика по результату поиска project
         dom.in("click", "#search-responce tr.project", function () {
             if (this.parentElement.dataset.info) {
                 // Извлекаем и парсим данные из атрибута data-info
                 let info = JSON.parse(this.parentElement.dataset.info);
-                // Устанавливаем полученные значения в поля ввода
-                dom.e("#projectName").value = info.name; // Устанавливаем имя в поле ввода
-                dom.e("#projectRevision").value = info.revision; // Устанавливаем ревизию в поле ввода
-                dom.e("#project_id").value = info.projectID; // Устанавливаем id в скрытое поле
 
-                // Очищаем результаты поиска
+                // Создаем объект проекта
+                const project = {
+                    id: info.projectID,
+                    name: info.name,
+                    revision: info.revision
+                };
+                // Добавляем тег
+                addProjectTag(project);
+                // Очищаем поле ввода
+                dom.e("#projectName").value = '';
+                // Скрываем результаты поиска
                 dom.hide("#searchModal");
+                dom.e('#projectName').focus();
             }
         });
 
@@ -543,6 +629,66 @@ PAGE_FOOTER($page, false);
         }
         return isValid;
     }
+
+    // Массив для хранения выбранных проектов
+    let selectedProjects = [];
+
+    // Функция для обновления скрытого инпута
+    function updateProjectsInput(info) {
+        const projectsInput = dom.e('#projects');
+        projectsInput.value = selectedProjects.map(project => project.id).join(',');
+
+        if (selectedProjects.length === 1 && info) {
+            dom.e("#projectRevision").value = info.revision; // Устанавливаем ревизию в поле ввода
+            dom.e("#project_id").value = info.id; // Устанавливаем id в скрытое поле
+        }
+        if (selectedProjects.length === 2) {
+            dom.toggleClass(".one-p", "hidden");
+            dom.toggleClass(".col-6.raw-label","col-12" );
+            // dom.e(".raw-label").classList.add("col-12");
+        }
+    }
+
+    // Функция для добавления тега
+    function addProjectTag(project) {
+        const tagsContainer = dom.e('#project-tags');
+
+        // Проверяем, есть ли проект уже в списке
+        if (selectedProjects.some(p => p.id === project.id)) {
+            return; // Проект уже добавлен
+        }
+
+        selectedProjects.push(project);
+        updateProjectsInput(project);
+
+        // Создаем тег
+        const tag = document.createElement('div');
+        tag.classList.add('tag');
+
+        const tagText = document.createElement('span');
+        tagText.textContent = project.name;
+
+        const removeBtn = document.createElement('span');
+        removeBtn.classList.add('remove-tag');
+        removeBtn.addEventListener('click', function () {
+            removeProjectTag(project.id, tag);
+        });
+
+        tag.appendChild(tagText);
+        tag.appendChild(removeBtn);
+        tagsContainer.appendChild(tag);
+    }
+
+    // Функция для удаления тега
+    function removeProjectTag(projectId, tagElement) {
+        // Удаляем из массива
+        selectedProjects = selectedProjects.filter(p => p.id !== projectId);
+        updateProjectsInput();
+        // Удаляем тег из DOM
+        tagElement.remove();
+    }
+
+
 </script>
 </body>
 </html>

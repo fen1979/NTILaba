@@ -217,7 +217,7 @@ NavBarContent(['active_btn' => Y['WIKI'], 'user' => $user, 'page_name' => $page]
                                 <!--  Project Name and Share Link -->
                                 <h5 class="card-title position-relative p-2">
                                     <b class="text-primary">File Name:</b>
-                                    <?= htmlspecialchars($file); ?>
+                                    <span class="file-name"><?= htmlspecialchars($file); ?></span>
                                 </h5>
                                 <?php
                                 // Определение типа файла и вывод соответствующего контента
@@ -272,6 +272,65 @@ NavBarContent(['active_btn' => Y['WIKI'], 'user' => $user, 'page_name' => $page]
 </main>
 <?php PAGE_FOOTER($page); ?>
 <script src="public/js/wiki.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.file-name').forEach(fileNameElement => {
+            fileNameElement.addEventListener('dblclick', function () {
+                const originalName = this.textContent.trim();
+                const filePath = this.closest('.file').getAttribute('data-filepath');
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = originalName.split('.').slice(0, -1).join('.'); // Только имя файла без расширения
+                input.classList.add('form-control');
+
+                this.replaceWith(input);
+
+                input.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter') {
+                        const newFileName = this.value.trim();
+                        if (newFileName && newFileName !== originalName.split('.').slice(0, -1).join('.')) {
+                            // Отправка данных на сервер
+                            const formData = new FormData();
+                            formData.append('original_name', originalName);
+                            formData.append('new_name', newFileName);
+                            formData.append('file_path', filePath);
+
+                            fetch('/wiki/rename', {
+                                method: 'POST',
+                                body: formData
+                            })
+                                .then(response => response.text())
+                                .then(data => {
+                                    if (data === 'success') {
+                                        const span = document.createElement('span');
+                                        span.classList.add('file-name');
+                                        span.textContent = newFileName + '.' + originalName.split('.').pop(); // Добавляем расширение обратно
+                                        this.replaceWith(span);
+                                        alert('Файл успешно переименован!');
+                                    } else {
+                                        alert('Ошибка: ' + data);
+                                        this.replaceWith(document.createTextNode(originalName));
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Ошибка:', error);
+                                    this.replaceWith(document.createTextNode(originalName));
+                                });
+                        } else {
+                            this.replaceWith(document.createTextNode(originalName));
+                        }
+                    }
+                });
+
+                input.addEventListener('blur', function () {
+                    this.replaceWith(document.createTextNode(originalName));
+                });
+
+                input.focus();
+            });
+        });
+    });
+</script>
 </body>
 </html>
 

@@ -219,6 +219,8 @@ NavBarContent(['title' => 'Add New', 'record_id' => $_GET['pid'] ?? null, 'user'
             <input type="hidden" id="routeid" name="routeid">
             <input type="file" id="photo" name="photoFile" accept="image/*" hidden data-required="<?= $project->sub_assembly; ?>">
             <input type="file" id="video" name="videoFile" accept="video/*" hidden>
+            <input type="hidden" name="choosed-step-image-path" id="step-image-path">
+            <input type="hidden" name="choosed-step-video-path" id="step-video-path">
             <input type="hidden" name="next-button" value="1">
         </form>
     </div>
@@ -243,10 +245,17 @@ NavBarContent(['title' => 'Add New', 'record_id' => $_GET['pid'] ?? null, 'user'
     </div>
 </div>
 
-<?php PAGE_FOOTER($page, false); ?>
+<?php
+
+SearchResponceModalDialog($page, 'search-responce');
+
+PAGE_FOOTER($page, false); ?>
 <!--suppress JSIncompatibleTypesComparison -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // игнорируемые обьекты при клике на странице с открытым модальным окном!
+        dom.bodyClick(["#grabPic","#grabVideo", ".modal-content"]);
+
         // поиск по списку элементов рут карты
         const routeActionInput = document.getElementById('routeAction');
         const dropdownItems = document.querySelectorAll('#routeActionUl li.dropdown-item');
@@ -256,11 +265,42 @@ NavBarContent(['title' => 'Add New', 'record_id' => $_GET['pid'] ?? null, 'user'
             dropdownItems.forEach(function (item) {
                 const itemText = item.textContent.toLowerCase();
                 if (itemText.includes(searchValue)) {
-                    item.style.display = '';
+                    item.style.display = "";
                 } else {
                     item.style.display = 'none';
                 }
             });
+        });
+
+        // выбор файлов загруженных ранее со сменой имени в БД
+        // выборка фоток из БД которые существуют
+        const args = {method: "POST", url: "get_data", headers: null};
+        dom.makeRequest("#grabPic", "click", "data-request", args, function (error, result, _) {
+            if (error) {
+                console.error('Error during fetch:', error);
+                return;
+            }
+
+            // вывод информации в модальное окно
+            let modalTable = dom.e("#searchModal");
+            if (modalTable) {
+                dom.e("#search-responce").innerHTML = result;
+                dom.show("#searchModal", "fast", true);
+            }
+        });
+
+        // установка результата выбора фото из БД
+        dom.in("click", "#search-responce td.image-path", function () {
+            console.log(this.dataset)
+            if (this.dataset.info) {
+                // Извлекаем и парсим данные из атрибута data-info
+                let info = this.dataset.info;
+                let img = dom.e("#photoPreview");
+                img.src = info;
+                dom.e("#step-image-path").value = info;
+            }
+            // Очищаем результаты поиска
+            dom.hide("#searchModal");
         });
 
         // кнопки выбора фото/ видео от пользователя

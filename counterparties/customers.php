@@ -7,29 +7,17 @@ $saveButtonText = 'Save New Customer';
 /* creation new customer from new order page */
 if (isset($_GET['routed-from']) || isset($_GET['search'])) {
     $saveButtonText = 'Save and Back to ' . $_GET['routed-from'];
+    $client['name'] = $_GET['po'];
 }
 
 // create or update and save new customer
-if (isset($_POST['createCstomer'])) {
-    // if customer was edited
-    if (isset($_POST['cuid'])) {
-        try {
-            CPC::updateCustomerData($_POST, $user);
-        } catch (\RedBeanPHP\RedException\SQL $e) {
-            // message collector (text/ color/ auto_hide = true)
-            _flashMessage('Error: ' . $e->getMessage(), 'danger');
-        }
-    } else {
-        // if customer was created
-        try {
-            CPC::createCustomer($_GET, $_POST, $user);
-        } catch (\RedBeanPHP\RedException\SQL $e) {
-            // message collector (text/ color/ auto_hide = true)
-            _flashMessage('Error: ' . $e->getMessage(), 'danger');
-        }
-    }
-    if (!empty($args['location'])) {
-        redirectTo($args['location']);
+if (isset($_POST['createCstomer']) || isset($_POST['proceedUpdating'])) {
+    // if customer was edited or created
+    try {
+        CPC::CustomerInformation($_GET, $_POST, $user);
+    } catch (\RedBeanPHP\RedException\SQL $e) {
+        // message collector (text/ color/ auto_hide = true)
+        _flashMessage('Error: ' . $e->getMessage(), 'danger');
     }
 }
 
@@ -84,29 +72,29 @@ NavBarContent(['title' => 'Customers', 'active_btn' => Y['CLIENT'], 'user' => $u
                 <div class="mb-3">
                     <div class="row g-3 align-items-center">
                         <div class="col-6">
-                            <label for="priorityMakat" class="form-label">Priority <b class="text-danger">*</b></label>
+                            <label for="priorityMakat" class="form-label">Priority <b class="text-primary">*</b></label>
                         </div>
                         <div class="col-6">
-                            <label for="headPay" class="form-label">Head Pay <b class="text-danger">*</b></label>
+                            <label for="headPay" class="form-label">Head Pay <b class="text-primary">*</b></label>
                         </div>
                     </div>
 
                     <div class="row g-3 align-items-center">
                         <div class="col-6">
                             <input type="text" class="form-control" id="priorityMakat" name="priorityMakat"
-                                   value="<?= set_value('priorityMakat', $client['priority'] ?? '0'); ?>" required>
+                                   value="<?= set_value('priorityMakat', $client['priority'] ?? '0'); ?>">
                         </div>
                         <div class="col-6">
                             <input type="text" class="form-control" id="headPay" name="headPay"
-                                   value="<?= set_value('head_pay', $client['head_pay'] ?? '0'); ?>" required>
+                                   value="<?= set_value('head_pay', $client['head_pay'] ?? '0'); ?>">
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="address" class="form-label">Address <b class="text-danger">*</b></label>
+                    <label for="address" class="form-label">Address <b class="text-primary">*</b></label>
                     <input type="text" class="form-control" id="address" name="address"
-                           value="<?= set_value('address', $client['address'] ?? ''); ?>" required>
+                           value="<?= set_value('address', $client['address'] ?? ''); ?>">
                 </div>
 
                 <!-- PHONES FIELDS -->
@@ -123,7 +111,7 @@ NavBarContent(['title' => 'Customers', 'active_btn' => Y['CLIENT'], 'user' => $u
                         </div>
                         <div class="col-4">
                             <input type="tel" class="form-control" id="phone" name="phone"
-                                   value="<?= set_value('phone', $client['phone'] ?? ''); ?>" required>
+                                   value="<?= set_value('phone', $client['phone'] ?? ''); ?>" placeholder="911" required>
                         </div>
                         <?php
                         // Преобразование строки JSON обратно в массив
@@ -156,7 +144,7 @@ NavBarContent(['title' => 'Customers', 'active_btn' => Y['CLIENT'], 'user' => $u
                         </div>
                         <div class="col-4">
                             <input type="text" class="form-control" id="contact" name="contact"
-                                   value="<?= set_value('contact', $client['contact'] ?? ''); ?>" required>
+                                   value="<?= set_value('contact', $client['contact'] ?? ''); ?>" placeholder="Jon Dooo" required>
                         </div>
                         <?php
                         // Преобразование строки JSON обратно в массив
@@ -179,7 +167,7 @@ NavBarContent(['title' => 'Customers', 'active_btn' => Y['CLIENT'], 'user' => $u
                 <div class="mb-3">
                     <div class="row g-3 align-items-center">
                         <div class="col-4">
-                            <label for="email" class="form-label">Contact Email <b class="text-danger">*</b></label>
+                            <label for="email" class="form-label">Contact Email <b class="text-primary">*</b></label>
                         </div>
                         <div class="col-4">
                             <label for="email_1" class="form-label">Extra Email</label>
@@ -189,7 +177,7 @@ NavBarContent(['title' => 'Customers', 'active_btn' => Y['CLIENT'], 'user' => $u
                         </div>
                         <div class="col-4">
                             <input type="email" class="form-control" id="email" name="email"
-                                   value="<?= set_value('email', $client['email'] ?? ''); ?>" required>
+                                   value="<?= set_value('email', $client['email'] ?? ''); ?>">
                         </div>
                         <?php
                         // Преобразование строки JSON обратно в массив
@@ -226,6 +214,8 @@ NavBarContent(['title' => 'Customers', 'active_btn' => Y['CLIENT'], 'user' => $u
                     <?= $saveButtonText; ?>
                     <i class="bi bi-people-fill"></i>
                 </button>
+
+                <button type="submit" class="hidden" name="proceedUpdating" id="subbmit-form-btn"></button>
             </form>
         </div>
 
@@ -284,6 +274,12 @@ NavBarContent(['title' => 'Customers', 'active_btn' => Y['CLIENT'], 'user' => $u
 
 <?php PAGE_FOOTER($page); ?>
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        dom.in("click", "#proceed-button-flashmsg", function () {
+            dom.e("#subbmit-form-btn").click();
+        });
+    });
+
     // функция добавляется в ряд таблицы при формировании страницы на сервере
     function changeClientInformation(id) {
         dom.e("#cuid").value = id;

@@ -135,7 +135,7 @@ class WareHouse
         }
 
         // ПРОВЕРЯЕМ БЕЗОПАСНОСТЬ ДАННЫЧ
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
         // СОЗДАЕМ ЗАПИСЬ В ТАБЛИЦЕ ТОВАРОВ
         $item = R::dispense(WH_ITEMS);
 
@@ -254,7 +254,7 @@ class WareHouse
             $imageData = $post['imageData'];
         }
 
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
         $item = R::load(WH_ITEMS, $post['item_id']);
         // Преобразование объекта в массив до изменений и в JSON-строку
         $itemDataBefore = json_encode($item->export(), JSON_UNESCAPED_UNICODE);
@@ -345,7 +345,7 @@ class WareHouse
      */
     public static function ReplenishInventory($post, $user): array
     {
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
 
         $item_id = $post['item_id'];
         $item = R::load(WH_ITEMS, $item_id);
@@ -434,7 +434,7 @@ class WareHouse
     public static function updateRelatedTables(array $post, array $user)
     {
         // Convert POST data to array if necessary
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
 
         // Extract table name and item ID from the POST data
         $tableName = $post['table-name'];
@@ -855,7 +855,7 @@ class WareHouse
     public static function createNewReplenishmentList($post, $user, $order, $project): string
     {
         // Convert POST data to array if necessary
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
 
         $po_invoice = R::dispense(PO_AIRRVAL);
         if (!empty($order['id']) && !empty($project['id'])) {

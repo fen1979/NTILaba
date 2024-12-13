@@ -52,6 +52,28 @@ document.addEventListener("DOMContentLoaded", function () {
         dom.e("#sub_assembly").checked = this.checked;
     });
 
+    // переход по ссылке с параметрами при создании нового клиента
+    dom.in("click", "#createCustomer", function () {
+        let cName = dom.e("#customerName").value.trim();
+        // Проверяем, что поле не пустое
+        if (cName === '') {
+            alert('Пожалуйста, введите имя клиента.');
+            return;
+        }
+        let aLink = "/create_client?routed-from=create-project&po=" + encodeURIComponent(cName);
+
+        // Создаем скрытую ссылку
+        let link = document.createElement('a');
+        link.href = aLink;
+        link.target = '_self';
+        link.style.display = 'none';
+
+        // Добавляем ссылку в документ, программно кликаем по ней и удаляем
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+
     // Включаем кнопку "Создать проект" при заполнении обязательных полей и выборе минимум 3 чекбоксов
     const form = dom.e('#createProjectForm');
 

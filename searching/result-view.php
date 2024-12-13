@@ -610,13 +610,14 @@ function viewPartsForUnitBOM($result): void
 
 /**
  * @param $itemImages
+ * @param bool $header
  * @return string
  */
-function itemImagesForChoose($itemImages): string
+function itemImagesForChoose($itemImages, $header = true): string
 {
     // собираем все пути в таблицу по 3 штуки в ряду и возвращаем для вывода на страницу
     // ширина изображения установлена в 200рх
-    $outRes = '<thead><tr><th colspan="3">Click on image for choose</th></tr></thead>';
+    $outRes = ($header) ? '<thead><tr><th colspan="3">Click on image for choose</th></tr></thead>' : '';
     $outRes .= '<tbody>';
     $count = 0;
     foreach ($itemImages as $path) {

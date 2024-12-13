@@ -21,6 +21,10 @@ if (isset($_POST['unit_name']) && isset($_POST['revision']) && isset($_POST['ver
 if (isset($_POST['suggest']) && isset($_POST['request'])) {
     $request = _E($_POST['request']);
     $mySearchString = _E($_POST['suggest']);
+    //
+    if (!empty($_POST['additions'])) {
+        $additions = _E($_POST['additions']);
+    }
 
     switch ($request) {
 
@@ -126,18 +130,104 @@ if (isset($_POST['suggest']) && isset($_POST['request'])) {
             }
             break;
 
+//        case 'get-images':
+//        case 'tools-images':
+//        case 'step-images':
+//        case 'step-video':
+//            {
+//                if ($request != 'step-images' && $request != 'step-video') {
+//                    list($table, $column) = $request == 'get-images' ? [WH_ITEMS, 'item_image'] : [TOOLS, 'image'];
+//                    try {
+//                        $itemImages = getAllImagesSavedInDB($table, $column);
+//                        echo itemImagesForChoose($itemImages);
+//                    } catch (Exception $e) {
+//                        echo "Error: " . $e->getMessage();
+//                    }
+//                } else {
+//                    // Получение имен файлов в папке
+//                    if (isset($additions) && is_dir($additions)) {
+//                        try {
+//                            // Получаем все файлы в папке, исключая "." и ".."
+//                            $files = array_diff(scandir($additions), ['.', '..']);
+//
+//                            // Оставляем только файлы (не папки) с именами и расширениями
+//                            $itemImages = array_values(array_filter($files, function ($file) use ($additions) {
+//                                return is_file($additions . DIRECTORY_SEPARATOR . $file);
+//                            }));
+//
+//                            // Добавляем полный путь к каждому имени файла
+//                            $itemImages = array_map(function ($file) use ($additions) {
+//                                return $additions . DIRECTORY_SEPARATOR . $file;
+//                            }, $itemImages);
+//
+//                            if (!empty($itemImages)) {
+//                                // Вывод обработанных имен файлов
+//                                echo itemImagesForChoose($itemImages, false);
+//                            } else {
+//                                // Если папка пуста
+//                                echo "EMPTY";
+//                            }
+//                        } catch (Exception $e) {
+//                            echo "Error: " . $e->getMessage();
+//                        }
+//                    } else {
+//                        echo "Error: Invalid directory path.";
+//                    }
+//                }
+//            }
+//            break;
         case 'get-images':
         case 'tools-images':
+        case 'step-images':
+        case 'step-video':
             {
-                list($table, $column) = $request == 'get-images' ? [WH_ITEMS, 'item_image'] : [TOOLS, 'image'];
-                try {
-                    $itemImages = getAllImagesSavedInDB($table, $column);
-                    echo itemImagesForChoose($itemImages);
-                } catch (Exception $e) {
-                    echo "Error: " . $e->getMessage();
+                if ($request != 'step-images' && $request != 'step-video') {
+                    list($table, $column) = $request == 'get-images' ? [WH_ITEMS, 'item_image'] : [TOOLS, 'image'];
+                    try {
+                        $itemImages = getAllImagesSavedInDB($table, $column);
+                        echo itemImagesForChoose($itemImages);
+                    } catch (Exception $e) {
+                        echo "Error: " . $e->getMessage();
+                    }
+                } else {
+                    // Получение файлов из папки
+                    if (isset($additions) && is_dir($additions)) {
+                        try {
+                            // Получаем все файлы в папке, исключая "." и ".."
+                            $files = array_diff(scandir($additions), ['.', '..']);
+
+                            // Определяем фильтр для файлов в зависимости от типа запроса
+                            $allowedExtensions = ($request == 'step-images') ? ['jpg', 'jpeg', 'png', 'gif', 'webp'] : ['mp4', 'avi', 'mov', 'mkv', 'webm'];
+
+                            // Фильтруем только файлы с разрешенными расширениями
+                            $filteredFiles = array_filter($files, function ($file) use ($additions, $allowedExtensions) {
+                                $filePath = $additions . DIRECTORY_SEPARATOR . $file;
+                                $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+                                return is_file($filePath) && in_array($extension, $allowedExtensions);
+                            });
+
+                            // Добавляем полный путь к каждому отфильтрованному файлу
+                            $itemFiles = array_map(function ($file) use ($additions) {
+                                return $additions . DIRECTORY_SEPARATOR . $file;
+                            }, $filteredFiles);
+
+                            if (!empty($itemFiles)) {
+                                // Вывод обработанных файлов
+                                echo itemImagesForChoose($itemFiles, false);
+                            } else {
+                                // Если папка пуста или нет подходящих файлов
+                                echo "EMPTY";
+                            }
+                        } catch (Exception $e) {
+                            echo "Error: " . $e->getMessage();
+                        }
+                    } else {
+                        echo "Error: Invalid directory path.";
+                    }
                 }
             }
             break;
+
 
         case 'tools':
             {

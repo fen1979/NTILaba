@@ -175,22 +175,6 @@ document.addEventListener("DOMContentLoaded", function () {
         dom.e("#loading").style.display = "flex";
     });
 
-    // скрываем ответ от сервера при клике на страницах
-    dom.in("click", "body", function (event) {
-        // Проверяем, есть ли на странице модальное окно с таблицей tools
-        const toolsTable = dom.e('#tools-table');
-
-        // Если таблица tools подгружена и пользователь кликает вне этого окна, не скрываем модальное окно
-        if (toolsTable && toolsTable.contains(event.target)) {
-            // Таблица tools открыта, ничего не делаем
-            return;
-        }
-
-        // Если таблица tools не открыта или клик происходит вне таблицы, скрываем модальное окно
-        dom.hide("#searchModal");
-    });
-
-
     // переделать в свои методы как дойдем
     // navigation butter toggle
     let toggler = dom.e(".navbar-toggler");

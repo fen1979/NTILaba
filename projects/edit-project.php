@@ -25,6 +25,10 @@ if (isset($_POST['projectid']) && isset($_POST['stepId']) && isset($_POST['delet
 if (isset($_GET['pid']) || isset($_SESSION['projectid'])) {
     $projectID = $_SESSION['projectid'] = $_GET['pid'];
     $project_for_edit = R::Load(PROJECTS, $projectID);
+    // если проект не существует переходим на страницу пректов
+    if ($project_for_edit->id == 0) {
+        redirectTo('project');
+    }
 }
 // getting unit steps from DB
 $unit_staps = R::find(PROJECT_STEPS, "projects_id LIKE ? ORDER BY CAST(step AS UNSIGNED) ASC", [$project_for_edit->id]);

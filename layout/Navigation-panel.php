@@ -473,6 +473,22 @@ function EDIT_AND_ADD_STEP_BUTTONS($pid): void
             <i class="bi bi-check2-square"></i>
         </button>
     </li>
+    <?php
+    /* получаем данные проекта для вывода папки проекта как каталог для поиска фотографий */
+    $p = R::load(PROJECTS, $pid); ?>
+    <li class="nav-item">
+        <button type="button" class="swb btn btn-sm btn-outline-warning step-btn" id="grabPic"
+                data-additions="<?= $p['docsdir'] ?>" data-request="step-images">
+            <i class="bi bi-image"></i>
+        </button>
+    </li>
+    <li class="nav-item">
+        <button type="button" class="swb btn btn-sm btn-outline-warning step-btn" id="grabVideo"
+                data-additions="<?= $p['docsdir'] ?>" data-request="step-video">
+            <i class="bi bi-camera"></i>
+        </button>
+    </li>
+
     <li class="nav-item">
         <button type="button" class="swb btn btn-sm btn-outline-warning step-btn" id="takePic">
             <i class="bi bi-camera-fill"></i>

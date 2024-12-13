@@ -1,4 +1,5 @@
 <?php
+
 class Project
 {
     /* ============================ PROTECTED METHODS =============================== */
@@ -13,7 +14,7 @@ class Project
      */
     private static function saveProjectDocumentation($files, $projectName, mixed $filename = '', bool $isNew = true): array
     {
-        var_dump($files);
+        //var_dump($files);
         $dataArray = ['args' => null, 'filename' => null];
         $docDir = PROJECTS_FOLDER . "$projectName/docs/";
 
@@ -184,7 +185,7 @@ class Project
     {
         $log_details = '';
         /* Получаем данные из формы*/
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
         $projectName = preg_replace('/[^a-zA-Z0-9]/', '-', $post['projectName']);
 
         /* Создаем папку проекта*/
@@ -280,7 +281,7 @@ class Project
      */
     public static function editProjectInformation($post, $user, $files = null): void
     {
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
         $log_details = '<h4>Changes</h4>';
 
         /* Получаем данные из формы*/
@@ -389,7 +390,7 @@ class Project
      */
     public static function createProjectBomItem($post, $user, $project_id): void
     {
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
         $project = R::load(PROJECTS, $project_id);
 
         $partList = R::dispense(PROJECT_BOM);
@@ -428,114 +429,6 @@ class Project
     }
 
     /**
-     * IMPORT PROJECT BOM FROM CSV FILE
-     * @param $files
-     * @param $post
-     * @param $user
-     * @param $project_id
-     * @return void
-     * @throws \\RedBeanPHP\RedException\SQL
-     */
-    public static function importProjectBomFromFile($files, $post, $user, $project_id): void
-    {
-        $project = R::load(PROJECTS, $project_id);
-        // converting post to assoc array
-        $fieldsMapping = [];
-        foreach ($post as $key => $name) {
-            $fieldsMapping[$key] = $name;
-        }
-
-        /* uploading the file */
-        if (!empty($files['import_csv']['name'][0])) {
-            $tmp_name = $files['import_csv']['tmp_name'];
-            $uploadedFile = TEMP_FOLDER . basename($files['import_csv']['name']);
-            $fileType = strtolower(pathinfo($uploadedFile, PATHINFO_EXTENSION));
-
-            if ($fileType == 'csv') {
-                // save file to temp dir
-                $uploadSuccess = move_uploaded_file($tmp_name, $uploadedFile);
-                if ($uploadSuccess) {
-
-                    if (($handle = fopen($uploadedFile, "r")) !== FALSE) {
-                        // Чтение заголовков файла
-                        $headers = fgetcsv($handle, 1000);
-                        $columnIndexes = [];
-
-                        // Определение индексов нужных колонок
-                        foreach ($fieldsMapping as $dbField => $csvColumnName) {
-                            $index = array_search($csvColumnName, $headers);
-                            if ($index !== FALSE) {
-                                $columnIndexes[$dbField] = $index;
-                            }
-                        }
-
-                        // Чтение и обработка каждой строки файла
-                        while (($data = fgetcsv($handle, 1000)) !== FALSE) {
-                            $rowData = [];
-                            foreach ($columnIndexes as $dbField => $index) {
-                                $rowData[$dbField] = $data[$index];
-                            }
-                            //i сделать построчную проверку переменных по manufacture_pn и qty если номер тот же то пюсуем qty к тому что есть
-                            //i а если manufacture_pn отличается то вносим как новый элемент
-
-                            $goods = R::dispense(PROJECT_BOM);
-                            $goods->sku = (int)$rowData['sku'] ?? 0;
-                            $goods->part_name = $rowData['part_name'] ?? '';
-                            $goods->part_value = $rowData['part_value'] ?? '';
-                            $goods->mounting_type = $rowData['mounting_type'] ?? '';
-                            $goods->footprint = $rowData['footprint'] ?? '';
-                            $goods->manufacturer = $rowData['manufacturer'] ?? '';
-                            $goods->manufacture_pn = $rowData['manufacture_pn'] ?? '';
-                            $goods->owner_pn = $rowData['owner_pn'] ?? '';
-                            $goods->amount = trim($rowData['qty']);// требуемое кол-во на одну штуку
-                            $goods->length_mm = self::isDigits(trim($rowData['length_mm'])); // ДЛИНА В ММ ЕСЛИ ЕСТЬ
-                            $goods->description = $rowData['description'] ?? '';
-                            $goods->notes = $rowData['note'] ?? '';
-                            $goods->projects_id = $project->id;
-
-
-                            // добавляем ID детали из БД если она есть в БД
-                            // если детали нет то оставляем пустое поле
-//                            if (!empty($rowData['item_id'])) {
-//                                $partList->item_id = $rowData['item_id'];  // warehouse item id
-//                            } else {
-                            $wh = WareHouse::GetOneItemFromWarehouse($rowData['manufacture_pn'], $rowData['owner_pn']);  // warehouse item id
-                            if ($wh) {
-                                $partList->item_id = $wh->id;
-                                $goods->customerid = $project->customerid;
-                            }
-
-                            $goods->date_in = date("Y-m-d H:i");
-
-                            R::store($goods);
-                            $import = true;
-                        }
-                        fclose($handle);
-                    }
-                }
-
-                // deleting temp file
-                array_map('unlink', glob(TEMP_FOLDER . '*.*'));
-
-                if ($import) {
-                    _flashMessage('Import success');
-                } else {
-                    _flashMessage('Error, somethig went wrong!', 'danger');
-                }
-
-            } else {
-                _flashMessage('Error, File format wrong! Only .csv', 'danger');
-            }
-        }
-
-        /* [ LOG WRITING ACTION ] */
-        $details = 'Items for project ID= ' . $project_id . ', Added to BOM';
-        if (!logAction($user['user_name'], 'CREATING', OBJECT_TYPE[3], $details)) {
-            _flashMessage('Log creation failed!', 'danger');
-        }
-    }
-
-    /**
      * UPDATE AN ITEM IN PROJECT BOM
      * @param $post
      * @param $user
@@ -546,7 +439,7 @@ class Project
      */
     public static function updateProjectBomItem($post, $user, $project_id, $item_id): array
     {
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
         $item = R::load(PROJECT_BOM, $item_id);
         $item->sku = $post['sku'];  // sku makat
         $item->part_name = $post['part_name'];  // part name
@@ -581,7 +474,7 @@ class Project
      */
     public static function deleteProjectBomItem($post, $user): void
     {
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
         if (checkPassword($post['password'], true, $user)) {
             $it = R::load(PROJECT_BOM, $post['itemId']);
             $details = 'Item ID=' . $it->id . ', Deleted from Project ID=' . $it->projects_id . '<br>';
@@ -722,12 +615,12 @@ class Project
         $project = R::load(PROJECTS, $project_id);
         $projectDir = $project->projectdir;
         /* Получаем данные из формы */
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
 
         $toSave = 0;
         $log_details = '';
 
-        if (!empty($files['photoFile']['name'][0])) {
+        if (!empty($files['photoFile']['name'][0]) && empty($post['choosed-step-image-path'])) {
 
             $uniqueID = unicum($project_id);
             $outputFile = "$projectDir$uniqueID.webp";
@@ -761,6 +654,36 @@ class Project
                 }
             }
         } else {
+            // Конвертация выбранного файла, сохраненного ранее
+            if (!empty($post['choosed-step-image-path'])) {
+                $uploadedFile = $post['choosed-step-image-path']; // путь к файлу
+                $uniqueID = unicum($project_id); // генератор имен
+                $outputFile = "$projectDir$uniqueID.webp"; // путь для сохранения конвертации
+
+                try {
+                    // Проверяем существование файла
+                    if (!file_exists($uploadedFile)) {
+                        _flashMessage('<br>File does not exist: ' . htmlspecialchars($uploadedFile), 'danger');
+                        return;
+                    }
+
+                    // Конвертируем файл
+                    if (Converter::convertToWebP($uploadedFile, $outputFile)) {
+                        // Удаляем исходный файл после успешной конвертации
+                        if (unlink($uploadedFile)) {
+                            _flashMessage('<br>Image converted and saved successfully. Original file deleted.');
+                        } else {
+                            _flashMessage('<br>Image converted, but failed to delete the original file.', 'warning');
+                        }
+                        $toSave = 1;
+                    } else {
+                        _flashMessage('<br>Conversion error: Image format not supported!', 'danger');
+                    }
+                } catch (Exception $e) {
+                    _flashMessage('<br>Error: ' . htmlspecialchars($e->getMessage()), 'danger');
+                }
+            }
+
             if ($project->sub_assembly == 0) {
                 // выводим ошибку отсутствие файла !
                 _flashMessage('<br>Error! Image file not exist!', 'danger');
@@ -773,42 +696,111 @@ class Project
         }
 
         /* if video file exist for this step */
-        if (isset($files['videoFile'])) {
+//        if (isset($files['videoFile'])) {
+//
+//            $fileName = basename($files['videoFile']['name']);
+//            $targetFilePath = $uploadDir . $fileName;
+//            $uniqueID = unicum($project_id);
+//            $outputVideoFile = "$projectDir$uniqueID.mp4";
+//
+//            // Проверяем, что файл был загружен через HTTP POST
+//            if (is_uploaded_file($files['videoFile']['tmp_name'])) {
+//                // Перемещаем файл в целевую директорию
+//                if (move_uploaded_file($files['videoFile']['tmp_name'], $targetFilePath)) {
+//                    _flashMessage("File uploaded successfully: " . $targetFilePath);
+//                    // Здесь можно добавить вызов функции для конвертации видео
+//                    // Проверяем, является ли файл видео MP4 с кодеком H.264
+//                    if (Converter::isMp4H264($targetFilePath)) {
+//                        // Файл уже в нужном формате, переименуем и переместим его
+//                        rename($targetFilePath, $outputVideoFile);
+//                    } else {
+//                        // Файл не в формате MP4 H.264, конвертируем его
+//                        Converter::convertToMp4H264($targetFilePath, $outputVideoFile);
+//                        // Удаление исходного файла, если необходимо
+//                        array_map('unlink', glob("$uploadDir*.*"));
+//                    }
+//                    $toSave = 1;
+//                } else {
+//                    _flashMessage('<br>Error! uploading video file!', 'danger');
+//                }
+//
+//            } else {
+//                _flashMessage('<br>Notice: Video file not exist!', 'warning');
+//                if ($toSave == 1)
+//                    $outputVideoFile = 'none';
+//            }
+//        } else {
+//            if ($toSave == 1)
+//                $outputVideoFile = 'none';
+//        }
+        if (!empty($post['choosed-step-video-path']) || isset($files['videoFile'])) {
+            $uploadedFile = ''; // Инициализируем переменную для файла
+            $uniqueID = unicum($project_id); // Генератор имен
+            $outputVideoFile = "$projectDir$uniqueID.mp4"; // Путь для сохранения конвертированного файла
 
-            $fileName = basename($files['videoFile']['name']);
-            $targetFilePath = $uploadDir . $fileName;
-            $uniqueID = unicum($project_id);
-            $outputVideoFile = "$projectDir$uniqueID.mp4";
+            // Если файл выбран из существующих
+            if (!empty($post['choosed-step-video-path'])) {
+                $uploadedFile = $post['choosed-step-video-path']; // Путь к существующему файлу
 
-            // Проверяем, что файл был загружен через HTTP POST
-            if (is_uploaded_file($files['videoFile']['tmp_name'])) {
-                // Перемещаем файл в целевую директорию
-                if (move_uploaded_file($files['videoFile']['tmp_name'], $targetFilePath)) {
-                    _flashMessage("File uploaded successfully: " . $targetFilePath);
-                    // Здесь можно добавить вызов функции для конвертации видео
-                    // Проверяем, является ли файл видео MP4 с кодеком H.264
-                    if (Converter::isMp4H264($targetFilePath)) {
-                        // Файл уже в нужном формате, переименуем и переместим его
-                        rename($targetFilePath, $outputVideoFile);
+                // Проверяем существование файла
+                if (!file_exists($uploadedFile)) {
+                    _flashMessage('<br>File does not exist: ' . htmlspecialchars($uploadedFile), 'danger');
+                    return;
+                }
+            }
+
+            // Если файл загружается с формы
+            if (isset($files['videoFile'])) {
+                $fileName = basename($files['videoFile']['name']);
+                $targetFilePath = $uploadDir . $fileName;
+
+                if (is_uploaded_file($files['videoFile']['tmp_name'])) {
+                    if (move_uploaded_file($files['videoFile']['tmp_name'], $targetFilePath)) {
+                        _flashMessage("File uploaded successfully: " . $targetFilePath);
+                        $uploadedFile = $targetFilePath; // Используем загруженный файл для дальнейшей обработки
                     } else {
-                        // Файл не в формате MP4 H.264, конвертируем его
-                        Converter::convertToMp4H264($targetFilePath, $outputVideoFile);
-                        // Удаление исходного файла, если необходимо
-                        array_map('unlink', glob("$uploadDir*.*"));
+                        _flashMessage('<br>Error! uploading video file!', 'danger');
+                        return;
                     }
-                    $toSave = 1;
                 } else {
-                    _flashMessage('<br>Error! uploading video file!', 'danger');
+                    _flashMessage('<br>Notice: Video file not exist!', 'warning');
+                    return;
+                }
+            }
+
+            // Если файл определен (из существующих или загруженных), проверяем и конвертируем
+            try {
+                // Проверяем, является ли файл видео MP4 с кодеком H.264
+                if (Converter::isMp4H264($uploadedFile)) {
+                    // Если файл уже в нужном формате, копируем его с новым именем
+                    if (copy($uploadedFile, $outputVideoFile)) {
+                        _flashMessage('<br>Video is already in MP4 H.264 format. File copied successfully.');
+                    } else {
+                        _flashMessage('<br>Error copying video file.', 'danger');
+                        return;
+                    }
+                } else {
+                    // Если файл не в нужном формате, конвертируем его
+                    Converter::convertToMp4H264($uploadedFile, $outputVideoFile);
+
+                    // Проверяем, создался ли выходной файл после конвертации
+                    if (file_exists($outputVideoFile)) {
+                        _flashMessage('<br>Video converted to MP4 H.264 format successfully.');
+                    } else {
+                        _flashMessage('<br>Error converting video to MP4 H.264 format.', 'danger');
+                        return;
+                    }
                 }
 
-            } else {
-                _flashMessage('<br>Notice: Video file not exist!', 'warning');
-                if ($toSave == 1)
-                    $outputVideoFile = 'none';
+                $toSave = 1; // Флаг для сохранения шага
+            } catch (Exception $e) {
+                _flashMessage('<br>Error: ' . htmlspecialchars($e->getMessage()), 'danger');
             }
         } else {
-            if ($toSave == 1)
+            // Если видео файл не выбран и не загружен
+            if ($toSave == 1) {
                 $outputVideoFile = 'none';
+            }
         }
 
         /* сохраняем данные в таблицу */
@@ -858,7 +850,7 @@ class Project
      */
     public static function editProjectStep($post, $user, $files, $step_id): void
     {
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
         $toHistory = $stepToChange = R::load(PROJECT_STEPS, $step_id);
         $project = R::load(PROJECTS, $stepToChange->projects_id);
         $project_id = $stepToChange->projects_id;
@@ -1304,3 +1296,110 @@ class Project
         }
     }
 }
+///**
+// * IMPORT PROJECT BOM FROM CSV FILE
+// * @param $files
+// * @param $post
+// * @param $user
+// * @param $project_id
+// * @return void
+// * @throws \\RedBeanPHP\RedException\SQL
+// */
+//public static function importProjectBomFromFile($files, $post, $user, $project_id): void
+//{
+//    $project = R::load(PROJECTS, $project_id);
+//    // converting post to assoc array
+//    $fieldsMapping = [];
+//    foreach ($post as $key => $name) {
+//        $fieldsMapping[$key] = $name;
+//    }
+//
+//    /* uploading the file */
+//    if (!empty($files['import_csv']['name'][0])) {
+//        $tmp_name = $files['import_csv']['tmp_name'];
+//        $uploadedFile = TEMP_FOLDER . basename($files['import_csv']['name']);
+//        $fileType = strtolower(pathinfo($uploadedFile, PATHINFO_EXTENSION));
+//
+//        if ($fileType == 'csv') {
+//            // save file to temp dir
+//            $uploadSuccess = move_uploaded_file($tmp_name, $uploadedFile);
+//            if ($uploadSuccess) {
+//
+//                if (($handle = fopen($uploadedFile, "r")) !== FALSE) {
+//                    // Чтение заголовков файла
+//                    $headers = fgetcsv($handle, 1000);
+//                    $columnIndexes = [];
+//
+//                    // Определение индексов нужных колонок
+//                    foreach ($fieldsMapping as $dbField => $csvColumnName) {
+//                        $index = array_search($csvColumnName, $headers);
+//                        if ($index !== FALSE) {
+//                            $columnIndexes[$dbField] = $index;
+//                        }
+//                    }
+//
+//                    // Чтение и обработка каждой строки файла
+//                    while (($data = fgetcsv($handle, 1000)) !== FALSE) {
+//                        $rowData = [];
+//                        foreach ($columnIndexes as $dbField => $index) {
+//                            $rowData[$dbField] = $data[$index];
+//                        }
+//                        //i сделать построчную проверку переменных по manufacture_pn и qty если номер тот же то пюсуем qty к тому что есть
+//                        //i а если manufacture_pn отличается то вносим как новый элемент
+//
+//                        $goods = R::dispense(PROJECT_BOM);
+//                        $goods->sku = (int)$rowData['sku'] ?? 0;
+//                        $goods->part_name = $rowData['part_name'] ?? '';
+//                        $goods->part_value = $rowData['part_value'] ?? '';
+//                        $goods->mounting_type = $rowData['mounting_type'] ?? '';
+//                        $goods->footprint = $rowData['footprint'] ?? '';
+//                        $goods->manufacturer = $rowData['manufacturer'] ?? '';
+//                        $goods->manufacture_pn = $rowData['manufacture_pn'] ?? '';
+//                        $goods->owner_pn = $rowData['owner_pn'] ?? '';
+//                        $goods->amount = trim($rowData['qty']);// требуемое кол-во на одну штуку
+//                        $goods->length_mm = self::isDigits(trim($rowData['length_mm'])); // ДЛИНА В ММ ЕСЛИ ЕСТЬ
+//                        $goods->description = $rowData['description'] ?? '';
+//                        $goods->notes = $rowData['note'] ?? '';
+//                        $goods->projects_id = $project->id;
+//
+//
+//                        // добавляем ID детали из БД если она есть в БД
+//                        // если детали нет то оставляем пустое поле
+////                            if (!empty($rowData['item_id'])) {
+////                                $partList->item_id = $rowData['item_id'];  // warehouse item id
+////                            } else {
+//                        $wh = WareHouse::GetOneItemFromWarehouse($rowData['manufacture_pn'], $rowData['owner_pn']);  // warehouse item id
+//                        if ($wh) {
+//                            $partList->item_id = $wh->id;
+//                            $goods->customerid = $project->customerid;
+//                        }
+//
+//                        $goods->date_in = date("Y-m-d H:i");
+//
+//                        R::store($goods);
+//                        $import = true;
+//                    }
+//                    fclose($handle);
+//                }
+//            }
+//
+//            // deleting temp file
+//            array_map('unlink', glob(TEMP_FOLDER . '*.*'));
+//
+//            if ($import) {
+//                _flashMessage('Import success');
+//            } else {
+//                _flashMessage('Error, somethig went wrong!', 'danger');
+//            }
+//
+//        } else {
+//            _flashMessage('Error, File format wrong! Only .csv', 'danger');
+//        }
+//    }
+//
+//    /* [ LOG WRITING ACTION ] */
+//    $details = 'Items for project ID= ' . $project_id . ', Added to BOM';
+//    if (!logAction($user['user_name'], 'CREATING', OBJECT_TYPE[3], $details)) {
+//        _flashMessage('Log creation failed!', 'danger');
+//    }
+//}

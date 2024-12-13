@@ -132,12 +132,90 @@ dom.addEventListener("DOMContentLoaded", function () {
 
     /**
      * Плавно отображает элемент, изменяя его CSS свойства `display` и `opacity`.
-     * так же назначает события нажатий вне окна и закрытия окна кнопкой закрыть и ESC
+     * Так же назначает события нажатий вне окна и закрытия окна кнопкой закрыть и ESC
      * @param {string} selector - Селектор элемента, который будет показан.
      * @param {number|string} speed - Длительность анимации в миллисекундах или ключевые слова "slow" или "fast".
-     * @param {boolean} blur - затемнение задней части окна
+     * @param {boolean} blur - Затемнение задней части окна.
      */
     dom.show = function (selector, speed = "fast", blur = false) {
+        const element = dom.e(selector);
+        if (element) {
+            // Проверяем, скрыт ли элемент
+            const hasHiddenClass = element.classList.contains('hidden');
+            const styleDisplay = element.style.display;
+            const styleOpacity = element.style.opacity;
+            const hasStyleDisplayNoneOpacityZero = (styleDisplay === 'none' && styleOpacity === '0');
+            const computedDisplay = window.getComputedStyle(element).display === 'none';
+
+            const isHidden = hasHiddenClass || hasStyleDisplayNoneOpacityZero || computedDisplay;
+
+            if (isHidden) {
+                // Определяем длительность анимации
+                let duration = (speed === "slow" ? 600 : speed === "fast" ? 200 : speed) || 0;
+                // Если элемент является модальным окном Bootstrap
+                if (speed === "modal") {
+                    new bootstrap.Modal(element).show("slow");
+                } else {
+                    // Удаляем класс 'hidden' если он есть
+                    if (hasHiddenClass) {
+                        element.classList.remove('hidden');
+                    }
+
+                    // Устанавливаем нужные стили
+                    element.style.display = 'block';
+                    element.style.opacity = "1";
+                    element.style.transition = `opacity ${duration}ms`;
+
+                    // Если элемент имел стили 'display: none; opacity: 0;', то обновляем их
+                    if (hasStyleDisplayNoneOpacityZero) {
+                        element.style.display = 'block';
+                        element.style.opacity = "1";
+                        element.style.transition = `opacity ${duration}ms`;
+                    }
+
+                    if (blur) element.classList.add("modal-blur");
+
+                    // Добавляем небольшую задержку для применения стилей
+                    setTimeout(() => {
+                        element.style.opacity = "1";
+                    }, 50);
+
+                    // Устанавливаем обработчики
+                    attachDismissHandlers(selector);
+                    attachEscKeyHandler(selector);
+                }
+            } else {
+                console.log("Элемент уже виден, пропускаем выполнение действий.");
+            }
+        }
+
+        // Функция для установки обработчиков закрытия модального окна
+        function attachDismissHandlers(selector) {
+            // Найти все элементы с атрибутом data-aj-dismiss="modal"
+            const elements = document.querySelectorAll('[data-aj-dismiss="modal"]');
+
+            // Присвоить событие click каждому найденному элементу
+            elements.forEach(element => {
+                element.addEventListener('click', function () {
+                    dom.hide(selector);
+                });
+            });
+        }
+
+        // Обработка нажатия клавиши ESC для скрытия
+        function attachEscKeyHandler(selector) {
+            function handleEscKey(event) {
+                if (event.key === 'Escape') {
+                    dom.hide(selector);
+                    document.removeEventListener('keydown', handleEscKey);
+                }
+            }
+
+            document.addEventListener('keydown', handleEscKey);
+        }
+    };
+
+    /*dom.show = function (selector, speed = "fast", blur = false) {
         const element = dom.e(selector);
         if (element) {
             // Проверяем, скрыт ли элемент
@@ -208,6 +286,59 @@ dom.addEventListener("DOMContentLoaded", function () {
 
             document.addEventListener('keydown', handleEscKey);
         }
+    };*/
+
+    /**
+     * Функция для обработки кликов по документу с учетом исключений.
+     *
+     * Используется для закрытия модального окна при клике вне указанных элементов,
+     * переданных в массиве исключений. Если клик произошел по элементу или внутри элемента,
+     * соответствующего селектору из массива исключений, модальное окно не закрывается.
+     *
+     * @function bodyClick
+     * @param {string[]} exclusionSelectors - Массив селекторов, которые не должны закрывать модальное окно.
+     *                                        Каждый элемент массива — это строка с CSS-селектором.
+     *                                        Примеры:
+     *                                        - "#id-el" — исключение по ID.
+     *                                        - ".class-el" — исключение по классу.
+     *                                        - "tag-el" — исключение по тегу.
+     *
+     * @param hiddingSelector - идентификатор элемента для скрытия на странице
+     * _ по умолчанию это основное модальное окно ресурса
+     * @example
+     * // Инициализация с исключениями
+     * document.bodyClick(["#tools-table", ".modal-content", "button"]);
+     *
+     * // Логика:
+     * // - Клик по #tools-table → модальное окно не закрывается.
+     * // - Клик по .modal-content → модальное окно не закрывается.
+     * // - Клик по кнопке (button) → модальное окно не закрывается.
+     * // - Клик по .other-content → модальное окно закрывается.
+     *
+     * @note Если переданный массив пуст, функция будет закрывать модальное окно при любом клике.
+     * @note Убедитесь, что переданные селекторы корректны и соответствуют вашим элементам.
+     *
+     * @returns {void}
+     */
+    dom.bodyClick = function (exclusionSelectors, hiddingSelector = "#searchModal") {
+        document.addEventListener("click", function (event) {
+            const target = event.target;
+
+            // Проверяем, есть ли совпадение с исключением
+            const isExcluded = exclusionSelectors.some(selector => {
+                // Если элемент или его родитель соответствует селектору
+                return target.matches(selector) || target.closest(selector);
+            });
+
+            if (isExcluded) {
+                console.info("Клик на элементе из исключений. Окно не закрывается.");
+                return;
+            }
+
+            // Действие при клике вне исключений
+            console.info("Клик вне исключений. Закрываем модальное окно.");
+            dom.hide(hiddingSelector); // Закрываем модальное окно
+        });
     };
 
     /**
@@ -634,9 +765,10 @@ dom.addEventListener("DOMContentLoaded", function () {
             input.addEventListener(eventType, function (event) { // Добавляем параметр event
                 let search = this.value;
                 let req = this.getAttribute(dataAttribute);
+                let addons = this.getAttribute("data-additions");
                 let body = (req !== undefined)
-                    ? `suggest=${encodeURIComponent(search)}&request=${encodeURIComponent(req)}`
-                    : `suggest=${encodeURIComponent(search)}`;
+                    ? `suggest=${encodeURIComponent(search)}&request=${encodeURIComponent(req)}&additions=${encodeURIComponent(addons)}`
+                    : `suggest=${encodeURIComponent(search)}&additions=${encodeURIComponent((addons !== undefine) ? addons : "")}`;
 
                 const headers = (args.headers === null) ? {"Content-Type": "application/x-www-form-urlencoded"} : args.headers;
                 fetch(args.url, {

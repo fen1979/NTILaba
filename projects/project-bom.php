@@ -25,11 +25,11 @@ if (isset($_GET['pid']) && isset($_GET['back-id']) && isset($_GET['mode'])) {
 
 /* saving the item to DB */
 if (isset($_POST['save-item-to-bom'])) {
-    if (!isset($_FILES['import_csv']['name'][0])) {
-        Project::createProjectBomItem($_POST, $user, $_GET['pid']);
-    } else {
-        Project::importProjectBomFromFile($_FILES, $_POST, $user, $_GET['pid']);
-    }
+//    if (!isset($_FILES['import_csv']['name'][0])) {
+    Project::createProjectBomItem($_POST, $user, $_GET['pid']);
+//    } else {
+//        Project::importProjectBomFromFile($_FILES, $_POST, $user, $_GET['pid']);
+//    }
 }
 
 /* delete item from project BOM */
@@ -244,46 +244,60 @@ if (isset($_GET['edit-item'])) {
 
     <!-- items table -->
     <div class="col-9 ps-3">
-        <h4 class="text-center"><?= "Project: $p_name, Customer: $c_name, BOM items table."; ?></h4>
-        <div style="overflow-y: scroll; overflow-x: scroll; height: 100vh;">
-            <table id="itemTable">
-                <thead>
-                <tr>
-                    <th>SKU</th>
-                    <th>Length [mm]</th>
-                    <th>QTY [pcs]</th>
-                    <?php $t = 'Press and hold the CTRL button for Windows or the COMMAND button for Mac OS and hover over the SKU to remove the part from the list.'; ?>
-                    <th><i class="bi bi-info-circle text-primary" data-title="<?= $t; ?>"></i> P/N</th>
-                    <th class="sortable" onclick="sortTable(4)"><i class="bi bi-filter"></i> Value</th>
-                    <th>Manufacturer</th>
-                    <th>Manufacturer P/N</th>
-                    <th>Owner P/N</th>
-                    <th>Desc</th>
-                    <th>Note</th>
-                    <th class="sortable" onclick="sortTable(10)"><i class="bi bi-filter"></i> Type</th>
-                    <th class="sortable" onclick="sortTable(11)"><i class="bi bi-filter"></i> Footprint</th>
-                </tr>
-                </thead>
-                <tbody id="tbody-responce">
-                <?php if ($it): foreach ($it as $item): ?>
-                    <tr class="item-list">
-                        <td class="item-btn" data-id="<?= $item['id']; ?>" data-num="<?= $item['sku']; ?>"><?= $item['sku']; ?></td>
-                        <td><?= $item['length_mm']; ?></td>
-                        <td><?= $item['amount']; ?></td>
-                        <td><?= $item['part_name']; ?></td>
-                        <td><?= $item['part_value']; ?></td>
-                        <td><?= $item['manufacturer']; ?></td>
-                        <td><?= $item['manufacture_pn']; ?></td>
-                        <td><?= $item['owner_pn']; ?></td>
-                        <td><?= $item['description']; ?></td>
-                        <td><?= $item['notes']; ?></td>
-                        <td><?= $item['mounting_type']; ?></td>
-                        <td><?= $item['footprint']; ?></td>
+<!--        i test page relocation    -->
+        <form action="/fvlihlsilsi" method="post">
+
+            <div class="mb-2">
+                <button type="submit" class="btn btn-outline-info form-control" value="creation-warehouse-flow">
+                    Creation or updating Warehouse-Workmansheep flow
+                    <i class="bi bi-gear"></i>
+                </button>
+            </div>
+            <h4 class="text-center"><?= "Project: $p_name, Customer: $c_name, BOM items table."; ?></h4>
+            <div style="overflow-y: scroll; overflow-x: scroll; height: 100vh;">
+                <table id="itemTable">
+                    <thead>
+                    <tr>
+                        <th>SKU</th>
+                        <th>Length [mm]</th>
+                        <th>QTY [pcs]</th>
+                        <?php $t = 'Press and hold the CTRL button for Windows or the COMMAND button for Mac OS and hover over the SKU to remove the part from the list.'; ?>
+                        <th><i class="bi bi-info-circle text-primary" data-title="<?= $t; ?>"></i> P/N</th>
+                        <th class="sortable" onclick="sortTable(4)"><i class="bi bi-filter"></i> Value</th>
+                        <th>Manufacturer</th>
+                        <th>Manufacturer P/N</th>
+                        <th>Owner P/N</th>
+                        <th>Desc</th>
+                        <th>Note</th>
+                        <th class="sortable" onclick="sortTable(10)"><i class="bi bi-filter"></i> Type</th>
+                        <th class="sortable" onclick="sortTable(11)"><i class="bi bi-filter"></i> Footprint</th>
                     </tr>
-                <?php endforeach; endif; ?>
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody id="tbody-responce">
+                    <?php if ($it): foreach ($it as $k => $item): ?>
+                        <tr class="item-list">
+                            <td class="item-btn" data-id="<?= $item['id']; ?>" data-num="<?= $item['sku']; ?>"><?= $item['sku']; ?></td>
+                            <td><?= $item['length_mm']; ?></td>
+                            <td><?= $item['amount']; ?></td>
+                            <td><?= $item['part_name']; ?></td>
+                            <td><?= $item['part_value']; ?></td>
+                            <td><?= $item['manufacturer']; ?></td>
+                            <td><?= $item['manufacture_pn']; ?></td>
+                            <td><?= $item['owner_pn']; ?></td>
+                            <td><?= $item['description']; ?></td>
+                            <td><?= $item['notes']; ?></td>
+                            <td><?= $item['mounting_type']; ?></td>
+                            <td><?= $item['footprint']; ?></td>
+                            <td hidden="hidden">
+
+                                <input type="hidden" name="data[<?= $item['id'] ?>]" value="<?= htmlspecialchars($item) ?>">
+                            </td>
+                        </tr>
+                    <?php endforeach; endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </form>
     </div>
 </div>
 

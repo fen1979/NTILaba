@@ -109,7 +109,7 @@ class Orders
      */
     public static function setStatusOrUserInOrder($user, $order_id, $post): void
     {
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
         $order = R::load(ORDERS, $order_id);
         // ОБНОВЛЕНИЕ СТАТУСА ЗАКАЗА И РАБОТНИКОВ ЗАКАЗА
         if (isset($post['set-order-user'])) {
@@ -167,7 +167,7 @@ class Orders
      */
     public static function createOrder($user, $client, $project, $post): array
     {
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
 
         $order = R::dispense(ORDERS);
 
@@ -248,7 +248,7 @@ class Orders
     public static function updateOrderInformation($user, $order_id, $post, $project = null, $client = null): array
     {
         if ($project && $client) {
-            $post = checkPostDataAndConvertToArray($post);
+            $post = checkDataAndConvertToArray($post);
             $order = R::load(ORDERS, $order_id);
             $msg = '';
             // ИЗМЕНЕНИЕ ИННФОРМАЦИИ В ЗАКАЗЕ
@@ -978,7 +978,7 @@ class Orders
     {
 
         $res = ['tab' => '2', 'step_id' => '', 'errors' => ''];
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
         switch ($action) {
             case 'initiation':
                 $res = self::orderProgressInit($order, $project, $user, $steps);

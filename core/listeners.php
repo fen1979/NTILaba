@@ -17,8 +17,20 @@ if (isset($_POST['uid'])) {
             echo '1';
         }
     }
+    exit();
 }
-exit();
+
+class listeners
+{
+    public static function ActionProceed(): string
+    {
+       $message = 'Error: This client: ' . $existingCustomer->name . ' information about phone or email was changed, ' .
+           '<br> Do you want to proceed operation?<br>' .
+           '<button id="proceed-button-flashmsg" class="btn btn-outline-warning">proceed</button>';
+
+        return $message;
+    }
+}
 
 //i скрипт проверяет логи если в логах появилась новая ззапись если да,
 // то пишем ее айди в отдельную таблицу и отправляем пользователю has_changes

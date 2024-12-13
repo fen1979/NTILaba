@@ -540,7 +540,7 @@ PAGE_FOOTER($page); ?>
             console.log(response);
         });
 
-        // выбор произвольного имени для номера запчасти
+        //i выбор произвольного имени для данной запчасти
         // например имя которое дал клиент
         dom.in("change", "#owner-pn-list", function () {
             if (this.value === 'custom') {

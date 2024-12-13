@@ -192,7 +192,7 @@ class Management
      */
     public static function createUpdateRoutAction($post, $user): void
     {
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
 
         if (isset($post['rout-action-editing'])) {
             $routAction = R::load(ROUTE_ACTION, _E($post['rout-action-editing']));
@@ -264,7 +264,7 @@ class Management
      */
     public static function addOrUpdateUsersData($post, $thisUser): void
     {
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
         $name = $post['name'];
         $email = $post['email'];
         $phone = $post['phone'] ?? null;
@@ -366,7 +366,7 @@ class Management
      */
     public static function createUpdateTools($post, $files, $user): void
     {
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
         $log_details = '';
         /* $imagePath = [0] -> path to file, [1] -> errors, [2] -> statment true/false */
         if (isset($post['tools-editing']) && isset($post['tool_id'])) {

@@ -70,7 +70,7 @@ class TaskManager
 
     public static function createNewTask($post, $user): void
     {
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
 
         try {
             $task = R::dispense(TASKS);
@@ -97,7 +97,7 @@ class TaskManager
 
     public static function updateTask($post, $user): void
     {
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
         try {
             $task = R::load(TASKS, $post['task-id']);
             $task->task_name = $post['task_name'];
@@ -126,7 +126,7 @@ class TaskManager
 
     public static function createNewTasksList($post, $user): void
     {
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
         //Get the values from form and save it in variables
         $list_name = $_POST['list_name'];
         $list_description = $_POST['list_description'];
@@ -145,7 +145,7 @@ class TaskManager
 
     public static function updateTasksList($post, $user): void
     {
-        $post = checkPostDataAndConvertToArray($post);
+        $post = checkDataAndConvertToArray($post);
 
         try {
             $list_id = $_POST['update'];

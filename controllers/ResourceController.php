@@ -172,16 +172,16 @@ class ResourceController
      * SR::getResourceValue('group1', 'key1');
      * @param $group
      * @param $key
-     * @param bool $detail
+     * @param bool $getdetails
      * @return string
      */
-    public static function getResourceValue($group, $key, bool $detail = false): mixed
+    public static function getResourceValue($group, $key, bool $getdetails = false): mixed
     {
         $group = ($key == 'date_in') ? 'global' : $group;
         //$groupName = self::$groupName ?: $group;
         $o = R::findOne(self::RESOURCES, 'group_name = ? AND key_name = ?', [$group, $key]);
         if ($o)
-            return !$detail ? $o->value : [$o->value, $o->detail];
+            return !$getdetails ? $o->value : [$o->value, $o->detail];
         else
             return '';
     }

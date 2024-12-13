@@ -114,6 +114,7 @@ $r->addRout('/chat-handler', 'chat/chat-handler.php', true);
 
 
 $r->addRout('/fvlihlsilsi', 'test.php', true);
+$r->addRout('/wiki/rename', 'test.php', true);
 
 
 // call the routing function to view page

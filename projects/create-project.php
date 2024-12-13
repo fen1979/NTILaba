@@ -2,7 +2,7 @@
 EnsureUserIsAuthenticated($_SESSION, 'userBean');
 $page = 'new_project';
 $user = $_SESSION['userBean'];
-$id = null;
+$id = $project = null;
 $buttonSave = 'Create Project';
 $disabled = 'disabled';
 $backButton = '/';
@@ -63,6 +63,15 @@ if (isset($_GET["pid"]) && isset($_GET['mode']) && $_GET['mode'] == "editmode" &
     $id = $project->id;
 }
 
+// back from customer creating
+if (isset($_GET['back-from']) && $_GET['back-from'] == 'cpc') {
+    $get = checkDataAndConvertToArray($_GET);
+    $cl = R::load(CLIENTS, $get['clid']);
+    $project['customername'] = $cl['name'];
+    $project['customerid'] = $cl['id'];
+    $project['priority'] = $cl['priority'];
+    $project['headpay'] = $cl['head_pay'];
+}
 // TODO fixme
 // код для работы по клонированию проектов
 //function copyFileToDirectory($filePath, $destinationDir): string
@@ -247,13 +256,14 @@ if ($backButton == '/') {
                            value="<?= (!empty($project['customerid'])) ? $project['customerid'] : set_value('customerId'); ?>">
                 </div>
                 <div class="col-3">
-                    <?php $href = "/create_client?routed-from=create-project"; ?>
-                    <a role="button" class="btn btn-outline-diliny form-control" id="createCustomer" href="<?= $href ?>">
+                    <button type="button" class="btn btn-outline-diliny form-control" id="createCustomer">
                         Add New Customer
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
+
+
         <!--i CUSTOMER PRIORITY AND HEAD PAY -->
         <div class="mb-3">
             <div class="row">

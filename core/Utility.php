@@ -564,7 +564,7 @@ function _empty(mixed $value, mixed $callBack): mixed
  * @param bool $auto_hide
  * @return void
  */
-function _flashMessage($text, string $color = 'success', bool $auto_hide = true): void
+function _flashMessage($text, string $color = 'success', bool $auto_hide = true, $act = 'ok'): void
 {
     // Инициализируем массив сообщений, если он не существует
     if (empty($_SESSION['flash_messages'])) {
@@ -587,22 +587,22 @@ function _flashMessage($text, string $color = 'success', bool $auto_hide = true)
  * If an element is an array, the function is applied recursively to sanitize
  * all nested elements. Non-array elements are sanitized using the _E() function.
  *
- * @param array $post The associative array containing POST data to be sanitized.
+ * @param array $data The associative array containing POST data to be sanitized.
  *
  * @return array The sanitized array, where each element has been processed to
  *               ensure it is safe. Nested arrays are also recursively sanitized.
  */
-function checkPostDataAndConvertToArray(array $post): array
+function checkDataAndConvertToArray(array $data): array
 {
-    $postDataArray = [];
-    foreach ($post as $key => $item) {
+    $DataArray = [];
+    foreach ($data as $key => $item) {
         if (is_array($item)) {
-            $postDataArray[$key] = checkPostDataAndConvertToArray($item);
+            $DataArray[$key] = checkDataAndConvertToArray($item);
         } else {
-            $postDataArray[$key] = _E($item);
+            $DataArray[$key] = _E($item);
         }
     }
-    return $postDataArray;
+    return $DataArray;
 }
 
 /**

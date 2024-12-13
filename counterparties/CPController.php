@@ -5,32 +5,6 @@
  */
 class CPController
 {
-    private static function backDataToRoutedPage(array $get, array $urlData): string
-    {
-        // routed from create project page
-        $newUrl = '';
-        if (isset($get['routed-from'])) {
-            $url = 'customer_name=' . urlencode($urlData->name) . '&priority=' . urlencode($urlData->priority) .
-                '&customer_id=' . urlencode($urlData->id);
-
-            switch ($get['routed-from']) {
-                // back to project creation page with parameters
-                case 'create-project':
-                    $newUrl = "Location: new_project?$url";
-                    break;
-                // back to order creation page with parameters
-                case 'create-order':
-                    $newUrl = "Location: new_order?$url";
-                    break;
-            }
-        }
-        return $newUrl;
-    }
-
-    /*========================================================== PRIVATE =====================================================================*/
-    /*========================================================================================================================================*/
-    /*========================================================== PUBLIC ======================================================================*/
-
     /**
      * CREATION NEW SUPPLIER/MANUFACTURER FROM MODAL WINDOW ON PAGES arrival, in-out-item
      * @param $post
@@ -64,27 +38,49 @@ class CPController
     }
 
     /**
-     * - Добавление нового клиента
+     * - Добавление нового или обновление данных клиента
      * @param $get
      * @param $post
      * @param $user
      * @return array
      * @throws \RedBeanPHP\RedException\SQL
      */
-    public static function createCustomer($get, $post, $user): array
+    public static function CustomerInformation($get, $post, $user): array
     {
-        $post = checkPostDataAndConvertToArray($post);
-
+        $post = checkDataAndConvertToArray($post);
+        $get = checkDataAndConvertToArray($get);
         $extraPhones = ['phone_1' => $post['extraPhone_1'] ?? '', 'phone_2' => $post['extraPhone_2'] ?? ''];
         $extraContact = ['contact_1' => $post['extraContact_1'] ?? '', 'contact_2' => $post['extraContact_2'] ?? ''];
         $extraEmail = ['email_1' => $post['extraEmail_1'] ?? '', 'email_2' => $post['extraEmail_2'] ?? ''];
-
         $name = $post['customerName'];
-        $priority = $post['priorityMakat'];
+        $priority = $post['priorityMakat'] ?? '0';
 
-        $c = R::dispense(CLIENTS);
+        // Check if customer exists in DB by name
+        $existingCustomer = R::findOne(CLIENTS, 'name = ?', [$name]);
+
+        if ($existingCustomer) {
+            $flash = 'Customer Updated successfully!';
+            if ($existingCustomer->phone == $post['phone'] && $existingCustomer->email == $post['email']) {
+                // Update existing customer
+                $c = $existingCustomer;
+            } else {
+                if(!isset($post['proceedUpdating'])) {
+                    _flashMessage(listeners::ActionProceed(), 'danger', false);
+                    return [null];
+                }else{
+                    $c = $existingCustomer;
+                }
+            }
+
+        } else {
+            $flash = 'Customer Saved successfully!';
+            // Create new customer
+            $c = R::dispense(CLIENTS);
+            $c->date_in = str_replace('T', ' ', $post['date_in']); // Set creation date
+        }
+
         $c->name = $name;
-        $c->head_pay = $post['headPay'];
+        $c->head_pay = $post['headPay'] ?? '0';
         $c->priority = $priority;
         $c->address = $post['address'] ?? '';
         $c->phone = $post['phone'] ?? '';
@@ -94,88 +90,35 @@ class CPController
         $c->extra_contact = json_encode($extraContact);
         $c->extra_email = json_encode($extraEmail);
         $c->information = $post['information'] ?? '';
-        $c->date_in = str_replace('T', ' ', $post['date_in']); // дата создания clienta
         $id = R::store($c);
 
-        _flashMessage('Customer Saved successfully!');
-
+        // если клиент был создан при создании заказа/проекта
         if ($get != null) {
-            // if routed from order or project pages back data to page
-            $urlData['id'] = $id;
-            $urlData['name'] = $name;
-            $urlData['priority'] = $priority;
-            // если клиент был создан при создании заказа/проекта
             // здесь создается обратный путь с новыми данными для заполнения полей
-            $args['location'] = self::backDataToRoutedPage($get, $urlData);//
+            switch ($get['routed-from']) {
+                // back to project creation page with parameters
+                case 'create-project':
+                    $url = "new_project?back-from=cpc&clid=$id";
+                    break;
+                // back to order creation page with parameters
+                case 'create-order':
+                    $url = "new_order?back-from=cpc&clid=$id";
+                    break;
+            }
+            // переход по созданной ссылку
+            redirectTo($url);
         } else {
             $args['customer_id'] = $id;
         }
         /* [     LOGS FOR THIS ACTION     ] */
-        $details = "Customer name: $name, was created in: {$post['dateIn']} <br>";
+        $details = "Customer name: $name, was created in: {$post['date_in']} <br>";
         if (isset($get['routed-from']))
             $details .= "Creation initiated from {$get['routed-from']}";
         if (!logAction($user['user_name'], 'CREATION', OBJECT_TYPE[13], $details)) {
             _flashMessage('Error! log creation!', 'danger');
         }
 
+        _flashMessage($flash . '-' . $id);
         return $args;
-    }
-
-    /**
-     * - Обновление данных клиента
-     * @param $post
-     * @param $user
-     * @return void
-     * @throws \RedBeanPHP\RedException\SQL
-     */
-    public static function updateCustomerData($post, $user): void
-    {
-        $post = checkPostDataAndConvertToArray($post);
-
-        $extraPhones = ['phone_1' => $post['extraPhone_1'] ?? '', 'phone_2' => $post['extraPhone_2'] ?? ''];
-        $extraContact = ['contact_1' => $post['extraContact_1'] ?? '', 'contact_2' => $post['extraContact_2'] ?? ''];
-        $extraEmail = ['email_1' => $post['extraEmail_1'] ?? '', 'email_2' => $post['extraEmail_2'] ?? ''];
-
-        $name = $post['customerName'];
-        $priority = $post['priorityMakat'];
-        $c = null;
-        // Проверяем, состоит ли строка только из чисел
-        if (isset($post['cuid']) && ctype_digit($post['cuid'])) {
-            $c = R::load(CLIENTS, $post['cuid']);
-        } else {
-            _flashMessage('Customer ID is not correct !!!', 'danger');
-        }
-        // data before update
-        //$before = $c->export();
-
-        $c->name = $name;
-        $c->head_pay = $post['headPay'];
-        $c->priority = $priority;
-        $c->address = $post['address'];
-        $c->phone = $post['phone'];
-        $c->contact = $post['contact'];
-        $c->email = $post['email'];
-        $c->extra_phone = json_encode($extraPhones);
-        $c->extra_contact = json_encode($extraContact);
-        $c->extra_email = json_encode($extraEmail);
-        $c->information = $post['information'];
-        $c->date_in = $post['dateIn'];
-        $id = R::store($c);
-
-        // data after update
-        //$after = $c->export();
-        // json_encode($before, JSON_UNESCAPED_UNICODE);
-        // json_encode($after, JSON_UNESCAPED_UNICODE);
-// fixme сделать правильное логирование
-        // message collector (text/ color/ auto_hide = true)
-        _flashMessage('Customer Updated successfully!');
-
-        /* [     LOGS FOR THIS ACTION     ] */
-        $details = "Customer name: $name, was updated <br>";
-
-        if (!logAction($user['user_name'], 'CREATION', OBJECT_TYPE[13], $details)) {
-            // message collector (text/ color/ auto_hide = true)
-            _flashMessage('Error! log creation!', 'danger');
-        }
     }
 }
